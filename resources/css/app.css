@@ -1,0 +1,72 @@
+.background-color{
+    background-color: #B5C99A;
+}
+.text-color-1{
+    color: #4A4A4A;
+}
+.color-2{
+    color:#718355;
+}
+.color-3{
+    color: #E5F9DB;
+}
+.color-4{
+    color: #97A97C;
+}
+
+.color-background1{
+    background-color: #E5F9DB;
+}
+.color-background2{
+    background-color: #4A4A4A;
+}
+.color-background3{
+    background-color: #fff;
+}
+.color-background4{
+    background-color: #B5C99A;
+}
+.color-background5{
+    background-color: #97A97C;
+}
+
+/* FONTS */
+
+.font-paragraph{
+    font-family: "Montserrat", serif;
+}
+
+.font-heading{
+    font-family:  "Poppins", serif;
+}
+
+/* Border-Radius */
+.rounded-start-50{
+    border-top-left-radius: 30px !important;
+    border-bottom-left-radius: 30px !important;
+}
+.rounded-topright-50{
+    border-top-left-radius: 30px !important;
+}
+/* Hover Effect */
+
+.text-hover:hover{
+    color: #4A4A4A !important;
+    background-color: #fff;
+    border-top-left-radius: 50px;
+    border-bottom-left-radius: 50px;
+    width: 150% !important;
+    transition: all 0.5s ease-out ;
+}
+/* POSITION */
+
+.start-25{
+    left: 25% !important;
+}
+
+/* Negative Padding */
+
+.negative-padding-15{
+    padding-top: -100px;
+}
+
