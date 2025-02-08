@@ -8,6 +8,28 @@
     <title>Dashboard</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
+<style>
+    .slider-container {
+        overflow-x: auto;
+        scroll-behavior: smooth;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        padding: 10px;
+        border-radius: 10px;
+    }
+    .slider::-webkit-scrollbar {
+        display: none;
+    }
+    .slider {
+        display: flex;
+        gap: 20px;
+    }
+    .slider-item {
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+    }
+</style>
 <body class="color-background5">
     <div class="container-fluid">
         <div class="row h-100">
@@ -68,49 +90,108 @@
                     <div class="p-5 position-relative ">
                         <!-- Box -->
                         <div class="color-background4 p-5 rounded-5">
-                            <h1 class="text-color-1 font-heading fw-bold">Welcome, Admin</h1>
-                            <p class="text-color-1 font-paragraph mt-1">This is your dashboard</p>
+                            <h1 class="text-color-1 font-heading fw-bold">Welcome, {{ Auth::user()->name }}</h1>
+                            <p class="text-color-1 font-paragraph position-absolute fst-italic" id="quote" style="max-height: 220px;"></p>
+                            <script>
+                                const quotes = [
+                                    `"Success is not the key to happiness. Happiness is the key to success."`,
+                                    "Hard work beats talent when talent doesn’t work hard.",
+                                    "Strive not to be a success, but rather to be of value.",
+                                    "Efficiency is doing things right; effectiveness is doing the right things.",
+                                    "Hard work beats talent when talent doesn’t work hard"
+                                ];
+                                let index = 0;
+                                let charIndex = 0;
+                                let currentQuote = '';
+                                let isDeleting = false;
+
+                                function typeQuote() {
+                                    const quoteElement = document.getElementById("quote");
+                                    
+                                    if (!isDeleting && charIndex < quotes[index].length) {
+                                        currentQuote += quotes[index].charAt(charIndex);
+                                        charIndex++;
+                                        quoteElement.textContent = currentQuote;
+                                        setTimeout(typeQuote, 100);
+                                    } else if (isDeleting) {
+                                        currentQuote = currentQuote.substring(0, charIndex - 1);
+                                        charIndex--;
+                                        quoteElement.textContent = currentQuote;
+                                        setTimeout(typeQuote, 50);
+                                        
+                                        if (charIndex === 0) {
+                                            isDeleting = false;
+                                            index = (index + 1) % quotes.length;
+                                        }
+                                    } else {
+                                        isDeleting = true;
+                                        setTimeout(typeQuote, 2000);
+                                    }
+                                }
+
+                                typeQuote(); // Initial call to start typing effect
+                            </script>
                         </div>
 
                         <!-- Image (Outside the box but aligned) -->
-                        <div class="position-absolute top-0 end-0 translate-middle-y me-4" style="margin-right: -100px; margin-top: 130px;">
+                        <div class="position-absolute top-0 end-0 translate-middle-y me-4" style="margin-right: -100px; margin-top: 90px;">
                             <img src="{{ asset('images/welcomeImg.png') }}" class="img-fluid" style="max-width: 220px; height: auto;" alt="Profile">
                         </div>
                     </div>
 
                     <div class="ps-5 pe-5 pt-2">
-                        <div class="color-background1 p-4 mt-1 rounded-5 overflow-x-auto">
-                            <div class="d-flex gap-4 w-max">
-                                <!-- TOTAL BOOKINGS -->
-                                <div class="color-background4 p-4 w-auto h-auto d-flex align-items-center gap-3 rounded-4">
-                                    <i class="fas fa-calendar-check fs-1"></i>
-                                    <div>
-                                        <h1 class="text-color-1 font-heading fw-bold fs-5">Total Bookings</h1>
-                                        <p class="text-color-1 font-paragraph mt-1">10,000</p>
+                        <div class="color-background1 p-4 mt-1 rounded-5 overflow-hidden">
+                            <div class="slider-container position-relative">
+                                <div class="slider d-flex gap-4">
+                                    <!-- TOTAL BOOKINGS -->
+                                    <div class="color-background4 p-4 w-auto h-auto d-flex align-items-center gap-3 rounded-4">
+                                        <i class="fas fa-calendar-check fs-1"></i>
+                                        <div>
+                                            <h1 class="text-color-1 font-heading fw-bold fs-5">Total Bookings</h1>
+                                            <p class="text-color-1 font-paragraph mt-1">10,000</p>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <!-- TOTAL GUESTS -->
-                                <div class="color-background4 p-4 w-auto h-auto d-flex align-items-center gap-3 rounded-4">
-                                    <i class="fa-solid fa-users fs-1"></i>
-                                    <div>
-                                        <h1 class="text-color-1 font-heading fw-bold fs-5">Total Guests</h1>
-                                        <p class="text-color-1 font-paragraph mt-1">10,000</p>
+                                    <!-- TOTAL GUESTS -->
+                                    <div class="color-background4 p-4 w-auto h-auto d-flex align-items-center gap-3 rounded-4">
+                                        <i class="fa-solid fa-users fs-1"></i>
+                                        <div>
+                                            <h1 class="text-color-1 font-heading fw-bold fs-5">Total Guests</h1>
+                                            <p class="text-color-1 font-paragraph mt-1">10,000</p>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <!-- TOTAL GUESTS -->
-                                <div class="color-background4 p-4 w-auto h-auto d-flex align-items-center gap-3 rounded-4">
-                                    <i class="fa-solid fa-money-bill-trend-up fs-1"></i>
-                                    <div>
-                                        <h1 class="text-color-1 font-heading fw-bold fs-5">Total Revenue</h1>
-                                        <p class="text-color-1 font-paragraph mt-1">10,000</p>
+                                    <!-- TOTAL REVENUE -->
+                                    <div class="color-background4 p-4 w-auto h-auto d-flex align-items-center gap-3 rounded-4">
+                                        <i class="fa-solid fa-money-bill-trend-up fs-1"></i>
+                                        <div>
+                                            <h1 class="text-color-1 font-heading fw-bold fs-5">Total Revenue</h1>
+                                            <p class="text-color-1 font-paragraph mt-1">10,000</p>
+                                        </div>
+                                    </div>
+                                    <!-- TOTAL REVENUE -->
+                                    <div class="color-background4 p-4 w-auto h-auto d-flex align-items-center gap-3 rounded-4">
+                                        <i class="fa-solid fa-money-bill-trend-up fs-1"></i>
+                                        <div>
+                                            <h1 class="text-color-1 font-heading fw-bold fs-5">Total Revenue</h1>
+                                            <p class="text-color-1 font-paragraph mt-1">10,000</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
+
+                    <!-- Charts and Graphs -->
+                     <div class="p-3"> 
+                        <div class="p-3 mt-3">
+                            <div class="color-background1 p-4 mt-1 rounded-5 overflow-hidden">
+                                <h1 class="font-heading fw-bold text-color-1 fs-3 ">Revenue</h1>
+                                <div class="chart-container">
+                                    <canvas id="revenueChart"></canvas>
+                                </div>
+                            </div>
+                     </div>
                 </div>
             </div>
         </div>
@@ -118,16 +199,34 @@
 
     <!-- SCRIPTS -->
     <script>
-        const sidebar = document.getElementById("sidebar");
-        const resortName = document.getElementById("resort-name");
-        const toggleSidebarButton = document.getElementById("toggle-sidebar");
-        const mainContent = document.getElementById("main-content");
+        document.addEventListener('DOMContentLoaded', function () {
+            const slider = document.querySelector('.slider-container');
+            let isDown = false;
+            let startX;
+            let scrollLeft;
 
-        const toggleSidebar = () => {
-            sidebar.classList.toggle("collapsed");
-            resortName.classList.toggle("hidden");
-            mainContent.classList.toggle("expanded");
-        };
+            slider.addEventListener('mousedown', (e) => {
+                isDown = true;
+                startX = e.pageX - slider.offsetLeft;
+                scrollLeft = slider.scrollLeft;
+            });
+
+            slider.addEventListener('mouseleave', () => {
+                isDown = false;
+            });
+
+            slider.addEventListener('mouseup', () => {
+                isDown = false;
+            });
+
+            slider.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - slider.offsetLeft;
+                const walk = (x - startX) * 2;
+                slider.scrollLeft = scrollLeft - walk;
+            });
+        });
     </script>
 </body>
 </html>
