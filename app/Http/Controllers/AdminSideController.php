@@ -9,4 +9,8 @@ class AdminSideController extends Controller
     public function dashboard(){
         return view('AdminSide.dashboard');
     }
+
+    public function sidenav(){
+        return view('AdminSide.sidenavbar');
+    }
 }
