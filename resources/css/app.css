@@ -69,3 +69,35 @@
 .negative-padding-15 {
     padding-top: -100px;
 }
+
+/* activity image */
+.activity-img {
+    height: 450px; /* Adjust height as needed */
+    object-fit: cover; /* Ensures images maintain aspect ratio without distortion */
+    border-radius: 10px; /* Optional: Rounds corners */
+}
+/* testimonial-image */
+.testimonial-img {
+    width: 100%; /* Ensures the image is responsive */
+    max-width: auto; /* Controls the max width */
+    height: 450px; /* Sets a uniform height */
+    object-fit: cover; /* Ensures images don’t stretch */
+    border-radius: 10px; /* Optional: Rounds the image corners */
+}
+.custom-gap {
+    gap: 200px; /* Custom gap value */
+}
+
+.custom-move {
+    position: absolute;
+    right: 100px;
+    margin-bottom: 250px;
+}
+.custom-move-b {
+    position: absolute;
+    left: 44%; /* Adjust this value to move horizontally */
+}
+
+.custom-mt-5 {
+    margin-top: 230px !important; /* Adding !important to force the style */
+}
