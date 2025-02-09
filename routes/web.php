@@ -8,6 +8,8 @@ use Illuminate\Support\Str;
 use App\Http\Controllers\AdminSideController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\GoogleAuthController;
+use App\Http\Controllers\LandingPageController;
+use App\Http\Controllers\HomePageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,6 +23,10 @@ use App\Http\Controllers\GoogleAuthController;
 */
 /* LOGIN */
 Route::get('/login', [LoginController::class, 'login'])->name('login');
+/*Landing page/index */
+Route::get('/landingpage', [LandingPageController::class, 'index']);
+/*homepage page/index */
+Route::get('/homepage', [HomePageController::class, 'index']);
 
 Route::get('/auth/google/redirect',[GoogleAuthController::class, 'redirect'])->name('google.redirect');
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback']);
