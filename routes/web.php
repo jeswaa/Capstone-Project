@@ -22,8 +22,16 @@ use App\Http\Controllers\GoogleAuthController;
 /* LOGIN */
 Route::get('/login', [LoginController::class, 'login'])->name('login');
 
+// SIGNUP
+
+
 Route::get('/auth/google/redirect',[GoogleAuthController::class, 'redirect'])->name('google.redirect');
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback']);
 
-
+// ADMIN ROUTES
 Route::get('/dashboard', [AdminSideController::class, 'dashboard'])->name('dashboard');
+Route::get('/reservations', [AdminSideController::class, 'reservations'])->name('reservations');
+Route::get('/guests', [AdminSideController::class, 'guests'])->name('guests');
+Route::get('/transactions', [AdminSideController::class, 'transactions'])->name('transactions');
+Route::get('reports', [AdminSideController::class, 'reports'])->name('reports');
+Route::get('/logout', [AdminSideController::class, 'logout'])->name('logout');

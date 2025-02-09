@@ -1,72 +1,71 @@
-.background-color{
-    background-color: #B5C99A;
+.background-color {
+    background-color: #b5c99a;
 }
-.text-color-1{
-    color: #4A4A4A;
+.text-color-1 {
+    color: #4a4a4a;
 }
-.color-2{
-    color:#718355;
+.color-2 {
+    color: #718355;
 }
-.color-3{
-    color: #E5F9DB;
+.color-3 {
+    color: #e5f9db;
 }
-.color-4{
-    color: #97A97C;
+.color-4 {
+    color: #97a97c;
 }
 
-.color-background1{
-    background-color: #E5F9DB;
+.color-background1 {
+    background-color: #e5f9db;
 }
-.color-background2{
-    background-color: #4A4A4A;
+.color-background2 {
+    background-color: #4a4a4a;
 }
-.color-background3{
+.color-background3 {
     background-color: #fff;
 }
-.color-background4{
-    background-color: #B5C99A;
+.color-background4 {
+    background-color: #b5c99a;
 }
-.color-background5{
-    background-color: #97A97C;
+.color-background5 {
+    background-color: #97a97c;
 }
 
 /* FONTS */
 
-.font-paragraph{
-    font-family: "Montserrat", serif;
+.font-paragraph {
+    font-family: "Montserrat", serif !important;
 }
 
-.font-heading{
-    font-family:  "Poppins", serif;
+.font-heading {
+    font-family: "Poppins", serif !important;
 }
 
 /* Border-Radius */
-.rounded-start-50{
+.rounded-start-50 {
     border-top-left-radius: 30px !important;
     border-bottom-left-radius: 30px !important;
 }
-.rounded-topright-50{
+.rounded-topright-50 {
     border-top-left-radius: 30px !important;
 }
 /* Hover Effect */
 
-.text-hover:hover{
-    color: #4A4A4A !important;
+.text-hover:hover {
+    color: #4a4a4a !important;
     background-color: #fff;
     border-top-left-radius: 50px;
     border-bottom-left-radius: 50px;
     width: 150% !important;
-    transition: all 0.5s ease-out ;
+    transition: all 0.5s ease-out;
 }
 /* POSITION */
 
-.start-25{
+.start-25 {
     left: 25% !important;
 }
 
 /* Negative Padding */
 
-.negative-padding-15{
+.negative-padding-15 {
     padding-top: -100px;
 }
-

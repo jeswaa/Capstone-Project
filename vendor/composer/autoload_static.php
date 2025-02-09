@@ -568,6 +568,7 @@ class ComposerStaticInit9c491b8531eec05ba41a11d9276a5749
         'App\\Exceptions\\Handler' => __DIR__ . '/../..' . '/app/Exceptions/Handler.php',
         'App\\Http\\Controllers\\AdminSideController' => __DIR__ . '/../..' . '/app/Http/Controllers/AdminSideController.php',
         'App\\Http\\Controllers\\Controller' => __DIR__ . '/../..' . '/app/Http/Controllers/Controller.php',
+        'App\\Http\\Controllers\\GoogleAuthController' => __DIR__ . '/../..' . '/app/Http/Controllers/GoogleAuthController.php',
         'App\\Http\\Controllers\\LoginController' => __DIR__ . '/../..' . '/app/Http/Controllers/LoginController.php',
         'App\\Http\\Controllers\\ReservationController' => __DIR__ . '/../..' . '/app/Http/Controllers/ReservationController.php',
         'App\\Http\\Controllers\\SignUpController' => __DIR__ . '/../..' . '/app/Http/Controllers/SignUpController.php',

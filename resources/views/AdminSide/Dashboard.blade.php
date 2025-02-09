@@ -33,6 +33,7 @@
 <body class="color-background5">
     <div class="container-fluid">
         <div class="row h-100">
+            @include('Alert.loginSucess')
             <!-- SIDEBAR -->
             @include('Navbar.sidenavbar')
 

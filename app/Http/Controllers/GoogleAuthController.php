@@ -22,15 +22,15 @@ class GoogleAuthController extends Controller
         $user = User::updateOrCreate(
             ['google_id' => $googleUser->id],
             [
-                'name' =>$googleUser->name,
+                'name' => $googleUser->name,
                 'email' => $googleUser->email,
-                'password' => Str::password(12),
-                'email_verified_at'=>now()
+                'password' => Str::random(12),
+                'email_verified_at' => now()
             ]
         );
+
         Auth::login($user);
-    
-        return redirect('/dashboard');
-        dd($user);
+
+        return redirect('/dashboard')->with('success', 'Logged in successfully!');
     }
 }
