@@ -10,6 +10,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\HomePageController;
+use App\Http\Controllers\SignupController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,13 +24,15 @@ use App\Http\Controllers\HomePageController;
 */
 /* LOGIN */
 Route::get('/login', [LoginController::class, 'login'])->name('login');
+Route::post('/login/authenticate', [LoginController::class, 'authenticate'])->name('login.authenticate');
 /*Landing page/index */
-Route::get('/landingpage', [LandingPageController::class, 'index']);
+Route::get('/', [LandingPageController::class, 'index']);
 /*homepage page/index */
-Route::get('/homepage', [HomePageController::class, 'index']);
+Route::get('/homepage', [HomePageController::class, 'homepage'])->name('homepage');
 
 // SIGNUP
-
+Route::get('/signup', [SignUpController::class, 'signup'])->name('signup');
+Route::post('/signup/store', [SignUpController::class, 'store'])->name('signup.store');
 
 Route::get('/auth/google/redirect',[GoogleAuthController::class, 'redirect'])->name('google.redirect');
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback']);

@@ -9,6 +9,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>
+    @include('Alert.loginSuccessUser')
 <section style="background-color: #E5F9DB;">
     <!-- Hero Section with Background -->
     <div class="hero vh-100 d-flex flex-column justify-content-center align-items-center text-center text-light position-relative "
