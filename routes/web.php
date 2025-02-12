@@ -24,7 +24,7 @@ use App\Http\Controllers\HomePageController;
 /* LOGIN */
 Route::get('/login', [LoginController::class, 'login'])->name('login');
 /*Landing page/index */
-Route::get('/landingpage', [LandingPageController::class, 'index']);
+Route::get('/', [LandingPageController::class, 'index']);
 /*homepage page/index */
 Route::get('/homepage', [HomePageController::class, 'index']);
 
