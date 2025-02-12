@@ -11,7 +11,9 @@
 <body>
     <h1>Login</h1>
     @include('Alert.logoutSuccess')
-    <form action="{{ route('login') }}" method="POST">
+    @include('Alert.createAccountSuccess')
+    @include('Alert.errorLogin')
+    <form action="{{ route('login.authenticate') }}" method="POST">
         @csrf
         <label for="email">Email:</label>
         <input type="email" id="email" name="email" required>
@@ -27,4 +29,8 @@
 
     </form>
 </body>
+    <br>
+    <a href="{{ route('signup') }}" class="btn btn-primary">
+        Don't have an account? Sign up here
+    </a>
 </html>
