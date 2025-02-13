@@ -10,6 +10,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\HomePageController;
+use App\Http\Controllers\SignUpController;
 
 /*
 |--------------------------------------------------------------------------
