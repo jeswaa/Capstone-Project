@@ -11,6 +11,7 @@ use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\HomePageController;
 use App\Http\Controllers\SignupController;
+use App\Http\Controllers\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,11 +26,16 @@ use App\Http\Controllers\SignupController;
 /* LOGIN */
 Route::get('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/login/authenticate', [LoginController::class, 'authenticate'])->name('login.authenticate');
-/*Landing page/index */
-Route::get('/', [LandingPageController::class, 'index']);
-/*homepage page/index */
-Route::get('/homepage', [HomePageController::class, 'homepage'])->name('homepage');
 
+//*Landing page/index */
+Route::get('/', [LandingPageController::class, 'index']);
+
+//*homepage page/index */
+Route::get('/homepage', [HomePageController::class, 'homepage'])->name('homepage');
+// Add this route for profile
+Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+// Add this route for updating profile
+Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
 // SIGNUP
 Route::get('/signup', [SignUpController::class, 'signup'])->name('signup');
 Route::post('/signup/store', [SignUpController::class, 'store'])->name('signup.store');
