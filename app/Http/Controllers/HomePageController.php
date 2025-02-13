@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 
 class HomePageController extends Controller
 {
-    public function index()
+    public function homepage()
     {
         return view('Frontend.homepage'); // Ensure 'homepage' matches your blade file name
     }

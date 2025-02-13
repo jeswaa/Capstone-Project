@@ -149,6 +149,26 @@
 }
     </style>
 </head>
+<body>
+    <h1>Login</h1>
+    @include('Alert.logoutSuccess')
+    @include('Alert.createAccountSuccess')
+    @include('Alert.errorLogin')
+    <form action="{{ route('login.authenticate') }}" method="POST">
+        @csrf
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+        <br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        <br>
+        <button type="submit">Login</button>
+        <br>
+        <a href="{{ route('google.redirect') }}" class="btn btn-google">
+            Login with Google
+        </a>
+
+    </form>
 <body class="background-color">
     <div class="back-arrow" onclick="window.history.back()">
         <i class="fa-solid fa-arrow-turn-up"></i>
@@ -184,4 +204,8 @@
 
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
 </body>
+    <br>
+    <a href="{{ route('signup') }}" class="btn btn-primary">
+        Don't have an account? Sign up here
+    </a>
 </html>
