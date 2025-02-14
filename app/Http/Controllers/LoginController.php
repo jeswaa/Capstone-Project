@@ -18,6 +18,11 @@ class LoginController extends Controller
 
     public function authenticate(Request $request)
     {
+        // Check if user is already authenticated
+        if (Auth::check()) {
+            return redirect()->intended('homepage')->with('loginsuccess', 'Welcome, ' . Auth::user()->name . '!');
+        }
+
         // Validate input fields
         $request->validate([
             'email' => 'required|email',
@@ -32,8 +37,11 @@ class LoginController extends Controller
             // Store user in session
             Session::put('user', $user->id);
             Session::put('user_email', $user->email);
-            
-            return redirect()->intended('homepage');
+            Session::put('user_name', $user->name);
+            Session::put('user_mobile', $user->mobileNo);
+            Session::put('user_address', $user->address);
+
+            return redirect()->intended('homepage')->with('loginsuccess', 'Welcome, ' . $user->name . '!');
         }
 
         // Return an error if authentication fails
@@ -41,11 +49,6 @@ class LoginController extends Controller
             return back()->with('errorlogin', 'User with this email does not exist.')->withInput($request->only('email'));
         } elseif (!Hash::check($request->password, $user->password)) {
             return back()->with('errorlogin', 'The provided credentials do not match our records.')->withInput($request->only('email'));
-        } else {
-            // Successful login, set session and redirect
-            Session::put('user', $user->id);
-            Session::put('user_email', $user->email);
-            return redirect()->intended('homepage')->with('loginsuccess', 'Welcome, ' . $user->name . '!');
         }
     }
 }

@@ -14,6 +14,10 @@ class AdminSideController extends Controller
         return view('AdminSide.reservation');
     }
 
+    public function roomAvailability(){
+        return view('AdminSide.roomAvailability');
+    }
+
     public function guests(){
         return view('AdminSide.guest');
     }

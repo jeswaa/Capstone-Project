@@ -61,7 +61,7 @@
                     <div class="p-5 position-relative ">
                         <!-- Box -->
                         <div class="color-background4 p-5 rounded-5">
-                            <h1 class="text-color-1 font-heading fw-bold">Welcome, {{ Auth::user()->name }}</h1>
+                            <h1 class="text-color-1 font-heading fw-bold">Welcome, people</h1>
                             <p class="text-color-1 font-paragraph position-absolute fst-italic" id="quote" style="max-height: 220px;"></p>
                             <script>
                                 const quotes = [
@@ -100,7 +100,7 @@
                                     }
                                 }
 
-                                typeQuote(); // Initial call to start typing effect
+                                typeQuote();
                             </script>
                         </div>
 

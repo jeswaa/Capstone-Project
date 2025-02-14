@@ -47,4 +47,17 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function personalDetails()
+    {
+        return $this->hasOne(PersonalDetails_Reservation::class);
+    }
+    public function reservation()
+    {
+        return $this->belongsTo(PackageSelectionReservation::class, 'reservation_id', 'id');
+    }
+    public function paymentProcesses()
+    {
+        return $this->hasMany(PaymentProcess::class, 'reservation_id', 'id');
+    }
 }
