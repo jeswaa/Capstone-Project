@@ -1,5 +1,5 @@
 .background-color {
-    background-color: #b5c99a;
+    background-color: #fff;
 }
 .text-color-1 {
     color: #4a4a4a;
@@ -13,7 +13,6 @@
 .color-4 {
     color: #97a97c;
 }
-
 .color-background1 {
     background-color: #e5f9db;
 }
@@ -29,18 +28,15 @@
 .color-background5 {
     background-color: #97a97c;
 }
-
-/* FONTS */
-
+.color-background6 {
+    background-color: #718355;
+}
 .font-paragraph {
     font-family: "Montserrat", serif !important;
 }
-
 .font-heading {
     font-family: "Poppins", serif !important;
 }
-
-/* Border-Radius */
 .rounded-start-50 {
     border-top-left-radius: 30px !important;
     border-bottom-left-radius: 30px !important;
@@ -48,8 +44,6 @@
 .rounded-topright-50 {
     border-top-left-radius: 30px !important;
 }
-/* Hover Effect */
-
 .text-hover:hover {
     color: #4a4a4a !important;
     background-color: #fff;
@@ -58,61 +52,27 @@
     width: 150% !important;
     transition: all 0.5s ease-out;
 }
-
-.hover-underline-animation {
-    display: inline-block;
-    position: relative;
-    color: #4a4a4a;
-}
-.hover-underline-animation:after {
-    content: "";
-    position: absolute;
-    width: 100%;
-    transform: scaleX(0);
-    height: 2px;
-    bottom: 0;
-    left: 0;
-    background-color: #718355;
-    transform-origin: bottom right;
-    transition: transform 0.25s ease-out;
-}
-.hover-underline-animation:hover:after {
-    transform: scaleX(1);
-    transform-origin: bottom left;
-}
-.active {
-    border-bottom: #718355 2px solid;
-}
-/* POSITION */
-
 .start-25 {
     left: 25% !important;
 }
-
-/* Negative Padding */
-
 .negative-padding-15 {
     padding-top: -100px;
 }
-
-/* activity image */
 .activity-img {
-    height: 450px; /* Adjust height as needed */
-    object-fit: cover; /* Ensures images maintain aspect ratio without distortion */
-    border-radius: 10px; /* Optional: Rounds corners */
+    height: 450px;
+    object-fit: cover;
+    border-radius: 10px;
 }
-/* testimonial-image */
 .testimonial-img {
-    width: 100%; /* Ensures the image is responsive */
-    max-width: auto; /* Controls the max width */
-    height: 450px; /* Sets a uniform height */
-    object-fit: cover; /* Ensures images don’t stretch */
-    border-radius: 10px; /* Optional: Rounds the image corners */
+    width: 100%;
+    max-width: auto;
+    height: 450px;
+    object-fit: cover;
+    border-radius: 10px;
 }
 .custom-gap {
-    gap: 200px; /* Custom gap value */
+    gap: 200px;
 }
-
 .custom-move {
     position: absolute;
     right: 100px;
@@ -120,9 +80,61 @@
 }
 .custom-move-b {
     position: absolute;
-    left: 44%; /* Adjust this value to move horizontally */
+    left: 44%;
 }
-
 .custom-mt-5 {
-    margin-top: 230px !important; /* Adding !important to force the style */
+    margin-top: 230px !important;
+}
+.login-container {
+    background-color: #718355;
+    padding: 2rem;
+    border-radius: 10px;
+    width: auto;
+    text-align: center;
+}
+.login-container h1 {
+    color: #4a4a4a;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+}
+.form-control {
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+}
+.btn-primary {
+    background-color: #97a97c;
+    border: none;
+    padding: 0.75rem;
+    border-radius: 5px;
+    width: 100%;
+    font-weight: 500;
+}
+.btn-primary:hover {
+    background-color: #718355;
+}
+.btn-google {
+    background-color: #97a97c;
+    color: white;
+    border: none;
+    padding: 0.75rem;
+    border-radius: 5px;
+    width: 100%;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+.btn-google:hover {
+    background-color: #97a97c;
+}
+.signup-link {
+    color: #97a97c;
+    text-decoration: none;
+    font-weight: 500;
+}
+.signup-link:hover {
+    text-decoration: underline;
 }
