@@ -150,25 +150,6 @@
     </style>
 </head>
 <body>
-    <h1>Login</h1>
-    @include('Alert.logoutSuccess')
-    @include('Alert.createAccountSuccess')
-    @include('Alert.errorLogin')
-    <form action="{{ route('login.authenticate') }}" method="POST">
-        @csrf
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required>
-        <br>
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
-        <br>
-        <button type="submit">Login</button>
-        <br>
-        <a href="{{ route('google.redirect') }}" class="btn btn-google">
-            Login with Google
-        </a>
-
-    </form>
 <body class="background-color">
     <div class="back-arrow" onclick="window.history.back()">
         <i class="fa-solid fa-arrow-turn-up"></i>
@@ -188,7 +169,7 @@
                     <input type="password" class="form-control" id="password" name="password" placeholder="Password..." required>
                 </div>
                 <button type="submit" class="btn btn-custom w-75 mb-3">LOGIN</button>
-                <p class="text-center mt-3 text-color-1">Don't have an account? <a href="#" class="signup-link">Sign Up</a></p>
+                <p class="text-center mt-3 text-color-1">Don't have an account? <a href="{{ route('signup') }}" class="signup-link">Sign Up</a></p>
                 <div class="divider"></div> <!-- Line between buttons -->
                 <a href="{{ route('google.redirect') }}" class="btn btn-google w-75">
                     <i class="fab fa-google google-icon"></i> Sign Up using Google
@@ -205,7 +186,4 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
 </body>
     <br>
-    <a href="{{ route('signup') }}" class="btn btn-primary">
-        Don't have an account? Sign up here
-    </a>
 </html>
