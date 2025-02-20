@@ -6,168 +6,70 @@
     <title>Login - Lelo's Resort</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&family=Poppins:wght@100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
     <style>
-        /* Full-screen layout */
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
-
-        .background-color {
-            background-color: #b5c99a; /* Background color for the entire page */
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .login-container {
-            width: 100%; /* Full width */
-            height: 100vh; /* Full viewport height */
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #b5c99a; /* Background color for the container */
-        }
-
         .login-form {
-    flex: 1;
-    padding: 20px;
-    max-width: 50%;
-    margin-left: 10%;
-    margin-right: 5%; /* Add space between the form and the image */
-}
-
-        .image-container {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100%; /* Full height */
+            width: 100vw;
+            height: 80vh;
         }
-
-        .image-container img {
-            width: 100%; /* Full width of the container */
-            height: 100%; /* Full height of the container */
-            object-fit: cover; /* Ensure the image covers the area without distortion */
-            border-radius: 50PX; /* Remove border radius for full-screen effect */
-            margin-left: 0%
+        .login-center {
+            margin: 0 auto;
         }
-
-        .btn-custom {
-            background-color: #61704A !important;
-            border: none !important;
-            margin-top: 20px !important;
-            color: white !important;
-            padding: 0.75rem !important;
-            border-radius: 20px !important;
-            font-weight: 500 !important;
+        .login-img {
+            height: 95vh;
+            object-position: center;
         }
-
-        .btn-custom:hover {
-            background-color: #53633D !important;
-            color: white !important;
+        .text-hover-effect {
+            background: linear-gradient(to right, currentColor 100%, transparent 100%);
+            margin-top: 10px;
+            background-size: 0% 2px;
+            background-repeat: no-repeat;
+            background-position: 0% 100%;
+            transition: background-size 0.4s ease-in-out;
+            &:hover {
+                background-size: 100% 2px;
+            }
         }
-
-        /* Custom Form Styling */
-        .login-form .form-control {
-            background-color: #97A97C !important;
-            color: #333 !important;
-            border: 2px solid #61704A !important;
-            border-radius: 20px !important;
-            padding: 10px !important;
+        .google:hover {
+           background-color: #4a4a4a;
+           color: #fff;
+           transition: all 0.3s ease-in-out;
         }
-
-        .login-form .form-control::placeholder {
-            color: #fff !important;
+        .login:hover{
+            color: #718355;
+            background-color: #e5f9db;
+            transition: all 0.3s ease-in-out;
         }
-
-        .login-form .form-control:focus {
-            background-color: #fff !important;
-            border-color: #53633D !important;
-            box-shadow: 0 0 5px rgba(81, 102, 57, 0.5) !important;
-        }
-
-        .btn-google {
-            background-color: #61704A !important;
-            border: none !important;
-            color: white !important;
-            padding: 0.75rem !important;
-            border-radius: 20px !important;
-            font-weight: 500 !important;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            text-align: center;
-        }
-
-        .btn-google:hover {
-            background-color: #53633D !important;
-            color: white !important;
-        }
-
-        .divider {
-            border-top: 1px solid #61704A;
-            margin: 1.5rem 0;
-        }
-
-        .google-icon {
-            font-size: 24px; /* Adjust size as needed */
-            margin-right: 25px;
-            background: linear-gradient(
-                -2deg,
-                #4285F4 0% 25%, /* Blue */
-                #34A853 25% 50%, /* Green */
-                #FBBC05 60% 75%, /* Yellow */
-                #EA4335 75% 100% /* Red */
-            );
-            -webkit-background-clip: text; /* Clip background to text */
-            background-clip: text;
-            color: transparent; /* Make the icon text transparent */
-        }
-
-        .login-container h1 {
-            font-size: 200% !important;
-        }
-
-        .back-arrow {
-    position: absolute;
-    top: 20px;  /* Distance from the top */
-    left: 20px; /* Distance from the left */
-    cursor: pointer;
-}
-
-.back-arrow i {
-    font-size: 2rem; /* Make the arrow bigger */
-    transform: rotate(-90deg); /* Rotates the arrow to the left */
-    display: inline-block;
-}
     </style>
 </head>
+<body class="color-background5 d-flex justify-content-center align-items-center">
+    <div class="position-absolute top-0 start-0 mt-5 ms-5">
+        <a href=""><i class="fa-solid fa-circle-left fa-2x color-3"></i></a>
 <body>
 <body class="background-color">
     <div class="back-arrow" onclick="window.history.back()">
         <i class="fa-solid fa-arrow-turn-up"></i>
     </div>
-    <div class="login-container">
-        <!-- Login Form Section -->
-        <div class="login-form">
-            <h1 class="text-color-1">Welcome to Lelo's Resort</h1>
-            <form action="{{ route('login') }}" method="POST">
+    <div class="login-center login-form d-flex justify-content-center align-items-center">
+        <div class="w-50">
+            <h1 class="text-color-1 mt-3 font-heading fs-4 text-center">Welcome to Lelo's Resort</h1>
+            <form action="#" method="POST">
                 @csrf
-                <div class="mb-3">
+                <div class="mb-3 mt-3">
                     <label for="email" class="form-label text-color-1"></label>
-                    <input type="email" class="form-control" id="email" name="email" placeholder="Email..." required>
+                    <input type="email" class="form-control p-2" id="email" name="email" placeholder="Email..." required>
                 </div>
                 <div class="mb-3">
                     <label for="password" class="form-label text-color-1"></label>
-                    <input type="password" class="form-control" id="password" name="password" placeholder="Password..." required>
+                    <input type="password" class="form-control p-2" id="password" name="password" placeholder="Password..." required>
                 </div>
+                    <button type="submit" class="mb-3 mt-4 border-0 p-2 rounded-4 color-background6 w-100 font-paragraph fw-bold color-3 login">LOGIN</button>
+                    <p class="text-center mt-3 text-color-1 font-paragraph">Don't have an account?<a href="#" class="font-paragraph text-color-1 ms-3 text-decoration-none text-hover-effect">Sign Up</a></p>
+               <hr>
+               <a href="#" class="color-3 font-paragraph text-decoration-none fw-bold">
+                    <div class="d-flex justify-content-center w-100 color-background6 p-2 rounded-4 google">
+                            <img src="{{ asset('images/google.png') }}" alt="" srcset="" width="20" height="20" class="me-2"></i> Sign up using Google
+                    </div>
                 <button type="submit" class="btn btn-custom w-75 mb-3">LOGIN</button>
                 <p class="text-center mt-3 text-color-1">Don't have an account? <a href="{{ route('signup') }}" class="signup-link">Sign Up</a></p>
                 <div class="divider"></div> <!-- Line between buttons -->
@@ -176,14 +78,9 @@
                 </a>
             </form>
         </div>
-        
-        <!-- Image Section -->
-        <div class="image-container">
-            <img src="{{ asset('images/hotelpic.jpg') }}" alt="Resort Image" class="activity-img">
-        </div>
     </div>
-
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    <img src="{{ asset('images/hotelpic.jpg') }}" alt="Resort Image" class="login-img w-50 mt-3 me-3 rounded-5">
 </body>
     <br>
 </html>
+
