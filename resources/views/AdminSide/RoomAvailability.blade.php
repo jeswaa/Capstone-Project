@@ -35,8 +35,9 @@
 
                 <div class="overflow-y-auto h-100 p-5">
                     <div class="d-flex ">
-                        <a href="{{ route('reservations') }}" class="text-color-1 text-decoration-none me-5 hover-underline-animation"><h1 class="fs-5 font-heading">Reservation</h1></a>
-                        <a href="{{ route('roomAvailability') }}" class="text-color-1 text-decoration-none active"><h1 class="fs-5 font-heading">Room Availability</h1></a>
+                        <a href="{{ route('reservations') }}" class="text-color-1 text-decoration-none me-5 text-underline-left-to-right"><h1 class="fs-5 font-heading">Reservation</h1></a>
+                        <a href="{{ route('roomAvailability') }}" class="text-color-1 me-5 text-decoration-none text-underline-left-to-right"><h1 class="fs-5 font-heading">Room Availability</h1></a>
+                        <a href="{{ route('packages') }}" class="text-color-1 text-decoration-none text-underline-left-to-right"><h1 class="fs-5 font-heading">Packages</h1></a>
                     </div>
 
                     <div>
@@ -61,11 +62,15 @@
                         </div>
                     </div>
                     
+
                     <hr>
                         
 
                     <div class="mt-5">
-                        <h1>Rooms</h1>
+                        <div class="d-flex  align-items-center">
+                            <h1 class="fs-5 me-5 font-paragraph text-color-1 fw-bold">Rooms Availability</h1>
+                            <a href="{{ route ('rooms')}}" class="fs-5 text-decoration-none font-paragraph text-color-1 mb-1 fw-bold text-underline-left-to-right">Rooms</a>
+                        </div>
                         <table class="table table-striped">
                             <thead>
                                 <tr>

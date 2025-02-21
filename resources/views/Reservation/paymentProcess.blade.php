@@ -12,8 +12,8 @@
     <input type="checkbox" name="payment_method" id="gcash" value="gcash"> GCash
     <input type="checkbox" name="payment_method" id="bank_transfer" value="bank_transfer"> Bank Transfer
 
-    <label for="mobile_num">Mobile Number:</label>
-    <input type="text" name="mobile_num" id="mobile_num" value="{{ auth()->user()->mobileNo }}" required>
+    <label for="mobileNo">Mobile Number:</label>
+    <input type="text" name="mobileNo" id="mobileNo" value="{{ auth()->user()->mobileNo }}" required>
 
     <label for="amount">Amount:</label>
     <input type="number" name="amount" id="amount" step="0.01" min="0" required>

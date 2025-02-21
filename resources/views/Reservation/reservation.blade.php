@@ -28,7 +28,7 @@
                 </div>
                 <div class="card-body">
                     <h4>Logged in as: {{ auth()->user()->name }}</h4>
-                    <form method="POST" action="{{ route('savePersonalDetails') }}">
+                    <form method="POST" action="{{ route('saveReservationDetails') }}">
                         @csrf
                         <div>
                             <label for="name">Name:</label>
@@ -40,7 +40,7 @@
                         </div>
                         <div>
                             <label for="phone">Phone:</label>
-                            <input type="text" name="phone" id="phone" value="{{ auth()->user()->mobileNo }}">
+                            <input type="text" name="mobileNo" id="phone" value="{{ auth()->user()->mobileNo }}" required>
                         </div>
                         <div>
                             <label for="address">Address:</label>
@@ -48,16 +48,12 @@
                         </div>
                         <div>
                             <label for="number_of_guests">Number of Guests:</label>
-                            <input type="number" name="number_of_guests" id="number_of_guests" value="{{ auth()->user()->number_of_guests }}">
+                            <input type="number" name="number_of_guests" id="number_of_guests" value="{{ auth()->user()->number_of_guests }}" required>
                         </div>
                         <button type="submit">Save and Continue</button>
                     </form>
             </div>
     </div>
-
-    <!-- Bootstrap JS and dependencies -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
+

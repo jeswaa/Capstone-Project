@@ -4,71 +4,60 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reservation Summary</title>
-    <style>
-        img.qr-code {
-            width: 150px;
-            height: 150px;
-        }
-        #qrCodeContainer {
-            margin-top: 20px;
-        }
-    </style>
-    <!-- Include QRCode.js Library -->
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <!-- Personal Details Section -->
-    <h2>Personal Details</h2>
-    @if (isset(Auth::user()->personalDetails))
-        <p>Name: {{ Auth::user()->personalDetails->name }}</p>
-        <p>Email: {{ Auth::user()->personalDetails->email }}</p>
-        <p>Phone: {{ Auth::user()->personalDetails->mobileNo }}</p>
-        <p>Address: {{ Auth::user()->personalDetails->address }}</p>
-        <p>Number of Guests: {{ Auth::user()->personalDetails->number_of_guests }}</p>
-    @else
-        <p>No personal details found.</p>
-    @endif
+    <div class="container mt-5">
+        <h2 class="text-center">Reservation Summary</h2>
 
-    
+        <!-- Display error message if no reservations are found -->
+        @if(session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+        @endif
 
-    <!-- Text to QR Code Section -->
-    <h2>Text to QR Code</h2>
-    <form id="qrCodeForm">
-        <label for="textInput">Enter Text:</label>
-        <input type="text" id="textInput" value="{{ isset(Auth::user()->personalDetails) ? Auth::user()->personalDetails->name : '' }}" required>
-        <button type="button" onclick="generateQRCode()">Generate QR Code</button>
-    </form>
-
-    <!-- QR Code Container -->
-    <div id="qrCodeContainer" style="display:none;">
-        <h3>Generated QR Code</h3>
-        <div id="qrCode"></div>
+        <!-- Display reservation details if available -->
+        @if(isset($reservationDetails))
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Reservation ID: {{ $reservationDetails->id }}</h5>
+                            <p><strong>Name:</strong> {{ $reservationDetails->name }}</p>
+                            <p><strong>Email:</strong> {{ $reservationDetails->email }}</p>
+                            <p><strong>Mobile No:</strong> {{ $reservationDetails->mobileNo }}</p>
+                            <p><strong>Number of Guests:</strong> {{ $reservationDetails->number_of_guests }}</p>
+                            <p><strong>Address:</strong> {{ $reservationDetails->address }}</p>
+                            <p><strong>Room Preference:</strong> {{ $reservationDetails->room_preference }}</p>
+                            <p><strong>Activities:</strong> {{ $reservationDetails->activities }}</p>
+                            <p><strong>Reservation Date:</strong> {{ $reservationDetails->reservation_date }}</p>
+                            <p><strong>Reservation Time:</strong> {{ $reservationDetails->reservation_check_in }}</p>
+                            <p><strong>Check-out Time:</strong> {{ $reservationDetails->reservation_check_out }}</p>
+                            <p><strong>Special Request:</strong> {{ $reservationDetails->special_request }}</p>
+                            <p><strong>Payment Method:</strong> {{ $reservationDetails->payment_method }}</p>
+                            <p><strong>Amount:</strong> {{ $reservationDetails->amount }}</p>
+                            <p><strong>Reference Number:</strong> {{ $reservationDetails->reference_num }}</p>
+                            @if ($reservationDetails->upload_payment)
+                                <p><strong>Payment Proof:</strong> 
+                                    <a href="{{ route('payment.proof', ['filename' => basename($reservationDetails->upload_payment)]) }}" target="_blank">
+                                        View Proof
+                                    </a>
+                                </p>
+                            @endif
+                            <p><strong>Status:</strong> 
+                                {{ $reservationDetails->payment_status }} 
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @else
+            <!-- Display a message if no reservations exist -->
+            <div class="alert alert-warning">
+                It looks like you don't have any reservations yet.
+            </div>
+        @endif
     </div>
-
-    <script>
-        function generateQRCode() {
-            const text = document.getElementById('textInput').value;
-
-            // Validate input
-            if (!text.trim()) {
-                alert('Please enter some text to generate a QR code.');
-                return;
-            }
-
-            // Show the QR Code container
-            const qrCodeContainer = document.getElementById('qrCodeContainer');
-            qrCodeContainer.style.display = 'block';
-
-            // Clear previous QR code
-            document.getElementById('qrCode').innerHTML = '';
-
-            // Generate QR Code using QRCode.js
-            new QRCode(document.getElementById('qrCode'), {
-                text: text,
-                width: 150,
-                height: 150
-            });
-        }
-    </script>
 </body>
 </html>

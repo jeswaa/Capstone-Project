@@ -36,7 +36,8 @@
                 <div class="overflow-y-auto h-100 p-5">
                     <div class="d-flex ">
                         <a href="{{ route('reservations') }}" class="text-color-1 text-decoration-none me-5 hover-underline-animation active"><h1 class="fs-5 font-heading">Reservation</h1></a>
-                        <a href="{{ route('roomAvailability') }}" class="text-color-1 text-decoration-none hover-underline-animation"><h1 class="fs-5 font-heading">Room Availability</h1></a>
+                        <a href="{{ route('roomAvailability') }}" class="text-color-1 me-5 text-decoration-none hover-underline-animation"><h1 class="fs-5 font-heading">Room Availability</h1></a>
+                        <a href="{{ route('packages') }}" class="text-color-1 text-decoration-none hover-underline-animation"><h1 class="fs-5 font-heading">Packages</h1></a>
                     </div>
 
                     <table class="table table-striped mt-5">

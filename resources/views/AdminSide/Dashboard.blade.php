@@ -44,7 +44,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <form class="d-flex align-items-center w-75" role="search">
                             <div class="input-group">
-                                <input type="search" class="form-control rounded-start-5 bg-light border border-secondary" placeholder="Search" aria-label="Search">
+                                <input type="search" class="form-control mb-0 rounded-start-5 bg-light border border-secondary" placeholder="Search" aria-label="Search">
                                 <button class="btn btn-outline-success rounded-end-5" type="submit">
                                     <i class="fa-solid fa-magnifying-glass"></i>
                                 </button>
@@ -61,7 +61,7 @@
                     <div class="p-5 position-relative ">
                         <!-- Box -->
                         <div class="color-background4 p-5 rounded-5">
-                            <h1 class="text-color-1 font-heading fw-bold">Welcome, people</h1>
+                            <h1 class="text-color-2 font-heading fw-bold">Hello, {{ $adminCredentials->username }}</h1>
                             <p class="text-color-1 font-paragraph position-absolute fst-italic" id="quote" style="max-height: 220px;"></p>
                             <script>
                                 const quotes = [
@@ -119,7 +119,7 @@
                                         <i class="fas fa-calendar-check fs-1"></i>
                                         <div>
                                             <h1 class="text-color-1 font-heading fw-bold fs-5">Total Bookings</h1>
-                                            <p class="text-color-1 font-paragraph mt-1">10,000</p>
+                                            <p class="text-color-1 font-paragraph mt-1">{{ $totalReservations }}</p>
                                         </div>
                                     </div>
 
@@ -128,7 +128,7 @@
                                         <i class="fa-solid fa-users fs-1"></i>
                                         <div>
                                             <h1 class="text-color-1 font-heading fw-bold fs-5">Total Guests</h1>
-                                            <p class="text-color-1 font-paragraph mt-1">10,000</p>
+                                            <p class="text-color-1 font-paragraph mt-1">{{ number_format($totalGuests) }}</p>
                                         </div>
                                     </div>
 
