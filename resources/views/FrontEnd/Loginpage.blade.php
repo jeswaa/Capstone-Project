@@ -45,6 +45,10 @@
 <body class="color-background5 d-flex justify-content-center align-items-center">
     <div class="position-absolute top-0 start-0 mt-5 ms-5">
         <a href=""><i class="fa-solid fa-circle-left fa-2x color-3"></i></a>
+<body>
+<body class="background-color">
+    <div class="back-arrow" onclick="window.history.back()">
+        <i class="fa-solid fa-arrow-turn-up"></i>
     </div>
     <div class="login-center login-form d-flex justify-content-center align-items-center">
         <div class="w-50">
@@ -66,11 +70,17 @@
                     <div class="d-flex justify-content-center w-100 color-background6 p-2 rounded-4 google">
                             <img src="{{ asset('images/google.png') }}" alt="" srcset="" width="20" height="20" class="me-2"></i> Sign up using Google
                     </div>
+                <button type="submit" class="btn btn-custom w-75 mb-3">LOGIN</button>
+                <p class="text-center mt-3 text-color-1">Don't have an account? <a href="{{ route('signup') }}" class="signup-link">Sign Up</a></p>
+                <div class="divider"></div> <!-- Line between buttons -->
+                <a href="{{ route('google.redirect') }}" class="btn btn-google w-75">
+                    <i class="fab fa-google google-icon"></i> Sign Up using Google
                 </a>
             </form>
         </div>
     </div>
     <img src="{{ asset('images/hotelpic.jpg') }}" alt="Resort Image" class="login-img w-50 mt-3 me-3 rounded-5">
 </body>
+    <br>
 </html>
 
