@@ -15,7 +15,8 @@ class AdminSideController extends Controller
     }
 
     public function reservations(){
-        return view('AdminSide.reservation');
+        $reservations = DB::table('reservation_details')->orderByDesc('created_at')->get();
+        return view('AdminSide.reservation', ['reservations' => $reservations]);
     }
 
     public function roomAvailability(){

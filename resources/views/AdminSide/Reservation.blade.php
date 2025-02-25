@@ -52,21 +52,27 @@
                             </tr>
                         </thead>
                         <tbody>
+                            @foreach ($reservations as $reservation)
                             <tr>
-                                <td>1</td>
-                                <td>2024-01-15</td>
-                                <td>Deluxe Room</td>
-                                <td>Ognimod</td>
-                                <td>5:20 AM</td>
-                                <td>12:00 PM</td>
-                                <td>Pending</td>
-                                <td>30k</td>
+                                <td>{{ $reservation->id }}</td>
+                                <td>{{ $reservation->reservation_date }}</td>
+                                <td>{{ $reservation->room_preference }}</td>
+                                <td>{{ $reservation->name }}</td>
+                                <td>{{ $reservation->reservation_check_in }}</td>
+                                <td>{{ $reservation->reservation_check_out }}</td>
+                                <td>{{ $reservation->payment_status }}</td>
+                                <td>{{ $reservation->amount }}</td>
                                 <td>
                                     <a href="#" class="text-success"><i class="fa-solid fa-eye"></i></a>
                                     <a href="#" class="text-warning mx-2"><i class="fa-solid fa-pen-to-square"></i></a>
-                                    <a href="#" class="text-danger"><i class="fa-solid fa-trash-can"></i></a>
+                                    <form action="#" method="POST" style="display:inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-danger border-0 bg-transparent"><i class="fa-solid fa-trash-can"></i></button>
+                                    </form>
                                 </td>
                             </tr>
+                            @endforeach
                         </tbody>
                     </table>
 

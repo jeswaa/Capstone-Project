@@ -53,7 +53,7 @@ class ReservationController extends Controller
 
         $reservationDetails->save();
 
-        return redirect()->route('reservation')->with('success', 'Reservation details saved successfully.');
+        return redirect()->route('paymentProcess')->with('success', 'Reservation details saved successfully.');
     }
     
     public function savePackageSelection(Request $request)
@@ -81,16 +81,13 @@ class ReservationController extends Controller
         $reservationDetails->save();
     }
 
-    return redirect()->route('paymentProcess');
+    return redirect()->route('reservation')->with('success', 'Package selection saved successfully.');
 }
 
 private function isDateAvailable($date)
 {
-    $checkIn = new DateTime($date . ' ' . $request->input('reservation_check_in_date'));
-    $checkOut = new DateTime($date . ' ' . $request->input('reservation_check_out_date'));
-
-    return !Reservation::whereBetween('reservation_check_in', [$checkIn, $checkOut])
-        ->orWhereBetween('reservation_check_out', [$checkIn, $checkOut])
+    return !Reservation::whereBetween('reservation_check_in', [$date, $date])
+        ->orWhereBetween('reservation_check_out', [$date, $date])
         ->exists();
 }
 
