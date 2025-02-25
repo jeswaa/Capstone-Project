@@ -97,7 +97,10 @@
         <p><strong>Check-out:</strong> <span id="event-check_out"></span></p>
         <button onclick="closeModal()">Close</button>
     </div>
-
+    
+    <div style="float: right;" class="mt-4 me-5 w-25">
+        <button onclick="window.location.href='{{ route('selectPackage') }}'" class="btn btn-primary">Go to Reservations</button>
+    </div>
     <!-- FullCalendar JS -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
     <script>

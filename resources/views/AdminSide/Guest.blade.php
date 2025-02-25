@@ -11,11 +11,9 @@
 <body class="color-background5">
     <div class="container-fluid">
         <div class="row h-100">
-            <!-- SIDE NAV BAR -->
-            @include('Navbar.sidenavbar')
-
+           
             <!-- Main Content -->
-             <div class="col-md-9 col-12 main-content color-background3 rounded-start-50 ps-0 pe-0 h-100 mt-4" >
+             <div class="col-md-9 col-12 main-content color-background3 rounded-start-50 ps-0 pe-0 mt-4 flex-column align-items-end ms-auto" >
                  <!-- TOP SECTION -->
                  <div class="color-background4 w-auto p-3 rounded-topright-50" id="main-content">
                     <div class="d-flex justify-content-between align-items-center">
@@ -40,24 +38,24 @@
                         <div class="d-flex flex-row justify-content-between gap-1">
                             <div class="text-color-1 font-paragraph  p-2 rounded color-background5">
                                 <h1 class="fs-6 font-heading text-color-1">Registered Guests</h1>
-                                <p class="fs-4 text-center color-3"> 10000</p>
+                                <p class="fs-4 text-center color-3">{{ $users }}</p>
                             </div>
 
                             <div class="text-color-1 font-paragraph  p-2 rounded color-background5">
                                 <h1 class="fs-6 font-heading text-color-1">Checked-in</h1>
-                                <p class="fs-4 text-center color-3">10</p></div>
+                                <p class="fs-4 text-center color-3">#</p></div>
 
                             <div class="text-color-1 font-paragraph  p-2 rounded color-background5">
                                 <h1 class="fs-6 font-heading text-color-1">Upcoming Reservations</h1>
-                                <p class="fs-4 text-center color-3">100</p></div>
+                                <p class="fs-4 text-center color-3">{{ $upcomingReservations }}</p></div>
 
                             <div class="text-color-1 font-paragraph  p-2 rounded color-background5">
                                 <h1 class="fs-6 font-heading text-color-1">Cancellations / No-Shows: </h1>
-                                <p class="fs-4 text-center color-3">100</p></div>
+                                <p class="fs-4 text-center color-3">#</p></div>
 
                             <div class="text-color-1 font-paragraph s p-2 rounded color-background5">
                                 <h1 class="fs-6 font-heading text-color-1">Guest Feedback & Complaints: </h1>
-                                <p class="fs-4 text-center color-3">100</p></div>
+                                <p class="fs-4 text-center color-3">#</p></div>
                         </div>
                     </div>
 
@@ -69,7 +67,6 @@
                                     <th scope="col">Guest Name</th>
                                     <th scope="col">Email</th>
                                     <th scope="col">Phone Number</th>
-                                    <th scope="col">Room Number</th>
                                     <th scope="col">Check-in</th>
                                     <th scope="col">Check-out</th>
                                     <th scope="col">Send Email</th>
@@ -77,33 +74,20 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                @foreach($reservations as $reservation)
                                 <tr>
-                                    <td>John Doe</td>
-                                    <td>john.doe@gmail.com</td>
-                                    <td>0927-123-4567</td>
-                                    <td>101</td>
-                                    <td>2022-09-01</td>
-                                    <td>2022-09-03</td>
+                                    <td>{{ $reservation->name }}</td>
+                                    <td>{{ $reservation->email }}</td>
+                                    <td>{{ $reservation->mobileNo}}</td>
+                                    <td>{{ $reservation->reservation_check_in }}</td>
+                                    <td>{{ $reservation->reservation_check_out }}</td>
                                     <td><a href="#" class="text-primary ml-2"><i class="fa-solid fa-envelope"></i></a></td>
                                     <td>
                                         <a href="#" class="text-success"><i class="fa-solid fa-check-circle"></i> </a>
                                         <a href="#" class="text-danger ml-2"><i class="fa-solid fa-times-circle"></i> </a>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td>Jane Doe</td>
-                                    <td>jane.doe@gmail.com</td>
-                                    <td>0927-123-4568</td>
-                                    <td>102</td>
-                                    <td>2022-09-02</td>
-                                    <td>2022-09-04</td>
-                                    <td><a href="#" class="text-primary ml-2"><i class="fa-solid fa-envelope"></i></a></td>
-                                    <td>
-                                        <a href="#" class="text-success"><i class="fa-solid fa-check-circle"></i> </a>
-                                        <a href="#" class="text-danger ml-2"><i class="fa-solid fa-times-circle"></i></a>
-                                        
-                                    </td>
-                                </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
@@ -111,5 +95,9 @@
              </div>
         </div>
     </div>
+     <!-- SIDE NAV BAR -->
+     @include('Navbar.sidenavbar')
+
 </body>
 </html>
+

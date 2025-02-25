@@ -79,17 +79,26 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="roomPreference">Room Preference</label>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="single" name="room_preference" value="single">
-                                        <label class="form-check-label" for="single">Single</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="double" name="room_preference" value="double">
-                                        <label class="form-check-label" for="double">Double</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="suite" name="room_preference" value="suite">
-                                        <label class="form-check-label" for="suite">Suite</label>
+                                    <div class="container">
+                                        <div class="row">
+                                            @foreach($accomodations as $accomodation)
+                                                <div class="col-md-3 w-50">
+                                                    <div class="card">
+                                                        <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" class="card-img-top" alt="accomodation image" style="max-width: 100px; height: auto;">
+                                                        <div class="card-body">
+                                                            <h5 class="card-title">{{ $accomodation->accomodation_name }}</h5>
+                                                            <p class="card-text">Type: {{ $accomodation->accomodation_type }}</p>
+                                                            <p class="card-text">Capacity: {{ $accomodation->accomodation_capacity }}</p>
+                                                            <p class="card-text">Price: {{ $accomodation->accomodation_price }}</p>
+                                                            <div class="form-check">
+                                                                <input class="form-check-input" type="checkbox" id="accomodation{{ $accomodation->accomodation_id }}" name="accomodations[]" value="{{ $accomodation->accomodation_id }}">
+                                                                <label class="form-check-label" for="accomodation{{ $accomodation->accomodation_id }}"></label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
                                     </div>
                                 </div>
                             </div>

@@ -22,6 +22,8 @@ class Reservation extends Model
         'room_preference',
         'activities',
         'reservation_date',
+        'reservation_check_in_date',
+        'reservation_check_out_date',
         'reservation_check_out',
         'reservation_check_in',
         'special_request',

@@ -11,11 +11,8 @@
 <body class="color-background5">
     <div class="container-fluid">
         <div class="row h-100">
-            <!-- SIDE NAV BAR -->
-            @include('Navbar.sidenavbar')
-
             <!-- Main Content -->
-             <div class="col-md-9 col-12 main-content color-background3 rounded-start-50 ps-0 pe-0 h-100 mt-4" >
+             <div class="col-md-9 col-12 main-content color-background3 rounded-start-50 ps-0 pe-0 mt-4 flex-column align-items-end ms-auto" >
                 <!-- TOP SECTION -->
                 <div class="color-background4 w-auto p-3 rounded-topright-50" id="main-content">
                     <div class="d-flex justify-content-between align-items-center">
@@ -101,5 +98,8 @@
              </div>
         </div>
     </div>
+ <!-- SIDE NAV BAR -->
+ @include('Navbar.sidenavbar')
+
 </body>
 </html>

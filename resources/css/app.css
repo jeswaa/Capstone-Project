@@ -69,12 +69,16 @@
     color: #e5f9db;
     transition: all 0.5s ease-out;
 }
+.icon-hover:hover {
+    color: #718355;
+    transition: all 0.2s ease-out;
+}
 .text-hover:hover {
     color: #4a4a4a !important;
     background-color: #fff;
     border-top-left-radius: 50px;
     border-bottom-left-radius: 50px;
-    width: 150% !important;
+    width: 100% !important;
     transition: all 0.5s ease-out;
 }
 .start-25 {

@@ -41,7 +41,7 @@ Route::get('/homepage', [HomePageController::class, 'homepage'])->name('homepage
 // Reservation
 Route::get('/reservation/calendar', [ReservationController::class, 'showReservationsInCalendar'])->name('Reservation.Events_reservation');
 Route::get('/reservation', [ReservationController::class, 'reservation'])->name('reservation');
-Route::get('/reservation/select-package', [ReservationController::class, 'selectPackage'])->name('selectPackage');
+Route::get('/reservation/fetch-accomodation-data', [ReservationController::class, 'fetchAccomodationData'])->name('selectPackage');
 Route::get('/reservation/payment-process', [ReservationController::class, 'paymentProcess'])->name('paymentProcess');
 Route::get('/reservation/display-summary', [ReservationController::class, 'displayReservationSummary'])->name('summary');
 
@@ -88,6 +88,7 @@ Route::get('/login/admin', [AdminSideController::class, 'AdminLogin'])->name('Ad
 Route::post('/login/admin/authenticate', [AdminSideController::class, 'login'])->name('authenticate');
 Route::get('/admin/dashboard', [AdminSideController::class, 'DashboardView'])->name('dashboard');
 Route::get('/reservations', [AdminSideController::class, 'reservations'])->name('reservations');
+Route::get('/get-bookings', [AdminSideController::class, 'DashboardView']);
 Route::get('/room-availability', [AdminSideController::class, 'roomAvailability'])->name('roomAvailability');
 Route::post('add-room', [AdminSideController::class, 'addRoom'])->name('addRoom');
 Route::get('/rooms-display', [AdminSideController::class, 'DisplayAccomodations'])->name('rooms');

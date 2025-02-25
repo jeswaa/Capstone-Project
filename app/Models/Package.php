@@ -16,6 +16,7 @@ class Package extends Model
         'package_duration',
         'package_max_guests',
         'package_activities',
+        'image_package',
         
     ];
 }

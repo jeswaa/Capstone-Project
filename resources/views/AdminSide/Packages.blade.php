@@ -12,11 +12,8 @@
 <body class="color-background5">
     <div class="container-fluid">
         <div class="row h-100">
-            <!-- SIDE NAV BAR -->
-            @include('Navbar.sidenavbar')
-
             <!-- Main Content -->
-             <div class="col-md-9 col-12 main-content color-background3 rounded-start-50 ps-0 pe-0 h-100 mt-4" >
+             <div class="col-md-9 col-12 main-content color-background3 rounded-start-50 ps-0 pe-0 mt-4 flex-column align-items-end ms-auto" >
                 <!-- TOP SECTION -->
                 <div class="color-background4 w-auto p-3 rounded-topright-50" id="main-content">
                     <div class="d-flex justify-content-between align-items-center">
@@ -36,9 +33,9 @@
 
                 <div class="overflow-y-auto h-100 p-5">
                     <div class="d-flex ">
-                        <a href="{{ route('reservations') }}" class="text-color-1 text-decoration-none me-5 hover-underline-animation active"><h1 class="fs-5 font-heading">Reservation</h1></a>
-                        <a href="{{ route('roomAvailability') }}" class="text-color-1 me-5 text-decoration-none hover-underline-animation"><h1 class="fs-5 font-heading">Room Availability</h1></a>
-                        <a href="{{ route('packages') }}" class="text-color-1 text-decoration-none hover-underline-animation"><h1 class="fs-5 font-heading">Packages</h1></a>
+                        <a href="{{ route('reservations') }}" class="text-color-1 text-decoration-none me-5 text-underline-left-to-right"><h1 class="fs-5 font-heading">Reservation</h1></a>
+                        <a href="{{ route('roomAvailability') }}" class="text-color-1 me-5 text-decoration-none text-underline-left-to-right"><h1 class="fs-5 font-heading">Room Availability</h1></a>
+                        <a href="{{ route('packages') }}" class="text-color-1 text-decoration-none text-underline-left-to-right"><h1 class="fs-5 font-heading">Packages</h1></a>
                     </div>
                     
                     <!-- Adding Packages -->
@@ -102,6 +99,11 @@
         <form action="{{ route('addPackage') }}" method="POST">
           @csrf
           <div class="mb-3">
+            <label for="packageImage" class="form-label">Package Image</label>
+            <input type="file" class="form-control" id="packageImage" name="image_package" accept="image/*">
+          </div>
+
+          <div class="mb-3">
             <label for="packageName" class="form-label">Package Name</label>
             <input type="text" class="form-control" id="packageName" name="package_name" placeholder="Enter package name" required>
           </div>
@@ -133,7 +135,8 @@
     </div>
   </div>
 </div>
-
+<!-- SIDE NAV BAR -->
+@include('Navbar.sidenavbar')
 <script>
   // Script to open the modal when the "Add Package" button is clicked
   document.querySelector('.btn-primary.w-25').addEventListener('click', function () {
