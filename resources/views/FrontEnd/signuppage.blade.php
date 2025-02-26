@@ -103,6 +103,14 @@
             transform: rotate(-90deg);
             display: inline-block;
         }
+        
+        .custom-file-label {
+            background-color: #f8f9fa;
+            border: 1px solid #ced4da;
+            padding: 10px 15px;
+            border-radius: 5px;
+        }
+
 
         .custom-file-label {
             background-color: #f8f9fa;
@@ -131,27 +139,40 @@
             <form action="{{ route('signup.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="mb-3">
+                    <label for="name" class="form-label text-color-1 font-paragraph">Fullname</label>
+                    <input type="text" class="form-control font-paragraph" id="name" name="name" placeholder="Full Name..." required>
                     <label for="name" class="form-label text-color-1 font-paragraph"></label>
                     <input type="text" class="form-control font-paragraph mt-4" id="name" name="name" placeholder="Full Name..." required>
                 </div>
                 <div class="mb-3">
+                    <label for="address" class="form-label text-color-1 font-paragraph">Address</label>
+                    <input type="text" class="form-control font-paragraph" id="address" name="address" placeholder="Address..." required>
                     <label for="address" class="form-label text-color-1 font-paragraph"></label>
                     <input type="text" class="form-control font-paragraph" id="address" name="address" placeholder="Address..." required>
                 </div>
                 <div class="mb-3">
+                    <label for="image" class="form-label text-color-1 font-paragraph fw-bold">Upload Image</label>
+                    <input class="form-control" type="file" id="image" name="image" accept="image/*" required>
                     <label for="image" class="form-label text-color-1 font-paragraph fw-bold"></label>
                     <input class="form-control" type="file" id="image" name="image" accept="image/*" required>
                 </div>
 
+
                 <div class="mb-3">
+                    <label for="email" class="form-label text-color-1 font-paragraph">Email</label>
+                    <input type="email" class="form-control font-paragraph" id="email" name="email" placeholder="Email..." required>
                     <label for="email" class="form-label text-color-1 font-paragraph"></label>
                     <input type="email" class="form-control font-paragraph" id="email" name="email" placeholder="Email..." required>
                 </div>
                 <div class="mb-3">
+                    <label for="mobileNo" class="form-label text-color-1 font-paragraph">Mobile Number</label>
+                    <input type="number" class="form-control font-paragraph" id="mobileNo" name="mobileNo" placeholder="Mobile Number..." required>
                     <label for="mobileNo" class="form-label text-color-1 font-paragraph"> </label>
                     <input type="number" class="form-control font-paragraph" id="mobileNo" name="mobileNo" placeholder="Mobile Number..." required>
                 </div>
                 <div class="mb-3">
+                    <label for="password" class="form-label text-color-1 font-paragraph">Password</label>
+                    <input type="password" class="form-control font-paragraph" id="password" name="password" placeholder="Password..." required>
                     <label for="password" class="form-label text-color-1 font-paragraph">   </label>
                     <input type="password" class="form-control font-paragraph" id="password" name="password" placeholder="Password..." required>
                 </div>
