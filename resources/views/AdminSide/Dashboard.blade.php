@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <title>Dashboard</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
+
 <style>
     .slider-container {
         overflow-x: auto;
@@ -29,22 +31,38 @@
         padding: 20px;
         border-radius: 10px;
     }
+    #chart-container {
+        height: 1000px;
+        width: 100%;
+        display: block;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+    }
+    #bookingChart{
+        height: 500px !important;
+    }
+    .chart-wrapper {
+        display: none;
+    }
+    .chart-wrapper.active-chart {
+        display: block;
+    }
 </style>
+
 <body class="color-background5">
     <div class="container-fluid">
         <div class="row h-100">
             @include('Alert.loginSucess')
-            <!-- SIDEBAR -->
-            @include('Navbar.sidenavbar')
 
             <!-- MAIN CONTENT -->
-            <div class="col-md-9 col-12 main-content color-background3 rounded-start-50 ps-0 pe-0 h-100 mt-4" id="main-content">
+            <div class="col-md-9 col-12 main-content color-background3 rounded-start-50 ps-0 pe-0 mt-4 flex-column align-items-end ms-auto" id="main-content">
                 <!-- TOP SECTION -->
-                <div class="color-background4 w-auto p-3 rounded-topright-50" id="main-content">
+                <div class="color-background4 w-100 p-3 rounded-topright-50 mb-4">
                     <div class="d-flex justify-content-between align-items-center">
                         <form class="d-flex align-items-center w-75" role="search">
                             <div class="input-group">
-                                <input type="search" class="form-control rounded-start-5 bg-light border border-secondary" placeholder="Search" aria-label="Search">
+                                <input type="search" class="form-control mb-0 rounded-start-5 bg-light border border-secondary" placeholder="Search" aria-label="Search">
                                 <button class="btn btn-outline-success rounded-end-5" type="submit">
                                     <i class="fa-solid fa-magnifying-glass"></i>
                                 </button>
@@ -56,148 +74,158 @@
                     </div>
                 </div>
 
-                <!-- MAIN SECTION -->
-                <div class="overflow-y-auto h-100 p-5">
-                    <div class="p-5 position-relative ">
-                        <!-- Box -->
-                        <div class="color-background4 p-5 rounded-5">
-                            <h1 class="text-color-1 font-heading fw-bold">Welcome, {{ Auth::user()->name }}</h1>
-                            <p class="text-color-1 font-paragraph position-absolute fst-italic" id="quote" style="max-height: 220px;"></p>
-                            <script>
-                                const quotes = [
-                                    `"Success is not the key to happiness. Happiness is the key to success."`,
-                                    "Hard work beats talent when talent doesn’t work hard.",
-                                    "Strive not to be a success, but rather to be of value.",
-                                    "Efficiency is doing things right; effectiveness is doing the right things.",
-                                    "Hard work beats talent when talent doesn’t work hard"
-                                ];
-                                let index = 0;
-                                let charIndex = 0;
-                                let currentQuote = '';
-                                let isDeleting = false;
-
-                                function typeQuote() {
-                                    const quoteElement = document.getElementById("quote");
-                                    
-                                    if (!isDeleting && charIndex < quotes[index].length) {
-                                        currentQuote += quotes[index].charAt(charIndex);
-                                        charIndex++;
-                                        quoteElement.textContent = currentQuote;
-                                        setTimeout(typeQuote, 100);
-                                    } else if (isDeleting) {
-                                        currentQuote = currentQuote.substring(0, charIndex - 1);
-                                        charIndex--;
-                                        quoteElement.textContent = currentQuote;
-                                        setTimeout(typeQuote, 50);
-                                        
-                                        if (charIndex === 0) {
-                                            isDeleting = false;
-                                            index = (index + 1) % quotes.length;
-                                        }
-                                    } else {
-                                        isDeleting = true;
-                                        setTimeout(typeQuote, 2000);
-                                    }
-                                }
-
-                                typeQuote(); // Initial call to start typing effect
-                            </script>
-                        </div>
-
-                        <!-- Image (Outside the box but aligned) -->
-                        <div class="position-absolute top-0 end-0 translate-middle-y me-4" style="margin-right: -100px; margin-top: 90px;">
-                            <img src="{{ asset('images/welcomeImg.png') }}" class="img-fluid" style="max-width: 220px; height: auto;" alt="Profile">
-                        </div>
+                <!-- Main Section -->
+                <div class="overflow-y-auto p-2 ms-3 mb-3">
+                    <div class="me-3 color-background5 border-secondary rounded-3 mt-5 pt-4 ps-4 pb-5">
+                        <h1 class="text-color-1 font-heading fw-semibold p-3">Hello, {{ $adminCredentials->username }}</h1>
+                        <p class="color-3 font-paragraph ps-3 position-absolute fst-italic" id="quote">...</p>
                     </div>
+                </div>
 
-                    <div class="ps-5 pe-5 pt-2">
-                        <div class="color-background1 p-4 mt-1 rounded-5 overflow-hidden">
-                            <div class="slider-container position-relative">
-                                <div class="slider d-flex gap-4">
-                                    <!-- TOTAL BOOKINGS -->
-                                    <div class="color-background4 p-4 w-auto h-auto d-flex align-items-center gap-3 rounded-4">
-                                        <i class="fas fa-calendar-check fs-1"></i>
-                                        <div>
-                                            <h1 class="text-color-1 font-heading fw-bold fs-5">Total Bookings</h1>
-                                            <p class="text-color-1 font-paragraph mt-1">10,000</p>
-                                        </div>
-                                    </div>
+                <!-- Image -->
+                <div class="position-absolute top-0 end-0 translate-middle-y me-4" style="margin-right: -100px; margin-top: 235px;">
+                    <img src="{{ asset('images/welcomeImg.png') }}" class="img-fluid" style="max-width: 220px; height: auto;" alt="Profile">
+                </div>
 
-                                    <!-- TOTAL GUESTS -->
-                                    <div class="color-background4 p-4 w-auto h-auto d-flex align-items-center gap-3 rounded-4">
-                                        <i class="fa-solid fa-users fs-1"></i>
-                                        <div>
-                                            <h1 class="text-color-1 font-heading fw-bold fs-5">Total Guests</h1>
-                                            <p class="text-color-1 font-paragraph mt-1">10,000</p>
-                                        </div>
+                <div class="ps-5 pe-5 pt-2 mb-5 d-flex justify-content-center">
+                    <div class="color-background1 p-4 mt-1 rounded-5 overflow-hidden">
+                        <div class="slider-container position-relative">
+                            <div class="slider d-flex gap-4 justify-content-center">
+                                <!-- TOTAL BOOKINGS -->
+                                <div class="color-background4 p-4 w-auto h-auto d-flex align-items-center gap-3 rounded-4">
+                                    <i class="fas fa-calendar-check fs-1"></i>
+                                    <div>
+                                        <h1 class="text-color-1 font-heading fw-bold fs-5">Total Bookings</h1>
+                                        <p class="text-color-1 font-paragraph mt-1">{{ $totalReservations }}</p>
                                     </div>
+                                </div>
 
-                                    <!-- TOTAL REVENUE -->
-                                    <div class="color-background4 p-4 w-auto h-auto d-flex align-items-center gap-3 rounded-4">
-                                        <i class="fa-solid fa-money-bill-trend-up fs-1"></i>
-                                        <div>
-                                            <h1 class="text-color-1 font-heading fw-bold fs-5">Total Revenue</h1>
-                                            <p class="text-color-1 font-paragraph mt-1">10,000</p>
-                                        </div>
+                                <!-- TOTAL GUESTS -->
+                                <div class="color-background4 p-4 w-auto h-auto d-flex align-items-center gap-3 rounded-4">
+                                    <i class="fa-solid fa-users fs-1"></i>
+                                    <div>
+                                        <h1 class="text-color-1 font-heading fw-bold fs-5">Total Guests</h1>
+                                        <p class="text-color-1 font-paragraph mt-1">{{ number_format($totalGuests) }}</p>
                                     </div>
-                                    <!-- TOTAL REVENUE -->
-                                    <div class="color-background4 p-4 w-auto h-auto d-flex align-items-center gap-3 rounded-4">
-                                        <i class="fa-solid fa-money-bill-trend-up fs-1"></i>
-                                        <div>
-                                            <h1 class="text-color-1 font-heading fw-bold fs-5">Total Revenue</h1>
-                                            <p class="text-color-1 font-paragraph mt-1">10,000</p>
-                                        </div>
+                                </div>
+
+                                <!-- TOTAL REVENUE -->
+                                <div class="color-background4 p-4 w-auto h-auto d-flex align-items-center gap-3 rounded-4">
+                                    <i class="fa-solid fa-money-bill-trend-up fs-1"></i>
+                                    <div>
+                                        <h1 class="text-color-1 font-heading fw-bold fs-5">Total Revenue</h1>
+                                        <p class="text-color-1 font-paragraph mt-1">10,000</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Charts and Graphs -->
-                     <div class="p-3"> 
-                        <div class="p-3 mt-3">
-                            <div class="color-background1 p-4 mt-1 rounded-5 overflow-hidden">
-                                <h1 class="font-heading fw-bold text-color-1 fs-3 ">Revenue</h1>
-                                <div class="chart-container">
-                                    <canvas id="revenueChart"></canvas>
-                                </div>
-                            </div>
-                     </div>
+                <!-- Charts Section -->
+                <div class="p-3 m-3">
+                    <div class="chart-container p-5 rounded-5 overflow-hidden" id="chart-container">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h1 class="fw-bold fs-3" id="chartTitle">Reservation</h1>
+                            <i class="fa-solid fa-arrow-right fs-2 icon-hover" style="cursor: pointer;" onclick="toggleChart()"></i>
+                        </div>
+                        <div class="chart-wrapper active-chart" id="bookingChartWrapper">
+                            <canvas id="bookingChart"></canvas>
+                        </div>
+                        <div class="chart-wrapper" id="usersChartWrapper">
+                            <canvas id="usersChart"></canvas>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
+    @include('Navbar.sidenavbar')
+
     <!-- SCRIPTS -->
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const slider = document.querySelector('.slider-container');
-            let isDown = false;
-            let startX;
-            let scrollLeft;
+    document.addEventListener("DOMContentLoaded", function () {
+        let bookingChartCtx = document.getElementById('bookingChart').getContext('2d');
+        let usersChartCtx = document.getElementById('usersChart').getContext('2d');
 
-            slider.addEventListener('mousedown', (e) => {
-                isDown = true;
-                startX = e.pageX - slider.offsetLeft;
-                scrollLeft = slider.scrollLeft;
-            });
+        let dailyBookings = @json($dailyBookings);
+        let weeklyBookings = @json($weeklyBookings);
+        let monthlyBookings = @json($monthlyBookings);
+        let latestUserDaysAgo = @json($latestUserDaysAgo); // Pre-calculated value
+        let totalUsers = @json($totalUsers);
 
-            slider.addEventListener('mouseleave', () => {
-                isDown = false;
-            });
-
-            slider.addEventListener('mouseup', () => {
-                isDown = false;
-            });
-
-            slider.addEventListener('mousemove', (e) => {
-                if (!isDown) return;
-                e.preventDefault();
-                const x = e.pageX - slider.offsetLeft;
-                const walk = (x - startX) * 2;
-                slider.scrollLeft = scrollLeft - walk;
-            });
+        let bookingChart = new Chart(bookingChartCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Daily', 'Weekly', 'Monthly'],
+                datasets: [{
+                    label: 'Reservation',
+                    data: [dailyBookings, weeklyBookings, monthlyBookings],
+                    backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(255, 206, 86, 0.2)'],
+                    borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)'],
+                    borderWidth: 1
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
         });
-    </script>
+
+        let usersChart = new Chart(usersChartCtx, {
+            type: 'line',
+            data: {
+                labels: ['Daily', 'Weekly', 'Monthly'],
+                datasets: [{
+                    label: 'Users Count',
+                    data: [latestUserDaysAgo, totalUsers, totalUsers], // Use pre-calculated value
+                    backgroundColor: ['rgba(75, 192, 192, 0.2)'],
+                    borderColor: ['rgba(75, 192, 192, 1)'],
+                    borderWidth: 1
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        // Quote typing effect
+        const quotes = [
+            "Success is not the key to happiness. Happiness is the key to success.",
+            "Hard work beats talent when talent doesn’t work hard.",
+            "Strive not to be a success, but rather to be of value."
+        ];
+        let index = 0, charIndex = 0, currentQuote = "", isDeleting = false;
+
+        function typeQuote() {
+            const quoteElement = document.getElementById("quote");
+            if (!isDeleting && charIndex < quotes[index].length) {
+                currentQuote += quotes[index].charAt(charIndex++);
+            } else {
+                isDeleting = true;
+                currentQuote = currentQuote.substring(0, charIndex--);
+            }
+            quoteElement.textContent = currentQuote;
+            setTimeout(typeQuote, isDeleting ? 50 : 100);
+            if (charIndex < 0) {
+                isDeleting = false;
+                index = (index + 1) % quotes.length;
+            }
+        }
+        typeQuote();
+    });
+
+    function toggleChart() {
+        let bookingWrapper = document.getElementById("bookingChartWrapper");
+        let usersWrapper = document.getElementById("usersChartWrapper");
+        let chartTitle = document.getElementById("chartTitle");
+
+        if (bookingWrapper.classList.contains("active-chart")) {
+            bookingWrapper.classList.remove("active-chart");
+            usersWrapper.classList.add("active-chart");
+            chartTitle.textContent = "Users";
+        } else {
+            usersWrapper.classList.remove("active-chart");
+            bookingWrapper.classList.add("active-chart");
+            chartTitle.textContent = "Reservation";
+        }
+    }
+</script>
 </body>
 </html>

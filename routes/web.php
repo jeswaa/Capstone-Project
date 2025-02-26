@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
+use App\Models\Reservation;
 use Illuminate\Support\Str;
 use App\Http\Controllers\AdminSideController;
 use App\Http\Controllers\LoginController;
@@ -11,6 +12,8 @@ use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\HomePageController;
 use App\Http\Controllers\SignupController;
+use App\Http\Controllers\ReservationController;
+use App\Http\Controllers\StaffController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,25 +25,91 @@ use App\Http\Controllers\SignupController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+Auth::routes(['verify' => true]);
+
 /* LOGIN */
 Route::get('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/login/authenticate', [LoginController::class, 'authenticate'])->name('login.authenticate');
-/*Landing page/index */
-Route::get('/', [LandingPageController::class, 'index']);
-/*homepage page/index */
-Route::get('/homepage', [HomePageController::class, 'homepage'])->name('homepage');
-
 // SIGNUP
 Route::get('/signup', [SignUpController::class, 'signup'])->name('signup');
 Route::post('/signup/store', [SignUpController::class, 'store'])->name('signup.store');
+/*Landing page/index */
+Route::get('/', [LandingPageController::class, 'index'])->name('landingpage');
+/*homepage page/index */
+Route::get('/homepage', [HomePageController::class, 'homepage'])->name('homepage');
 
+// Reservation
+Route::get('/reservation/calendar', [ReservationController::class, 'showReservationsInCalendar'])->name('Reservation.Events_reservation');
+Route::get('/reservation', [ReservationController::class, 'reservation'])->name('reservation');
+Route::get('/reservation/fetch-accomodation-data', [ReservationController::class, 'fetchAccomodationData'])->name('selectPackage');
+Route::get('/reservation/payment-process', [ReservationController::class, 'paymentProcess'])->name('paymentProcess');
+Route::get('/reservation/display-summary', [ReservationController::class, 'displayReservationSummary'])->name('summary');
+
+// Display the credentials of the login user
+Route::post('/reservation-personal', [ReservationController::class, 'fetchUserData'])->name('fetchUserData');
+Route::post('/reservation/personal-details', [ReservationController::class, 'saveReservationDetails'])->name('saveReservationDetails');
+Route::post('/reservation/select-package-details', [ReservationController::class, 'savePackageSelection'])->name('savePackageSelection');
+Route::post('/reservation/save-payment-process', [ReservationController::class, 'savePaymentProcess'])->name('savePaymentProcess');
+Route::get('/reservation/display-packages', [ReservationController::class, 'displayPackageSelection'])->name('authenticatedPackages');
+// Route for testing file access
+Route::get('/payment-proof/{filename}', function ($filename) {
+    $path = storage_path('app/public/payments/' . $filename);
+
+    if (!file_exists($path)) {
+        abort(404);
+    }
+
+    return response()->file($path);
+})->name('payment.proof');
+// API
+Route::get('/get-reservations', function () {
+    $reservations = Reservation::select('name', 'reservation_date', 'reservation_time')->get();
+
+    $events = $reservations->map(function ($reservation) {
+        return [
+            'title' => $reservation->name,
+            'start' => $reservation->reservation_date . 'T' . $reservation->reservation_time,
+            'extendedProps' => [
+                'reservation_time' => $reservation->reservation_time
+            ]
+        ];
+    });
+
+    return response()->json($events);
+});
+
+
+//Google Auth
 Route::get('/auth/google/redirect',[GoogleAuthController::class, 'redirect'])->name('google.redirect');
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback']);
 
 // ADMIN ROUTES
-Route::get('/dashboard', [AdminSideController::class, 'dashboard'])->name('dashboard');
+Route::get('/login/admin', [AdminSideController::class, 'AdminLogin'])->name('AdminLogin');
+Route::post('/login/admin/authenticate', [AdminSideController::class, 'login'])->name('authenticate');
+Route::get('/admin/dashboard', [AdminSideController::class, 'DashboardView'])->name('dashboard');
 Route::get('/reservations', [AdminSideController::class, 'reservations'])->name('reservations');
+Route::get('/get-bookings', [AdminSideController::class, 'DashboardView']);
+Route::get('/room-availability', [AdminSideController::class, 'roomAvailability'])->name('roomAvailability');
+Route::post('add-room', [AdminSideController::class, 'addRoom'])->name('addRoom');
+Route::get('/rooms-display', [AdminSideController::class, 'DisplayAccomodations'])->name('rooms');
+Route::get('/packages', [AdminSideController::class, 'packages'])->name('packages');
+Route::post('/add-packages', [AdminSideController::class, 'addPackages'])->name('addPackage');
 Route::get('/guests', [AdminSideController::class, 'guests'])->name('guests');
-Route::get('/transactions', [AdminSideController::class, 'transactions'])->name('transactions');
+Route::get('/transactions/edit-entrance-fee', [AdminSideController::class, 'editPrice'])->name('transactions');
+Route::post('/transactions/update-entrance-fee', [AdminSideController::class, 'updatePrice'])->name('updatePrice');
 Route::get('reports', [AdminSideController::class, 'reports'])->name('reports');
 Route::get('/logout', [AdminSideController::class, 'logout'])->name('logout');
+
+//Staff Routes
+Route::get('/login/staff', [StaffController::class, 'StaffLogin'])->name('StaffLogin');
+Route::post('/login/staff/authenticate', [StaffController::class, 'authenticate'])->name('staff.authenticate');
+Route::get('/staff/dashboard', [StaffController::class, 'dashboard'])->name('staff.dashboard');
+Route::get('/staff/reservation-details', [StaffController::class, 'reservations'])->name('staff.reservation');
+Route::post('/staff/transactions/update-payment-status/{id}', [StaffController::class, 'UpdateStatus'])->name('staff.updateStatus');
+Route::get('/staff/transactions', [StaffController::class, 'transactions'])->name('staff.transactions');
+Route::post('/staff/send-email', [StaffController::class, 'sendEmail'])->name('staff.sendEmail');
+Route::get('/staff/guests', [StaffController::class, 'guests'])->name('staff.guests');
+Route::get('/staff/logout', [StaffController::class, 'logout'])->name('staff.logout');
+
+
+

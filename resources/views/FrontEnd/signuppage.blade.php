@@ -16,10 +16,6 @@
             padding: 0;
         }
 
-        h1 {
-            margin-left: 20%;
-        }
-
         .background-color {
             background-color: #b5c99a;
             height: 100%;
@@ -41,8 +37,6 @@
             flex: 1;
             padding: 20px;
             max-width: 50%;
-            margin-left: 10%;
-            margin-right: 5%;
         }
 
         .image-container {
@@ -69,7 +63,8 @@
             padding: 0.75rem !important;
             border-radius: 20px !important;
             font-weight: 500 !important;
-            margin-left: 10% !important
+            display: block;
+            margin-left: 12%;
         }
 
         .btn-custom:hover {
@@ -80,9 +75,10 @@
         .signup-form .form-control {
             background-color: #97A97C !important;
             color: #333 !important;
-            border: 2px solid #61704A !important;
+            border: 0 !important;
             border-radius: 20px !important;
             padding: 10px !important;
+            width: 75% !important;
         }
 
         .signup-form .form-control::placeholder {
@@ -107,42 +103,59 @@
             transform: rotate(-90deg);
             display: inline-block;
         }
+
+        .custom-file-label {
+            background-color: #f8f9fa;
+            border: 0;
+            padding: 10px 15px;
+            border-radius: 5px;
+        }
+
+        .signup-form h1 {
+            text-align: center;
+        }
+
+        .mb-3 {
+            display: flex;
+            justify-content: center;
+        }
     </style>
 </head>
 <body class="background-color">
-    <div class="back-arrow" onclick="window.history.back()">
-        <i class="fa-solid fa-arrow-turn-up"></i>
+    <div class="position-absolute top-0 start-0 mt-5 ms-5">
+        <a href="{{ route('login') }}"><i class="fa-solid fa-circle-left fa-2x color-3 icon"></i></a>
     </div>
     <div class="signup-container">
         <div class="signup-form">
-            <h1 class="text-color-1">Create an Account</h1>
+            <h1 class="text-color-1 mb-3">Create an Account</h1>
             <form action="{{ route('signup.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="mb-3">
-                    <label for="name" class="form-label text-color-1"></label>
-                    <input type="text" class="form-control" id="name" name="name" placeholder="Full Name..." required>
+                    <label for="name" class="form-label text-color-1 font-paragraph"></label>
+                    <input type="text" class="form-control font-paragraph mt-4" id="name" name="name" placeholder="Full Name..." required>
                 </div>
                 <div class="mb-3">
-                    <label for="address" class="form-label text-color-1"></label>
-                    <input type="text" class="form-control" id="address" name="address" placeholder="Address..." required>
+                    <label for="address" class="form-label text-color-1 font-paragraph"></label>
+                    <input type="text" class="form-control font-paragraph" id="address" name="address" placeholder="Address..." required>
                 </div>
                 <div class="mb-3">
-                    <label for="image" class="form-label text-color-1"></label>
-                    <input type="file" class="form-control" id="image" name="image" accept="image/*" required>
+                    <label for="image" class="form-label text-color-1 font-paragraph fw-bold"></label>
+                    <input class="form-control" type="file" id="image" name="image" accept="image/*" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="email" class="form-label text-color-1 font-paragraph"></label>
+                    <input type="email" class="form-control font-paragraph" id="email" name="email" placeholder="Email..." required>
                 </div>
                 <div class="mb-3">
-                    <label for="email" class="form-label text-color-1"></label>
-                    <input type="email" class="form-control" id="email" name="email" placeholder="Email..." required>
+                    <label for="mobileNo" class="form-label text-color-1 font-paragraph"> </label>
+                    <input type="number" class="form-control font-paragraph" id="mobileNo" name="mobileNo" placeholder="Mobile Number..." required>
                 </div>
                 <div class="mb-3">
-                    <label for="mobileNo" class="form-label text-color-1"></label>
-                    <input type="number" class="form-control" id="mobileNo" name="mobileNo" placeholder="Mobile Number..." required>
+                    <label for="password" class="form-label text-color-1 font-paragraph">   </label>
+                    <input type="password" class="form-control font-paragraph" id="password" name="password" placeholder="Password..." required>
                 </div>
-                <div class="mb-3">
-                    <label for="password" class="form-label text-color-1"></label>
-                    <input type="password" class="form-control" id="password" name="password" placeholder="Password..." required>
-                </div>
-                <button type="submit" class="btn btn-custom w-75 mb-3">SIGNUP</button>
+                <button type="submit" class="btn btn-custom w-75 btn-custom">SIGNUP</button>
             </form>
         </div>
         <div class="image-container">
@@ -152,3 +165,5 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
+

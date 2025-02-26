@@ -47,7 +47,7 @@
         <!-- Hero Content -->
         <div class="container text-start d-flex flex-column align-items-start">
             <h1 class="display-4 fw-bold">LOREM IPSUM<br>DOLOR SIT AMET</h1>
-            <button class="btn btn-success mt-3">Make a Reservation</button>
+            <a href="{{ route('Reservation.Events_reservation')}}"><button class="btn btn-success mt-3">Make a Reservation</button></a>
         </div>
     </div>
     </section>
