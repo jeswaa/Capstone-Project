@@ -191,17 +191,17 @@ class AdminSideController extends Controller
             'accomodation_capacity' => 'required|numeric|min:1',
             'accomodation_price' => 'required|numeric|min:0',
         ]);
-    
+
         // Handle file upload
         if ($request->hasFile('accomodation_image')) {
-            $imagePath = $request->file('accomodation_image')->store('accomodations', 'public');
+            $imagePath = $request->file('accomodation_image')->store('accommodations', 'public');
         } else {
             return back()->withErrors(['accomodation_image' => 'Failed to upload image.']);
         }
-    
+
         // Insert into database with the correct image path
         DB::table('accomodations')->insert([
-            'accomodation_image' => $imagePath,
+            'accomodation_image' => 'storage/' . $imagePath, // Ensure correct path for retrieval
             'accomodation_name' => $request->accomodation_name,
             'accomodation_type' => $request->accomodation_type,
             'accomodation_capacity' => $request->accomodation_capacity,
@@ -209,8 +209,41 @@ class AdminSideController extends Controller
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-    
+
         return redirect()->route('rooms')->with('success', 'Accommodation added successfully!');
+    }
+
+    public function updateRoom(Request $request, $id)
+    {
+        $request->validate([
+            'accomodation_image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+            'accomodation_name' => 'required|string|max:255',
+            'accomodation_type' => 'required|in:room,cottage',  
+            'accomodation_capacity' => 'required|numeric|min:1',
+            'accomodation_price' => 'required|numeric|min:0',
+        ]);
+    
+        $accomodation = DB::table('accomodations')->where('accomodation_id', $id)->first();
+    
+        if (!$accomodation) {
+            return redirect()->back()->with('error', 'Accommodation not found.');
+        }
+    
+        if ($request->hasFile('accomodation_image')) {
+            $imagePath = $request->file('accomodation_image')->store('public/accomodations');
+            $accomodation->accomodation_image = str_replace('public/', '', $imagePath); // Remove 'public/' for correct path
+        }
+    
+        DB::table('accomodations')->where('accomodation_id', $id)->update([
+            'accomodation_name' => $request->accomodation_name,
+            'accomodation_type' => $request->accomodation_type,
+            'accomodation_capacity' => $request->accomodation_capacity,
+            'accomodation_price' => $request->accomodation_price,
+            'accomodation_image' => $accomodation->accomodation_image,
+            'updated_at' => now(),
+        ]);
+    
+        return redirect()->route('rooms')->with('success', 'Accommodation updated successfully!');
     }
 
     public function updatePackage(Request $request, $id){
@@ -275,6 +308,11 @@ class AdminSideController extends Controller
         $accomodations = DB::table('accomodations')->orderByDesc('created_at')->get();
         
         return view('AdminSide.addRoom', ['accomodations' => $accomodations]);
+    }
+
+    public function addActivities()
+    {
+        return view('AdminSide.Activities');
     }
 
 }
