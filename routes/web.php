@@ -92,11 +92,13 @@ Route::get('/reservations', [AdminSideController::class, 'reservations'])->name(
 Route::get('/get-bookings', [AdminSideController::class, 'DashboardView']);
 Route::get('/room-availability', [AdminSideController::class, 'roomAvailability'])->name('roomAvailability');
 Route::post('add-room', [AdminSideController::class, 'addRoom'])->name('addRoom');
+Route::put('/rooms/update/{id}', [AdminSideController::class, 'updateRoom'])->name('updateRoom');
 Route::get('/rooms-display', [AdminSideController::class, 'DisplayAccomodations'])->name('rooms');
 Route::get('/packages', [AdminSideController::class, 'packages'])->name('packages');
 Route::post('/add-packages', [AdminSideController::class, 'addPackages'])->name('addPackage');
 Route::put('/packages/update/{id}', [AdminSideController::class, 'updatePackage'])->name('updatePackage');
 Route::delete('/packages/delete/{id}', [AdminSideController::class, 'deletePackage'])->name('deletePackage');
+Route::get('/add-activities', [AdminSideController::class, 'addActivities'])->name('addActivities');
 Route::get('/guests', [AdminSideController::class, 'guests'])->name('guests');
 Route::get('/transactions/edit-entrance-fee', [AdminSideController::class, 'editPrice'])->name('transactions');
 Route::post('/transactions/update-entrance-fee', [AdminSideController::class, 'updatePrice'])->name('updatePrice');

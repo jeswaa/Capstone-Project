@@ -189,5 +189,5 @@ class ReservationController extends Controller
         }
 
         return view('Reservation.Events_reservation', compact('events'));
-    }
+    }   
 }
