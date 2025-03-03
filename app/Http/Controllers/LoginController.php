@@ -18,35 +18,45 @@ class LoginController extends Controller
 
     public function authenticate(Request $request)
     {
+
         // Validate input fields
         $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|min:6',
+            'email' => [
+                'required',
+                'email',
+            ],
+            'password' => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail) use ($request) {
+                    if (!User::where('email', $request->email)->exists()) {
+                        $fail('Email does not exist.');
+                    } elseif (!Hash::check($value, User::where('email', $request->email)->first()->password)) {
+                        $fail('Password is incorrect.');
+                    }
+                },
+            ],
         ]);
 
-        // Find user by email
-        $user = User::where('email', $request->email)->first();
+        // Check if email exists in users table
+        if (!User::where('email', $request->email)->exists()) {
+            return back()->with('invalidLogin', 'Email does not exist.')->withInput($request->only('email'));
+        }
 
-        // Check if user exists and password matches
-        if ($user && Hash::check($request->password, $user->password)) {
+        // Attempt to authenticate the user
+        if (Auth::attempt($request->only('email', 'password'))) {
+            $user = Auth::user();
+
             // Store user in session
             Session::put('user', $user->id);
             Session::put('user_email', $user->email);
-            
-            return redirect()->intended('homepage');
-        }
+            Session::put('user_name', $user->name);
+            Session::put('user_mobile', $user->mobileNo);
+            Session::put('user_address', $user->address);
 
-        // Return an error if authentication fails
-        if (!$user) {
-            return back()->with('errorlogin', 'User with this email does not exist.')->withInput($request->only('email'));
-        } elseif (!Hash::check($request->password, $user->password)) {
-            return back()->with('errorlogin', 'The provided credentials do not match our records.')->withInput($request->only('email'));
-        } else {
-            // Successful login, set session and redirect
-            Session::put('user', $user->id);
-            Session::put('user_email', $user->email);
             return redirect()->intended('homepage')->with('loginsuccess', 'Welcome, ' . $user->name . '!');
         }
+        return back()->with('errorlogin', 'Invalid email or password.')->withInput($request->only('email'));
     }
 }
 
