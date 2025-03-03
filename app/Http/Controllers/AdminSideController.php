@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Models\Transaction;
+use App\Models\Accomodation;
+use App\Models\Package;
 
 class AdminSideController extends Controller
 {
@@ -175,6 +178,55 @@ class AdminSideController extends Controller
 
         return redirect()->route('packages')->with('success', 'Package added successfully!');
     }
+    public function updatePackage(Request $request, $id)
+{
+    // Validate the request
+    $request->validate([
+        'image_package' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+        'package_name' => 'required|string|max:255',
+        'package_description' => 'nullable|string',
+        'package_price' => 'required|numeric|min:0',
+        'package_duration' => 'nullable|string',
+        'package_max_guests' => 'nullable|integer|min:1',
+        'package_activities' => 'nullable|string',
+        'package_room_type' => 'nullable|string'
+    ]);
+
+    // Fetch the package from the database using Eloquent
+    $package = Package::find($id);
+
+    if (!$package) {
+        return redirect()->back()->with('error', 'Package not found.');
+    }
+
+    // Handle image upload (if a new image is uploaded)
+    if ($request->hasFile('image_package')) {
+        // Delete old image if it exists
+        if ($package->image_package && Storage::disk('public')->exists($package->image_package)) {
+            Storage::disk('public')->delete($package->image_package);
+        }
+        
+        // Store the new image
+        $imagePath = $request->file('image_package')->store('package_images', 'public');
+    } else {
+        $imagePath = $package->image_package; // Keep old image if no new file uploaded
+    }
+
+    // Update the package in the database using Eloquent
+    $package->update([
+        'package_name' => $request->package_name,
+        'package_description' => $request->package_description,
+        'package_price' => $request->package_price,
+        'package_duration' => $request->package_duration,
+        'package_max_guests' => $request->package_max_guests,
+        'package_activities' => $request->package_activities,
+        'package_room_type' => $request->package_room_type,
+        'image_package' => $imagePath, // Update image if changed
+    ]);
+
+    return redirect()->back()->with('success', 'Package updated successfully.');
+}
+
 
     public function packages()
     {
@@ -192,16 +244,17 @@ class AdminSideController extends Controller
             'accomodation_price' => 'required|numeric|min:0',
         ]);
 
-        // Handle file upload
-        if ($request->hasFile('accomodation_image')) {
-            $imagePath = $request->file('accomodation_image')->store('accommodations', 'public');
-        } else {
-            return back()->withErrors(['accomodation_image' => 'Failed to upload image.']);
+        // Attempt to store the image
+        $imagePath = $request->file('accomodation_image')->store('accomodations', 'public');
+
+        // Check if the image was successfully saved
+        if (!$imagePath) {
+            return redirect()->back()->with('error', 'Failed to upload image. Please try again.');
         }
 
-        // Insert into database with the correct image path
-        DB::table('accomodations')->insert([
-            'accomodation_image' => 'storage/' . $imagePath, // Ensure correct path for retrieval
+        // Save the data into the database
+        $inserted = DB::table('accomodations')->insert([
+            'accomodation_image' => $imagePath, 
             'accomodation_name' => $request->accomodation_name,
             'accomodation_type' => $request->accomodation_type,
             'accomodation_capacity' => $request->accomodation_capacity,
@@ -210,86 +263,55 @@ class AdminSideController extends Controller
             'updated_at' => now(),
         ]);
 
+        // Check if database insert was successful
+        if (!$inserted) {
+            return redirect()->back()->with('error', 'Failed to save accommodation. Please try again.');
+        }
+
         return redirect()->route('rooms')->with('success', 'Accommodation added successfully!');
     }
 
-    public function updateRoom(Request $request, $id)
+
+    public function updateRoom(Request $request, $accomodation_id)
     {
         $request->validate([
             'accomodation_image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
             'accomodation_name' => 'required|string|max:255',
             'accomodation_type' => 'required|in:room,cottage',  
             'accomodation_capacity' => 'required|numeric|min:1',
-            'accomodation_price' => 'required|numeric|min:0',
+            'accomodation_price' => 'required|numeric|min:0',   
         ]);
-    
-        $accomodation = DB::table('accomodations')->where('accomodation_id', $id)->first();
-    
+
+        // Find accommodation using Eloquent
+        $accomodation = Accomodation::find($accomodation_id);
+
         if (!$accomodation) {
             return redirect()->back()->with('error', 'Accommodation not found.');
         }
-    
+
+        // Handle image upload
         if ($request->hasFile('accomodation_image')) {
+            // Delete the old image if it exists
+            if ($accomodation->accomodation_image) {
+                Storage::delete('public/' . $accomodation->accomodation_image);
+            }
+
+            // Store the new image
             $imagePath = $request->file('accomodation_image')->store('public/accomodations');
-            $accomodation->accomodation_image = str_replace('public/', '', $imagePath); // Remove 'public/' for correct path
+            $accomodation->accomodation_image = str_replace('public/', '', $imagePath);
         }
-    
-        DB::table('accomodations')->where('accomodation_id', $id)->update([
-            'accomodation_name' => $request->accomodation_name,
-            'accomodation_type' => $request->accomodation_type,
-            'accomodation_capacity' => $request->accomodation_capacity,
-            'accomodation_price' => $request->accomodation_price,
-            'accomodation_image' => $accomodation->accomodation_image,
-            'updated_at' => now(),
-        ]);
-    
+
+        // Update other fields
+        $accomodation->accomodation_name = $request->accomodation_name;
+        $accomodation->accomodation_type = $request->accomodation_type;
+        $accomodation->accomodation_capacity = $request->accomodation_capacity;
+        $accomodation->accomodation_price = $request->accomodation_price;
+        $accomodation->save();
+
         return redirect()->route('rooms')->with('success', 'Accommodation updated successfully!');
     }
 
-    public function updatePackage(Request $request, $id){
-        // Validate the request
-        $request->validate([
-            'image_package' => 'nullable|image|mimes:jpeg,png,jpg,gif',
-            'package_name' => 'required|string|max:255',
-            'package_description' => 'nullable|string',
-            'package_price' => 'required|numeric|min:0',
-            'package_duration' => 'nullable|string',
-            'package_max_guests' => 'nullable|integer|min:1',
-            'package_activities' => 'nullable|string',
-            'package_room_type' => 'nullable|string'
-        ]);
-
-        // Fetch the package from the database
-        $package = DB::table('packagestbl')->where('id', $id)->first();
-
-        if (!$package) {
-            return redirect()->back()->with('error', 'Package not found.');
-        }
-
-        // Handle image upload (if a new image is uploaded)
-        if ($request->hasFile('image_package')) {
-            $imagePath = $request->file('image_package')->store('package_images', 'public');
-        } else {
-            $imagePath = $package->image_package; // Keep old image if no new file uploaded
-        }
-
-        // Update the package in the database
-        DB::table('packagestbl')
-            ->where('id', $id)
-            ->update([
-                'package_name' => $request->package_name,
-                'package_description' => $request->package_description,
-                'package_price' => $request->package_price,
-                'package_duration' => $request->package_duration,
-                'package_max_guests' => $request->package_max_guests,
-                'package_activities' => $request->package_activities,
-                'package_room_type' => $request->package_room_type,
-                'image_package' => $imagePath, // Update image if changed
-            ]);
-
-        return redirect()->back()->with('success', 'Package updated successfully.');
-    }
-
+    
     public function deletePackage($id)
     {
         // Attempt to delete the package from the database
