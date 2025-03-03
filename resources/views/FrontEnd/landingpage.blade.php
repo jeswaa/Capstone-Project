@@ -39,7 +39,7 @@
         <!-- Hero Content -->
         <div class="container text-start d-flex flex-column align-items-start">
             <h1 class="display-4 fw-bold">LOREM IPSUM<br>DOLOR SIT AMET</h1>
-            <a href="{{ route('login') }}"><button class="btn btn-success mt-3">Book Your Stay</button></a>
+            <button class="btn btn-success mt-3">Book Your Stay</button>
         </div>
     </div>
     </section>
