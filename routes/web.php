@@ -12,6 +12,7 @@ use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\HomePageController;
 use App\Http\Controllers\SignupController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReservationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -50,3 +51,5 @@ Route::get('/guests', [AdminSideController::class, 'guests'])->name('guests');
 Route::get('/transactions', [AdminSideController::class, 'transactions'])->name('transactions');
 Route::get('reports', [AdminSideController::class, 'reports'])->name('reports');
 Route::get('/logout', [AdminSideController::class, 'logout'])->name('logout');
+
+
