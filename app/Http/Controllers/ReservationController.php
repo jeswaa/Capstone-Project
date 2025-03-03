@@ -12,10 +12,6 @@ use DateTime;
 
 class ReservationController extends Controller
 {
-<<<<<<< HEAD
-    
-}
-=======
     public function reservation()
     {
         return view('Reservation.reservation');
@@ -193,6 +189,5 @@ class ReservationController extends Controller
         }
 
         return view('Reservation.Events_reservation', compact('events'));
-    }
+    }   
 }
->>>>>>> b38d1af7c4bbc4a0a8499a2215ccc3cfa651bcfe

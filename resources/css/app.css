@@ -190,3 +190,6 @@
 }
 
 
+.carousel-inner img {
+    border-radius: 25px;
+}

@@ -10,6 +10,8 @@
     <!-- Bootstrap CSS -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
+<style>
+</style>
 <body>
 <section style="background-color: #E5F9DB;">
     <!-- Hero Section with Background -->
@@ -40,35 +42,72 @@
         </nav>
 
         <!-- Hero Content with Carousel -->
-        <div class="container">
+        <div class="container" style=" box-sizing: content-box;">
             <div class="row align-items-center">
-                <!-- Left Column: Heading and Button -->
-                <div class="col-md-6 text-start">
-                    <h1 class="display-4 fw-bold" style="font-size: 75px;" data-aos="fade-right" data-aos-duration="1000">
-                        LOREM IPSUM<br>DOLOR SIT AMET
-                    </h1>
+                <!-- Left Side - Text Content -->
+                <div class="col-md-4 text-start ms-5"  style=" box-sizing: content-box;">
+                    <h1 class="display-4 fw-bold"  style="font-size: 65px;" data-aos="fade-right" data-aos-duration="1000">LOREM IPSUM <br> DOLOR SIT AMET</h1>
                     <a href="{{ route('login') }}">
-                        <button class="btn btn-success mt-3" data-aos="fade-right" data-aos-duration="1000">Book Your Stay</button>
+                    <button class="btn btn-success btn-lg mt-3 p-3 font-paragraph" data-aos="fade-right" data-aos-duration="1000">
+    Book Your Stay
+</button>
                     </a>
                 </div>
-            <!-- Right Column: Image Carousel -->
-            <div class="col-md-6">
-                <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">
-                    <div class="carousel-inner">
-                        <div class="carousel-item active">
-                            <img src="{{ asset('images/room1.jpg') }}" class="d-block w-100 rounded" alt="Slide 1">
+                
+                    <!-- Right Side - Carousels -->
+                    <div class="col-md-7 d-flex justify-content-end align-items-center mt-5" data-aos="fade-right" data-aos-duration="1000">
+                        <div class="d-flex flex-column gap-4"> <!-- Stack Carousel 1 & 2 -->
+                            <!-- Small Carousel 1 (Top) -->
+                            <div id="smallHotelCarousel1" class="carousel slide custom-carousel mb-3" data-bs-ride="carousel" data-bs-interval="2000" style="max-width: 270px;">
+                                <div class="carousel-inner">
+                                    <div class="carousel-item active">
+                                        <img src="{{ asset('images/room1.jpg') }}" class="w-100" style="height: 270px; object-fit: cover;" alt="Hotel Lobby 1">
+                                    </div>
+                                    <div class="carousel-item">
+                                        <img src="{{ asset('images/room 2.jpg') }}" class="w-100" style="height: 270px; object-fit: cover;" alt="Hotel Lobby 2">
+                                    </div>
+                                    <div class="carousel-item">
+                                        <img src="{{ asset('images/room3.jpg') }}" class="w-100" style="height: 270px; object-fit: cover;" alt="Hotel Lobby 3">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Small Carousel 2 (Bottom) -->
+                            <div id="smallHotelCarousel2" class="carousel slide custom-carousel" data-bs-ride="carousel" data-bs-interval="3000" style="max-width: 270px;">
+                                <div class="carousel-inner">
+                                    <div class="carousel-item active">
+                                        <img src="{{ asset('images/room1.jpg') }}" class="w-100" style="height: 270px; object-fit: cover;" alt="Hotel Lobby 1">
+                                    </div>
+                                    <div class="carousel-item">
+                                        <img src="{{ asset('images/room 2.jpg') }}" class="w-100" style="height: 270px; object-fit: cover;" alt="Hotel Lobby 2">
+                                    </div>
+                                    <div class="carousel-item">
+                                        <img src="{{ asset('images/room3.jpg') }}" class="w-100" style="height: 270px; object-fit: cover;" alt="Hotel Lobby 3">
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="carousel-item">
-                            <img src="{{ asset('images/room 2.jpg') }}" class="d-block w-100 rounded" alt="Slide 2">
-                        </div>
-                        <div class="carousel-item">
-                            <img src="{{ asset('images/room3.jpg') }}" class="d-block w-100 rounded" alt="Slide 3">
+
+                        <!-- Space in the Middle -->
+                        <div class="mx-4"></div>
+
+                        <!-- Small Carousel 3 (Right Side) -->
+                        <div id="smallHotelCarousel3" class="carousel slide custom-carousel" data-bs-ride="carousel" data-bs-interval="3200" style="max-width: 300px;">
+                            <div class="carousel-inner">
+                                <div class="carousel-item active">
+                                    <img src="{{ asset('images/room1.jpg') }}" class="w-100" style="height: 350px; object-fit: cover;" alt="Pool Image 1">
+                                </div>
+                                <div class="carousel-item">
+                                    <img src="{{ asset('images/room 2.jpg') }}" class="w-100" style="height: 350px; object-fit: cover;" alt="Pool Image 2">
+                                </div>
+                                <div class="carousel-item">
+                                    <img src="{{ asset('images/room3.jpg') }}" class="w-100" style="height: 350px; object-fit: cover;" alt="Pool Image 3">
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-</section>
+            </section>
+
                     <!-- Welcome Section -->
                     <section id="about" class="py-5" style="background-color: #E5F9DB;">
                         <div class="container">
@@ -103,41 +142,42 @@
                         </div>
                     </section>
 
-                    <!-- Activities Section -->
-                    <section class="py-5" style="background-color: #E5F9DB;">
-                        <div class="container">
-                            <h2 class="fw-bold text-center mb-4" data-aos="fade-right" data-aos-duration="1000">ACTIVITIES</h2>
-                            <div class="row text-center">
-                                <div class="col-md-4">
-                                    <div class="card bg-dark text-white" data-aos="fade-right" data-aos-duration="1000">
-                                        <img src="{{ asset('images/hotelpic.jpg') }}" class="card-img activity-img" alt="Swimming">
-                                        <div class="card-img-overlay d-flex flex-column justify-content-end">
-                                            <h4 class="fw-bold">Swimming</h4>
-                                            <p class="small">Enjoy a refreshing swim in our pool or natural water spots.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="card bg-dark text-white" data-aos="fade-right" data-aos-duration="1000">
-                                        <img src="{{ asset('images/hotelpic.jpg') }}" class="card-img activity-img" alt="Camping">
-                                        <div class="card-img-overlay d-flex flex-column justify-content-end">
-                                            <h4 class="fw-bold">Camping</h4>
-                                            <p class="small">Experience nature up close with our camping facilities.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="card bg-dark text-white"data-aos="fade-right" data-aos-duration="1000">
-                                        <img src="{{ asset('images/hotelpic.jpg') }}" class="card-img activity-img" alt="Hiking">
-                                        <div class="card-img-overlay d-flex flex-column justify-content-end">
-                                            <h4 class="fw-bold">Hiking</h4>
-                                            <p class="small">Explore scenic trails with breathtaking views.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
+<!-- Activities Section -->
+<section class="py-5" style="background-color: #E5F9DB;">
+    <div class="container">
+        <h2 class="fw-bold text-center mb-4" data-aos="fade-right" data-aos-duration="1000">ACTIVITIES</h2>
+        <div class="row text-center">
+            <div class="col-md-4">
+                <div class="card bg-dark text-white" data-aos="fade-right" data-aos-duration="1000" data-aos-delay="0">
+                    <img src="{{ asset('images/hotelpic.jpg') }}" class="card-img activity-img" alt="Swimming">
+                    <div class="card-img-overlay d-flex flex-column justify-content-end">
+                        <h4 class="fw-bold">Swimming</h4>
+                        <p class="small">Enjoy a refreshing swim in our pool or natural water spots.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-dark text-white" data-aos="fade-right" data-aos-duration="1000" data-aos-delay="300">
+                    <img src="{{ asset('images/hotelpic.jpg') }}" class="card-img activity-img" alt="Camping">
+                    <div class="card-img-overlay d-flex flex-column justify-content-end">
+                        <h4 class="fw-bold">Camping</h4>
+                        <p class="small">Experience nature up close with our camping facilities.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-dark text-white" data-aos="fade-right" data-aos-duration="1000" data-aos-delay="600">
+                    <img src="{{ asset('images/hotelpic.jpg') }}" class="card-img activity-img" alt="Hiking">
+                    <div class="card-img-overlay d-flex flex-column justify-content-end">
+                        <h4 class="fw-bold">Hiking</h4>
+                        <p class="small">Explore scenic trails with breathtaking views.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 
 <!-- Customer Testimonials -->
 <section class="py-5" style="background-color: #E5F9DB;">
@@ -189,7 +229,7 @@
 </section>
 
 <!-- Footer Section -->
-<footer class="py-5" data-aos="fade-right" data-aos-duration="1000" style="background-color: #6B8E6B; color: white;">
+<footer class="py-5" style="background-color: #6B8E6B; color: white;">
     <div class="container">
         <div class="row d-flex justify-content-between align-items-center">
             <!-- Logo and Map Section -->

@@ -12,13 +12,8 @@ use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\HomePageController;
 use App\Http\Controllers\SignupController;
-<<<<<<< HEAD
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ReservationController;
-=======
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\StaffController;
->>>>>>> b38d1af7c4bbc4a0a8499a2215ccc3cfa651bcfe
 
 /*
 |--------------------------------------------------------------------------
@@ -35,19 +30,6 @@ Auth::routes(['verify' => true]);
 /* LOGIN */
 Route::get('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/login/authenticate', [LoginController::class, 'authenticate'])->name('login.authenticate');
-<<<<<<< HEAD
-
-//*Landing page/index */
-Route::get('/', [LandingPageController::class, 'index']);
-
-//*homepage page/index */
-Route::get('/homepage', [HomePageController::class, 'homepage'])->name('homepage');
-// Add this route for profile
-Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
-// Add this route for updating profile
-Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
-=======
->>>>>>> b38d1af7c4bbc4a0a8499a2215ccc3cfa651bcfe
 // SIGNUP
 Route::get('/signup', [SignUpController::class, 'signup'])->name('signup');
 Route::post('/signup/store', [SignUpController::class, 'store'])->name('signup.store');
@@ -121,8 +103,6 @@ Route::post('/transactions/update-entrance-fee', [AdminSideController::class, 'u
 Route::get('reports', [AdminSideController::class, 'reports'])->name('reports');
 Route::get('/logout', [AdminSideController::class, 'logout'])->name('logout');
 
-<<<<<<< HEAD
-=======
 //Staff Routes
 Route::get('/login/staff', [StaffController::class, 'StaffLogin'])->name('StaffLogin');
 Route::post('/login/staff/authenticate', [StaffController::class, 'authenticate'])->name('staff.authenticate');
@@ -136,5 +116,4 @@ Route::get('/staff/logout', [StaffController::class, 'logout'])->name('staff.log
 
 
 
->>>>>>> b38d1af7c4bbc4a0a8499a2215ccc3cfa651bcfe
 
