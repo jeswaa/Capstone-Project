@@ -33,7 +33,7 @@
                 <div class="overflow-y-auto h-100 p-5 w-100">
                     <div class="d-flex">
                         <a href="{{ route('reservations') }}" class="text-color-1 text-decoration-none me-5 text-underline-left-to-right"><h1 class="fs-5 font-heading">Reservation</h1></a>
-                        <a href="{{ route('roomAvailability') }}" class="text-color-1 me-5 text-decoration-none text-underline-left-to-right"><h1 class="fs-5 font-heading">Room Availability</h1></a>
+                        <a href="{{ route('roomAvailability') }}" class="text-color-1 me-5 text-decoration-none text-underline-left-to-right"><h1 class="fs-5 font-heading">Room</h1></a>
                         <a href="{{ route('packages') }}" class="text-color-1 text-decoration-none text-underline-left-to-right"><h1 class="fs-5 font-heading">Packages</h1></a>
                     </div>
 
@@ -63,8 +63,7 @@
 
                     <div class="mt-5">
                         <div class="d-flex align-items-end">
-                            <h1 class="fs-5 me-5 font-paragraph text-color-1 fw-bold">Rooms Availability</h1>
-                            <a href="{{ route('rooms') }}" class="fs-5 text-decoration-none font-paragraph text-color-1 mb-1 fw-bold text-underline-left-to-right">Rooms</a>
+                            <h1><a href="{{ route('rooms') }}" class="fs-5 text-decoration-none font-paragraph text-color-1 mb-1 fw-bold text-underline-left-to-right">Rooms</a></h1>
                         </div>
                         <div class="d-flex justify-content-end">
                             <button type="button" class="p-3 border-0 rounded-3 color-background4 text-hover-1 w-25 font-paragraph text-capitalize fw-bold" data-bs-toggle="modal" data-bs-target="#addRoomModal">

@@ -13,6 +13,7 @@ class Reservation extends Model
 
     protected $fillable = [
         'user_id',
+        'package_id',
         'name',
         'email',
         'mobileNo',
@@ -33,5 +34,9 @@ class Reservation extends Model
         'amount',
         'reference_num',
         'upload_payment',
+        'number_of_adults',
+        'number_of_children',
+        'total_guest',
+        'selected_packages',
     ];
 }
