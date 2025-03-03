@@ -42,33 +42,66 @@ class ReservationController extends Controller
     }
     
     public function saveReservationDetails(Request $request) {
-        $reservationDetails = new Reservation();
-        $reservationDetails->user_id = Auth::user()->id;
-        $reservationDetails->name = $request->input('name');
-        $reservationDetails->email = $request->input('email');
-        $reservationDetails->mobileNo = $request->input('mobileNo');
-        $reservationDetails->number_of_guests = $request->input('number_of_guests');
-        $reservationDetails->address = $request->input('address');
-
-
-        $reservationDetails->save();
+        $reservationDetails = Reservation::where('user_id', Auth::user()->id)->latest()->first();
+        if ($reservationDetails) {
+            $reservationDetails->name = $request->input('name');
+            $reservationDetails->email = $request->input('email');
+            $reservationDetails->mobileNo = $request->input('mobileNo');
+            $reservationDetails->address = $request->input('address');
+            $reservationDetails->save();
+        }
 
         return redirect()->route('paymentProcess')->with('success', 'Reservation details saved successfully.');
     }
+
     
-    public function savePackageSelection(Request $request)
-{
-    // Check if the selected reservation date is available
-    $checkIn = new DateTime($request->input('reservation_check_in_date'));
-    $checkOut = new DateTime($request->input('reservation_check_out_date'));
-    if (!$this->isDateAvailable($checkIn->format('Y-m-d')) || !$this->isDateAvailable($checkOut->format('Y-m-d'))) {
-        return redirect()->back()->with('error', 'The selected reservation date is already taken.');
+    public function fixPackagesSelection(Request $request)
+    {
+        // Validate incoming request data
+        $request->validate([
+            'selected_packages' => 'required|array', // Ensures at least one package is selected
+            'selected_packages.*' => 'exists:packagestbl,id', // Ensures all selected packages exist in the packages table
+            'reservation_check_in_date' => 'required|date|after_or_equal:today',
+            'reservation_check_out_date' => 'required|date|after:reservation_check_in_date',
+            'reservation_check_in' => 'required|string',
+            'reservation_check_out' => 'required|string',
+        ]);
+
+        // Convert selected packages into a JSON string if multiple packages are allowed
+        $selectedPackages = count($request->input('selected_packages')) > 1 
+            ? json_encode($request->input('selected_packages')) 
+            : $request->input('selected_packages')[0];
+
+        // Check if the selected dates are available
+        if (!$this->isDateAvailable($request->reservation_check_in_date) || 
+            !$this->isDateAvailable($request->reservation_check_out_date)) {
+            return redirect()->back()->with('error', 'The selected reservation date is already taken.');
+        }
+
+        // Save reservation details
+        $reservationDetails = new Reservation();
+        $reservationDetails->user_id = Auth::id(); // Uses Auth::id() to avoid null issues
+        $reservationDetails->package_id = $selectedPackages; // Store package_id or JSON for multiple packages
+        $reservationDetails->reservation_check_in_date = $request->reservation_check_in_date;
+        $reservationDetails->reservation_check_out_date = $request->reservation_check_out_date;
+        $reservationDetails->reservation_check_in = $request->reservation_check_in;
+        $reservationDetails->reservation_check_out = $request->reservation_check_out;
+        $reservationDetails->save();
+
+        return redirect()->route('reservation')->with('success', 'Package selection saved successfully.');
     }
 
-    // Get the latest reservation for the user
-    $reservationDetails = Reservation::where('user_id', Auth::user()->id)->latest()->first();
+    public function savePackageSelection(Request $request)
+    {
+        // Check if the selected reservation date is available
+        $checkIn = new DateTime($request->input('reservation_check_in_date'));
+        $checkOut = new DateTime($request->input('reservation_check_out_date'));
+        if (!$this->isDateAvailable($checkIn->format('Y-m-d')) || !$this->isDateAvailable($checkOut->format('Y-m-d'))) {
+            return redirect()->back()->with('error', 'The selected reservation date is already taken.');
+        }
 
-    if ($reservationDetails) {
+        $reservationDetails = new Reservation();
+        $reservationDetails->user_id = Auth::user()->id;
         $reservationDetails->room_preference = $request->input('room_preference');
         $reservationDetails->activities = $request->input('activities');
         $reservationDetails->rent_as_whole = $request->input('rent_as_whole');
@@ -78,18 +111,21 @@ class ReservationController extends Controller
         $reservationDetails->reservation_check_in_date = new DateTime($request->input('reservation_check_in_date'));
         $reservationDetails->reservation_check_out_date = new DateTime($request->input('reservation_check_out_date'));
         $reservationDetails->special_request = $request->input('special_request');
+        $reservationDetails->total_guest = $request->input('total_guest');
+        $reservationDetails->number_of_adults = $request->input('number_of_adults');
+        $reservationDetails->number_of_children = $request->input('number_of_children');
         $reservationDetails->save();
+
+        return redirect()->route('reservation')->with('success', 'Package selection saved successfully.');
     }
 
-    return redirect()->route('reservation')->with('success', 'Package selection saved successfully.');
-}
+    private function isDateAvailable($date)
+    {
+        return !Reservation::where('reservation_check_in_date', $date)
+            ->orWhere('reservation_check_out_date', $date)
+            ->exists();
+    }
 
-private function isDateAvailable($date)
-{
-    return !Reservation::whereBetween('reservation_check_in', [$date, $date])
-        ->orWhereBetween('reservation_check_out', [$date, $date])
-        ->exists();
-}
 
     public function savePaymentProcess(Request $request)
     {
@@ -142,10 +178,10 @@ private function isDateAvailable($date)
         foreach ($reservations as $reservation) {
             $events[] = [
                 'title' => 'Reserved',
-                'start' => $reservation->reservation_date, // Dapat YYYY-MM-DD format
+                'start' => $reservation->reservation_check_in_date, // Dapat YYYY-MM-DD format
                 'extendedProps' => [
                     'name' => $reservation->name,
-                    'date' => $reservation->reservation_date,
+                    'date' => $reservation->reservation_check_in_date,
                     'check_in' => (new DateTime($reservation->reservation_check_in))->format('g:i A'),
                     'check_out' => (new DateTime($reservation->reservation_check_out))->format('g:i A')
                 ]

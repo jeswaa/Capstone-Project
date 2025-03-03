@@ -46,10 +46,6 @@
                             <label for="address">Address:</label>
                             <textarea name="address" id="address">{{ auth()->user()->address }}</textarea>
                         </div>
-                        <div>
-                            <label for="number_of_guests">Number of Guests:</label>
-                            <input type="number" name="number_of_guests" id="number_of_guests" value="{{ auth()->user()->number_of_guests }}" required>
-                        </div>
                         <button type="submit">Save and Continue</button>
                     </form>
             </div>

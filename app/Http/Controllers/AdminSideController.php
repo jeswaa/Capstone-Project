@@ -142,23 +142,35 @@ class AdminSideController extends Controller
     public function addPackages(Request $request)
     {
         $request->validate([
+            'image_package' => 'required|image|mimes:jpeg,png,jpg,gif',
             'package_name' => 'required|string|max:255',
             'package_description' => 'nullable|string',
             'package_price' => 'required|numeric|min:0',
             'package_duration' => 'nullable|string',
             'package_max_guests' => 'nullable|string',
+            'package_room_type' => 'nullable|string',
             'package_activities' => 'nullable|string',
         ]);
 
+        if ($request->hasFile('image_package')) {
+            try {
+                $imagePath = $request->file('image_package')->store('package_images', 'public');
+            } catch (\Exception $e) {
+                return back()->withErrors(['image_package' => 'Error saving image. Please try again.']);
+            }
+        } else {
+            $imagePath = null;
+        }
+
         DB::table('packagestbl')->insert([
+            'image_package' => $imagePath,
             'package_name' => $request->package_name,
             'package_description' => $request->package_description,
+            'package_room_type' => $request->package_room_type,
             'package_price' => $request->package_price,
             'package_duration' => $request->package_duration,
             'package_max_guests' => $request->package_max_guests,
             'package_activities' => $request->package_activities,
-            'created_at' => now(),
-            'updated_at' => now(),
         ]);
 
         return redirect()->route('packages')->with('success', 'Package added successfully!');
@@ -173,7 +185,7 @@ class AdminSideController extends Controller
     public function addRoom(Request $request)
     {
         $request->validate([
-            'accomodation_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'accomodation_image' => 'required|image|mimes:jpeg,png,jpg,gif',
             'accomodation_name' => 'required|string|max:255',
             'accomodation_type' => 'required|in:room,cottage',  
             'accomodation_capacity' => 'required|numeric|min:1',
@@ -199,6 +211,62 @@ class AdminSideController extends Controller
         ]);
     
         return redirect()->route('rooms')->with('success', 'Accommodation added successfully!');
+    }
+
+    public function updatePackage(Request $request, $id){
+        // Validate the request
+        $request->validate([
+            'image_package' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+            'package_name' => 'required|string|max:255',
+            'package_description' => 'nullable|string',
+            'package_price' => 'required|numeric|min:0',
+            'package_duration' => 'nullable|string',
+            'package_max_guests' => 'nullable|integer|min:1',
+            'package_activities' => 'nullable|string',
+            'package_room_type' => 'nullable|string'
+        ]);
+
+        // Fetch the package from the database
+        $package = DB::table('packagestbl')->where('id', $id)->first();
+
+        if (!$package) {
+            return redirect()->back()->with('error', 'Package not found.');
+        }
+
+        // Handle image upload (if a new image is uploaded)
+        if ($request->hasFile('image_package')) {
+            $imagePath = $request->file('image_package')->store('package_images', 'public');
+        } else {
+            $imagePath = $package->image_package; // Keep old image if no new file uploaded
+        }
+
+        // Update the package in the database
+        DB::table('packagestbl')
+            ->where('id', $id)
+            ->update([
+                'package_name' => $request->package_name,
+                'package_description' => $request->package_description,
+                'package_price' => $request->package_price,
+                'package_duration' => $request->package_duration,
+                'package_max_guests' => $request->package_max_guests,
+                'package_activities' => $request->package_activities,
+                'package_room_type' => $request->package_room_type,
+                'image_package' => $imagePath, // Update image if changed
+            ]);
+
+        return redirect()->back()->with('success', 'Package updated successfully.');
+    }
+
+    public function deletePackage($id)
+    {
+        // Attempt to delete the package from the database
+        $deleted = DB::table('packagestbl')->where('id', $id)->delete();
+
+        if ($deleted) {
+            return redirect()->route('packages')->with('success', 'Package deleted successfully!');
+        } else {
+            return redirect()->route('packages')->with('error', 'Failed to delete package.');
+        }
     }
 
 

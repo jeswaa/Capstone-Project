@@ -49,6 +49,7 @@ Route::get('/reservation/display-summary', [ReservationController::class, 'displ
 Route::post('/reservation-personal', [ReservationController::class, 'fetchUserData'])->name('fetchUserData');
 Route::post('/reservation/personal-details', [ReservationController::class, 'saveReservationDetails'])->name('saveReservationDetails');
 Route::post('/reservation/select-package-details', [ReservationController::class, 'savePackageSelection'])->name('savePackageSelection');
+Route::post('/reservation/select-fix-package-details', [ReservationController::class, 'fixPackagesSelection'])->name('fixPackagesSelection');
 Route::post('/reservation/save-payment-process', [ReservationController::class, 'savePaymentProcess'])->name('savePaymentProcess');
 Route::get('/reservation/display-packages', [ReservationController::class, 'displayPackageSelection'])->name('authenticatedPackages');
 // Route for testing file access
@@ -94,6 +95,8 @@ Route::post('add-room', [AdminSideController::class, 'addRoom'])->name('addRoom'
 Route::get('/rooms-display', [AdminSideController::class, 'DisplayAccomodations'])->name('rooms');
 Route::get('/packages', [AdminSideController::class, 'packages'])->name('packages');
 Route::post('/add-packages', [AdminSideController::class, 'addPackages'])->name('addPackage');
+Route::put('/packages/update/{id}', [AdminSideController::class, 'updatePackage'])->name('updatePackage');
+Route::delete('/packages/delete/{id}', [AdminSideController::class, 'deletePackage'])->name('deletePackage');
 Route::get('/guests', [AdminSideController::class, 'guests'])->name('guests');
 Route::get('/transactions/edit-entrance-fee', [AdminSideController::class, 'editPrice'])->name('transactions');
 Route::post('/transactions/update-entrance-fee', [AdminSideController::class, 'updatePrice'])->name('updatePrice');
@@ -110,6 +113,7 @@ Route::get('/staff/transactions', [StaffController::class, 'transactions'])->nam
 Route::post('/staff/send-email', [StaffController::class, 'sendEmail'])->name('staff.sendEmail');
 Route::get('/staff/guests', [StaffController::class, 'guests'])->name('staff.guests');
 Route::get('/staff/logout', [StaffController::class, 'logout'])->name('staff.logout');
+
 
 
 
