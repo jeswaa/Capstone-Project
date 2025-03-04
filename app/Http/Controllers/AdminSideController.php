@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Transaction;
 use App\Models\Accomodation;
 use App\Models\Package;
+use App\Models\Activities;
 
 class AdminSideController extends Controller
 {
@@ -332,9 +333,68 @@ class AdminSideController extends Controller
         return view('AdminSide.addRoom', ['accomodations' => $accomodations]);
     }
 
-    public function addActivities()
+    public function Activities()
     {
-        return view('AdminSide.Activities');
+        $activities = DB::table('activitiestbl')->get();
+        return view('AdminSide.Activities', ['activities' => $activities]);
     }
+
+    public function storeActivity(Request $request)
+    {
+        // Validate the request
+        $request->validate([
+            'activity_name' => 'required|string|max:255',
+            'activity_status' => 'required|string|max:255',
+            'activity_image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+        ]);
+
+        // Attempt to store the image
+        $imagePath = $request->file('activity_image')->store('activities', 'public');
+
+        // Check if the image was successfully saved
+        if (!$imagePath) {
+            return redirect()->back()->with('error', 'Failed to upload image. Please try again.');
+        }
+
+        // Use Eloquent to create a new activity
+        Activities::create([
+            'activity_name' => $request->activity_name,
+            'activity_status' => $request->activity_status,
+            'activity_image' => $imagePath,
+        ]);
+
+        return redirect()->route('addActivities')->with('success', 'Activity added successfully!');
+    }
+
+    
+    public function updateActivity(Request $request, $id)
+    {
+        // Validate the request
+        $request->validate([
+            'activity_name' => 'required|string|max:255',
+            'activity_status' => 'required|string|max:255',
+            'activity_image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+        ]);
+
+        // Attempt to store the image
+        $imagePath = $request->file('activity_image')->store('activities', 'public');
+
+        // Check if the image was successfully saved
+        if ($imagePath) {
+            // Delete the previous image
+            $activity = Activities::find($id);
+            Storage::delete($activity->activity_image);
+        }
+
+        // Use Eloquent to update the activity
+        Activities::where('id', $id)->update([
+            'activity_name' => $request->activity_name,
+            'activity_status' => $request->activity_status,
+            'activity_image' => $imagePath ?: $request->hidden_image,
+        ]);
+
+        return redirect()->route('addActivities')->with('success', 'Activity updated successfully!');
+    }
+
 
 }

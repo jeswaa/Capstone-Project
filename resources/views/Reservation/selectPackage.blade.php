@@ -129,6 +129,7 @@
                                                 <div class="card">
                                                     <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" class="card-img-top" alt="accomodation image" style="max-width: 100px; height: auto;">
                                                     <div class="card-body">
+                                                        <p  class="card-text">{{ $accomodation->accomodation_id }}</p>
                                                         <h5 class="card-title">{{ $accomodation->accomodation_name }}</h5>
                                                         <p class="card-text">Type: {{ $accomodation->accomodation_type }}</p>
                                                         <p class="card-text">Capacity: {{ $accomodation->accomodation_capacity }}</p>
@@ -162,18 +163,21 @@
                                 <input type="number" name="total_guest" id="total_guests"  required readonly style="pointer-events: none;">
                             </div>
                                 <label for="activities">Activities</label>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="hiking" name="activities" value="hiking">
-                                    <label class="form-check-label" for="hiking">Hiking</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="camping" name="activities" value="camping">
-                                    <label class="form-check-label" for="camping">Camping</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="swimming" name="activities" value="swimming">
-                                    <label class="form-check-label" for="swimming">Swimming</label>
-                                </div>
+                                @foreach($activities as $activity)
+                                    <div class="container mb-3">
+                                        <div class="row align-items-center">
+                                            <div class="col-3 d-flex align-items-center">
+                                                <img src="{{ asset('storage/' . $activity->activity_image) }}" class="img-fluid rounded" style="width: 50px; height: 50px;" alt="{{ $activity->activity_name }}">
+                                            </div>
+                                            <div class="col-9">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="activity{{ $activity->id }}" name="activities[]" value="{{ $activity->id }}">
+                                                    <label class="form-check-label" for="activity{{ $activity->id }}">{{ $activity->activity_name }} <span class="badge rounded-pill bg-{{ $activity->activity_status == 'Available' ? 'success' : 'danger' }}">{{ $activity->activity_status }}</span></label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
                             </div>
                         </div>
                         <div class="col-md-6">
