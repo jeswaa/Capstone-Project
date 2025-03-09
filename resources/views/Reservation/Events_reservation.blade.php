@@ -84,9 +84,22 @@
             background-color: #4a5a3a !important;
             border-color: #4a5a3a !important;
         }
+        @keyframes fadeOut {
+            0% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 <body>
+    @if (session('success'))
+        <div class="alert alert-success alert-dismissible fade show position-absolute top-0 end-0" role="alert" style="animation: fadeOut 5s forwards;">
+            {{ session('success') }}
+        </div>
+    @endif 
     <div id="calendar"></div>
 
     <div id="event-modal">
@@ -95,6 +108,7 @@
         <p><strong>Date:</strong> <span id="event-date"></span></p>
         <p><strong>Check-in:</strong> <span id="event-check_in"></span></p>
         <p><strong>Check-out:</strong> <span id="event-check_out"></span></p>
+        <p><strong>Room Type:</strong> <span id="event-room_type"></span></p> 
         <button onclick="closeModal()">Close</button>
     </div>
     
@@ -104,93 +118,94 @@
     <!-- FullCalendar JS -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const calendarEl = document.getElementById('calendar');
-            const events = @json($events); // Laravel variable for reservations
+        document.addEventListener('DOMContentLoaded', function () {
+    const calendarEl = document.getElementById('calendar');
+    const events = @json($events); // Laravel variable for reservations
 
-            console.log("Fetched Events:", events); // Debugging - Check fetched events
+    console.log("Fetched Events:", events); // Debugging - Check fetched events
 
-            const calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
-                headerToolbar: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
-                },
-                events: events,
-                eventDisplay: 'block',
-                eventTimeFormat: { 
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: true
-                },
-                eventClick: function(info) {
-                    const event = info.event;
-                    document.getElementById('event-title').innerText = event.title;
-                    document.getElementById('event-name').innerText = event.extendedProps.name || 'N/A';
-                    document.getElementById('event-date').innerText = new Date(event.start).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) || 'N/A';
-                    document.getElementById('event-check_in').innerText = event.extendedProps.check_in || 'N/A';
-                    document.getElementById('event-check_out').innerText = event.extendedProps.check_out || 'N/A';
-                    document.getElementById('event-modal').style.display = 'block';
-                },
-                eventContent: function(arg) {
-                    let event = arg.event;
-                    let title = document.createElement('div');
-                    title.classList.add('fc-event-title');
-                    title.innerText = event.title;
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        events: events,
+        eventDisplay: 'block',
+        eventTimeFormat: {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+        },
+        eventContent: function (arg) {
+            let event = arg.event;
+            let title = document.createElement('div');
+            title.classList.add('fc-event-title');
+            title.innerText = event.title;
 
-                    let name = document.createElement('div');
-                    name.classList.add('fc-event-name');
-                    name.innerText = `Name: ${event.extendedProps.name || 'N/A'}`;
+            let name = document.createElement('div');
+            name.classList.add('fc-event-name');
+            name.innerText = `Name: ${event.extendedProps.name || 'N/A'}`;
 
-                    let reservationDate = document.createElement('div');
-                    reservationDate.classList.add('fc-event-date');
-                    reservationDate.innerText = `${new Date(event.start).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) || 'N/A'}`;
+            let reservationDate = document.createElement('div');
+            reservationDate.classList.add('fc-event-date');
+            reservationDate.innerText = `${new Date(event.start).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) || 'N/A'}`;
 
-                    let reservationCheckIn = document.createElement('div');
-                    reservationCheckIn.classList.add('fc-event-time');
-                    reservationCheckIn.innerText = `Check-in: ${event.extendedProps.check_in || 'N/A'}`;
+            let reservationCheckIn = document.createElement('div');
+            reservationCheckIn.classList.add('fc-event-time');
+            reservationCheckIn.innerText = `Check-in: ${event.extendedProps.check_in || 'N/A'}`;
 
-                    let reservationCheckOut = document.createElement('div');
-                    reservationCheckOut.classList.add('fc-event-time');
-                    reservationCheckOut.innerText = `Check-out: ${event.extendedProps.check_out || 'N/A'}`;
+            let reservationCheckOut = document.createElement('div');
+            reservationCheckOut.classList.add('fc-event-time');
+            reservationCheckOut.innerText = `Check-out: ${event.extendedProps.check_out || 'N/A'}`;
 
-                    return { domNodes: [title, name, reservationDate, reservationCheckIn, reservationCheckOut] };
-                },
-                dayCellDidMount: function(info) {
-                    let cellDate = new Date(info.date).toLocaleDateString();
+            let roomType = document.createElement('div');
+            roomType.classList.add('fc-event-room');
+            roomType.innerText = `Room Type: ${event.extendedProps.package_room_type || 'N/A'}`;
 
-                    let hasReservation = events.some(event => {
-                        let eventDate = new Date(event.start).toLocaleDateString();
-                        return eventDate === cellDate;
-                    });
+            return { domNodes: [title, name, reservationDate, reservationCheckIn, reservationCheckOut, roomType] };
+        },
+        dayCellDidMount: function (info) {
+            let cellDate = new Date(info.date).toLocaleDateString();
 
-                    if (hasReservation) {
-                        info.el.classList.add("reserved-day");
-                        info.el.addEventListener('click', () => {
-                            const reservedEvents = events.filter(event => new Date(event.start).toLocaleDateString() === cellDate);
-                            if (reservedEvents.length > 0) {
-                                const event = reservedEvents[0];
-                                document.getElementById('event-title').innerText = event.title;
-                                document.getElementById('event-name').innerText = event.extendedProps.name || 'N/A';
-                                document.getElementById('event-date').innerText = new Date(event.start).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) || 'N/A';
-                                document.getElementById('event-check_in').innerText = event.extendedProps.check_in || 'N/A';
-                                document.getElementById('event-check_out').innerText = event.extendedProps.check_out || 'N/A';
-                                document.getElementById('event-modal').style.display = 'block';
-                            }
-                        });
-                    }
-                }
+            let hasReservation = events.some(event => {
+                let eventDate = new Date(event.start).toLocaleDateString();
+                return eventDate === cellDate;
             });
 
-            calendar.render();
-        });
+            if (hasReservation) {
+                info.el.classList.add("reserved-day");
 
-        function closeModal() {
-            document.getElementById('event-modal').style.display = 'none';
+                // Add hover effect
+                info.el.addEventListener('mouseenter', () => {
+                    const reservedEvents = events.filter(event => new Date(event.start).toLocaleDateString() === cellDate);
+                    if (reservedEvents.length > 0) {
+                        const event = reservedEvents[0];
+                        document.getElementById('event-title').innerText = event.title;
+                        document.getElementById('event-name').innerText = event.extendedProps.name || 'N/A';
+                        document.getElementById('event-date').innerText = new Date(event.start).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) || 'N/A';
+                        document.getElementById('event-check_in').innerText = event.extendedProps.check_in || 'N/A';
+                        document.getElementById('event-check_out').innerText = event.extendedProps.check_out || 'N/A';
+                        document.getElementById('event-room_type').innerText = event.extendedProps.package_room_type || 'N/A';
+                        document.getElementById('event-modal').style.display = 'block';
+                    }
+                });
+
+                info.el.addEventListener('mouseleave', () => {
+                    document.getElementById('event-modal').style.display = 'none';
+                });
+            }
         }
+    });
+
+    calendar.render();
+});
+
     </script>
 
 </body>
 </html>
+
+
 

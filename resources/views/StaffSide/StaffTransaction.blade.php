@@ -40,7 +40,6 @@
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th scope="col">Reservation ID</th>
                                 <th scope="col">Guest Name</th>
                                 <th scope="col">Email</th>
                                 <th scope="col">Payment Method</th>
@@ -52,7 +51,6 @@
                         <tbody>
                             @foreach ($reservations as $reservation)
                                 <tr>
-                                    <td>{{ $reservation->id }}</td>
                                     <td>{{ $reservation->name }}</td>
                                     <td>{{ $reservation->email }}</td>
                                     <td>{{ $reservation->payment_method }}</td>
@@ -121,6 +119,12 @@
                                 <option value="cancelled">Cancelled</option>
                             </select>
                         </div>
+
+                        <div class="mb-3">
+                            <label for="custom_message" class="form-label">Message Sent to Email</label>
+                            <textarea class="form-control" name="custom_message" id="custom_message" rows="3" required></textarea>
+                        </div>
+
                         <button type="submit" class="btn btn-primary">Save</button>
                     </form>
                 </div>

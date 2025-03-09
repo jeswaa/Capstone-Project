@@ -8,6 +8,31 @@
     <title>Reservation</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
+<style>
+    @keyframes fadeOut {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+</style>
+@if (session('error'))
+    <div class="alert alert-danger position-absolute top-0 start-100 translate-middle-x d-flex align-items-center" style="animation: fadeOut 1s forwards;">
+        {{ session('error') }}
+    </div>
+@endif
+@if (session('error'))
+    <div class="alert alert-danger position-absolute top-0 start-100 translate-middle-x d-flex align-items-center" style="animation: fadeOut 1s forwards;">
+        {{ session('error') }}
+    </div>
+@endif
+@if (session('success'))
+    <div class="alert alert-success position-absolute top-0 start-100 translate-middle-x d-flex align-items-center" style="animation: fadeOut 1s forwards;">
+        {{ session('success') }}
+    </div>
+@endif
 <body class="color-background5">
     <div class="container-fluid">
         <div class="row h-100">
@@ -33,8 +58,9 @@
                 <div class="overflow-y-auto h-100 p-5 w-100">
                     <div class="d-flex">
                         <a href="{{ route('reservations') }}" class="text-color-1 text-decoration-none me-5 text-underline-left-to-right"><h1 class="fs-5 font-heading">Reservation</h1></a>
-                        <a href="{{ route('roomAvailability') }}" class="text-color-1 me-5 text-decoration-none text-underline-left-to-right"><h1 class="fs-5 font-heading">Room</h1></a>
-                        <a href="{{ route('packages') }}" class="text-color-1 text-decoration-none text-underline-left-to-right"><h1 class="fs-5 font-heading">Packages</h1></a>
+                        <a href="{{ route('rooms') }}" class="text-color-1 me-5 text-decoration-none text-underline-left-to-right"><h1 class="fs-5 font-heading">Room</h1></a>
+                        <a href="{{ route('packages') }}" class="text-color-1 me-5 text-decoration-none text-underline-left-to-right"><h1 class="fs-5 font-heading">Packages</h1></a>
+                        <a href="{{ route('addActivities') }}" class="text-color-1 text-decoration-none text-underline-left-to-right"><h1 class="fs-5 font-heading">Activities</h1></a>
                     </div>
 
                     <div>
@@ -85,22 +111,65 @@
                             <tbody>
                                 @foreach ($accomodations as $accomodation)
                                 <tr>
-                                    <td>
-                                        @if ($accomodation->accomodation_image)
-                                            <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" alt="Accommodation Image" style="max-width: 100px; height: auto;">
-                                        @else
-                                            No image uploaded
-                                        @endif
+                                    <td> 
+                                    <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" alt="Accommodation Image" width="100" height="100">
                                     </td>
                                     <td>{{ $accomodation->accomodation_name }}</td>
                                     <td>{{ $accomodation->accomodation_type }}</td>
                                     <td>{{ $accomodation->accomodation_capacity }}</td>
                                     <td>{{ $accomodation->accomodation_price }}</td>
                                     <td>
-                                        <a href="#" class="text-warning mx-2"><i class="fa-solid fa-pen-to-square"></i></a>
+                                        <a href="#" class="text-warning mx-2 edit-room-btn" data-bs-toggle="modal" data-bs-target="#editRoomModal{{ $accomodation->accomodation_id }}">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </a>
                                         <a href="#" class="text-danger"><i class="fa-solid fa-trash-can"></i></a>
                                     </td>
                                 </tr>
+                                <!-- Edit Room Modal -->
+                                <div class="modal fade" id="editRoomModal{{ $accomodation->accomodation_id }}" tabindex="-1" aria-labelledby="editRoomModalLabel{{ $accomodation->accomodation_id }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="editRoomModalLabel{{ $accomodation->accomodation_id }}">Edit Room</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form method="POST" action="{{ route('updateRoom', ['id' => $accomodation->accomodation_id]) }}" enctype="multipart/form-data">
+                                                    @csrf
+                                                    @method('PUT')
+                                                    <input type="hidden" id="editRoomId" name="room_id" value="{{ $accomodation->accomodation_id }}">
+                                                    <div class="mb-3">
+                                                        <label for="editRoomImage{{ $accomodation->accomodation_id }}" class="form-label">Image</label>
+                                                        <input type="file" class="form-control" id="editRoomImage{{ $accomodation->accomodation_id }}" name="accomodation_image" accept="image/*" onchange="previewImage(event, 'preview{{ $accomodation->accomodation_id }}')">
+                                                        <img id="preview{{ $accomodation->accomodation_id }}" src="{{ asset('storage/' . $accomodation->accomodation_image) }}" alt="Preview" width="100" height="100">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="editRoomName{{ $accomodation->accomodation_id }}" class="form-label">Name</label>
+                                                        <input type="text" class="form-control" id="editRoomName{{ $accomodation->accomodation_id }}" name="accomodation_name" required value="{{ $accomodation->accomodation_name }}">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="editRoomType{{ $accomodation->accomodation_id }}" class="form-label">Type</label>
+                                                        <select class="form-select" id="editRoomType{{ $accomodation->accomodation_id }}" name="accomodation_type" required>
+                                                            <option value="room" {{ $accomodation->accomodation_type == 'room' ? 'selected' : '' }}>Room</option>
+                                                            <option value="cottage" {{ $accomodation->accomodation_type == 'cottage' ? 'selected' : '' }}>Cottage</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="editRoomCapacity{{ $accomodation->accomodation_id }}" class="form-label">Capacity</label>
+                                                        <input type="number" class="form-control" id="editRoomCapacity{{ $accomodation->accomodation_id }}" name="accomodation_capacity" min="1" required value="{{ $accomodation->accomodation_capacity }}">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="editRoomPrice{{ $accomodation->accomodation_id }}" class="form-label">Price</label>
+                                                        <input type="number" class="form-control" id="editRoomPrice{{ $accomodation->accomodation_id }}" name="accomodation_price" min="0" required value="{{ $accomodation->accomodation_price }}">
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                                 @endforeach
                             </tbody>
                         </table>
@@ -108,10 +177,11 @@
                 </div>
             </div>
 
-            <!-- SIDE NAV BAR -->
-            @include('Navbar.sidenavbar')
+            
         </div>
     </div>
+    <!-- SIDE NAV BAR -->
+    @include('Navbar.sidenavbar')
     <!-- Add Room Modal -->
     <div class="modal fade" id="addRoomModal" tabindex="-1" aria-labelledby="addRoomModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -125,7 +195,10 @@
                         @csrf
                         <div class="mb-3">
                             <label for="accomodationImage" class="form-label">Image</label>
-                            <input type="file" class="form-control" id="accomodationImage" name="accomodation_image" accept="image/*" required>
+                            <input type="file" class="form-control" id="accomodationImage" name="accomodation_image" accept="image/*"  required>
+                            @if ($errors->has('accomodation_image'))
+                                <span class="text-danger">{{ $errors->first('accomodation_image') }}</span>
+                            @endif
                         </div>
                         <div class="mb-3">
                             <label for="accomodationName" class="form-label">Name</label>
@@ -155,6 +228,7 @@
             </div>
         </div>
     </div>
+
     <script>
         const addRoomBtn = document.querySelector('.btn-primary.w-25');
         if (addRoomBtn) {
@@ -171,6 +245,20 @@
                 myModal.hide();
             });
         }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const editButtons = document.querySelectorAll(".edit-room-btn");
+            editButtons.forEach(button => {
+                button.addEventListener("click", function () {
+                    const row = button.closest("tr");
+                    const roomId = row.querySelector("input[name='room_id']").value;
+                    document.getElementById("editRoomName" + roomId).value = row.cells[1].textContent.trim();
+                    document.getElementById("editRoomType" + roomId).value = row.cells[2].textContent.trim();
+                    document.getElementById("editRoomCapacity" + roomId).value = row.cells[3].textContent.trim();
+                    document.getElementById("editRoomPrice" + roomId).value = row.cells[4].textContent.trim();
+                });
+            });
+        });
     </script>
 </body>
 </html>

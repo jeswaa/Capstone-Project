@@ -35,13 +35,14 @@ Route::get('/signup', [SignUpController::class, 'signup'])->name('signup');
 Route::post('/signup/store', [SignUpController::class, 'store'])->name('signup.store');
 /*Landing page/index */
 Route::get('/', [LandingPageController::class, 'index'])->name('landingpage');
-/*homepage page/index */
-Route::get('/homepage', [HomePageController::class, 'homepage'])->name('homepage');
+
+Route::get('/profile', [HomePageController::class, 'profilepage'])->name('profile');
 
 // Reservation
-Route::get('/reservation/calendar', [ReservationController::class, 'showReservationsInCalendar'])->name('Reservation.Events_reservation');
+Route::get('/reservation/calendar', [ReservationController::class, 'showReservationsInCalendar'])->name('calendar');
 Route::get('/reservation', [ReservationController::class, 'reservation'])->name('reservation');
 Route::get('/reservation/fetch-accomodation-data', [ReservationController::class, 'fetchAccomodationData'])->name('selectPackage');
+Route::get('/reservation/select-package-custom', [ReservationController::class, 'selectPackageCustom'])->name('selectPackageCustom');
 Route::get('/reservation/payment-process', [ReservationController::class, 'paymentProcess'])->name('paymentProcess');
 Route::get('/reservation/display-summary', [ReservationController::class, 'displayReservationSummary'])->name('summary');
 
@@ -92,11 +93,15 @@ Route::get('/reservations', [AdminSideController::class, 'reservations'])->name(
 Route::get('/get-bookings', [AdminSideController::class, 'DashboardView']);
 Route::get('/room-availability', [AdminSideController::class, 'roomAvailability'])->name('roomAvailability');
 Route::post('add-room', [AdminSideController::class, 'addRoom'])->name('addRoom');
+Route::put('/rooms/update/{id}', [AdminSideController::class, 'updateRoom'])->name('updateRoom');
 Route::get('/rooms-display', [AdminSideController::class, 'DisplayAccomodations'])->name('rooms');
 Route::get('/packages', [AdminSideController::class, 'packages'])->name('packages');
 Route::post('/add-packages', [AdminSideController::class, 'addPackages'])->name('addPackage');
 Route::put('/packages/update/{id}', [AdminSideController::class, 'updatePackage'])->name('updatePackage');
 Route::delete('/packages/delete/{id}', [AdminSideController::class, 'deletePackage'])->name('deletePackage');
+Route::get('/add-activities', [AdminSideController::class, 'Activities'])->name('addActivities');
+Route::post('/store-activities', [AdminSideController::class, 'storeActivity'])->name('storeActivity');
+Route::put('/activities/update/{id}', [AdminSideController::class, 'updateActivity'])->name('updateActivity');
 Route::get('/guests', [AdminSideController::class, 'guests'])->name('guests');
 Route::get('/transactions/edit-entrance-fee', [AdminSideController::class, 'editPrice'])->name('transactions');
 Route::post('/transactions/update-entrance-fee', [AdminSideController::class, 'updatePrice'])->name('updatePrice');

@@ -6,7 +6,6 @@
     <title>Signup - Lelo's Resort</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&family=Poppins:wght@100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
@@ -130,6 +129,20 @@
     </style>
 </head>
 <body class="background-color">
+    @if ($errors->any())
+    <div>
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
+    @if (session('success'))
+        <div class="alert alert-success mt-3">
+            {{ session('success') }}
+        </div>
+    @endif
     <div class="position-absolute top-0 start-0 mt-5 ms-5">
         <a href="{{ route('login') }}"><i class="fa-solid fa-circle-left fa-2x color-3 icon"></i></a>
     </div>
@@ -183,7 +196,6 @@
             <img src="{{ asset('images/hotelpic.jpg') }}" alt="Resort Image">
         </div>
     </div>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
 

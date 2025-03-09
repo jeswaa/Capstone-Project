@@ -235,3 +235,27 @@
 .signup-link:hover {
     text-decoration: underline;
 }
+
+.ms-custom-l {
+    margin-left: 10%;
+}
+
+.top-custom-l {
+    top: 55% !important; /* Adjust percentage as needed */
+}
+
+/* the navbar in profile underline  */
+.navbar-nav .nav-link {
+    position: relative;
+    text-decoration: none; /* Remove default underline */
+    font-size: 20px; /* Keep consistent font size */
+}
+
+/* Add underline on hover */
+.navbar-nav .nav-link:hover {
+    text-decoration: underline; /* Underline on hover */
+}
+
+.carousel-inner img {
+    border-radius: 25px;
+}

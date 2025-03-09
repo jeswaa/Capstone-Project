@@ -27,14 +27,14 @@
                             <p><strong>Name:</strong> {{ $reservationDetails->name }}</p>
                             <p><strong>Email:</strong> {{ $reservationDetails->email }}</p>
                             <p><strong>Mobile No:</strong> {{ $reservationDetails->mobileNo }}</p>
-                            <p><strong>Number of Guests:</strong> {{ $reservationDetails->number_of_guests }}</p>
+                            <p><strong>Number of Guests:</strong> {{ $reservationDetails->total_guest }} {{ $packageDetails->package_max_guests ?? 'N/A' }} <span>guest</span></p>
                             <p><strong>Address:</strong> {{ $reservationDetails->address }}</p>
-                            <p><strong>Room Preference:</strong> {{ $reservationDetails->room_preference }}</p>
-                            <p><strong>Activities:</strong> {{ $reservationDetails->activities }}</p>
-                            <p><strong>Reservation Date:</strong> {{ $reservationDetails->reservation_date }}</p>
-                            <p><strong>Reservation Time:</strong> {{ $reservationDetails->reservation_check_in }}</p>
-                            <p><strong>Check-out Time:</strong> {{ $reservationDetails->reservation_check_out }}</p>
-                            <p><strong>Special Request:</strong> {{ $reservationDetails->special_request }}</p>
+                            <p><strong>Room Preference:</strong> {{ $reservationDetails->room_preference ?? $packageDetails->package_room_type ?? 'N/A' }}</p>
+                            <p><strong>Package:</strong> {{ $packageDetails->package_name ?? 'N/A' }}</p>
+                            <p><strong>Activities:</strong> {{ $reservationDetails->activities }} {{ $packageDetails->package_activities ?? '' }}</p>
+                            <p><strong>Reservation Date:</strong> {{ $reservationDetails->reservation_check_in_date }}</p>
+                            <p><strong>Reservation Time:</strong> {{ $reservationDetails->reservation_check_in }} - {{ $reservationDetails->reservation_check_out }}</p>
+                            <p><strong>Special Request:</strong> {{ $reservationDetails->special_request ?? 'No special request' }}</p>
                             <p><strong>Payment Method:</strong> {{ $reservationDetails->payment_method }}</p>
                             <p><strong>Amount:</strong> {{ $reservationDetails->amount }}</p>
                             <p><strong>Reference Number:</strong> {{ $reservationDetails->reference_num }}</p>
@@ -61,3 +61,4 @@
     </div>
 </body>
 </html>
+
