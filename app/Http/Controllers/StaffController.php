@@ -8,7 +8,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Staff;
 use App\Models\Reservation;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\ReservationEmail;
+use Illuminate\Support\Facades\Log;
+use App\Mail\ReservationStatusUpdated;
 
 class StaffController extends Controller
 {
@@ -70,49 +71,35 @@ class StaffController extends Controller
     }
     public function reservations()
     {
-        $reservations = DB::table('reservation_details')->get();
-        return view('StaffSide.StaffReservation', compact('reservations'));
-
-        
+        $reservations = DB::table('reservation_details')->orderBy('created_at', 'desc')->paginate(10);
+        return view('StaffSide.StaffReservation', compact('reservations'));  
     }
-    public function sendEmail(Request $request)
-    {
-        $email = $request->email_to;
-        $subject = $request->email_subject;
-        $message = $request->email_message;
 
-        Mail::to($email)->send(new ReservationEmail($subject, $message));
-
-        return back()->with('success', 'Email sent successfully!');
-    }
     public function transactions()
     {
-        $reservations = DB::table('reservation_details')->get();
+        $reservations = DB::table('reservation_details')->orderByDesc('created_at')->get();
         return view('Staffside.StaffTransaction', compact('reservations'));
     }
     public function UpdateStatus(Request $request, $id)
-{
-    // Validate the input to ensure payment_status is provided
-    $request->validate([
-        'payment_status' => 'required|string'
-    ]);
+    {
+        
+        $request->validate([
+            'payment_status' => 'required|string',
+            'custom_message' => 'required|string|max:255'
+        ]);
 
-    // Fetch the reservation with the given ID
-    $reservation = Reservation::find($id);
+        $reservation = Reservation::find($id);
 
-    // Ensure the reservation exists before updating
-    if ($reservation) {
-        $reservation->payment_status = $request->payment_status;
-        $reservation->save(); // Save the updated field
+        if ($reservation) {
+            $reservation->payment_status = $request->payment_status;
+            $reservation->save();
 
-        return redirect()->route('staff.transactions')->with('success', 'Payment status updated successfully!');
+            Mail::to($reservation->email)->send(new ReservationStatusUpdated($reservation, $request->custom_message));
+
+            return redirect()->route('staff.transactions')->with('success', 'Payment status updated successfully!');
+        }
+
+        return redirect()->route('staff.transactions')->with('error', 'Reservation not found.');
     }
-
-    // If reservation is not found, return with an error
-    return redirect()->route('staff.transactions')->with('error', 'Reservation not found.');
-}
-
-
-
 
 }

@@ -38,13 +38,30 @@
                         <a href="{{ route('addActivities') }}" class="text-color-1 text-decoration-none text-underline-left-to-right"><h1 class="fs-5 font-heading">Activities</h1></a>
                     </div>
 
-                    <table class="table table-striped mt-5">
+                    <form method="GET" action="{{ route('reservations') }}">
+                        <label for="user_id" class="form-label">Select User:</label>
+                        <select class="form-control" name="user_id" id="user_id" onchange="this.form.submit()">
+                            <option value="">-- Select User --</option>
+                            @foreach ($users as $user)
+                                <option value="{{ $user->id }}" {{ request('user_id') == $user->id ? 'selected' : '' }}>
+                                    {{ $user->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </form>
+
+                    @if ($noReservationMessage)
+                        <div class="alert alert-warning mt-3">
+                            {{ $noReservationMessage }}
+                        </div>
+                    @endif
+                    
+                    <table class="table table-striped mt-3">
                         <thead>
                             <tr>
-                                <th scope="col">Reservation ID</th>
+                                <th scope="col">Guest Name</th>
                                 <th scope="col">Reservation Date</th>
                                 <th scope="col">Room Type</th>
-                                <th scope="col">Guest Name</th>
                                 <th scope="col">Check-in</th>
                                 <th scope="col">Check-out</th>
                                 <th scope="col">Status</th>
@@ -52,37 +69,84 @@
                                 <th scope="col">Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="reservationTable">
                             @foreach ($reservations as $reservation)
-                            <tr>
-                                <td>{{ $reservation->id }}</td>
-                                <td>{{ $reservation->reservation_check_in_date }}</td>
-                                <td>example</td>
-                                <td>{{ $reservation->name }}</td>
-                                <td>{{ $reservation->reservation_check_in }}</td>
-                                <td>{{ $reservation->reservation_check_out }}</td>
-                                <td>{{ $reservation->payment_status }}</td>
-                                <td>{{ $reservation->amount }}</td>
-                                <td>
-                                    <a href="#" class="text-success"><i class="fa-solid fa-eye"></i></a>
-                                    <a href="#" class="text-warning mx-2"><i class="fa-solid fa-pen-to-square"></i></a>
-                                    <form action="#" method="POST" style="display:inline;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-danger border-0 bg-transparent"><i class="fa-solid fa-trash-can"></i></button>
-                                    </form>
-                                </td>
-                            </tr>
+                                <tr>
+                                    <td>{{ $reservation->name }}</td>
+                                    <td>{{ $reservation->reservation_check_in_date }}</td>
+                                    <td>{{ DB::table('packagestbl')->where('id', $reservation->package_id)->value('package_room_type')}}</td>
+                                    <td>{{ $reservation->reservation_check_in }}</td>
+                                    <td>{{ $reservation->reservation_check_out }}</td>
+                                    <td>{{ $reservation->payment_status }}</td>
+                                    <td>{{ $reservation->amount }}</td>
+                                    <td>
+                                        <a href="#" class="text-success"><i class="fa-solid fa-eye"></i></a>
+                                        <a href="#" class="text-warning mx-2"><i class="fa-solid fa-pen-to-square"></i></a>
+                                        <form action="#" method="POST" style="display:inline;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-danger border-0 bg-transparent"><i class="fa-solid fa-trash-can"></i></button>
+                                        </form>
+                                    </td>
+                                </tr>
                             @endforeach
                         </tbody>
                     </table>
-
+                    <div class="d-flex justify-content-center mt-4">
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination">
+                                {{ $reservations->links('pagination::bootstrap-4') }}
+                            </ul>
+                        </nav>
+                    </div>
                 </div>
-
              </div>
         </div>
     </div>
     <!-- SIDE NAV BAR -->
     @include('Navbar.sidenavbar')
+
+    <script>
+    document.getElementById('user_id').addEventListener('change', function() {
+        let userId = this.value;
+        let reservationTable = document.getElementById('reservationTable');
+
+        // Clear table content
+        reservationTable.innerHTML = '';
+
+        // Fetch filtered reservations
+        fetch("{{ route('reservations') }}?user_id=" + userId)
+            .then(response => response.json())
+            .then(data => {
+                if (data.length > 0) {
+                    data.forEach(reservation => {
+                        let row = `
+                            <tr>
+                                <td>${reservation.id}</td>
+                                <td>${reservation.reservation_check_in_date}</td>
+                                <td>example</td>
+                                <td>${reservation.name}</td>
+                                <td>${reservation.reservation_check_in}</td>
+                                <td>${reservation.reservation_check_out}</td>
+                                <td>${reservation.payment_status}</td>
+                                <td>${reservation.amount}</td>
+                                <td>
+                                    <a href="#" class="text-success"><i class="fa-solid fa-eye"></i></a>
+                                    <a href="#" class="text-warning mx-2"><i class="fa-solid fa-pen-to-square"></i></a>
+                                    <form action="#" method="POST" style="display:inline;">
+                                        <button type="submit" class="text-danger border-0 bg-transparent"><i class="fa-solid fa-trash-can"></i></button>
+                                    </form>
+                                </td>
+                            </tr>
+                        `;
+                        reservationTable.innerHTML += row;
+                    });
+                } else {
+                    reservationTable.innerHTML = `<tr><td colspan="9" class="text-center">No Reservations Found</td></tr>`;
+                }
+            });
+    });
+</script>
 </body>
 </html>
+

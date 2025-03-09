@@ -35,13 +35,14 @@ Route::get('/signup', [SignUpController::class, 'signup'])->name('signup');
 Route::post('/signup/store', [SignUpController::class, 'store'])->name('signup.store');
 /*Landing page/index */
 Route::get('/', [LandingPageController::class, 'index'])->name('landingpage');
-/*homepage page/index */
-Route::get('/homepage', [HomePageController::class, 'homepage'])->name('homepage');
+
+Route::get('/profile', [HomePageController::class, 'profilepage'])->name('profile');
 
 // Reservation
-Route::get('/reservation/calendar', [ReservationController::class, 'showReservationsInCalendar'])->name('Reservation.Events_reservation');
+Route::get('/reservation/calendar', [ReservationController::class, 'showReservationsInCalendar'])->name('calendar');
 Route::get('/reservation', [ReservationController::class, 'reservation'])->name('reservation');
 Route::get('/reservation/fetch-accomodation-data', [ReservationController::class, 'fetchAccomodationData'])->name('selectPackage');
+Route::get('/reservation/select-package-custom', [ReservationController::class, 'selectPackageCustom'])->name('selectPackageCustom');
 Route::get('/reservation/payment-process', [ReservationController::class, 'paymentProcess'])->name('paymentProcess');
 Route::get('/reservation/display-summary', [ReservationController::class, 'displayReservationSummary'])->name('summary');
 
