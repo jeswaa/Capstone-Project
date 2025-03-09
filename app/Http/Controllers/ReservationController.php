@@ -3,11 +3,16 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
+
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Models\Reservation;
 use DateTime;
+use App\Models\PersonalDetails_Reservation;
+use App\Models\PackageSelectionReservation;
+use App\Models\PaymentProcess; // Import the PaymentProcess model
 
 
 class ReservationController extends Controller
