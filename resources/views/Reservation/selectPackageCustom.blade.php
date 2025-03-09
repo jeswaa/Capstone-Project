@@ -13,17 +13,20 @@
         <form method="POST" action="{{ route('savePackageSelection') }}">
             @csrf
             <input type="hidden" name="package_type" value="custom">
+            
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="rentAsWhole">Rent as Whole</label>
                         <select id="rentAsWhole" name="rent_as_whole" class="form-control">
+                            <option value="" selected disabled hidden>Please select</option>
                             <option value="yes">Yes</option>
                             <option value="no">No</option>
                         </select>
                     </div>
                 </div>
             </div>
+
             <div class="col-md-12 d-flex flex-column">
                 <div class="form-group">
                     <label for="roomPreference">Room Preference</label>
@@ -51,8 +54,9 @@
                     </div>
                 </div>
             </div>
+
             <div>
-            <label for="activities">Activities</label>
+                <label for="activities">Activities</label>
                 <div class="container">
                     <div class="row">
                         @foreach($activities as $activity)
@@ -74,33 +78,22 @@
                     </div>
                 </div>
             </div>
+
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
-                    <div>
                         <label for="number_of_adults">Number of Adults:</label>
-                        <input type="number" name="number_of_adults" id="number_of_adults" required onchange="calculateTotalGuest()">
+                        <input type="number" name="number_of_adults" id="number_of_adults" class="form-control" min="0" value="0" oninput="calculateTotalGuest()">
                     </div>
-                    <div>
+                    <div class="form-group">
                         <label for="number_of_children">Number of Children:</label>
-                        <input type="number" name="number_of_children" id="number_of_children"  onchange="calculateTotal()" required onchange="calculateTotalGuest()">
+                        <input type="number" name="number_of_children" id="number_of_children" class="form-control" min="0" value="0" oninput="calculateTotalGuest()">
                     </div>
-                    <div>
+                    <div class="form-group">
                         <label for="total_guests">Total Guests:</label>
-                        <input type="number" name="total_guest" id="total_guests"  required readonly style="pointer-events: none;" onchange="calculateTotal()">
+                        <input type="number" name="total_guest" id="total_guests" class="form-control" readonly>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="date">Start Date</label>
-                        <input type="date" id="date" name="reservation_check_in_date" class="form-control" min="{{ now()->addDay()->toDateString() }}">
-                    </div>
-                    <div class="form-group">
-                        <label for="date">End Date</label>
-                        <input type="date" id="date" name="reservation_check_out_date" class="form-control" min="{{ now()->addDay()->toDateString() }}">
-                    </div>
-                </div>
-            </div>
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
@@ -113,11 +106,25 @@
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label for="specialRequest">Special Request</label>
-                        <textarea id="specialRequest" name="special_request" class="form-control" rows="3" placeholder="Enter any special requests"></textarea>
+                        <h1>Choose Date</h1>
+                        <label for="date">Start Date</label>
+                        <input type="date" id="date" name="reservation_check_in_date" class="form-control" min="{{ now()->addDay()->toDateString() }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="date">End Date</label>
+                        <input type="date" id="date" name="reservation_check_out_date" class="form-control" min="{{ now()->addDay()->toDateString() }}">
                     </div>
                 </div>
             </div>
+
+            </div>
+            <div class="col-12">
+                <div class="form-group">
+                    <label for="specialRequest" class="form-label">Special Request</label>
+                    <textarea id="specialRequest" name="special_request" class="form-control" rows="5" placeholder="Enter any special requests"></textarea>
+                </div>
+            </div>
+
             <div class="row">
                 <div class="col-md-12">
                     <div class="form-group">
@@ -127,5 +134,15 @@
             </div>
         </form>
     </div>
+
+    <script>
+        function calculateTotalGuest() {
+            let adults = parseInt(document.getElementById("number_of_adults").value) || 0;
+            let children = parseInt(document.getElementById("number_of_children").value) || 0;
+            let totalGuests = adults + children;
+
+            document.getElementById("total_guests").value = totalGuests;
+        }
+    </script>
 </body>
 </html>
