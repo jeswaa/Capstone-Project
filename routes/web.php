@@ -44,6 +44,7 @@ Route::get('/reservation', [ReservationController::class, 'reservation'])->name(
 Route::get('/reservation/fetch-accomodation-data', [ReservationController::class, 'fetchAccomodationData'])->name('selectPackage');
 Route::get('/reservation/payment-process', [ReservationController::class, 'paymentProcess'])->name('paymentProcess');
 Route::get('/reservation/display-summary', [ReservationController::class, 'displayReservationSummary'])->name('summary');
+Route::post('/save-feedback', [FeedbackController::class, 'store'])->name('saveFeedback');
 
 // Display the credentials of the login user
 Route::post('/reservation-personal', [ReservationController::class, 'fetchUserData'])->name('fetchUserData');
@@ -117,5 +118,8 @@ Route::get('/staff/guests', [StaffController::class, 'guests'])->name('staff.gue
 Route::get('/staff/logout', [StaffController::class, 'logout'])->name('staff.logout');
 
 
-
-
+//qr code
+Route::get('/reservation-summary/{id}', function ($id) {
+    $reservationDetails = Reservation::find($id);
+    return view('reservation-summary', compact('reservationDetails'));
+})->name('reservation.summary');
