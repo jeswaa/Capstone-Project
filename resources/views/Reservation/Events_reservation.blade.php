@@ -111,9 +111,15 @@
         <p><strong>Room Type:</strong> <span id="event-room_type"></span></p> 
         <button onclick="closeModal()">Close</button>
     </div>
-    
-    <div style="float: right;" class="mt-4 me-5 w-25">
-        <button onclick="window.location.href='{{ route('selectPackage') }}'" class="btn btn-primary">Go to Reservations</button>
+
+    <div class="position-absolute top-0 end-0 me-3 mt-4">
+        <a href="{{ route('profile') }}" title="Go to Profile">
+            <i class="fa-regular fa-circle-user fs-2 text-color-1"></i>
+        </a>
+    </div>
+
+    <div class="position-fixed bottom-0 end-0 mb-4 me-5 w-25">
+        <button onclick="window.location.href='{{ route('selectPackage') }}'" class="btn btn-primary">Reserve Now</button>
     </div>
     <!-- FullCalendar JS -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>

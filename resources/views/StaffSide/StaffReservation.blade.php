@@ -16,20 +16,16 @@
             <div class="col-md-9 col-12 main-content color-background3 rounded-start-50 ps-0 pe-0 h-100 mt-4" >
                     <!-- TOP SECTION -->
                 <div class="color-background4 w-auto p-3 rounded-topright-50" id="main-content">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <form class="d-flex align-items-center w-75" role="search">
-                            <div class="input-group">
-                                <input type="search" class="form-control mb-0 rounded-start-5 bg-light border border-secondary" placeholder="Search" aria-label="Search">
-                                <button class="btn btn-outline-success rounded-end-5" type="submit">
-                                    <i class="fa-solid fa-magnifying-glass"></i>
-                                </button>
-                            </div>
-                        </form>
-                        <div data-bs-toggle="tooltip" data-bs-placement="bottom" title="Admin's Profile">
-                            <a href="#"><i class="fa-regular fa-circle-user fs-1 text-decoration-none text-color-1"></i></a>
-                        </div>
+                    <div class="d-flex justify-content-end" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Admin's Profile">
+                        <a href="#"><i class="fa-regular fa-circle-user fs-1 text-decoration-none text-color-1"></i></a>
                     </div>
                 </div>
+
+                @if (session('success'))
+                    <div class="alert alert-success alert-dismissible position-absolute top-0 end-0 me-3 mt-3" role="alert">
+                        {{ session('success') }}
+                    </div>
+                @endif
 
                 <div class="p-3 mt-3">
                     <div class="p-4 mt-1 rounded-5 h-50 overflow-y-auto">
@@ -71,7 +67,7 @@
                                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                         </div>
                                                         <div class="modal-body">
-                                                            <form action="{{ route('updatereservationStatus', $reservation->id) }}" method="POST">
+                                                            <form action="{{ route('staff.updateReservationStatus', $reservation->id) }}" method="POST">
                                                                 @csrf
                                                                 @method('PUT')
                                                                 <select class="form-select" name="reservation_status" aria-label="Reservation Status">
@@ -82,9 +78,10 @@
                                                                     <option value="Cancelled" {{ $reservation->status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
                                                                 </select>
                                                         </div>
-                                                        <div class="modal-footer">
-                                                            <button type="submit" class="btn btn-primary w-100">Update</button>
-                                                        </div>
+                                                            <div class="modal-footer">
+                                                                <button type="submit" class="btn btn-primary w-100">Update</button>
+                                                            </div>
+                                                            </form>
                                                     </div>
                                                 </div>
                                             </div>
