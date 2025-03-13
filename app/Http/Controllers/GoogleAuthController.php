@@ -32,7 +32,7 @@ class GoogleAuthController extends Controller
     
         Auth::login($user);
     
-        return redirect('homepage')->with('success', 'Logged in successfully!');
+        return redirect()->route('calendar')->with('success', 'Logged in successfully!');
     }
     
 }

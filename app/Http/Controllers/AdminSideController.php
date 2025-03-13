@@ -18,9 +18,35 @@ class AdminSideController extends Controller
         return view('AdminSide.dashboard');
     }
 
-    public function reservations(){
-        $reservations = DB::table('reservation_details')->orderByDesc('created_at')->get();
-        return view('AdminSide.reservation', ['reservations' => $reservations]);
+    public function reservations(Request $request) 
+    {
+        // Kunin lahat ng users para sa dropdown
+        $users = DB::table('users')->get();
+
+        $packages = DB::table('packagestbl')->get();
+    
+        // Simulan ang query para sa reservations
+        $query = DB::table('reservation_details')->orderByDesc('created_at');
+    
+        // Variable para sa message kapag walang reservation ang user
+        $noReservationMessage = null;
+        
+        // Check if a user is selected
+        if ($request->has('user_id') && !empty($request->user_id)) {
+            $filteredReservations = clone $query;
+            $filteredReservations = $filteredReservations->where('reservation_details.user_id', $request->user_id);
+
+            if ($filteredReservations->count() > 0) {
+                $query = $filteredReservations;
+            } else {
+                // Show all reservations if the user has no reservations
+                $noReservationMessage = "No reservation for this user. Displaying all reservations.";
+            }
+        }
+
+        $reservations = $query->paginate(10);
+
+        return view('AdminSide.reservation', compact('reservations', 'users', 'noReservationMessage'));
     }
 
     public function roomAvailability(){
@@ -33,7 +59,7 @@ class AdminSideController extends Controller
 
     public function guests(){
         $upcomingReservations = DB::table('reservation_details')
-            ->whereDate('reservation_date', '>', Carbon::today()->endOfDay())
+            ->whereDate('reservation_check_in_date', '>', Carbon::today()->endOfDay())
             ->count();
         $users = DB::table('users')->count();
         $reservations = DB::table('reservation_details')->get();

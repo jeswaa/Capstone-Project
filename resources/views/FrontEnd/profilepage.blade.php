@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Landing Page</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
-    
-    <!-- Bootstrap CSS -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="background-color">
@@ -22,21 +20,23 @@
 <div class="position-absolute start-0 top-custom-l translate-middle-y ms-custom-l">
     <div class="bg shadow p-4" style="width: 25vw; height: 600px; border-radius: 20px; background-color: #B5C99A; position: relative;">
         <!-- Circle inside the container, centered -->
-        <div class="circle" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -120%); width: 50%; height: 30%; border-radius: 50%; background-color: #718355; border: 3px solid #fff; z-index: 1;"></div>
+        <div class="circle" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -120%); width: 50%; height: 30%; border-radius: 50%; background-color: #718355; border: 3px solid #fff; z-index: 1;">
+            <img src="{{ asset('storage/' . $user->image) }}" alt="Profile Image" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+        </div>
 
         <!-- Example Name below the circle -->
         <p class="text-center" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, 30%); color: #333; font-size: 18px; font-weight: bold; z-index: 2;">
-            John Doe
+            {{ $user->name }}
         </p>
 
         <!-- Email and Contact Number below the Name -->
         <p class="text-center" style="position: absolute; top: 55%; left: 50%; transform: translate(-50%, 30%); color: #555; font-size: 15px; font-weight: bold; z-index: 2;">
-            johndoe@example.com <br> +63 912 345 6789
+            {{ $user->email }} <br> {{ $user->mobileNo }}
         </p>
 
         <!-- Address at the bottom center of the container -->
         <p class="text-center" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); color: #444; font-size: 20px; font-weight: bold; z-index: 2;">
-            123 Main St, Manila, Philippines
+            {{ $user->address }}
         </p>
 
         <!-- Clickable Edit Icon in the upper right -->
@@ -46,7 +46,7 @@
     </div>
 </div>
 <!-- Include Edit Profile Modal -->
-@include('navbar.edit-profile-modal')
+
 
 
 <!-- Right-aligned, slightly moved to the right with custom margin -->

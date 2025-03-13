@@ -54,7 +54,7 @@ class LoginController extends Controller
             Session::put('user_mobile', $user->mobileNo);
             Session::put('user_address', $user->address);
 
-            return redirect()->intended('homepage')->with('loginsuccess', 'Welcome, ' . $user->name . '!');
+            return redirect()->route('calendar')->with('success', 'Welcome, ' . $user->name . '!');
         }
         return back()->with('errorlogin', 'Invalid email or password.')->withInput($request->only('email'));
     }
