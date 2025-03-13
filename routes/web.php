@@ -25,7 +25,7 @@ use App\Http\Controllers\StaffController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-Auth::routes(['verify' => true]);
+
 
 /* LOGIN */
 Route::get('/login', [LoginController::class, 'login'])->name('login');
@@ -37,7 +37,10 @@ Route::post('/signup/store', [SignUpController::class, 'store'])->name('signup.s
 Route::get('/', [LandingPageController::class, 'index'])->name('landingpage');
 
 Route::get('/profile', [HomePageController::class, 'profilepage'])->name('profile');
-
+Route::get('/profile/edit', [HomePageController::class, 'editProfile'])->name('editProfile');
+Route::post('/profile/edit', [HomePageController::class, 'editProfile'])->name('editProfile.post');
+Route::post('/reservation/cancel/{id}', [ReservationController::class, 'cancelReservation']);
+Route::get('/user-logout', [HomePageController::class, 'userlogout'])->name('logout.user');
 // Reservation
 Route::get('/reservation/calendar', [ReservationController::class, 'showReservationsInCalendar'])->name('calendar');
 Route::get('/reservation', [ReservationController::class, 'reservation'])->name('reservation');
@@ -109,11 +112,12 @@ Route::get('reports', [AdminSideController::class, 'reports'])->name('reports');
 Route::get('/logout', [AdminSideController::class, 'logout'])->name('logout');
 
 //Staff Routes
-Route::get('/login/staff', [StaffController::class, 'StaffLogin'])->name('StaffLogin');
+Route::get('/login/staff', [StaffController::class, 'StaffLogin'])->name('staff.login');
 Route::post('/login/staff/authenticate', [StaffController::class, 'authenticate'])->name('staff.authenticate');
 Route::get('/staff/dashboard', [StaffController::class, 'dashboard'])->name('staff.dashboard');
 Route::get('/staff/reservation-details', [StaffController::class, 'reservations'])->name('staff.reservation');
 Route::post('/staff/transactions/update-payment-status/{id}', [StaffController::class, 'UpdateStatus'])->name('staff.updateStatus');
+Route::put('/staff/reservation/update-status/{id}', [StaffController::class, 'updateReservationStatus'])->name('staff.updateReservationStatus');
 Route::get('/staff/transactions', [StaffController::class, 'transactions'])->name('staff.transactions');
 Route::post('/staff/send-email', [StaffController::class, 'sendEmail'])->name('staff.sendEmail');
 Route::get('/staff/guests', [StaffController::class, 'guests'])->name('staff.guests');

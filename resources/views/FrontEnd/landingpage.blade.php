@@ -46,65 +46,29 @@
             <div class="row align-items-center">
                 <!-- Left Side - Text Content -->
                 <div class="col-md-4 text-start ms-5"  style=" box-sizing: content-box;">
-                    <h1 class="display-4 fw-bold color-3"  style="font-size: 65px;" data-aos="fade-right" data-aos-duration="1000">LOREM IPSUM <br> DOLOR SIT AMET</h1>
+                    <h1 class="display-4 fw-bold color-3"  style="font-size: 65px;" data-aos="fade-right" data-aos-duration="1000">Your Resort’s Digital Booking Companion</h1>
                     <a href="{{ route('login') }}">
                     <button class="btn btn-success btn-lg mt-3 p-3 font-paragraph" data-aos="fade-right" data-aos-duration="1000">
-    Book Your Stay
-</button>
+                        Book Your Stay
+                    </button>
                     </a>
                 </div>
                 
                     <!-- Right Side - Carousels -->
-                    <div class="col-md-7 d-flex justify-content-end align-items-center mt-5 ms-4" data-aos="fade-right" data-aos-duration="1000">
+                    <div class="col-md-7 ms-auto d-flex justify-content-end align-items-center mt-5 me-2" data-aos="fade-left" data-aos-duration="1000">
                         <div class="d-flex flex-column "> <!-- Stack Carousel 1 & 2 -->
-                            <!-- Small Carousel 1 (Top) -->
-                            <div id="smallHotelCarousel1" class="carousel slide custom-carousel mb-3" data-bs-ride="carousel" data-bs-interval="2000" style="max-width: 270px; border-radius: 30px;">
-                                <div class="carousel-inner">
-                                    <div class="carousel-item active">
-                                        <img src="{{ asset('images/image1.jpg') }}" class="w-100 rounded-3" style="height: 270px; object-fit: cover;" alt="Hotel Lobby 1">
-                                    </div>
-                                    <div class="carousel-item">
-                                        <img src="{{ asset('images/image2.jpg') }}" class="w-100 rounded-3" style="height: 270px; object-fit: cover;" alt="Hotel Lobby 2">
-                                    </div>
-                                    <div class="carousel-item">
-                                        <img src="{{ asset('images/image4.jpg') }}" class="w-100 rounded-3" style="height: 270px; object-fit: cover;" alt="Hotel Lobby 3">
-                                    </div>
-                                    <div class="carousel-item">
-                                        <img src="{{ asset('images/image3.jpg') }}" class="w-100 rounded-3" style="height: 270px; object-fit: cover;" alt="Hotel Lobby 3">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Small Carousel 2 (Bottom) -->
-                            <div id="smallHotelCarousel2" class="carousel slide custom-carousel" data-bs-ride="carousel" data-bs-interval="3000" style="max-width: 270px; border-radius: 30px;">
-                                <div class="carousel-inner">
-                                    <div class="carousel-item active">
-                                        <img src="{{ asset('images/image5.jpg') }}" class="w-100 rounded-4" style="height: 270px; object-fit: cover;" alt="Hotel Lobby 1">
-                                    </div>
-                                    <div class="carousel-item">
-                                        <img src="{{ asset('images/image9.jpg') }}" class="w-100 rounded-4" style="height: 270px; object-fit: cover;" alt="Hotel Lobby 2">
-                                    </div>
-                                    <div class="carousel-item">
-                                        <img src="{{ asset('images/image10.jpg') }}" class="w-100 rounded-4" style="height: 270px; object-fit: cover;" alt="Hotel Lobby 3">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Space in the Middle -->
-                        <div class="mx-4"></div>
-
+                            
                         <!-- Small Carousel 3 (Right Side) -->
-                        <div id="smallHotelCarousel3" class="carousel slide custom-carousel" data-bs-ride="carousel" data-bs-interval="3200" style="max-width: 300px; border-radius: 30px;">
+                        <div id="smallHotelCarousel3" class="carousel slide custom-carousel" data-bs-ride="carousel" data-bs-interval="3200" style="max-width: 600px; border-radius: 20px;">
                             <div class="carousel-inner">
                                 <div class="carousel-item active">
-                                    <img src="{{ asset('images/image8.jpg') }}" class="w-100 rounded-5" style="height: 400px; object-fit: cover;" alt="Pool Image 1">
+                                    <img src="{{ asset('images/image8.jpg') }}" class="w-100 rounded-5" alt="Pool Image 1">
                                 </div>
                                 <div class="carousel-item">
-                                    <img src="{{ asset('images/image1.jpg') }}" class="w-100 rounded-5" style="height: 400px; object-fit: cover;" alt="Pool Image 2">
+                                    <img src="{{ asset('images/image1.jpg') }}" class="w-100 rounded-5"  alt="Pool Image 2">
                                 </div>
                                 <div class="carousel-item">
-                                    <img src="{{ asset('images/image10.jpg') }}" class="w-100 rounded-5" style="height: 400px; object-fit: cover;" alt="Pool Image 3">
+                                    <img src="{{ asset('images/image10.jpg') }}" class="w-100 rounded-5"  alt="Pool Image 3">
                                 </div>
                             </div>
                         </div>

@@ -72,10 +72,46 @@ class AdminSideController extends Controller
         return view('AdminSide.transactions');
     }
 
-    public function reports(){
-        return view('AdminSide.reports');
+    public function reports()
+    {
+        $totalReservations = DB::table('reservation_details')->count();
+        $totalCancelled = DB::table('reservation_details')->where('payment_status', 'cancelled')->count();
+        $totalConfirmed = DB::table('reservation_details')->where('payment_status', 'paid')->count();
+        $totalPending = DB::table('reservation_details')->where('payment_status', 'pending')->count();
+
+        // Time-based Reservation Counts
+        $dailyReservations = DB::table('reservation_details')
+        ->whereDate('created_at', Carbon::today())
+        ->count();
+
+        $weeklyReservations = DB::table('reservation_details')
+            ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
+            ->count();
+
+        $monthlyReservations = DB::table('reservation_details')
+            ->whereMonth('created_at', Carbon::now()->month)
+            ->whereYear('created_at', Carbon::now()->year)
+            ->count();
+
+        $yearlyReservations = DB::table('reservation_details')
+            ->whereYear('created_at', Carbon::now()->year)
+            ->count();
+        // Most booked package
+        $mostBooked = DB::table('reservation_details')
+            ->join('packagestbl', 'reservation_details.package_id', '=', 'packagestbl.id')
+            ->select('packagestbl.package_room_type', DB::raw('COUNT(*) as count'))
+            ->groupBy('packagestbl.package_room_type')
+            ->orderByDesc('count')
+            ->first();
+
+        return view('AdminSide.reports', compact(
+            'totalReservations', 'totalCancelled', 'totalConfirmed', 'totalPending',
+            'dailyReservations', 'weeklyReservations', 'monthlyReservations', 'yearlyReservations',
+            'mostBooked'
+        ));
     }
 
+    
     public function logout(){
         auth()->logout();
         return redirect()->route('AdminLogin')->with('success', 'Logged out successfully!');

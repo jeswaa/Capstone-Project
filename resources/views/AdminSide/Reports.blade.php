@@ -11,14 +11,87 @@
 <body class="color-background5">
     <div class="container-fluid">
         <div class="row h-100">
-            <!-- SIDE NAV BAR -->
-            @include('Navbar.sidenavbar')
-
             <!-- Main Content -->
-             <div class="col-md-9 col-12 main-content color-background3 rounded-start-50 ps-0 pe-0 h-100 mt-4" >
+            <div class="col-md-3"></div>
+            <div class="col-md-9 main-content color-background3 rounded-start-50 ps-0 pe-0 h-100 mt-4">
+                <div class="container p-4">
+                    <h2 class="text-center">Reservation Summary Report</h2>
 
-             </div>
+                    <div class="row mt-4">
+                        <div class="col-md-3">
+                            <div class="card bg-primary text-white p-3">
+                                <h4>Total Reservations</h4>
+                                <p style="font-size: 2em;">{{ number_format($totalReservations) }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-danger text-white p-3">
+                                <h4>Cancelled Reservations</h4>
+                                <p style="font-size: 2em;">{{ number_format($totalCancelled) }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-success text-white p-3">
+                                <h4>Confirmed Reservations</h4>
+                                <p style="font-size: 2em;">{{ number_format($totalConfirmed) }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-warning text-white p-3">
+                                <h4>Pending Reservations</h4>
+                                <p style="font-size: 2em;">{{ number_format($totalPending) }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Time-based Reservations -->
+                    <h3 class="mt-4">Reservations</h3>
+                    <canvas id="reservationsChart"></canvas>
+                    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                    <script>
+                        document.addEventListener("DOMContentLoaded", function() {
+                            var ctx = document.getElementById("reservationsChart").getContext("2d");
+                            var reservationsChart = new Chart(ctx, {
+                                type: "bar", // Bar Chart
+                                data: {
+                                    labels: ["Daily", "Weekly", "Monthly", "Yearly"],
+                                    datasets: [{
+                                        label: "Reservations",
+                                        data: [{{ $dailyReservations }}, {{ $weeklyReservations }}, {{ $monthlyReservations }}, {{ $yearlyReservations }}],
+                                        backgroundColor: ["#3498db", "#2ecc71", "#e74c3c", "#f1c40f"],
+                                        borderColor: "#333",
+                                        borderWidth: 1
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    plugins: {
+                                        legend: {
+                                            display: true
+                                        }
+                                    },
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true
+                                        }
+                                    }
+                                }
+                            });
+                        });
+                    </script>
+
+
+                    <h3 class="mt-4">Most Booked Package</h3>
+                    @if($mostBooked)
+                        <p><strong>{{ $mostBooked->package_room_type }}</strong> ({{ number_format($mostBooked->count) }} bookings)</p>
+                    @else
+                        <p>No bookings yet.</p>
+                    @endif
+                </div>
+            </div>
         </div>
     </div>
+    <!-- SIDE NAV BAR -->
+    @include('Navbar.sidenavbar')
 </body>
 </html>
