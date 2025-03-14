@@ -15,20 +15,35 @@
         @include('Navbar.sidenavbarStaff')
             <div class="col-md-9 col-12 main-content color-background3 rounded-start-50 ps-0 pe-0 h-100 mt-4" >
                     <!-- TOP SECTION -->
-                <div class="color-background4 w-auto p-3 rounded-topright-50" id="main-content">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <form class="d-flex align-items-center w-75" role="search">
-                            <div class="input-group">
-                                <input type="search" class="form-control mb-0 rounded-start-5 bg-light border border-secondary" placeholder="Search" aria-label="Search">
-                                <button class="btn btn-outline-success rounded-end-5" type="submit">
-                                    <i class="fa-solid fa-magnifying-glass"></i>
-                                </button>
-                            </div>
-                        </form>
-                        <div data-bs-toggle="tooltip" data-bs-placement="bottom" title="Admin's Profile">
+                    <div class="color-background4 w-auto p-3 rounded-topright-50" id="main-content">
+                        <div class="d-flex justify-content-end" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Admin's Profile">
                             <a href="#"><i class="fa-regular fa-circle-user fs-1 text-decoration-none text-color-1"></i></a>
                         </div>
                     </div>
+
+                <div class="overflow-y-auto h-100 p-5">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Phone</th>
+                                <th scope="col">Address</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($users as $user)
+                                <tr>
+                                    <td>{{ $user->id }}</td>
+                                    <td>{{ $user->name ?? '-' }}</td>
+                                    <td>{{ $user->email ?? '-' }}</td>
+                                    <td>{{ $user->mobileNo ?? '-' }}</td>
+                                    <td>{{ $user->address ?? '-' }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

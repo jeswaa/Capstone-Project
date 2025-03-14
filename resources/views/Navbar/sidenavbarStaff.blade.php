@@ -15,24 +15,24 @@
                     <h1 class="text-color-1 font-heading sidebar-text" id="resort-name"><span>LELO'S RESORT</span></h1>
                     
                     <!-- Collapsible Sidebar Links -->
-                    <a href="{{ route('staff.dashboard') }}" class="fw-semibold p-4   mt-2 color-3 hover:color-background3 font-paragraph rounded-md text-hover text-decoration-none d-flex align-items-center" id="dashboard-link">
+                    <a href="{{ route('staff.dashboard') }}" class="fw-semibold p-4 mt-2 color-3 hover:color-background3 font-paragraph rounded-md text-hoverStaff text-decoration-none d-flex align-items-center" id="dashboard-link">
                         <i class="fas fa-tachometer-alt pe-3 fs-4"></i> <!-- Icon for Dashboard -->
                         <span class="sidebar-text">Dashboard</span>
                     </a>
-                    <a href="{{ route('staff.reservation') }}" class="fw-semibold p-4 mt-2 color-3 hover:color-background1 font-paragraph rounded-md text-hover transition duration-300 ease-in-out text-decoration-none d-flex align-items-center" id="reservations-link">
+                    <a href="{{ route('staff.reservation') }}" class="fw-semibold p-4 mt-2 color-3 hover:color-background1 font-paragraph rounded-md text-hoverStaff transition duration-300 ease-in-out text-decoration-none d-flex align-items-center" id="reservations-link">
                         <i class="fas fa-calendar-alt pe-3 fs-4"></i> <!-- Icon for Reservations -->
                         <span class="sidebar-text">Reservations</span>
                     </a>
-                    <a href="#" class="fw-semibold p-4  mt-2 color-3 hover:color-background1 font-paragraph rounded-md text-hover text-decoration-none d-flex align-items-center" id="guests-link">
+                    <a href="{{ route ('staff.guests')}}" class="fw-semibold p-4  mt-2 color-3 hover:color-background1 font-paragraph rounded-md text-hoverStaff text-decoration-none d-flex align-items-center" id="guests-link">
                         <i class="fas fa-users pe-3 fs-4"></i> <!-- Icon for Guests -->
                         <span class="sidebar-text">Guests</span>
                     </a>
-                    <a href="{{ route('staff.transactions') }}" class="fw-semibold p-4  mt-2 color-3 hover:color-background1 font-paragraph rounded-md text-hover text-decoration-none d-flex align-items-center" id="transactions-link">
+                    <a href="{{ route('staff.transactions') }}" class="fw-semibold p-4  mt-2 color-3 hover:color-background1 font-paragraph rounded-md text-hoverStaff text-decoration-none d-flex align-items-center" id="transactions-link">
                         <i class="fas fa-credit-card pe-3 fs-4"></i> <!-- Icon for Transactions -->
                         <span class="sidebar-text">Transactions</span>
                     </a>
                     </a>
-                    <a href="#" class="fw-semibold p-4  mt-2 color-3 hover:color-background1 font-paragraph rounded-md text-hover text-decoration-none d-flex align-items-center" id="logout-link">
+                    <a href="#" class="fw-semibold p-4  mt-2 color-3 hover:color-background1 font-paragraph rounded-md text-hoverStaff text-decoration-none d-flex align-items-center" id="logout-link">
                         <i class="fas fa-sign-out-alt pe-3 fs-4"></i> <!-- Icon for Logout -->
                         <span class="sidebar-text">Logout</span>
                     </a>
