@@ -11,39 +11,37 @@
 <div class="container mt-5">
     <form action="{{ route('savePaymentProcess') }}" method="POST" enctype="multipart/form-data">
         @csrf
-        
-        <!-- Payment Method -->
         <div class="mb-3">
             <label for="payment_method" class="form-label">Payment Method:</label>
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" name="payment_method" id="gcash" value="gcash">
-                <label class="form-check-label" for="gcash">GCash</label>
+                <label class="form-check-label" for="gcash">
+                    GCash
+                </label>
             </div>
             <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="payment_method[]" id="bank_transfer" value="bank_transfer">
-                <label class="form-check-label" for="bank_transfer">Bank Transfer</label>
+                <input class="form-check-input" type="checkbox" name="payment_method" id="bank_transfer" value="bank_transfer">
+                <label class="form-check-label" for="bank_transfer">
+                    Bank Transfer
+                </label>
             </div>
         </div>
 
-        <!-- Mobile Number -->
         <div class="mb-3">
             <label for="mobileNo" class="form-label">Mobile Number:</label>
-            <input type="text" class="form-control" name="mobileNo" id="mobileNo" value="{{ $reservationDetails->mobileNo }}" required>
+            <input type="text" class="form-control" name="mobileNo" id="mobileNo" value="{{ auth()->user()->mobileNo }}" required>
         </div>
 
-        <!-- Total Amount -->
-        <div class="form-group">
-            <label for="amount">Total Amount</label>
-            <input type="text" class="form-control" id="amount" name="amount" value="₱ {{ number_format($reservationDetails->amount, 2) }}" readonly>
+        <div class="mb-3">
+            <label for="amount" class="form-label">Amount:</label>
+            <input type="number" class="form-control" name="amount" id="amount" step="0.01" min="0" required>
         </div>
 
-        <!-- Upload Payment Proof -->
         <div class="mb-3">
             <label for="upload_payment" class="form-label">Upload Payment Proof:</label>
-            <input class="form-control" type="file" name="upload_payment" id="upload_payment" required>
+            <input class="form-control" type="file" name="upload_payment" id="upload_payment">
         </div>
 
-        <!-- Reference Number -->
         <div class="mb-3">
             <label for="reference_num" class="form-label">Reference Number:</label>
             <input type="text" class="form-control" name="reference_num" id="reference_num" required>
@@ -52,32 +50,6 @@
         <button type="submit" class="btn btn-primary">Submit Payment</button>
     </form>
 </div>
-
-<!-- JavaScript to Compute Total Amount -->
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    function computeTotal() {
-        let packageSelect = document.getElementById('package_id');
-        let accomodationSelect = document.getElementById('accomodation_id');
-        let amountField = document.getElementById('amount');
-
-        let selectedPackage = packageSelect.selectedOptions[0] || {};
-        let selectedAccommodation = accomodationSelect.selectedOptions[0] || {};
-
-        let entranceFee = parseFloat(selectedPackage.dataset.entranceFee) || 0;
-        let packagePrice = parseFloat(selectedPackage.dataset.packagePrice) || 0;
-        let totalGuest = parseInt(selectedPackage.dataset.totalGuest) || 0;
-        let accomodationPrice = parseFloat(selectedAccommodation.dataset.accomodationPrice) || 0;
-
-        let totalAmount = (entranceFee * totalGuest) + accomodationPrice + packagePrice;
-        amountField.value = '₱ ' + totalAmount.toFixed(2);
-    }
-
-    document.getElementById('package_id').addEventListener('change', computeTotal);
-    document.getElementById('accomodation_id').addEventListener('change', computeTotal);
-    computeTotal(); // Compute on page load
-});
-</script>
-
 </body>
 </html>
+
