@@ -261,46 +261,34 @@ public function displayReservationSummary()
 }
 
 
-    public function showReservationsInCalendar()
-    {
-        $events = [];
+public function showReservationsInCalendar()
+{
+    $userId = Auth::id(); // Kunin ang naka-login na user
 
-        $reservations = DB::table('reservation_details')->get();
+    // Kunin ang lahat ng reservations
+    $reservations = DB::table('reservation_details')->get();
 
-        $events = $reservations->map(function ($reservation) {
-            $package = DB::table('packagestbl')->where('id', $reservation->package_id)->first();
-            return [
-                'title' => 'Reserved',
-                'start' => $reservation->reservation_check_in_date,
-                'extendedProps' => [
-                    'name' => $reservation->name,
-                    'date' => $reservation->reservation_check_in_date,
-                    'check_in' => (new DateTime($reservation->reservation_check_in))->format('g:i A'),
-                    'check_out' => (new DateTime($reservation->reservation_check_out))->format('g:i A'),
-                    'package_room_type' => $package->package_room_type ?? '',
-                ],
-            ];
-        })->toArray();
+    $events = $reservations->map(function ($reservation) use ($userId) {
+        $package = DB::table('packagestbl')->where('id', $reservation->package_id)->first();
 
-        $availableDates = DB::table('reservation_details')
-            ->selectRaw("distinct reservation_check_in_date as date")
-            ->whereNotIn('reservation_check_in_date', array_column($events, 'start'))
-            ->get()
-            ->map(function ($date) {
-                return [
-                    'title' => 'Reserve Now',
-                    'start' => $date->date,
-                    'extendedProps' => [
-                        'is_available' => true,
-                    ]
-                ];
-            })
-            ->toArray();
+        return [
+            'title' => ($reservation->user_id == $userId) ? 'Your Reservation' : 'Reserved',
+            'start' => $reservation->reservation_check_in_date,
+            'extendedProps' => [
+                'user_id' => $reservation->user_id, 
+                'name' => ($reservation->user_id == $userId) ? $reservation->name : 'Reserved',
+                'date' => $reservation->reservation_check_in_date,
+                'check_in' => (new DateTime($reservation->reservation_check_in))->format('g:i A'),
+                'check_out' => (new DateTime($reservation->reservation_check_out))->format('g:i A'),
+                'package_room_type' => $package->package_room_type ?? '',
+                'is_owner' => ($reservation->user_id == $userId) ? true : false, // Check kung siya ang may-ari
+            ],
+        ];
+    })->toArray();
 
-        $events = array_merge($events, $availableDates);
+    return view('Reservation.Events_reservation', compact('events', 'userId'));
+}
 
-        return view('Reservation.Events_reservation', compact('events'));
-    }
 
     public function cancelReservation(Request $request, $id)
 {

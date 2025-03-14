@@ -4,17 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reservation Calendar</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet">
+
+    <!-- Fonts & Styles -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&family=Poppins:wght@100;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
     <style>
         #calendar {
-            position: absolute;
-            left: 30px;
-            width: 1000px;
+            float: left;
+            width: 800px;
             height: 650px;
-            margin: 40px auto;
+            margin: 40px 20px;
         }
         #event-modal {
             display: none;
@@ -28,9 +30,6 @@
             width: 450px;
             height: auto;
         }
-        .fc-h-event .fc-event-title{    
-            display: block;
-        }
         .reserved-day {
             background-color: #97a97c !important;
             border-radius: 5px;
@@ -41,24 +40,11 @@
             border: none !important;
             color: black !important;
         }
-        .fc-event-title, .fc-event-name, .fc-event-date, .fc-event-time {
-            font-family: "Montserrat", serif !important;
-            text-align: center;
-        }
         .fc-event-title {
             font-size: 12px;
             color: #4a4a4a;
+            font-weight: bold;
             text-transform: uppercase;
-            font-weight: bold;
-            
-        }
-        .fc-event-name {
-            font-size: 10px;
-            color: #b5c99a;
-            font-weight: bold;
-        }
-        .fc-event-date, .fc-event-time {
-            font-size: 12px;
         }
         .fc-toolbar-title {
             font-size: 20px;
@@ -71,40 +57,43 @@
             background-color: #718355 !important;
             border-color: #718355 !important;
             color: #e5f9db !important;
-            font-family: "Montserrat", serif !important;
-            font-size: 14px;
             font-weight: bold;
+        }
+        .fc-daygrid-event {
+            position: relative;
+        }
+
+        .fc-daygrid-event:hover::after {
+            content: attr(data-tooltip); /* Kunin ang info mula sa data-tooltip */
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 8px;
             border-radius: 5px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 1000;
         }
-        .fc-today-button:hover, .fc-button:hover {
-            background-color: #5a6b47 !important;
-            border-color: #5a6b47 !important;
-        }
-        .fc-button:active, .fc-button.fc-button-active {
-            background-color: #4a5a3a !important;
-            border-color: #4a5a3a !important;
-        }
-        @keyframes fadeOut {
-            0% {
-                opacity: 1;
-            }
-            100% {
-                opacity: 0;
-            }
-        }
+
     </style>
 </head>
 <body>
+
     @if (session('success'))
-        <div class="alert alert-success alert-dismissible fade show position-absolute top-0 end-0" role="alert" style="animation: fadeOut 5s forwards;">
+        <div class="alert alert-success alert-dismissible fade show position-absolute top-0 end-0" role="alert">
             {{ session('success') }}
         </div>
     @endif 
+
     <div id="calendar"></div>
 
+    <!-- Modal -->
     <div id="event-modal">
-        <h3 id="event-title" class="color-4 text-uppercase font-heading fs-2 text-center ls-5"></h3>
-        <p><strong class="font-paragraph">Name:</strong> <span id="event-name" class="font-paragraph"></span></p>
+        <h3 id="event-title" class="text-uppercase text-center"></h3>
+        <p><strong>Name:</strong> <span id="event-name"></span></p>
         <p><strong>Date:</strong> <span id="event-date"></span></p>
         <p><strong>Check-in:</strong> <span id="event-check_in"></span></p>
         <p><strong>Check-out:</strong> <span id="event-check_out"></span></p>
@@ -112,106 +101,71 @@
         <button onclick="closeModal()">Close</button>
     </div>
 
-    <div class="position-absolute top-0 end-0 me-3 mt-4">
-        <a href="{{ route('profile') }}" title="Go to Profile">
-            <i class="fa-regular fa-circle-user fs-2 text-color-1"></i>
-        </a>
-    </div>
-
-    <div class="position-fixed bottom-0 end-0 mb-4 me-5 w-25">
+    <div class="position-fixed bottom-0 end-0 mb-4 me-5">
         <button onclick="window.location.href='{{ route('selectPackage') }}'" class="btn btn-primary">Reserve Now</button>
     </div>
+
     <!-- FullCalendar JS -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-    const calendarEl = document.getElementById('calendar');
-    const events = @json($events); // Laravel variable for reservations
+    document.addEventListener('DOMContentLoaded', function () {
+        const calendarEl = document.getElementById('calendar');
 
-    console.log("Fetched Events:", events); // Debugging - Check fetched events
+        if (!calendarEl) {
+            console.error("Calendar element not found!");
+            return;
+        }
 
-    const calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        headerToolbar: {
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay'
-        },
-        events: events,
-        eventDisplay: 'block',
-        eventTimeFormat: {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true
-        },
-        eventContent: function (arg) {
-            let event = arg.event;
-            let title = document.createElement('div');
-            title.classList.add('fc-event-title');
-            title.innerText = event.title;
+        const userId = @json($userId); // Get logged-in user ID
+        const allEvents = @json($events);
 
-            let name = document.createElement('div');
-            name.classList.add('fc-event-name');
-            name.innerText = `Name: ${event.extendedProps.name || 'N/A'}`;
+        console.log("Fetched Events:", allEvents);
 
-            let reservationDate = document.createElement('div');
-            reservationDate.classList.add('fc-event-date');
-            reservationDate.innerText = `${new Date(event.start).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) || 'N/A'}`;
+        try {
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                events: allEvents.map(event => ({
+                    ...event,
+                    color: event.extendedProps.is_owner ? '#4CAF50' : '#B0B0B0', // Green for own reservation, Gray for others
+                    textColor: 'black',
+                })),
+                eventClick: function(info) {
+                    let event = info.event;
 
-            let reservationCheckIn = document.createElement('div');
-            reservationCheckIn.classList.add('fc-event-time');
-            reservationCheckIn.innerText = `Check-in: ${event.extendedProps.check_in || 'N/A'}`;
+                    console.log("Clicked Event:", event.extendedProps);
 
-            let reservationCheckOut = document.createElement('div');
-            reservationCheckOut.classList.add('fc-event-time');
-            reservationCheckOut.innerText = `Check-out: ${event.extendedProps.check_out || 'N/A'}`;
+                    if (event.extendedProps.is_owner) {
+                        document.getElementById("event-title").textContent = "Your Reservation";
+                        document.getElementById("event-name").innerHTML = `<strong>Name:</strong> ${event.extendedProps.name || "N/A"}`;
+                        document.getElementById("event-date").innerHTML = `<strong>Date:</strong> ${event.start.toLocaleDateString()}`;
+                        document.getElementById("event-check_in").innerHTML = `<strong>Check-in:</strong> ${event.extendedProps.check_in || "N/A"}`;
+                        document.getElementById("event-check_out").innerHTML = `<strong>Check-out:</strong> ${event.extendedProps.check_out || "N/A"}`;
+                        document.getElementById("event-room_type").innerHTML = `<strong>Room Type:</strong> ${event.extendedProps.package_room_type || "N/A"}`;
 
-            let roomType = document.createElement('div');
-            roomType.classList.add('fc-event-room');
-            roomType.innerText = `Room Type: ${event.extendedProps.package_room_type || 'N/A'}`;
-
-            return { domNodes: [title, name, reservationDate, reservationCheckIn, reservationCheckOut, roomType] };
-        },
-        dayCellDidMount: function (info) {
-            let cellDate = new Date(info.date).toLocaleDateString();
-
-            let hasReservation = events.some(event => {
-                let eventDate = new Date(event.start).toLocaleDateString();
-                return eventDate === cellDate;
+                        document.getElementById("event-modal").style.display = "block";
+                    } else {
+                        alert("This date is already reserved.");
+                    }
+                }
             });
 
-            if (hasReservation) {
-                info.el.classList.add("reserved-day");
-
-                // Add hover effect
-                info.el.addEventListener('mouseenter', () => {
-                    const reservedEvents = events.filter(event => new Date(event.start).toLocaleDateString() === cellDate);
-                    if (reservedEvents.length > 0) {
-                        const event = reservedEvents[0];
-                        document.getElementById('event-title').innerText = event.title;
-                        document.getElementById('event-name').innerText = event.extendedProps.name || 'N/A';
-                        document.getElementById('event-date').innerText = new Date(event.start).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) || 'N/A';
-                        document.getElementById('event-check_in').innerText = event.extendedProps.check_in || 'N/A';
-                        document.getElementById('event-check_out').innerText = event.extendedProps.check_out || 'N/A';
-                        document.getElementById('event-room_type').innerText = event.extendedProps.package_room_type || 'N/A';
-                        document.getElementById('event-modal').style.display = 'block';
-                    }
-                });
-
-                info.el.addEventListener('mouseleave', () => {
-                    document.getElementById('event-modal').style.display = 'none';
-                });
-            }
+            calendar.render();
+        } catch (error) {
+            console.error("Error initializing FullCalendar:", error);
         }
     });
 
-    calendar.render();
-});
+    function closeModal() {
+        document.getElementById('event-modal').style.display = 'none';
+    }
+</script>
 
-    </script>
+
 
 </body>
 </html>
-
-
-
