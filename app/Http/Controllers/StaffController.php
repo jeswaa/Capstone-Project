@@ -54,18 +54,30 @@ class StaffController extends Controller
     {
         if (session()->has('StaffLogin')) {
             $staffCredentials = Staff::where('id', session()->get('StaffLogin'))->first();
-            
+
             $users = DB::table('users')->get();
             $totalUsers = $users->count();
             $totalGuests = DB::table('users')->count();
             $totalReservations = DB::table('reservation_details')->count();
+
+            $reservationData = DB::table('reservation_details')
+                ->select(DB::raw("COUNT(*) as count"), DB::raw("MONTHNAME(created_at) as month"))
+                ->groupBy('month')
+                ->get();
+
+            $totalTransactions = DB::table('reservation_details')
+                ->where('payment_status', 'Paid') // Filter only completed payments
+                ->count();
+
 
             return view('StaffSide.StaffDashboard', [
                 'staffCredentials' => $staffCredentials,
                 'totalUsers' => $totalUsers,
                 'totalGuests' => $totalGuests,
                 'totalReservations' => $totalReservations,
-                'users' => $users
+                'users' => $users,
+                'reservationData' => $reservationData,
+                'totalTransactions' => $totalTransactions,
             ]);
         } else {
             return redirect()->route('staff.login');
@@ -80,42 +92,50 @@ class StaffController extends Controller
     public function transactions()
     {
         $reservations = DB::table('reservation_details')->orderByDesc('created_at')->paginate(10);
-        $amounts = DB::table('reservation_details')->pluck('amount', 'id');
-        $pending = DB::table('reservation_details')->where('payment_status', 'pending')->paginate(10);
-        $paid = DB::table('reservation_details')->where('payment_status', 'paid')->paginate(10);
-        $booked = DB::table('reservation_details')->where('payment_status', 'booked')->paginate(10);
-        $cancelled = DB::table('reservation_details')->where('payment_status', 'cancelled')->paginate(10);
+        $amounts = DB::table('reservation_details')->value('amount');
+        $pending = DB::table('reservation_details')->where('payment_status', 'pending')->orderByDesc('created_at')->paginate(10);
+        $paid = DB::table('reservation_details')->where('payment_status', 'paid')->orderByDesc('created_at')->paginate(10);
+        $booked = DB::table('reservation_details')->where('payment_status', 'booked')->orderByDesc('created_at')->paginate(10);
+        $cancelled = DB::table('reservation_details')->where('payment_status', 'cancelled')->orderByDesc('created_at')->paginate(10);
         return view('Staffside.StaffTransaction', compact('reservations', 'pending', 'paid', 'booked', 'cancelled', 'amounts'));
     }
     public function UpdateStatus(Request $request, $id)
-{
-    $request->validate([
-        'payment_status' => 'required|string',
-        'custom_message' => 'nullable|max:255'
-    ]);
+    {
+        $request->validate([
+            'payment_status' => 'required|string',
+            'custom_message' => 'nullable|max:255'
+        ]);
 
-    $reservation = Reservation::find($id);
+        $reservation = Reservation::find($id);
 
-    if ($reservation) {
-        // Update payment status
-        $reservation->payment_status = $request->payment_status;
-        
-        // I-update lang ang custom_message kung may laman
-        if (!empty($request->custom_message)) {
-            $reservation->custom_message = $request->custom_message;
+        if ($reservation) {
+            // Update payment status
+            $reservation->payment_status = $request->payment_status;
+            
+            // I-update lang ang custom_message kung may laman
+            if (!empty($request->custom_message)) {
+                $reservation->custom_message = $request->custom_message;
+            }
+
+            // **Force save even if Laravel doesn't detect a change**
+            $reservation->setAttribute('updated_at', now());
+            $reservation->save();
+
+            Mail::to($reservation->email)->send(new ReservationStatusUpdated($reservation, $request->custom_message));
+
+            return redirect()->route('staff.transactions')->with('success', 'Payment status updated successfully!');
         }
 
-        // **Force save even if Laravel doesn't detect a change**
-        $reservation->setAttribute('updated_at', now());
-        $reservation->save();
-
-        Mail::to($reservation->email)->send(new ReservationStatusUpdated($reservation, $request->custom_message));
-
-        return redirect()->route('staff.transactions')->with('success', 'Payment status updated successfully!');
+        return redirect()->route('staff.transactions')->with('error', 'Reservation not found.');
     }
+    public function checkNewReservations()
+    {
+        $newReservations = Reservation::whereBetween('created_at', [now()->subMinutes(5), now()])->count();
 
-    return redirect()->route('staff.transactions')->with('error', 'Reservation not found.');
-}
+        return response()->json([
+            'new_reservations' => $newReservations
+        ]);
+    }
 
     public function updateReservationStatus(Request $request, $id)
     {

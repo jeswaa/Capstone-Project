@@ -26,24 +26,24 @@
     <div class="container-fluid">
         <div class="row h-100">
         @include('Navbar.sidenavbarStaff')
-            <div class="col-md-9 col-12 main-content color-background3 rounded-start-50 ps-0 pe-0 h-100 mt-4" >
+            <div class="col-md-9 col-12 main-content color-background3 rounded-start-50 ps-0 pe-0 h-100 mt-4  flex-column align-items-end ms-auto" >
                 <!-- TOP SECTION -->
-                <div class="color-background4 w-auto p-3 rounded-topright-50" id="main-content">
+                <div class="color-background4 w-100 p-3 rounded-topright-50" id="main-content">
                         <div class="d-flex justify-content-end" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Admin's Profile">
                             <a href="#"><i class="fa-regular fa-circle-user fs-1 text-decoration-none text-color-1"></i></a>
                         </div>
                 </div>
 
-                <div class="d-flex justify-content-around align-items-center flex-wrap mt-4 p-3">
-                    <a href="#reservationPending" id="pendingLink" class="fs-5 text-center font-paragraph text-decoration-none text-color-1 text-underline-left-to-right">Pending Reservations</a>
-                    <a href="#reservationBooked" id="bookedLink" class="fs-5 text-center font-paragraph text-decoration-none text-color-1 text-underline-left-to-right">Booked Reservations</a>
-                    <a href="#reservationPaid" id="paidLink" class="fs-5 text-center font-paragraph text-decoration-none text-color-1 text-underline-left-to-right">Paid Reservations</a>
-                    <a href="#reservationCancel" id="cancelledLink" class="fs-5 text-center font-paragraph text-decoration-none text-color-1 text-underline-left-to-right">Cancelled Reservations</a>
+                <div class=" ms-5 mt-4 p-3">
+                    <a href="#reservationPending" id="pendingLink" class="fs-5 me-3  font-paragraph text-decoration-none text-color-1 text-underline-left-to-right">Pending Reservations</a>
+                    <a href="#reservationBooked" id="bookedLink" class="fs-5 me-3 ms-3 font-paragraph text-decoration-none text-color-1 text-underline-left-to-right">Booked Reservations</a>
+                    <a href="#reservationPaid" id="paidLink" class="fs-5 me-3 ms-3 font-paragraph text-decoration-none text-color-1 text-underline-left-to-right">Paid Reservations</a>
+                    <a href="#reservationCancel" id="cancelledLink" class="fs-5 ms-3 font-paragraph text-decoration-none text-color-1 text-underline-left-to-right">Cancelled Reservations</a>
                 </div>
 
                 <!-- Reservation Pending section -->
                 <section id="reservationPending">
-                    <div class="table-responsive mt-4 p-5">
+                    <div class="table-responsive mt-1 p-5">
                         <table class="table table-striped table-hover">
                             <thead class="">
                                 <tr>
@@ -81,7 +81,7 @@
                                             @endif
                                         </td>
                                         <td>
-                                            <a href="#" onclick="openModal({{ $reservation->id }}, '{{ $reservation->payment_status }}')" class="text-warning mx-2">
+                                            <a href="#" onclick="openModal({{ $reservation->id }}, '{{ $reservation->payment_status }}', '{{ $reservation->amount }}')" class="text-warning mx-2">
                                                 <i class="fa-solid fa-pen-to-square"></i>
                                             </a>
                                             <a href="#" class="text-danger">
@@ -104,7 +104,7 @@
 
                 <!-- Paid Reservations -->
                 <section id="reservationPaid">
-                    <div class="container mt-4">
+                    <div class="table-responsive mt-1 p-5">
                         <h2 class="text-center mb-4">Paid Reservations</h2>
                         <div class="table-responsive">
                             <table class="table table-striped table-hover">
@@ -143,7 +143,7 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                <a href="#" onclick="openModal({{ $reservation->id }}, '{{ $reservation->payment_status }}')" class="text-warning mx-2">
+                                                <a href="#" onclick="openModal({{ $reservation->id }}, '{{ $reservation->payment_status }}', '{{ $reservation->amount }}')" class="text-warning mx-2">
                                                     <i class="fa-solid fa-pen-to-square"></i>
                                                 </a>
                                                 <a href="#" class="text-danger">
@@ -167,7 +167,7 @@
 
                 <!-- Booked Reservation -->
                 <section id="reservationBooked">
-                    <div class="container mt-4">
+                    <div class="table-responsive mt-1 p-5">
                         <h2 class="text-center mb-4">Booked Reservations</h2>
                         <div class="table-responsive">
                             <table class="table table-striped table-hover">
@@ -209,8 +209,7 @@
                                             </td>
                                             <td>{{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('F j, Y') }} - {{ \Carbon\Carbon::parse($reservation->reservation_check_out_date)->format('F j, Y') }}</td>
                                             <td>
-                                                <a href="#" onclick="openModal({{ $reservation->id }}, '{{ $reservation->payment_status }}')" 
-                                                   class="text-warning mx-2">
+                                                <a href="#" onclick="openModal({{ $reservation->id }}, '{{ $reservation->payment_status }}', '{{ $reservation->amount }}')" class="text-warning mx-2">
                                                     <i class="fa-solid fa-pen-to-square"></i>
                                                 </a>
                                                 <a href="#" class="text-danger">
@@ -234,7 +233,7 @@
 
                 <!-- Cancelled Reservation -->
                 <section id="reservationCancel">
-                    <div class="container mt-4">
+                    <div class="table-responsive mt-1 p-5">
                         <h2 class="text-center mb-4">Cancelled Reservations</h2>
                         <div class="table-responsive">
                             <table class="table table-striped table-hover">
@@ -272,8 +271,7 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                <a href="#" onclick="openModal({{ $reservation->id }}, '{{ $reservation->payment_status }}')" 
-                                                class="text-warning mx-2">
+                                                <a href="#" onclick="openModal({{ $reservation->id }}, '{{ $reservation->payment_status }}', '{{ $reservation->amount }}')" class="text-warning mx-2">
                                                     <i class="fa-solid fa-pen-to-square"></i>
                                                 </a>
                                                 <a href="#" class="text-danger">
@@ -301,54 +299,111 @@
 
     <!-- Single Modal Outside Loop -->
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Payment Status</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="updatePaymentForm" method="POST">
-                        @csrf
-                        <input type="hidden" name="id" id="modalReservationId">
-                        <div class="mb-3">
-                            <label for="payment_status" class="form-label">Status</label>
-                            <select class="form-select" name="payment_status" id="modalPaymentStatus">
-                                <option value="pending">Pending</option>
-                                <option value="booked">Booked</option>
-                                <option value="paid">Paid</option>
-                                <option value="cancelled">Cancelled</option>
-                            </select>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="custom_message" class="form-label">Message Sent to Email</label>
-                            <textarea class="form-control" name="custom_message" id="custom_message" rows="3" ></textarea>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary">Save</button>
-                    </form>
-                </div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Payment Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="updatePaymentForm" method="POST">
+                    @csrf
+                    <input type="hidden" name="id" id="modalReservationId">
+                    <div class="mb-3">
+                        <label for="payment_status" class="form-label">Status</label>
+                        <select class="form-select" name="payment_status" id="modalPaymentStatus">
+                            <option value="pending">Pending</option>
+                            <option value="booked">Booked</option>
+                            <option value="paid">Paid</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Amount</label>
+                        <input type="text" class="form-control" id="modalAmount" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="discount_amount" class="form-label">Downpayment</label>
+                        <input type="text" class="form-control" id="modalDiscountAmount" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="discountedAmount" class="form-label">Balance</label>
+                        <input type="text" class="form-control" id="modalDiscountedAmount" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="custom_message" class="form-label">Message Sent to Email</label>
+                        <textarea class="form-control" name="custom_message" id="custom_message" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </form>
             </div>
         </div>
     </div>
+</div>
 
     <script>
-        function openModal(id, status) {
-        console.log("Opening Modal for ID:", id, "with Status:", status); // Debugging
+        document.addEventListener("DOMContentLoaded", function () {
+    let updatePaymentForm = document.getElementById("updatePaymentForm");
 
-        document.getElementById('modalReservationId').value = id;
-        document.getElementById('modalPaymentStatus').value = status;
+    document.querySelectorAll(".open-payment-modal").forEach(button => {
+        button.addEventListener("click", function () {
+            let reservationId = this.getAttribute("data-reservation-id"); // Get ID from button
 
-        // Set form action dynamically
-        let form = document.getElementById('updatePaymentForm');
-        form.action = `/staff/transactions/update-payment-status/${id}`;
+            // Update hidden input field
+            document.getElementById("modalReservationId").value = reservationId;
 
-        // Show modal
-        var myModal = new bootstrap.Modal(document.getElementById('exampleModal'));
-        myModal.show();
+            // Dynamically update form action with the correct ID
+            updatePaymentForm.action = "/staff/transactions/update-payment-status/" + reservationId;
+        });
+    });
+});
+
+function openModal(id, status, amount) {
+    console.log("Opening Modal for ID:", id);
+    console.log("Payment Status:", status);
+    console.log("Amount Received (Raw):", amount);
+
+    // Ensure amount is a valid string before using replace
+    if (!amount || typeof amount !== "string") {
+        console.warn("Amount is not a valid string, defaulting to 0.");
+        amount = "0"; // Default value
     }
-    
+
+    // Remove commas and currency symbols, ensure it’s a number
+    amount = parseFloat(amount.replace(/,/g, '').replace(/[^\d.-]/g, ''));
+
+    if (isNaN(amount)) {
+        console.error("Amount is not a valid number!");
+        amount = 0;
+    }
+
+    // Format amount after calculation
+    let formattedAmount = "₱" + amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    let discountAmount = amount * 0.15;
+    let formattedDiscountAmount = "₱" + discountAmount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    let discountedAmount = amount - discountAmount;
+    let formattedDiscountedAmount = "₱" + discountedAmount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    console.log("Original Amount:", formattedAmount);
+    console.log("Discount (15%):", formattedDiscountAmount);
+    console.log("Discounted Amount:", formattedDiscountedAmount);
+
+    // Set values in the modal
+    document.getElementById('modalReservationId').value = id;
+    document.getElementById('modalPaymentStatus').value = status;
+    document.getElementById('modalAmount').value = formattedAmount;
+    document.getElementById('modalDiscountAmount').value = formattedDiscountAmount;
+    document.getElementById('modalDiscountedAmount').value = formattedDiscountedAmount;
+
+    // Update form action dynamically
+    document.getElementById("updatePaymentForm").action = "/staff/transactions/update-payment-status/" + id;
+
+    var myModal = new bootstrap.Modal(document.getElementById('exampleModal'));
+    myModal.show();
+}
+
+
+
         document.addEventListener("DOMContentLoaded", function () {
             function showSection(sectionId) {
                 // Hide all reservation sections
@@ -388,3 +443,4 @@
     </script>
 </body>
 </html>
+

@@ -13,7 +13,7 @@
     <div class="container-fluid">
         <div class="row h-100">
         @include('Navbar.sidenavbarStaff')
-            <div class="col-md-9 col-12 main-content color-background3 rounded-start-50 ps-0 pe-0 h-100 mt-4" >
+            <div class="col-md-9 col-12 main-content color-background3 rounded-start-50 ps-0 pe-0 h-100 mt-4 flex-column align-items-end ms-auto" >
                     <!-- TOP SECTION -->
                 <div class="color-background4 w-auto p-3 rounded-topright-50" id="main-content">
                     <div class="d-flex justify-content-end" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Admin's Profile">
@@ -26,6 +26,8 @@
                         {{ session('success') }}
                     </div>
                 @endif
+                
+                <div id="newReservationAlert"></div>
 
                 <div class="p-3 mt-3">
                     <div class="p-4 mt-1 rounded-5 h-50 overflow-y-auto">
@@ -179,6 +181,35 @@
             myModal.hide();
         }
         
+    </script>
+
+    <script>
+       document.addEventListener("DOMContentLoaded", function () {
+            let shown = false;
+
+            setInterval(function () {
+                fetch('/staff/check-new-reservations')
+                    .then(response => response.json())
+                    .then(data => {
+                        let alertBox = document.getElementById("newReservationAlert");
+
+                        if (data.new_reservations > 0 && !shown) {
+                            alertBox.innerHTML = `
+                                <div class="alert alert-warning" id="reservationAlert">
+                                    <strong>${data.new_reservations}</strong> new reservation(s) received! 
+                                    <a href="/staff/transactions" id="viewReservations">View</a>
+                                </div>`;
+                            shown = true;
+
+                            // Remove notification when "View" is clicked
+                            document.getElementById("viewReservations").addEventListener("click", function () {
+                                alertBox.innerHTML = ""; // Remove the alert box
+                                shown = false; // Allow future notifications
+                            });
+                        }
+                    });
+            }, 5000); // Every 5 seconds
+        });
     </script>
 </body>
 </html>
