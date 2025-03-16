@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <title>Dashboard</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -29,6 +30,11 @@
         padding: 20px;
         border-radius: 10px;
     }
+    .chart-container {
+        position: relative;
+        height: 400px; /* Adjusted height */
+        width: 1000px; /* Adjusted width */
+    }
 </style>
 <body class="color-background5">
     <div class="container-fluid">
@@ -38,9 +44,9 @@
             @include('Navbar.sidenavbarStaff')
 
             <!-- MAIN CONTENT -->
-            <div class="col-md-9 col-12 main-content color-background3 rounded-start-50 ps-0 pe-0 h-100 mt-4" id="main-content">
+            <div class="col-md-9 col-12 main-content color-background3 rounded-start-50 ps-0 pe-0 h-100 mt-4 d-flex flex-column align-items-end ms-auto" id="main-content">
                 <!-- TOP SECTION -->
-                <div class="color-background4 w-auto p-3 rounded-topright-50" id="main-content">
+                <div class="color-background4 w-100 p-3 rounded-topright-50 " id="main-content">
                         <div class="d-flex justify-content-end" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Admin's Profile">
                             <a href="#"><i class="fa-regular fa-circle-user fs-1 text-decoration-none text-color-1"></i></a>
                         </div>
@@ -143,6 +149,36 @@
                                 <h1 class="font-heading fw-bold text-color-1 fs-3">Reservations</h1>
                                 <div class="chart-container">
                                     <canvas id="reservationChart"></canvas>
+                                    <script>
+                                        document.addEventListener('DOMContentLoaded', function () {
+                                            const ctx = document.getElementById('reservationChart').getContext('2d');
+                                            const reservationChart = new Chart(ctx, {
+                                                type: 'bar',
+                                                data: {
+                                                    labels: [
+                                                        'January', 'February', 'March', 'April', 'May', 'June', 
+                                                        'July', 'August', 'September', 'October', 'November', 'December'
+                                                    ],
+                                                    datasets: [{
+                                                        label: 'Reservations',
+                                                        data: @json($reservationData->pluck('count')->toArray()),
+                                                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                                                        borderColor: 'rgba(54, 162, 235, 1)',
+                                                        borderWidth: 1
+                                                    }]
+                                                },
+                                                options: {
+                                                    responsive: true,
+                                                    maintainAspectRatio: false,
+                                                    scales: {
+                                                        y: {
+                                                            beginAtZero: true
+                                                        }
+                                                    }
+                                                }
+                                            });
+                                        });
+                                    </script>
                                 </div>
                             </div>
                         </div>
@@ -185,3 +221,4 @@
     </script>
 </body>
 </html>
+

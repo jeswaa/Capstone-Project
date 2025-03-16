@@ -13,7 +13,7 @@
     <div class="container-fluid">
         <div class="row h-100">
         @include('Navbar.sidenavbarStaff')
-            <div class="col-md-9 col-12 main-content color-background3 rounded-start-50 ps-0 pe-0 h-100 mt-4" >
+            <div class="col-md-9 col-12 main-content color-background3 rounded-start-50 ps-0 pe-0 h-100 mt-4 flex-column align-items-end ms-auto" >
                     <!-- TOP SECTION -->
                     <div class="color-background4 w-auto p-3 rounded-topright-50" id="main-content">
                         <div class="d-flex justify-content-end" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Admin's Profile">
@@ -25,7 +25,6 @@
                     <table class="table">
                         <thead>
                             <tr>
-                                <th scope="col">ID</th>
                                 <th scope="col">Name</th>
                                 <th scope="col">Email</th>
                                 <th scope="col">Phone</th>
@@ -35,7 +34,6 @@
                         <tbody>
                             @foreach ($users as $user)
                                 <tr>
-                                    <td>{{ $user->id }}</td>
                                     <td>{{ $user->name ?? '-' }}</td>
                                     <td>{{ $user->email ?? '-' }}</td>
                                     <td>{{ $user->mobileNo ?? '-' }}</td>

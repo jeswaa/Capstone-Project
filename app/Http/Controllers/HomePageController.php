@@ -21,15 +21,37 @@ class HomePageController extends Controller
         // Fetch user details
         $user = DB::table('users')->where('id', $userId)->first();
 
-        // Fetch only the latest reservation
         $latestReservation = DB::table('reservation_details')
-            ->join('packagestbl', 'reservation_details.package_id', '=', 'packagestbl.id')
+            ->leftJoin('packagestbl', 'reservation_details.package_id', '=', 'packagestbl.id')
+            ->leftJoin('activitiestbl', 'reservation_details.activity_id', '=', 'activitiestbl.id')
             ->where('reservation_details.user_id', $userId)
-            ->where('reservation_details.payment_status', '!=', 'cancelled') // Exclude cancelled reservations
-            ->select('reservation_details.*', 'packagestbl.package_name', 'packagestbl.package_room_type', 'packagestbl.package_max_guests')
-            ->orderBy('reservation_details.reservation_check_in_date', 'desc')
+            ->select(
+                'reservation_details.*', 
+                'packagestbl.package_name', 
+                'packagestbl.package_room_type', 
+                'packagestbl.package_max_guests',
+                'activitiestbl.activity_name',
+                'activitiestbl.id as activity_id',
+            )
+            ->orderByDesc('reservation_details.id')
             ->first();
 
+        // --- Fetch Accommodations ---
+        $accommodationIds = json_decode($latestReservation->accomodation_id, true);
+        $accommodations = [];
+
+        if (is_array($accommodationIds) && count($accommodationIds) > 0) {
+            $accommodations = DB::table('accomodations')
+                ->whereIn('accomodation_id', $accommodationIds)
+                ->pluck('accomodation_name')
+                ->toArray();
+        } elseif (is_numeric($accommodationIds)) { // Handle single integer
+            $accommodations = DB::table('accomodations')
+                ->where('accomodation_id', $accommodationIds)
+                ->pluck('accomodation_name')
+                ->toArray();
+        }
+        
         // Fetch all past reservations except the latest one (check if latestReservation exists)
         $pastReservations = [];
         if ($latestReservation) {
@@ -44,7 +66,8 @@ class HomePageController extends Controller
         return view('Frontend.profilepage', [
             'user' => $user,
             'latestReservation' => $latestReservation,
-            'pastReservations' => $pastReservations
+            'pastReservations' => $pastReservations,
+            'accommodations' =>  $accommodations
         ]);
     }
 

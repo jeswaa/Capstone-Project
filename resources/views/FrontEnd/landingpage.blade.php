@@ -31,13 +31,13 @@
                 <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
                     <ul class="navbar-nav">
                         <li class="nav-item me-3">
-                            <a class="nav-link fs-4 fw-bold text-light" href="#">Home</a>
+                            <a class="nav-link fs-4 fw-bold text-light text-underline-left-to-right" href="#">Home</a>
                         </li>
                         <li class="nav-item me-3">
-                            <a class="nav-link fs-4 fw-bold text-light" href="#">About</a>
+                            <a class="nav-link fs-4 fw-bold text-light text-underline-left-to-right" href="#">About</a>
                         </li>
                         <li class="nav-item me-3">
-                            <a class="nav-link fs-4 fw-bold text-light" href="#">Contact Us</a>
+                            <a class="nav-link fs-4 fw-bold text-light text-underline-left-to-right" href="#">Contact Us</a>
                         </li>
                     </ul>
                 </div>

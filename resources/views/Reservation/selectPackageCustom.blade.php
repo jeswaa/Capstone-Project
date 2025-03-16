@@ -8,8 +8,30 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body>
+<style>
+    .select-accommodation {
+        cursor: pointer;
+        transition: transform 0.3s, box-shadow 0.3s;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.05);
+    }
+
+    .select-accommodation.selected {
+        background-color: #718355; /* Light green background to indicate selection */
+        border: 2px solid #414141;
+    }
+
+    .select-accommodation:hover {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 16px 32px rgba(0, 0, 0, 0.1);
+        transform: translateY(-5px);
+    }
+</style>
+<body class="color-background4">
+    <div class="mt-5 ms-5 d-flex align-items-center">
+        <a href="{{ route('selectPackage') }}"><i class="fa-solid fa-circle-left fa-2x color-3 icon ms-4 icon-hover"></i></a><h1 class="font-heading ms-3 text-uppercase text-color-1">Reservation</h1>
+    </div>
+    
     <div class="container">
+    <h1 class="font-heading fs-2 text-color-1 mt-3">Select and Customize your Package</h1>
         <form method="POST" action="{{ route('savePackageSelection') }}">
             @csrf
             <input type="hidden" name="package_type" value="custom">
@@ -17,8 +39,8 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label for="rentAsWhole">Rent as Whole</label>
-                        <select id="rentAsWhole" name="rent_as_whole" class="form-control">
+                        <label for="rentAsWhole" class="fw-semibold font-paragraph mb-3 ms-2 mt-2 text-color-1">Rent as Whole</label>
+                        <select id="rentAsWhole" name="rent_as_whole" class="form-control ms-2 w-50">
                             <option value="" selected disabled hidden>Please select</option>
                             <option value="yes">Yes</option>
                             <option value="no">No</option>
@@ -29,26 +51,23 @@
 
             <div class="col-md-12 d-flex flex-column">
                 <div class="form-group">
-                    <label for="roomPreference">Room Preference</label>
+                    <label for="roomPreference" class="fw-semibold font-paragraph mb-3 ms-2 text-color-1">Room Preference</label>
                     <div class="container">
                         <div class="row">
                             @foreach($accomodations as $accomodation)
-                                <div class="col-md-3 mb-3 d-flex">
-                                    <div class="card w-100">
-                                        <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" class="card-img-top" alt="accomodation image" style="max-width: 100%; height: 150px; object-fit: cover;">
-                                        <div class="card-body text-center">
-                                            <p class="card-text">{{ $accomodation->accomodation_id }}</p>
-                                            <h5 class="card-title">{{ $accomodation->accomodation_name }}</h5>
-                                            <p class="card-text">Type: {{ $accomodation->accomodation_type }}</p>
-                                            <p class="card-text">Capacity: {{ $accomodation->accomodation_capacity }}</p>
-                                            <p class="card-text">Price: {{ $accomodation->accomodation_price }}</p>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="accomodation{{ $accomodation->accomodation_id }}" name="accomodation_id[]" value="{{ $accomodation->accomodation_id }}" {{ old('accomodation_id') && in_array($accomodation->accomodation_id, old('accomodation_id')) ? 'checked' : '' }}>
-                                                <label class="form-check-label" for="accomodation{{ $accomodation->accomodation_id }}"></label>
-                                            </div>
-                                        </div>
+                            <div class="col-md-3 mb-3 d-flex">
+                                <div class="rounded-4 w-100 color-background5 select-accommodation" data-id="{{ $accomodation->accomodation_id }}">
+                                    <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" class="card-img-top rounded-4" alt="accomodation image" style="max-width: 100%; height: 250px; object-fit: cover;">
+                                    <div class="card-body p-3">
+                                        <h5 class="fs-4 font-heading fw-bold color-3 text-capitalize">{{ $accomodation->accomodation_name }}</h5>
+                                        <p class="card-text fs-6 font-paragraph text-capitalize">Type: {{ $accomodation->accomodation_type }}</p>
+                                        <p class="card-text font-paragraph">Capacity: {{ $accomodation->accomodation_capacity }}</p>
+                                        <p class="card-text font-paragraph">Price:  ₱ {{ $accomodation->accomodation_price }}</p>
+                                        <!-- Hidden input to store selected value -->
+                                        <input type="hidden" name="accomodation_id[]" value="{{ $accomodation->accomodation_id }}" class="hidden-input">
                                     </div>
                                 </div>
+                            </div>
                             @endforeach
                         </div>
                     </div>
@@ -56,21 +75,22 @@
             </div>
 
             <div>
-                <label for="activities">Activities</label>
+                <label for="activities" class="fw-semibold font-paragraph mt-3 ms-2 text-color-1">Activities</label>
                 <div class="container">
                     <div class="row">
                         @foreach($activities as $activity)
-                            <div class="col-md-3 mb-3">
-                                <div class="card w-100">
-                                    <span class="badge bg-{{ $activity->activity_status == 'Available' ? 'success' : 'danger' }} mb-2">
-                                        {{ $activity->activity_status }}
-                                    </span>
-                                    <img src="{{ asset('storage/' . $activity->activity_image) }}" class="img-fluid rounded mb-2" style="width: 100%; height: 150px; object-fit: cover;" alt="{{ $activity->activity_name }}">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="activity{{ $activity->id }}" name="activity_id[]" value="{{ $activity->id }}" {{ old('activity_id') && in_array($activity->id, old('activity_id')) ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="activity{{ $activity->id }}">
-                                            {{ $activity->activity_name }}
-                                        </label>
+                            <div class="col-md-3 mb-3 mt-3">
+                                <div class="color-background5 rounded-3  w-100">
+                                    <img src="{{ asset('storage/' . $activity->activity_image) }}" class="img-fluid rounded mb-2" style="width: 100%; height: 200px; object-fit: cover;" alt="{{ $activity->activity_name }}">
+                                        <div class="d-flex align-items-center ms-3">
+                                            <span class="badge bg-{{ $activity->activity_status == 'Available' ? 'success' : 'danger' }} mb-2 me-2">
+                                                {{ $activity->activity_status }}
+                                            </span>
+                                            <p class="mb-2 font-paragraph fs-5 fw-semibold color-3 text-capitalize">{{ $activity->activity_name }}</p>
+                                        </div>
+                                    <div class="form-check d-none">
+                                        <input class="form-check-input" type="checkbox" id="activity{{ $activity->id }}" name="activity_id[]" value="{{ $activity->id }}" {{ old('activity_id') && in_array($activity->id, old('activity_id')) ? 'checked' : 'checked' }}>
+                                        <label class="form-check-label" for="activity{{ $activity->id }}"></label>
                                     </div>
                                 </div>
                             </div>
@@ -136,48 +156,82 @@
     </div>
 
     <script>
-        function calculateTotalGuest() {
-            let adults = parseInt(document.getElementById("number_of_adults").value) || 0;
-            let children = parseInt(document.getElementById("number_of_children").value) || 0;
-            let totalGuests = adults + children;
+    function calculateTotalGuest() {
+        let adults = parseInt(document.getElementById("number_of_adults").value) || 0;
+        let children = parseInt(document.getElementById("number_of_children").value) || 0;
+        let totalGuests = adults + children;
 
-            document.getElementById("total_guests").value = totalGuests;
+        document.getElementById("total_guests").value = totalGuests;
 
-            calculateTotalAmount();
-        }
+        calculateTotalAmount();
+    }
 
-        function calculateTotalAmount() {
-            let adultEntranceFee = 100; // Entrance fee per adult
-            let childEntranceFee = 50;  // Entrance fee per child
-            let numAdults = parseInt(document.getElementById("number_of_adults").value) || 0;
-            let numChildren = parseInt(document.getElementById("number_of_children").value) || 0;
+    function calculateTotalAmount() {
+        let adultEntranceFee = 100; // Entrance fee per adult
+        let childEntranceFee = 50;  // Entrance fee per child
+        let numAdults = parseInt(document.getElementById("number_of_adults").value) || 0;
+        let numChildren = parseInt(document.getElementById("number_of_children").value) || 0;
 
-            let entranceTotal = (numAdults * adultEntranceFee) + (numChildren * childEntranceFee);
+        let entranceTotal = (numAdults * adultEntranceFee) + (numChildren * childEntranceFee);
 
-            // Calculate accommodation total
-            let accommodationTotal = 0;
-            document.querySelectorAll('input[name="accomodation_id[]"]:checked').forEach((checkbox) => {
-                let priceElement = checkbox.closest('.card').querySelector('.card-text:last-child'); // Get last text element (price)
-                if (priceElement) {
-                    let price = parseFloat(priceElement.textContent.replace("Price: ", "").replace("₱", "")) || 0;
-                    accommodationTotal += price;
-                }
-            });
-
-            // Final total price (Entrance + Accommodation)
-            let totalAmount = entranceTotal + accommodationTotal;
-
-            // Assign total amount to hidden input
-            document.getElementById("total_amount").value = totalAmount.toFixed(2);
-        }
-
-        // Attach event listeners for live calculation
-        document.getElementById("number_of_adults").addEventListener("input", calculateTotalGuest);
-        document.getElementById("number_of_children").addEventListener("input", calculateTotalGuest);
-        document.querySelectorAll('input[name="accomodation_id[]"]').forEach((checkbox) => {
-            checkbox.addEventListener("change", calculateTotalAmount);
+        // Calculate accommodation total (Only selected)
+        let accommodationTotal = 0;
+        document.querySelectorAll('.select-accommodation.selected').forEach((card) => {
+            let priceElement = card.querySelector(".card-text:last-child"); // Get last text element (price)
+            if (priceElement) {
+                let price = parseFloat(priceElement.textContent.replace("Price: ", "").replace("₱", "")) || 0;
+                accommodationTotal += price;
+            }
         });
-    </script>
+
+        // Final total price (Entrance + Accommodation)
+        let totalAmount = entranceTotal + accommodationTotal;
+
+        // Assign total amount to hidden input
+        document.getElementById("total_amount").value = totalAmount.toFixed(2);
+    }
+
+    // Handle Accommodation Selection
+    document.addEventListener("DOMContentLoaded", function () {
+    const accommodationCards = document.querySelectorAll(".select-accommodation");
+
+    accommodationCards.forEach(card => {
+        card.addEventListener("click", function () {
+            this.classList.toggle("selected"); // Toggle selection
+            const hiddenInput = this.querySelector(".hidden-input");
+            
+            if (!this.classList.contains("selected")) {
+                if (hiddenInput) hiddenInput.remove(); // Remove hidden input if unselected
+            } else {
+                // Add hidden input if selected (ensure it exists)
+                if (!hiddenInput) {
+                    const input = document.createElement("input");
+                    input.type = "hidden";
+                    input.name = "accomodation_id[]";
+                    input.value = this.getAttribute("data-id");
+                    input.classList.add("hidden-input");
+                    this.appendChild(input);
+                }
+            }
+        });
+    });
+
+    // Ensure only selected accommodations are submitted
+    document.querySelector("form").addEventListener("submit", function () {
+        document.querySelectorAll(".hidden-input").forEach(input => {
+            if (!input.closest(".select-accommodation").classList.contains("selected")) {
+                input.remove(); // Remove unselected hidden inputs before submission
+            }
+        });
+    });
+});
+
+
+    // Attach event listeners for guest count changes
+    document.getElementById("number_of_adults").addEventListener("input", calculateTotalGuest);
+    document.getElementById("number_of_children").addEventListener("input", calculateTotalGuest);
+</script>
+
 </body>
 </html>
 
