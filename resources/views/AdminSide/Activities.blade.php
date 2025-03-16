@@ -46,26 +46,76 @@
                                 Add Activity
                             </button>
                         </div>
+                        @if ($errors->any())
+                            <div class="alert alert-danger mt-3">
+                                <ul>
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                        @if (session('success'))
+                            <div class="alert alert-success mt-3">
+                                {{ session('success') }}
+                            </div>
+                        @endif
 
                         <table class="table table-striped mt-5">
                             <thead>
                                 <tr>
+                                    <th scope="col">Activity Image</th>
                                     <th scope="col">Activity Name</th>
-                                    <th scope="col">Activity Type</th>
-                                    <th scope="col">Activity Fee</th>
+                                    <th scope="col">Status</th>
                                     <th scope="col">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>Activity 1</td>
-                                    <td>Activity Type 1</td>
-                                    <td>Activity Fee 1</td>
-                                    <td>
-                                        <a href="#" class="text-warning mx-2"><i class="fa-solid fa-pen-to-square"></i></a>
-                                        <a href="#" class="text-danger"><i class="fa-solid fa-trash-can"></i></a>
-                                    </td>
-                                </tr>
+                                @foreach ($activities as $activity)
+                                    <tr>
+                                        <td><img src="{{ asset('storage/' . $activity->activity_image) }}" class="img-fluid rounded" style="width: 50px; height: 50px;" alt=""></td>
+                                        <td>{{ $activity->activity_name }}</td>
+                                        <td>{{ $activity->activity_status }}</td>
+                                        <td>
+                                            <a href="#editActivityModal{{ $activity->id }}" class="text-warning mx-2" data-bs-toggle="modal"><i class="fa-solid fa-pen-to-square"></i></a>
+                                            <a href="#" class="text-danger"><i class="fa-solid fa-trash-can"></i></a>
+                                        </td>
+                                    </tr>
+                                    <!-- Edit Activity Modal -->
+                                    <div class="modal fade" id="editActivityModal{{ $activity->id }}" tabindex="-1" aria-labelledby="editActivityModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="editActivityModalLabel">Edit Activity</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <form action="{{ route('updateActivity', $activity->id) }}" method="POST" enctype="multipart/form-data">
+                                                        @csrf
+                                                        @method('PUT')
+                                                        <div class="form-group">
+                                                            <label for="activity_name">Activity Name</label>
+                                                            <input type="text" class="form-control" id="activity_name" name="activity_name" value="{{ $activity->activity_name }}">
+                                                        </div>
+                                                        <div class="form-group mt-3">
+                                                            <label for="activity_image">Activity Image</label>
+                                                            <input type="file" class="form-control" id="activity_image" name="activity_image">
+                                                        </div>
+                                                        <div class="form-group mt-3">
+                                                            <label for="activity_status">Activity Status</label>
+                                                            <select class="form-select" id="activity_status" name="activity_status">
+                                                                <option value="Available" @if ($activity->activity_status == 'Available') selected @endif>Available</option>
+                                                                <option value="Unavailable" @if ($activity->activity_status == 'Unavailable') selected @endif>Unavailable</option>
+                                                            </select>
+                                                        </div>
+                                                        <button type="submit" class="btn btn-primary mt-3">Update</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- End Edit Activity Modal -->
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
@@ -84,23 +134,23 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form method="POST" action="#">
+                    <form method="POST" action="{{ route('storeActivity') }}" enctype="multipart/form-data">
                         @csrf
+                        <div class="mb-3">
+                            <label for="activityImage" class="form-label">Image</label>
+                            <input type="file" class="form-control" id="activityImage" name="activity_image" accept="image/*" required>
+                        </div>
                         <div class="mb-3">
                             <label for="activityName" class="form-label">Name</label>
                             <input type="text" class="form-control" id="activityName" name="activity_name" required>
                         </div>
                         <div class="mb-3">
-                            <label for="activityType" class="form-label">Type</label>
-                            <select class="form-select" id="activityType" name="activity_type" required>
-                                <option value="" selected disabled>Select Type</option>
-                                <option value="group">Group</option>
-                                <option value="team">Team</option>
+                            <label for="activityStatus" class="form-label">Status</label>
+                            <select class="form-select" id="activityStatus" name="activity_status" required>
+                                <option value="" selected disabled>Select Status</option>
+                                <option name="activity_status" value="available">Available</option>
+                                <option name="activity_status" value="unavailable">Unavailable</option>
                             </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="activityFee" class="form-label">Fee</label>
-                            <input type="number" class="form-control" id="activityFee" name="activity_fee" min="0" required>
                         </div>
                         <div class="modal-footer">
                             <button type="submit" class="p-2 border-0 rounded-3 text-color-1 color-background4 text-hover-1 font-paragraph text-uppercase fw-bold w-100">Add</button>
@@ -126,6 +176,25 @@
                 myModal.hide();
             });
         }
+document.addEventListener("DOMContentLoaded", function () {
+    const editActivityButtons = document.querySelectorAll(".edit-activity-btn");
+    editActivityButtons.forEach(button => {
+        button.addEventListener("click", function () {
+            const activityId = button.getAttribute("data-activity-id");
+            const editModal = new bootstrap.Modal(document.getElementById("editActivityModal" + activityId));
+            editModal.show();
+        });
+    });
+
+    document.querySelectorAll(".edit-activity-modal .btn-close, .edit-activity-modal .btn-secondary").forEach(closeButton => {
+        closeButton.addEventListener("click", function () {
+            const modalElement = closeButton.closest(".modal");
+            const editModal = bootstrap.Modal.getInstance(modalElement);
+            editModal.hide();
+        });
+    });
+});
+
     </script>
 </body>
 </html>

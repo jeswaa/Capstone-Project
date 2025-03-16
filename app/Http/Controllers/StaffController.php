@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use App\Models\Staff;
 use App\Models\Reservation;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\ReservationEmail;
+use Illuminate\Support\Facades\Log;
+use App\Mail\ReservationStatusUpdated;
 
 class StaffController extends Controller
 {
@@ -22,7 +24,8 @@ class StaffController extends Controller
     }
     public function guests()
     {
-        return view('StaffSide.StaffGuest');
+        $users = DB::table('users')->get();
+        return view('StaffSide.StaffGuest', compact('users'));
     }
     public function logout()
     {
@@ -70,49 +73,68 @@ class StaffController extends Controller
     }
     public function reservations()
     {
-        $reservations = DB::table('reservation_details')->get();
-        return view('StaffSide.StaffReservation', compact('reservations'));
-
-        
+        $reservations = DB::table('reservation_details')->orderBy('created_at', 'desc')->paginate(10);
+        return view('StaffSide.StaffReservation', compact('reservations'));  
     }
-    public function sendEmail(Request $request)
-    {
-        $email = $request->email_to;
-        $subject = $request->email_subject;
-        $message = $request->email_message;
 
-        Mail::to($email)->send(new ReservationEmail($subject, $message));
-
-        return back()->with('success', 'Email sent successfully!');
-    }
     public function transactions()
     {
-        $reservations = DB::table('reservation_details')->get();
-        return view('Staffside.StaffTransaction', compact('reservations'));
+        $reservations = DB::table('reservation_details')->orderByDesc('created_at')->paginate(10);
+        $amounts = DB::table('reservation_details')->pluck('amount', 'id');
+        $pending = DB::table('reservation_details')->where('payment_status', 'pending')->paginate(10);
+        $paid = DB::table('reservation_details')->where('payment_status', 'paid')->paginate(10);
+        $booked = DB::table('reservation_details')->where('payment_status', 'booked')->paginate(10);
+        $cancelled = DB::table('reservation_details')->where('payment_status', 'cancelled')->paginate(10);
+        return view('Staffside.StaffTransaction', compact('reservations', 'pending', 'paid', 'booked', 'cancelled', 'amounts'));
     }
     public function UpdateStatus(Request $request, $id)
 {
-    // Validate the input to ensure payment_status is provided
     $request->validate([
-        'payment_status' => 'required|string'
+        'payment_status' => 'required|string',
+        'custom_message' => 'nullable|max:255'
     ]);
 
-    // Fetch the reservation with the given ID
     $reservation = Reservation::find($id);
 
-    // Ensure the reservation exists before updating
     if ($reservation) {
+        // Update payment status
         $reservation->payment_status = $request->payment_status;
-        $reservation->save(); // Save the updated field
+        
+        // I-update lang ang custom_message kung may laman
+        if (!empty($request->custom_message)) {
+            $reservation->custom_message = $request->custom_message;
+        }
+
+        // **Force save even if Laravel doesn't detect a change**
+        $reservation->setAttribute('updated_at', now());
+        $reservation->save();
+
+        Mail::to($reservation->email)->send(new ReservationStatusUpdated($reservation, $request->custom_message));
 
         return redirect()->route('staff.transactions')->with('success', 'Payment status updated successfully!');
     }
 
-    // If reservation is not found, return with an error
     return redirect()->route('staff.transactions')->with('error', 'Reservation not found.');
 }
 
+    public function updateReservationStatus(Request $request, $id)
+    {
+        
+        // Validate the input
+        $request->validate([
+            'reservation_status' => 'required|in:Upcoming,Checked-in,Checked-out,Cancelled',
+        ]);
 
+        // Find the reservation
+        $reservation = Reservation::findOrFail($id);
+
+        // Update the status
+        $reservation->reservation_status = $request->reservation_status;
+        $reservation->save();
+
+        // Redirect back with success message
+        return redirect()->back()->with('success', 'Reservation status updated successfully!');
+    }
 
 
 }

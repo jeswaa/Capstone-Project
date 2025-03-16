@@ -48,96 +48,105 @@
     </style>
 </head>
 <body>
-    <div class="position-absolute top-0 start-0 mt-4 ms-5">
-        <a href="{{ url()->previous() }}"><i class="fa-solid fa-circle-left fa-2x icon" style="color: black;"></i></a>
-    </div>
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
+    <div class="container mt-5">
+        <h2 class="text-center">Reservation Summary</h2>
+
+        <!-- Display error message if any -->
+        @if(session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
             </div>
-            <div class="row">
-                <div class="col-md-8">
-                    <div class="summary-card">
-                        <h4 class="text-center">SUMMARY</h4>
-                        @if(session('error'))
-                            <div class="alert alert-danger">
-                                {{ session('error') }}
-                            </div>
+        @endif
+
+        @if(isset($reservationDetails))
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <p><strong>Name:</strong> {{ $reservationDetails->name }}</p>
+                    <p><strong>Email:</strong> {{ $reservationDetails->email }}</p>
+                    <p><strong>Mobile No:</strong> {{ $reservationDetails->mobileNo }}</p>
+                    <p><strong>Number of Guests:</strong> 
+                        {{ $reservationDetails->total_guest }} 
+                        @if(!empty($reservationDetails->package_max_guests))
+                            {{ $reservationDetails->package_max_guests }}
                         @endif
-                        @if(isset($reservationDetails))
-                            <p><strong>Reservation ID:</strong> {{ $reservationDetails->id }}</p>
-                            <p><strong>Name:</strong> {{ $reservationDetails->name }}</p>
-                            <p><strong>Email:</strong> {{ $reservationDetails->email }}</p>
-                            <p><strong>Mobile No:</strong> {{ $reservationDetails->mobileNo }}</p>
-                            <p><strong>Guests:</strong> {{ $reservationDetails->number_of_guests }}</p>
-                            <p><strong>Room Preference:</strong> {{ $reservationDetails->room_preference }}</p>
-                            <p><strong>Activities:</strong> {{ $reservationDetails->activities }}</p>
-                            <p><strong>Reservation Date:</strong> {{ $reservationDetails->reservation_date }}</p>
-                            <p><strong>Check-in Time:</strong> {{ $reservationDetails->reservation_check_in }}</p>
-                            <p><strong>Check-out Time:</strong> {{ $reservationDetails->reservation_check_out }}</p>
-                            <p><strong>Special Request:</strong> {{ $reservationDetails->special_request }}</p>
-                            <p><strong>Payment Method:</strong> {{ $reservationDetails->payment_method }}</p>
-                            <p><strong>Amount:</strong> {{ $reservationDetails->amount }}</p>
-                            <p><strong>Reference Number:</strong> {{ $reservationDetails->reference_num }}</p>
-                        @else
-                            <div class="alert alert-warning">
-                                No reservations found.
-                            </div>
+                    </p>
+                    <p><strong>Address:</strong> {{ $reservationDetails->address }}</p>
+                    @if(!empty($reservationDetails->package_name))
+                        <p><strong>Package:</strong> {{ $reservationDetails->package_name }}</p>
+                    @endif
+                    <p><strong>Room Type:</strong>
+                        <ul>
+                            @if(!empty($reservationDetails->package_room_type))
+                                <p>{{ $reservationDetails->package_room_type }}</p>
+                            @endif
+                            @foreach($accommodations as $acocomodation)
+                                <p>{{ $acocomodation }}</p>
+                            @endforeach
+                        </ul>
+                    </p>
+
+                    <p><strong>Activities:</strong> 
+                    <ul>
+                        @if(!empty($reservationDetails->package_activities))
+                            <p>{{ $reservationDetails->package_activities }}</p>
                         @endif
-                    </div>
+                        @foreach($activities as $activity)
+                            <p>{{ $activity }}</p>
+                        @endforeach
+                    </ul>
+                    </p>
+
+                    <p><strong>Reservation Date:</strong> {{ $reservationDetails->reservation_check_in_date }}</p>
+                    <p><strong>Reservation Time:</strong> 
+                        {{ $reservationDetails->reservation_check_in }} - {{ $reservationDetails->reservation_check_out }}
+                    </p>
+
+                    <p><strong>Special Request:</strong> 
+                        {{ $reservationDetails->special_request ?? 'No special request' }}
+                    </p>
+
+                    <p><strong>Payment Method:</strong> 
+                        {{ $reservationDetails->payment_method ?? 'Not specified' }}
+                    </p>
+
+                    <p><strong>Amount:</strong> 
+                        {{($reservationDetails->amount) }}
+                    </p>
+
+                    <p><strong>Reference Number:</strong> 
+                        {{ $reservationDetails->reference_num ?? 'N/A' }}
+                    </p>
+
+                    @if (!empty($reservationDetails->upload_payment))
+                        <p><strong>Payment Proof:</strong> 
+                            <a href="{{ route('payment.proof', ['filename' => basename($reservationDetails->upload_payment)]) }}" target="_blank">
+                                View Proof
+                            </a>
+                        </p>
+                    @endif
+
+                    <p><strong>Status:</strong> 
+                        <span style="text-transform: capitalize" class="badge 
+                            @if($reservationDetails->payment_status == 'paid') bg-success 
+                            @elseif($reservationDetails->payment_status == 'pending') bg-warning
+                            @elseif($reservationDetails->payment_status == 'booked') bg-primary
+                            @else bg-danger 
+                            @endif">
+                            {{ ($reservationDetails->payment_status) }}
+                        </span>
+                    </p>
                 </div>
-                <div class="col-md-4 ms-0">
-                <div class="d-flex">
-        <!-- Status Container -->
-        <div class="d-flex align-items-center p-2 ms-5">
-            <p class="mb-1"><strong>STATUS:</strong> <span class="status-text">{{ $reservationDetails->payment_status }}</span></p>
+            </div>
         </div>
-        <!-- Icon Container -->
-<div class="justify-content-end ms-auto p-1" style="display: flex; justify-content: flex-end; align-items: center;">
-    <i class="fa-solid fa-circle-user fs-1"></i>
-</div>
     </div>
-
-    <!-- QR Code Section -->
-    <div class="text-center mt-3">
-        <button class="generate-btn btn btn-dark" onclick="generateQRCode()">GENERATE QR</button>
-        <canvas id="qr-code"></canvas>
-        <button id="download-qr" class="btn btn-dark mb-5" style="display: none; margin-left: 75px;" onclick="downloadQRCode()">
-            DOWNLOAD QR
-        </button>
+@else
+    <!-- Display a message if no reservations exist -->
+    <div class="alert alert-warning text-center">
+        It looks like you don't have any reservations yet.
     </div>
-</div>
-
-<script>
-    function generateQRCode() {
-        let reservationId = '{{ $reservationDetails->id ?? '' }}';
-        if (!reservationId) {
-            alert('No reservation available!');
-            return;
-        }
-
-        // Use Laravel-generated URL
-        let summaryUrl = '{{ route("reservation.summary", ":id") }}'.replace(':id', reservationId);
-
-        // Generate QR Code
-        let qr = new QRious({
-            element: document.getElementById('qr-code'),
-            value: summaryUrl,
-            size: 250
-        });
-
-        // Show the download button
-        document.getElementById('download-qr').style.display = 'inline-block';
-    }
-
-    function downloadQRCode() {
-        let canvas = document.getElementById('qr-code');
-        let link = document.createElement('a');
-        link.href = canvas.toDataURL("image/png"); // Convert QR code to image
-        link.download = "reservation_qr.png"; // File name
-        link.click(); // Trigger download
-    }
-</script>
+@endif
 
 </body>
 </html>

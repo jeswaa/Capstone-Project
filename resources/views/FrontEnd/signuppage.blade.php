@@ -6,7 +6,6 @@
     <title>Signup - Lelo's Resort</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&family=Poppins:wght@100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
@@ -14,6 +13,7 @@
             height: 100%;
             margin: 0;
             padding: 0;
+            overflow: hidden;
         }
 
         .background-color {
@@ -31,12 +31,20 @@
             align-items: center;
             justify-content: space-between;
             background: #b5c99a;
+            opacity: 0;
+            animation: fadeIn 1.5s ease-in-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .signup-form {
             flex: 1;
             padding: 20px;
             max-width: 50%;
+            animation: slideInLeft 1s ease-in-out;
         }
 
         .image-container {
@@ -45,6 +53,17 @@
             justify-content: center;
             align-items: center;
             height: 100%;
+            animation: slideInRight 1s ease-in-out;
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
         .image-container img {
@@ -53,6 +72,11 @@
             margin-right: 35px;
             object-fit: cover;
             border-radius: 50px;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .image-container img:hover {
+            transform: scale(1.05);
         }
 
         .btn-custom {
@@ -65,11 +89,13 @@
             font-weight: 500 !important;
             display: block;
             margin-left: 12%;
+            transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
         }
 
         .btn-custom:hover {
             background-color: #53633D !important;
             color: white !important;
+            transform: scale(1.05);
         }
 
         .signup-form .form-control {
@@ -79,16 +105,14 @@
             border-radius: 20px !important;
             padding: 10px !important;
             width: 75% !important;
-        }
-
-        .signup-form .form-control::placeholder {
-            color: #fff !important;
+            transition: transform 0.3s ease-in-out, background-color 0.3s ease-in-out;
         }
 
         .signup-form .form-control:focus {
             background-color: #fff !important;
             border-color: #53633D !important;
             box-shadow: 0 0 5px rgba(81, 102, 57, 0.5) !important;
+            transform: scale(1.05);
         }
 
         .back-arrow {
@@ -96,23 +120,23 @@
             top: 20px;
             left: 20px;
             cursor: pointer;
+            animation: bounce 2s infinite;
         }
 
         .back-arrow i {
-            font-size: 2rem;
-            transform: rotate(-90deg);
+            font-size: 2rem;        
             display: inline-block;
-        }
-
-        .custom-file-label {
-            background-color: #f8f9fa;
-            border: 0;
-            padding: 10px 15px;
-            border-radius: 5px;
         }
 
         .signup-form h1 {
             text-align: center;
+            opacity: 0;
+            animation: fadeInText 1.5s ease-in-out forwards 0.5s;
+        }
+
+        @keyframes fadeInText {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .mb-3 {
@@ -122,10 +146,27 @@
     </style>
 </head>
 <body class="background-color">
-    <div class="position-absolute top-0 start-0 mt-5 ms-5">
-        <a href="{{ route('login') }}"><i class="fa-solid fa-circle-left fa-2x color-3 icon"></i></a>
+    @if ($errors->any())
+    <div>
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
     </div>
+    @endif
+    @if (session('success'))
+        <div class="alert alert-success mt-3">
+            {{ session('success') }}
+        </div>
+    @endif
     <div class="signup-container">
+<div class="position-absolute top-0 start-0 mt-4 ms-4">
+    <a href="{{ route('login') }}" class="back-arrow">
+        <i class="fa-solid fa-circle-left fa-2x" style="color: #f5f5f5;"></i>
+    </a>
+</div>
+
         <div class="signup-form">
             <h1 class="text-color-1 mb-3">Create an Account</h1>
             <form action="{{ route('signup.store') }}" method="POST" enctype="multipart/form-data">
@@ -159,11 +200,8 @@
             </form>
         </div>
         <div class="image-container">
-            <img src="{{ asset('images/hotelpic.jpg') }}" alt="Resort Image">
+            <img src="{{ asset('images/DSCF2819.jpg') }}" alt="Resort Image">
         </div>
     </div>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
-

@@ -81,6 +81,13 @@
     width: 100% !important;
     transition: all 0.5s ease-out;
 }
+.text-hoverStaff:hover {
+    color: #4a4a4a !important;
+    background-color: #fff;
+    border-radius: 50px;
+    padding: 40px;
+    transition: all 0.5s ease-out;
+}
 .start-25 {
     left: 25% !important;
 }
@@ -166,6 +173,25 @@
 }
 .signup-link:hover {
     text-decoration: underline;
+}
+
+.ms-custom-l {
+    margin-left: 10%;
+}
+
+.top-custom-l {
+    top: 55% !important; /* Adjust percentage as needed */
+}
+
+/* the navbar in profile underline  */
+.navbar-nav .nav-link {
+    position: relative;
+    text-decoration: none; /* Remove default underline */
+    font-size: 20px; /* Keep consistent font size */
+}
+
+.carousel-inner img {
+    border-radius: 25px;
 }
 
 .ms-custom-l {

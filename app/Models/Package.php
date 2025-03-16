@@ -11,6 +11,8 @@ class Package extends Model
 
     protected $table = 'packagestbl';
 
+    protected $primaryKey = 'id';
+
     protected $fillable = [
         'package_name',
         'package_room_type',

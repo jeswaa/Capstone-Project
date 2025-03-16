@@ -35,7 +35,7 @@
                 </li>
                 <!-- Profile Logo -->
                 <li class="nav-item">
-                    <a class="nav-link fs-3 text-black" href="#">
+                    <a class="nav-link fs-3 text-black" href="{{ route('profile') }}">
                         <i class="bi bi-person-circle"></i> <!-- Profile Logo -->
                     </a>
                 </li>

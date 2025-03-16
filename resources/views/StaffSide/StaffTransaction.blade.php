@@ -6,97 +6,295 @@
     <title>Transaction</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <!-- Bootstrap CSS -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<!-- Bootstrap JS with Popper -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body class="color-background5">
-   
+    @if (session()->has('success'))
+        <div class="alert alert-success alert-dismissible fade show p-2 mt-2 position-absolute top-0 end-0 w-auto" role="alert">
+            <strong>Success!</strong> {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    @if (session()->has('error'))
+        <div class="alert alert-danger alert-dismissible fade show p-2 mt-2 position-absolute top-0 end-0 w-auto" role="alert">
+            <strong>Error!</strong> {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
     <div class="container-fluid">
         <div class="row h-100">
         @include('Navbar.sidenavbarStaff')
             <div class="col-md-9 col-12 main-content color-background3 rounded-start-50 ps-0 pe-0 h-100 mt-4" >
                 <!-- TOP SECTION -->
                 <div class="color-background4 w-auto p-3 rounded-topright-50" id="main-content">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <form class="d-flex align-items-center w-75" role="search">
-                            <div class="input-group">
-                                <input type="search" class="form-control mb-0 rounded-start-5 bg-light border border-secondary" placeholder="Search" aria-label="Search">
-                                <button class="btn btn-outline-success rounded-end-5" type="submit">
-                                    <i class="fa-solid fa-magnifying-glass"></i>
-                                </button>
-                            </div>
-                        </form>
-                        <div data-bs-toggle="tooltip" data-bs-placement="bottom" title="Admin's Profile">
+                        <div class="d-flex justify-content-end" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Admin's Profile">
                             <a href="#"><i class="fa-regular fa-circle-user fs-1 text-decoration-none text-color-1"></i></a>
                         </div>
-                    </div>
                 </div>
 
-                <!-- Reservation Details Table -->
-                <div class="table-responsive mt-4">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th scope="col">Reservation ID</th>
-                                <th scope="col">Guest Name</th>
-                                <th scope="col">Email</th>
-                                <th scope="col">Payment Method</th>
-                                <th scope="col">Status</th>
-                                <th scope="col">Proof of Payment</th>
-                                <th scope="col">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($reservations as $reservation)
+                <div class="d-flex justify-content-around align-items-center flex-wrap mt-4 p-3">
+                    <a href="#reservationPending" id="pendingLink" class="fs-5 text-center font-paragraph text-decoration-none text-color-1 text-underline-left-to-right">Pending Reservations</a>
+                    <a href="#reservationBooked" id="bookedLink" class="fs-5 text-center font-paragraph text-decoration-none text-color-1 text-underline-left-to-right">Booked Reservations</a>
+                    <a href="#reservationPaid" id="paidLink" class="fs-5 text-center font-paragraph text-decoration-none text-color-1 text-underline-left-to-right">Paid Reservations</a>
+                    <a href="#reservationCancel" id="cancelledLink" class="fs-5 text-center font-paragraph text-decoration-none text-color-1 text-underline-left-to-right">Cancelled Reservations</a>
+                </div>
+
+                <!-- Reservation Pending section -->
+                <section id="reservationPending">
+                    <div class="table-responsive mt-4 p-5">
+                        <table class="table table-striped table-hover">
+                            <thead class="">
                                 <tr>
-                                    <td>{{ $reservation->id }}</td>
-                                    <td>{{ $reservation->name }}</td>
-                                    <td>{{ $reservation->email }}</td>
-                                    <td>{{ $reservation->payment_method }}</td>
-                                    <td>{{ $reservation->payment_status }}</td>
-                                    <td>
-                                        @if ($reservation->upload_payment)
-                                            <a href="{{ route('payment.proof', ['filename' => basename($reservation->upload_payment)]) }}" target="_blank">
-                                                <img src="{{ asset('storage/payments/' . basename($reservation->upload_payment)) }}" alt="Proof of Payment" style="max-width: 100px; height: auto;">
-                                            </a>
-                                        @else
-                                            No proof uploaded
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <!-- Pass the correct ID and status dynamically -->
-                                        <a href="#" onclick="openModal({{ $reservation->id }}, '{{ $reservation->payment_status }}')" class="text-warning mx-2">
-                                            <i class="fa-solid fa-pen-to-square"></i>
-                                        </a>
-                                        <a href="#" class="text-danger"><i class="fa-solid fa-trash-can"></i></a>
-                                    </td>
+                                    <th scope="col">Guest Name</th>
+                                    <th scope="col">Email</th>
+                                    <th scope="col">Payment Method</th>
+                                    <th scope="col">Total Amount</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">Check-In  and Check-Out Date</th>
+                                    <th scope="col">Proof of Payment</th>
+                                    <th scope="col">Actions</th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-                
-                <script>
-                    function openModal(id, status) {
-                        document.getElementById('modalReservationId').value = id;
-                        document.getElementById('modalPaymentStatus').value = status;
+                            </thead>
+                            <tbody>
+                                @foreach ($pending as $reservation)
+                                    <tr>
+                                        <td>{{ $reservation->name }}</td>
+                                        <td>{{ $reservation->email }}</td>
+                                        <td>{{ $reservation->payment_method }}</td>
+                                        <td>{{ $reservation->amount }}</td>
+                                        <td>
+                                            <span class="badge 
+                                                {{ $reservation->payment_status == 'pending' ? 'bg-warning text-dark' : 'bg-success' }}">
+                                                {{ ucfirst($reservation->payment_status) }}
+                                            </span>
+                                        </td>
+                                        <td>{{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('F j, Y') }} - {{ \Carbon\Carbon::parse($reservation->reservation_check_out_date)->format('F j, Y') }}</td>
+                                        <td>
+                                            @if ($reservation->upload_payment)
+                                                <a href="{{ route('payment.proof', ['filename' => basename($reservation->upload_payment)]) }}" target="_blank">
+                                                    <img src="{{ asset('storage/payments/' . basename($reservation->upload_payment)) }}" alt="Proof of Payment" class="img-thumbnail" style="max-width: 100px;">
+                                                </a>
+                                            @else
+                                                <span class="text-muted">No proof uploaded</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <a href="#" onclick="openModal({{ $reservation->id }}, '{{ $reservation->payment_status }}')" class="text-warning mx-2">
+                                                <i class="fa-solid fa-pen-to-square"></i>
+                                            </a>
+                                            <a href="#" class="text-danger">
+                                                <i class="fa-solid fa-trash-can"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
 
-                        // Set form action dynamically with correct ID
-                        let form = document.getElementById('updatePaymentForm');
-                        form.action = `/staff/transactions/update-payment-status/${id}`;
+                        <!-- Bootstrap Pagination (if $pending is paginated, otherwise remove this) -->
+                        @if ($pending instanceof \Illuminate\Pagination\LengthAwarePaginator)
+                            <div class="d-flex justify-content-center mt-3">
+                                {{ $pending->links('pagination::bootstrap-5') }}
+                            </div>
+                        @endif
+                    </div>
+                </section>
 
-                        var myModal = new bootstrap.Modal(document.getElementById('exampleModal'));
-                        myModal.show();
-                    }
+                <!-- Paid Reservations -->
+                <section id="reservationPaid">
+                    <div class="container mt-4">
+                        <h2 class="text-center mb-4">Paid Reservations</h2>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th scope="col">Guest Name</th>
+                                        <th scope="col">Email</th>
+                                        <th scope="col">Payment Method</th>
+                                        <th scope="col">Total Amount</th>
+                                        <th scope="col">Status</th>
+                                        <th scope="col">Check-In  and Check-Out Date</th>
+                                        <th scope="col">Proof of Payment</th>
+                                        <th scope="col">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($paid as $reservation)
+                                        <tr>
+                                            <td>{{ $reservation->name }}</td>
+                                            <td>{{ $reservation->email }}</td>
+                                            <td>{{ $reservation->payment_method }}</td>
+                                            <td>{{ $reservation->amount }}</td>
+                                            <td>
+                                                <span class="badge bg-success">
+                                                    {{ ucfirst($reservation->payment_status) }}
+                                                </span>
+                                            </td>
+                                            <td>{{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('F j, Y') }} - {{ \Carbon\Carbon::parse($reservation->reservation_check_out_date)->format('F j, Y') }}</td>
+                                            <td>
+                                                @if ($reservation->upload_payment)
+                                                    <a href="{{ route('payment.proof', ['filename' => basename($reservation->upload_payment)]) }}" target="_blank">
+                                                        <img src="{{ asset('storage/payments/' . basename($reservation->upload_payment)) }}" alt="Proof of Payment" class="img-thumbnail" style="max-width: 100px;">
+                                                    </a>
+                                                @else
+                                                    <span class="text-muted">No proof uploaded</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <a href="#" onclick="openModal({{ $reservation->id }}, '{{ $reservation->payment_status }}')" class="text-warning mx-2">
+                                                    <i class="fa-solid fa-pen-to-square"></i>
+                                                </a>
+                                                <a href="#" class="text-danger">
+                                                    <i class="fa-solid fa-trash-can"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
 
-                    function closeModal() {
-                        var myModal = new bootstrap.Modal(document.getElementById('exampleModal'));
-                        myModal.hide();
-                    }
-                </script>
+                            <!-- Pagination -->
+                            @if ($paid instanceof \Illuminate\Pagination\LengthAwarePaginator)
+                                <div class="d-flex justify-content-center mt-3">
+                                    {{ $paid->links('pagination::bootstrap-5') }}
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Booked Reservation -->
+                <section id="reservationBooked">
+                    <div class="container mt-4">
+                        <h2 class="text-center mb-4">Booked Reservations</h2>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th scope="col">Guest Name</th>
+                                        <th scope="col">Email</th>
+                                        <th scope="col">Payment Method</th>
+                                        <th scope="col">Total Amount</th>
+                                        <th scope="col">Status</th>
+                                        <th scope="col">Check-In  and Check-Out Date</th>
+                                        <th scope="col">Proof of Payment</th>
+                                        <th scope="col">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($booked as $reservation)
+                                        <tr>
+                                            <td>{{ $reservation->name }}</td>
+                                            <td>{{ $reservation->email }}</td>
+                                            <td>{{ $reservation->payment_method }}</td>
+                                            <td>{{ $reservation->amount }}</td>
+                                            <td>
+                                                <span class="badge bg-primary">
+                                                    {{ ucfirst($reservation->payment_status) }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                @if ($reservation->upload_payment)
+                                                    <a href="{{ route('payment.proof', ['filename' => basename($reservation->upload_payment)]) }}" target="_blank">
+                                                    <img src="{{ asset('storage/payments/' . basename($reservation->upload_payment)) }}" 
+                                                         alt="Proof of Payment" 
+                                                         class="img-thumbnail" 
+                                                         style="max-width: 100px;">
+                                                    </a>
+                                                @else
+                                                    <span class="text-muted">No proof uploaded</span>
+                                                @endif
+                                            </td>
+                                            <td>{{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('F j, Y') }} - {{ \Carbon\Carbon::parse($reservation->reservation_check_out_date)->format('F j, Y') }}</td>
+                                            <td>
+                                                <a href="#" onclick="openModal({{ $reservation->id }}, '{{ $reservation->payment_status }}')" 
+                                                   class="text-warning mx-2">
+                                                    <i class="fa-solid fa-pen-to-square"></i>
+                                                </a>
+                                                <a href="#" class="text-danger">
+                                                    <i class="fa-solid fa-trash-can"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+
+                            <!-- Bootstrap Pagination (if paginated) -->
+                            @if ($booked instanceof \Illuminate\Pagination\LengthAwarePaginator)
+                                <div class="d-flex justify-content-center mt-3">
+                                    {{ $booked->links('pagination::bootstrap-5') }}
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Cancelled Reservation -->
+                <section id="reservationCancel">
+                    <div class="container mt-4">
+                        <h2 class="text-center mb-4">Cancelled Reservations</h2>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th scope="col">Guest Name</th>
+                                        <th scope="col">Email</th>
+                                        <th scope="col">Payment Method</th>
+                                        <th scope="col">Status</th>
+                                        <th scope="col">Proof of Payment</th>
+                                        <th scope="col">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($cancelled as $reservation)
+                                        <tr>
+                                            <td>{{ $reservation->name }}</td>
+                                            <td>{{ $reservation->email }}</td>
+                                            <td>{{ $reservation->payment_method }}</td>
+                                            <td>
+                                                <span class="badge bg-danger">
+                                                    {{ ucfirst($reservation->payment_status) }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                @if ($reservation->upload_payment)
+                                                    <a href="{{ route('payment.proof', ['filename' => basename($reservation->upload_payment)]) }}" target="_blank">
+                                                        <img src="{{ asset('storage/payments/' . basename($reservation->upload_payment)) }}" 
+                                                            alt="Proof of Payment" 
+                                                            class="img-thumbnail" 
+                                                            style="max-width: 100px;">
+                                                    </a>
+                                                @else
+                                                    <span class="text-muted">No proof uploaded</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <a href="#" onclick="openModal({{ $reservation->id }}, '{{ $reservation->payment_status }}')" 
+                                                class="text-warning mx-2">
+                                                    <i class="fa-solid fa-pen-to-square"></i>
+                                                </a>
+                                                <a href="#" class="text-danger">
+                                                    <i class="fa-solid fa-trash-can"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+
+                            <!-- Bootstrap Pagination (if paginated) -->
+                            @if ($cancelled instanceof \Illuminate\Pagination\LengthAwarePaginator)
+                                <div class="d-flex justify-content-center mt-3">
+                                    {{ $cancelled->links('pagination::bootstrap-5') }}
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </section>
+
             </div>
         </div>
     </div>
@@ -106,7 +304,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Edit Payment Status</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Payment Status</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -114,13 +312,20 @@
                         @csrf
                         <input type="hidden" name="id" id="modalReservationId">
                         <div class="mb-3">
-                            <label for="payment_status" class="form-label">Payment Status</label>
+                            <label for="payment_status" class="form-label">Status</label>
                             <select class="form-select" name="payment_status" id="modalPaymentStatus">
                                 <option value="pending">Pending</option>
+                                <option value="booked">Booked</option>
                                 <option value="paid">Paid</option>
                                 <option value="cancelled">Cancelled</option>
                             </select>
                         </div>
+                        
+                        <div class="mb-3">
+                            <label for="custom_message" class="form-label">Message Sent to Email</label>
+                            <textarea class="form-control" name="custom_message" id="custom_message" rows="3" ></textarea>
+                        </div>
+
                         <button type="submit" class="btn btn-primary">Save</button>
                     </form>
                 </div>
@@ -128,6 +333,58 @@
         </div>
     </div>
 
+    <script>
+        function openModal(id, status) {
+        console.log("Opening Modal for ID:", id, "with Status:", status); // Debugging
+
+        document.getElementById('modalReservationId').value = id;
+        document.getElementById('modalPaymentStatus').value = status;
+
+        // Set form action dynamically
+        let form = document.getElementById('updatePaymentForm');
+        form.action = `/staff/transactions/update-payment-status/${id}`;
+
+        // Show modal
+        var myModal = new bootstrap.Modal(document.getElementById('exampleModal'));
+        myModal.show();
+    }
     
+        document.addEventListener("DOMContentLoaded", function () {
+            function showSection(sectionId) {
+                // Hide all reservation sections
+                document.querySelectorAll("section").forEach((section) => {
+                    section.style.display = "none";
+                });
+
+                // Show the selected section
+                document.getElementById(sectionId).style.display = "block";
+            }
+
+            // Set default visible section
+            showSection("reservationPending");
+
+            // Attach event listeners to links
+            document.getElementById("pendingLink").addEventListener("click", function (e) {
+                e.preventDefault();
+                showSection("reservationPending");
+            });
+
+            document.getElementById("bookedLink").addEventListener("click", function (e) {
+                e.preventDefault();
+                showSection("reservationBooked");
+            });
+
+            document.getElementById("paidLink").addEventListener("click", function (e) {
+                e.preventDefault();
+                showSection("reservationPaid");
+            });
+
+            document.getElementById("cancelledLink").addEventListener("click", function (e) {
+                e.preventDefault();
+                showSection("reservationCancel");
+            });
+        });
+
+    </script>
 </body>
 </html>

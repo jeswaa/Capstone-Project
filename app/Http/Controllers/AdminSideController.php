@@ -3,10 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Models\Transaction;
+use App\Models\Accomodation;
+use App\Models\Package;
+use App\Models\Activities;
 
 class AdminSideController extends Controller
 {
@@ -14,9 +18,35 @@ class AdminSideController extends Controller
         return view('AdminSide.dashboard');
     }
 
-    public function reservations(){
-        $reservations = DB::table('reservation_details')->orderByDesc('created_at')->get();
-        return view('AdminSide.reservation', ['reservations' => $reservations]);
+    public function reservations(Request $request) 
+    {
+        // Kunin lahat ng users para sa dropdown
+        $users = DB::table('users')->get();
+
+        $packages = DB::table('packagestbl')->get();
+    
+        // Simulan ang query para sa reservations
+        $query = DB::table('reservation_details')->orderByDesc('created_at');
+    
+        // Variable para sa message kapag walang reservation ang user
+        $noReservationMessage = null;
+        
+        // Check if a user is selected
+        if ($request->has('user_id') && !empty($request->user_id)) {
+            $filteredReservations = clone $query;
+            $filteredReservations = $filteredReservations->where('reservation_details.user_id', $request->user_id);
+
+            if ($filteredReservations->count() > 0) {
+                $query = $filteredReservations;
+            } else {
+                // Show all reservations if the user has no reservations
+                $noReservationMessage = "No reservation for this user. Displaying all reservations.";
+            }
+        }
+
+        $reservations = $query->paginate(10);
+
+        return view('AdminSide.reservation', compact('reservations', 'users', 'noReservationMessage'));
     }
 
     public function roomAvailability(){
@@ -29,7 +59,7 @@ class AdminSideController extends Controller
 
     public function guests(){
         $upcomingReservations = DB::table('reservation_details')
-            ->whereDate('reservation_date', '>', Carbon::today()->endOfDay())
+            ->whereDate('reservation_check_in_date', '>', Carbon::today()->endOfDay())
             ->count();
         $users = DB::table('users')->count();
         $reservations = DB::table('reservation_details')->get();
@@ -42,10 +72,46 @@ class AdminSideController extends Controller
         return view('AdminSide.transactions');
     }
 
-    public function reports(){
-        return view('AdminSide.reports');
+    public function reports()
+    {
+        $totalReservations = DB::table('reservation_details')->count();
+        $totalCancelled = DB::table('reservation_details')->where('payment_status', 'cancelled')->count();
+        $totalConfirmed = DB::table('reservation_details')->where('payment_status', 'paid')->count();
+        $totalPending = DB::table('reservation_details')->where('payment_status', 'pending')->count();
+
+        // Time-based Reservation Counts
+        $dailyReservations = DB::table('reservation_details')
+        ->whereDate('created_at', Carbon::today())
+        ->count();
+
+        $weeklyReservations = DB::table('reservation_details')
+            ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
+            ->count();
+
+        $monthlyReservations = DB::table('reservation_details')
+            ->whereMonth('created_at', Carbon::now()->month)
+            ->whereYear('created_at', Carbon::now()->year)
+            ->count();
+
+        $yearlyReservations = DB::table('reservation_details')
+            ->whereYear('created_at', Carbon::now()->year)
+            ->count();
+        // Most booked package
+        $mostBooked = DB::table('reservation_details')
+            ->join('packagestbl', 'reservation_details.package_id', '=', 'packagestbl.id')
+            ->select('packagestbl.package_room_type', DB::raw('COUNT(*) as count'))
+            ->groupBy('packagestbl.package_room_type')
+            ->orderByDesc('count')
+            ->first();
+
+        return view('AdminSide.reports', compact(
+            'totalReservations', 'totalCancelled', 'totalConfirmed', 'totalPending',
+            'dailyReservations', 'weeklyReservations', 'monthlyReservations', 'yearlyReservations',
+            'mostBooked'
+        ));
     }
 
+    
     public function logout(){
         auth()->logout();
         return redirect()->route('AdminLogin')->with('success', 'Logged out successfully!');
@@ -175,6 +241,55 @@ class AdminSideController extends Controller
 
         return redirect()->route('packages')->with('success', 'Package added successfully!');
     }
+    public function updatePackage(Request $request, $id)
+{
+    // Validate the request
+    $request->validate([
+        'image_package' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+        'package_name' => 'required|string|max:255',
+        'package_description' => 'nullable|string',
+        'package_price' => 'required|numeric|min:0',
+        'package_duration' => 'nullable|string',
+        'package_max_guests' => 'nullable|integer|min:1',
+        'package_activities' => 'nullable|string',
+        'package_room_type' => 'nullable|string'
+    ]);
+
+    // Fetch the package from the database using Eloquent
+    $package = Package::find($id);
+
+    if (!$package) {
+        return redirect()->back()->with('error', 'Package not found.');
+    }
+
+    // Handle image upload (if a new image is uploaded)
+    if ($request->hasFile('image_package')) {
+        // Delete old image if it exists
+        if ($package->image_package && Storage::disk('public')->exists($package->image_package)) {
+            Storage::disk('public')->delete($package->image_package);
+        }
+        
+        // Store the new image
+        $imagePath = $request->file('image_package')->store('package_images', 'public');
+    } else {
+        $imagePath = $package->image_package; // Keep old image if no new file uploaded
+    }
+
+    // Update the package in the database using Eloquent
+    $package->update([
+        'package_name' => $request->package_name,
+        'package_description' => $request->package_description,
+        'package_price' => $request->package_price,
+        'package_duration' => $request->package_duration,
+        'package_max_guests' => $request->package_max_guests,
+        'package_activities' => $request->package_activities,
+        'package_room_type' => $request->package_room_type,
+        'image_package' => $imagePath, // Update image if changed
+    ]);
+
+    return redirect()->back()->with('success', 'Package updated successfully.');
+}
+
 
     public function packages()
     {
@@ -192,16 +307,17 @@ class AdminSideController extends Controller
             'accomodation_price' => 'required|numeric|min:0',
         ]);
 
-        // Handle file upload
-        if ($request->hasFile('accomodation_image')) {
-            $imagePath = $request->file('accomodation_image')->store('accommodations', 'public');
-        } else {
-            return back()->withErrors(['accomodation_image' => 'Failed to upload image.']);
+        // Attempt to store the image
+        $imagePath = $request->file('accomodation_image')->store('accomodations', 'public');
+
+        // Check if the image was successfully saved
+        if (!$imagePath) {
+            return redirect()->back()->with('error', 'Failed to upload image. Please try again.');
         }
 
-        // Insert into database with the correct image path
-        DB::table('accomodations')->insert([
-            'accomodation_image' => 'storage/' . $imagePath, // Ensure correct path for retrieval
+        // Save the data into the database
+        $inserted = DB::table('accomodations')->insert([
+            'accomodation_image' => $imagePath, 
             'accomodation_name' => $request->accomodation_name,
             'accomodation_type' => $request->accomodation_type,
             'accomodation_capacity' => $request->accomodation_capacity,
@@ -210,86 +326,55 @@ class AdminSideController extends Controller
             'updated_at' => now(),
         ]);
 
+        // Check if database insert was successful
+        if (!$inserted) {
+            return redirect()->back()->with('error', 'Failed to save accommodation. Please try again.');
+        }
+
         return redirect()->route('rooms')->with('success', 'Accommodation added successfully!');
     }
 
-    public function updateRoom(Request $request, $id)
+
+    public function updateRoom(Request $request, $accomodation_id)
     {
         $request->validate([
             'accomodation_image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
             'accomodation_name' => 'required|string|max:255',
             'accomodation_type' => 'required|in:room,cottage',  
             'accomodation_capacity' => 'required|numeric|min:1',
-            'accomodation_price' => 'required|numeric|min:0',
+            'accomodation_price' => 'required|numeric|min:0',   
         ]);
-    
-        $accomodation = DB::table('accomodations')->where('accomodation_id', $id)->first();
-    
+
+        // Find accommodation using Eloquent
+        $accomodation = Accomodation::find($accomodation_id);
+
         if (!$accomodation) {
             return redirect()->back()->with('error', 'Accommodation not found.');
         }
-    
+
+        // Handle image upload
         if ($request->hasFile('accomodation_image')) {
+            // Delete the old image if it exists
+            if ($accomodation->accomodation_image) {
+                Storage::delete('public/' . $accomodation->accomodation_image);
+            }
+
+            // Store the new image
             $imagePath = $request->file('accomodation_image')->store('public/accomodations');
-            $accomodation->accomodation_image = str_replace('public/', '', $imagePath); // Remove 'public/' for correct path
+            $accomodation->accomodation_image = str_replace('public/', '', $imagePath);
         }
-    
-        DB::table('accomodations')->where('accomodation_id', $id)->update([
-            'accomodation_name' => $request->accomodation_name,
-            'accomodation_type' => $request->accomodation_type,
-            'accomodation_capacity' => $request->accomodation_capacity,
-            'accomodation_price' => $request->accomodation_price,
-            'accomodation_image' => $accomodation->accomodation_image,
-            'updated_at' => now(),
-        ]);
-    
+
+        // Update other fields
+        $accomodation->accomodation_name = $request->accomodation_name;
+        $accomodation->accomodation_type = $request->accomodation_type;
+        $accomodation->accomodation_capacity = $request->accomodation_capacity;
+        $accomodation->accomodation_price = $request->accomodation_price;
+        $accomodation->save();
+
         return redirect()->route('rooms')->with('success', 'Accommodation updated successfully!');
     }
 
-    public function updatePackage(Request $request, $id){
-        // Validate the request
-        $request->validate([
-            'image_package' => 'nullable|image|mimes:jpeg,png,jpg,gif',
-            'package_name' => 'required|string|max:255',
-            'package_description' => 'nullable|string',
-            'package_price' => 'required|numeric|min:0',
-            'package_duration' => 'nullable|string',
-            'package_max_guests' => 'nullable|integer|min:1',
-            'package_activities' => 'nullable|string',
-            'package_room_type' => 'nullable|string'
-        ]);
-
-        // Fetch the package from the database
-        $package = DB::table('packagestbl')->where('id', $id)->first();
-
-        if (!$package) {
-            return redirect()->back()->with('error', 'Package not found.');
-        }
-
-        // Handle image upload (if a new image is uploaded)
-        if ($request->hasFile('image_package')) {
-            $imagePath = $request->file('image_package')->store('package_images', 'public');
-        } else {
-            $imagePath = $package->image_package; // Keep old image if no new file uploaded
-        }
-
-        // Update the package in the database
-        DB::table('packagestbl')
-            ->where('id', $id)
-            ->update([
-                'package_name' => $request->package_name,
-                'package_description' => $request->package_description,
-                'package_price' => $request->package_price,
-                'package_duration' => $request->package_duration,
-                'package_max_guests' => $request->package_max_guests,
-                'package_activities' => $request->package_activities,
-                'package_room_type' => $request->package_room_type,
-                'image_package' => $imagePath, // Update image if changed
-            ]);
-
-        return redirect()->back()->with('success', 'Package updated successfully.');
-    }
-
+    
     public function deletePackage($id)
     {
         // Attempt to delete the package from the database
@@ -310,9 +395,68 @@ class AdminSideController extends Controller
         return view('AdminSide.addRoom', ['accomodations' => $accomodations]);
     }
 
-    public function addActivities()
+    public function Activities()
     {
-        return view('AdminSide.Activities');
+        $activities = DB::table('activitiestbl')->get();
+        return view('AdminSide.Activities', ['activities' => $activities]);
     }
+
+    public function storeActivity(Request $request)
+    {
+        // Validate the request
+        $request->validate([
+            'activity_name' => 'required|string|max:255',
+            'activity_status' => 'required|string|max:255',
+            'activity_image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+        ]);
+
+        // Attempt to store the image
+        $imagePath = $request->file('activity_image')->store('activities', 'public');
+
+        // Check if the image was successfully saved
+        if (!$imagePath) {
+            return redirect()->back()->with('error', 'Failed to upload image. Please try again.');
+        }
+
+        // Use Eloquent to create a new activity
+        Activities::create([
+            'activity_name' => $request->activity_name,
+            'activity_status' => $request->activity_status,
+            'activity_image' => $imagePath,
+        ]);
+
+        return redirect()->route('addActivities')->with('success', 'Activity added successfully!');
+    }
+
+    
+    public function updateActivity(Request $request, $id)
+    {
+        // Validate the request
+        $request->validate([
+            'activity_name' => 'required|string|max:255',
+            'activity_status' => 'required|string|max:255',
+            'activity_image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+        ]);
+
+        // Attempt to store the image
+        $imagePath = $request->file('activity_image')->store('activities', 'public');
+
+        // Check if the image was successfully saved
+        if ($imagePath) {
+            // Delete the previous image
+            $activity = Activities::find($id);
+            Storage::delete($activity->activity_image);
+        }
+
+        // Use Eloquent to update the activity
+        Activities::where('id', $id)->update([
+            'activity_name' => $request->activity_name,
+            'activity_status' => $request->activity_status,
+            'activity_image' => $imagePath ?: $request->hidden_image,
+        ]);
+
+        return redirect()->route('addActivities')->with('success', 'Activity updated successfully!');
+    }
+
 
 }

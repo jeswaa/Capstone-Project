@@ -8,6 +8,31 @@
     <title>Reservation</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
+<style>
+    @keyframes fadeOut {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+</style>
+@if (session('error'))
+    <div class="alert alert-danger position-absolute top-0 start-100 translate-middle-x d-flex align-items-center" style="animation: fadeOut 1s forwards;">
+        {{ session('error') }}
+    </div>
+@endif
+@if (session('error'))
+    <div class="alert alert-danger position-absolute top-0 start-100 translate-middle-x d-flex align-items-center" style="animation: fadeOut 1s forwards;">
+        {{ session('error') }}
+    </div>
+@endif
+@if (session('success'))
+    <div class="alert alert-success position-absolute top-0 start-100 translate-middle-x d-flex align-items-center" style="animation: fadeOut 1s forwards;">
+        {{ session('success') }}
+    </div>
+@endif
 <body class="color-background5">
     <div class="container-fluid">
         <div class="row h-100">
@@ -33,7 +58,7 @@
                 <div class="overflow-y-auto h-100 p-5 w-100">
                     <div class="d-flex">
                         <a href="{{ route('reservations') }}" class="text-color-1 text-decoration-none me-5 text-underline-left-to-right"><h1 class="fs-5 font-heading">Reservation</h1></a>
-                        <a href="{{ route('roomAvailability') }}" class="text-color-1 me-5 text-decoration-none text-underline-left-to-right"><h1 class="fs-5 font-heading">Room</h1></a>
+                        <a href="{{ route('rooms') }}" class="text-color-1 me-5 text-decoration-none text-underline-left-to-right"><h1 class="fs-5 font-heading">Room</h1></a>
                         <a href="{{ route('packages') }}" class="text-color-1 me-5 text-decoration-none text-underline-left-to-right"><h1 class="fs-5 font-heading">Packages</h1></a>
                         <a href="{{ route('addActivities') }}" class="text-color-1 text-decoration-none text-underline-left-to-right"><h1 class="fs-5 font-heading">Activities</h1></a>
                     </div>
@@ -86,10 +111,8 @@
                             <tbody>
                                 @foreach ($accomodations as $accomodation)
                                 <tr>
-                                    <td>
-                                        @if ($accomodation->accomodation_image)
-                                        <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" alt="Accommodation Image" style="max-width: 100px; height: auto;">
-                                        @endif
+                                    <td> 
+                                    <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" alt="Accommodation Image" width="100" height="100">
                                     </td>
                                     <td>{{ $accomodation->accomodation_name }}</td>
                                     <td>{{ $accomodation->accomodation_type }}</td>
@@ -117,7 +140,8 @@
                                                     <input type="hidden" id="editRoomId" name="room_id" value="{{ $accomodation->accomodation_id }}">
                                                     <div class="mb-3">
                                                         <label for="editRoomImage{{ $accomodation->accomodation_id }}" class="form-label">Image</label>
-                                                        <input type="file" class="form-control" id="editRoomImage{{ $accomodation->accomodation_id }}" name="accomodation_image" accept="image/*">
+                                                        <input type="file" class="form-control" id="editRoomImage{{ $accomodation->accomodation_id }}" name="accomodation_image" accept="image/*" onchange="previewImage(event, 'preview{{ $accomodation->accomodation_id }}')">
+                                                        <img id="preview{{ $accomodation->accomodation_id }}" src="{{ asset('storage/' . $accomodation->accomodation_image) }}" alt="Preview" width="100" height="100">
                                                     </div>
                                                     <div class="mb-3">
                                                         <label for="editRoomName{{ $accomodation->accomodation_id }}" class="form-label">Name</label>
@@ -153,10 +177,11 @@
                 </div>
             </div>
 
-            <!-- SIDE NAV BAR -->
-            @include('Navbar.sidenavbar')
+            
         </div>
     </div>
+    <!-- SIDE NAV BAR -->
+    @include('Navbar.sidenavbar')
     <!-- Add Room Modal -->
     <div class="modal fade" id="addRoomModal" tabindex="-1" aria-labelledby="addRoomModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -170,7 +195,7 @@
                         @csrf
                         <div class="mb-3">
                             <label for="accomodationImage" class="form-label">Image</label>
-                            <input type="file" class="form-control" id="accomodationImage" name="accomodation_image" required>
+                            <input type="file" class="form-control" id="accomodationImage" name="accomodation_image" accept="image/*"  required>
                             @if ($errors->has('accomodation_image'))
                                 <span class="text-danger">{{ $errors->first('accomodation_image') }}</span>
                             @endif
@@ -237,3 +262,4 @@
     </script>
 </body>
 </html>
+

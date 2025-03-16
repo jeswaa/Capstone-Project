@@ -11,6 +11,8 @@ class Accomodation extends Model
 
     protected $table = 'accomodations';
 
+    protected $primaryKey = 'accomodation_id';
+
     protected $fillable = [
         'accomodation_id',
         'accomodation_image',
