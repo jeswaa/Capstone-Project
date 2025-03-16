@@ -127,7 +127,7 @@
 
         <section id="reservation-list-section">
                 <h5 class="text-center mb-1 font-paragraph">Your Reservation</h5>
-                @if ($latestReservation && $latestReservation->payment_status != 'cancelled')
+                @if ($latestReservation)
                     <div class="card mb-3 mt-2">
                         <div class="card-body">
                             <p class="text-end">
@@ -142,20 +142,23 @@
                                     {{ $latestReservation->payment_status }}
                                 </span>
                             </p>
-                            <p><strong>Room Type:</strong> {{ $latestReservation->package_room_type ?? 'N/A' }}</p>
-                            <p><strong>Check-in:</strong> {{ $latestReservation->reservation_check_in }}</p>
-                            <p><strong>Check-out:</strong> {{ $latestReservation->reservation_check_out }}</p>
-                            <p><strong>Guests:</strong> {{ $latestReservation->package_max_guests }}</p>
+                            <p><strong>Room Type:</strong>
+                                    @if(!empty($reservationDetails->package_room_type))
+                                        {{ $reservationDetails->package_room_type }}    
+                                    @endif
+                                    @foreach($accommodations as $acocomodation)
+                                        {{ $acocomodation }}
+                                    @endforeach 
+                            </p>                            
+                            <p><strong>Check-in:</strong> {{ $latestReservation->reservation_check_in }} - {{ $latestReservation->reservation_check_out }}</p>
+                            <p><strong>Check-in Date:</strong> {{ \Carbon\Carbon::parse($latestReservation->reservation_check_in_date)->format('F j, Y') }}</p>
                             <p><strong>Special Request:</strong> {{ $latestReservation->special_request ?? 'None' }}</p>
                             <p><strong>Amount:</strong> {{ $latestReservation->amount }}</p>
                             <button class="btn btn-danger btn-sm" onclick="openCancelModal({{ $latestReservation->id }})">
                                 Cancel Reservation
                             </button>
-
                         </div>
                     </div>
-                @elseif ($latestReservation && $latestReservation->payment_status == 'cancelled')
-                    <p class="text-center text-muted">No active reservations yet.</p>
                 @else
                     <p class="text-center text-muted">No reservations yet.</p>
                 @endif
@@ -171,6 +174,7 @@
                                 <span class="badge 
                                     @if($latestReservation->payment_status == 'paid') bg-success 
                                     @elseif($latestReservation->payment_status == 'pending') bg-warning 
+                                    @elseif($latestReservation->payment_status == 'booked') bg-primary 
                                     @else bg-danger 
                                     @endif"
                                     style="text-transform: capitalize;">    

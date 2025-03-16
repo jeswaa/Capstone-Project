@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Package;
 use App\Models\Transaction;
@@ -30,7 +31,11 @@ class ReservationController extends Controller
     {
         $reservationDetails = Reservation::where('user_id', Auth::id())->latest()->first();
         $packages = Package::all();
-        $accomodations = DB::table('accomodations')->get();
+        $reservationDetails = Reservation::where('user_id', Auth::id())->latest()->first();
+        $accomodationIds = json_decode($reservationDetails->accomodation_id, true);
+        $accomodations = DB::table('accomodations')->whereIn('accomodation_id', $accomodationIds)
+            ->selectRaw('SUM(accomodation_price) as accomodation_price')
+            ->first();
         $entranceFee = Transaction::first()->entrance_fee ?? 0;
         return view('Reservation.paymentProcess', compact('reservationDetails', 'packages', 'entranceFee', 'accomodations'));
     }
@@ -55,6 +60,7 @@ class ReservationController extends Controller
     }
     
     public function saveReservationDetails(Request $request) {
+        
         $reservationDetails = Reservation::where('user_id', Auth::user()->id)->latest()->first();
         if ($reservationDetails) {
             $reservationDetails->name = $request->input('name');
@@ -63,8 +69,13 @@ class ReservationController extends Controller
             $reservationDetails->address = $request->input('address');
             $reservationDetails->save();
         }
-
-        return redirect()->route('paymentProcess')->with('success', 'Reservation details saved successfully.');
+        $selectedPackage = Package::find($reservationDetails->package_id);
+        // Kunin ang accomodation details
+        $accommodations = DB::table('accomodations')->whereIn('accomodation_id', json_decode($reservationDetails->accomodation_id))->get();
+        // Kunin ang activity details
+        $activities = DB::table('activitiestbl')->whereIn('id', json_decode($reservationDetails->activity_id))->get();
+        
+        return redirect()->route('paymentProcess')->with(['success' => 'Reservation details saved successfully.', 'selectedPackage' => $selectedPackage , 'accomodations' => $accommodations , 'activities' =>$activities]);
     }
 
     public function fixPackagesSelection(Request $request)
@@ -108,6 +119,7 @@ class ReservationController extends Controller
     }
     public function savePackageSelection(Request $request)
     {
+       
         // Get selected accommodations (can be multiple)
         $selectedAccommodationIds = $request->input('accomodation_id', []);
 
@@ -171,12 +183,11 @@ class ReservationController extends Controller
         $entranceFee = Transaction::first()->entrance_fee ?? 0;
 
         // Kunin ang package details
-        $package = Package::find($reservationDetails->package_id);
+        $packages = Package::find($reservationDetails->package_id);
         
-
         // I-save ang computed amount sa reservation
         $reservationDetails->amount = $request->input('amount');
-        $reservationDetails->payment_method = $request->input('payment_method');
+        $reservationDetails->payment_method = $request->input('payment_method', 'gcash');
         $reservationDetails->mobileNo = $request->input('mobileNo');
         $reservationDetails->upload_payment = $request->file('upload_payment')->store('public/payments');
         $reservationDetails->reference_num = $request->input('reference_num');
@@ -263,65 +274,69 @@ public function displayReservationSummary()
 }
 
 
-    public function showReservationsInCalendar()
-    {
-        $events = [];
+public function showReservationsInCalendar()
+{
+    $userId = Auth::id(); // Get the logged-in user ID
 
-        $reservations = DB::table('reservation_details')->get();
+    // Fetch all reservations
+    $reservations = DB::table('reservation_details')->get();
 
-        $events = $reservations->map(function ($reservation) {
-            $package = DB::table('packagestbl')->where('id', $reservation->package_id)->first();
-            return [
-                'title' => 'Reserved',
-                'start' => $reservation->reservation_check_in_date,
-                'extendedProps' => [
-                    'name' => $reservation->name,
-                    'date' => $reservation->reservation_check_in_date,
-                    'check_in' => (new DateTime($reservation->reservation_check_in))->format('g:i A'),
-                    'check_out' => (new DateTime($reservation->reservation_check_out))->format('g:i A'),
-                    'package_room_type' => $package->package_room_type ?? '',
-                ],
-            ];
-        })->toArray();
-
-        $availableDates = DB::table('reservation_details')
-            ->selectRaw("distinct reservation_check_in_date as date")
-            ->whereNotIn('reservation_check_in_date', array_column($events, 'start'))
-            ->get()
-            ->map(function ($date) {
-                return [
-                    'title' => 'Reserve Now',
-                    'start' => $date->date,
-                    'extendedProps' => [
-                        'is_available' => true,
-                    ]
-                ];
-            })
+    $events = $reservations->map(function ($reservation) use ($userId) {
+        $package = DB::table('packagestbl')->where('id', $reservation->package_id)->first();
+        
+        // Fetch accommodations
+        $accommodationIds = json_decode($reservation->accomodation_id, true);
+        $accommodations = DB::table('accomodations')
+            ->whereIn('accomodation_id', (array) $accommodationIds)
+            ->pluck('accomodation_name')
             ->toArray();
 
-        $events = array_merge($events, $availableDates);
+        // Fetch activities
+        $activityIds = json_decode($reservation->activity_id, true);
+        $activities = DB::table('activitiestbl')
+            ->whereIn('id', (array) $activityIds)
+            ->pluck('activity_name')
+            ->toArray();
 
-        return view('Reservation.Events_reservation', compact('events'));
-    }
+        return [
+            'title' => ($reservation->user_id == $userId) ? 'Your Reservation' : 'Reserved',
+            'start' => $reservation->reservation_check_in_date,
+            'extendedProps' => [
+                'user_id' => $reservation->user_id,
+                'name' => ($reservation->user_id == $userId) ? $reservation->name : 'Reserved',
+                'date' => (new DateTime($reservation->reservation_check_in_date))->format('F j, Y'),
+                'check_in' => (new DateTime($reservation->reservation_check_in))->format('g:i A'),
+                'check_out' => (new DateTime($reservation->reservation_check_out))->format('g:i A'),
+                'package_room_type' => $package->package_room_type ?? '',
+                'accommodations' => $accommodations,
+                'activities' => $activities,
+                'is_owner' => ($reservation->user_id == $userId) ? true : false, // Check if the user is the owner
+            ],
+        ];
+    })->toArray();
+
+    return view('Reservation.Events_reservation', compact('events', 'userId'));
+}
+
 
     public function cancelReservation(Request $request, $id)
-{
-    $request->validate([
-        'cancel_reason' => 'required|string|max:255'
-    ]);
+    {
+        $request->validate([
+            'cancel_reason' => 'required|string|max:255'
+        ]);
 
-    $reservation = Reservation::find($id);
+        $reservation = Reservation::find($id);
 
-    if (!$reservation) {
-        return redirect()->back()->with('error', 'Reservation not found.');
+        if (!$reservation) {
+            return redirect()->back()->with('error', 'Reservation not found.');
+        }
+
+        // Update status to "cancelled" and save the reason
+        $reservation->payment_status = 'cancelled';
+        $reservation->cancel_reason = $request->cancel_reason;
+        $reservation->save();
+
+        return redirect()->route('profile')->with('success', 'Reservation cancelled successfully.');
     }
-
-    // Update status to "cancelled" and save the reason
-    $reservation->payment_status = 'cancelled';
-    $reservation->cancel_reason = $request->cancel_reason;
-    $reservation->save();
-
-    return redirect()->route('profile')->with('success', 'Reservation cancelled successfully.');
-}
 
 }
