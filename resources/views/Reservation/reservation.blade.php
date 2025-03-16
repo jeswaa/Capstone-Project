@@ -112,26 +112,26 @@
                 <div class="col-md-6 mb-3">
                     <label>Fullname</label>
                     <input type="text" name="name" class="input-box" 
-                           placeholder="Enter your fullname" required>
+                           placeholder="Enter your fullname" value="{{auth()->user()->name}}" required>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label>Address</label>
                     <textarea name="address" class="input-box" 
-                              placeholder="Enter your address" required></textarea>
+                              placeholder="Enter your address" value="{{auth()->user()->address}}" required></textarea>
                 </div>
             </div>
 
             <div class="mb-3">
                 <label>Email</label>
                 <input type="email" name="email" class="input-box" 
-                       placeholder="Enter your email" required>
+                       placeholder="Enter your email" value="{{auth()->user()->email}}" required>
             </div>
 
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label>Mobile No</label>
                     <input type="number" name="mobileNo" class="input-box" 
-                           placeholder="Enter mobile number" required>
+                           placeholder="Enter mobile number" value="{{auth()->user()->mobileNo}}" required>
                 </div>
             </div>
 
