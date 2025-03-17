@@ -133,8 +133,10 @@ input[type="file"] {
                 </div>
                 <div class="col-md-6">
                     <h1>Payment Details</h1>
-                    <p>Room Price: ₱ {{ $accomodations->accomodation_price ?? '0.00' }}</p>
-                    <p>Entrance Fee: ₱ {{ ($reservationDetails->number_of_adults * 100) + ($reservationDetails->number_of_children * 50) }}</p>
+                    @if ($accomodations->accomodation_price || $reservationDetails->number_of_adults || $reservationDetails->number_of_children)
+                        <p>Room Price: ₱ {{ $accomodations->accomodation_price ?? '0.00' }}</p>
+                        <p>Entrance Fee: ₱ {{ ($reservationDetails->number_of_adults * 100) + ($reservationDetails->number_of_children * 50) }}</p>
+                    @endif
                     @if ($reservationDetails->package_id)
                         <p>Package Price: ₱ {{ $packages->where('id', $reservationDetails->package_id)->first()->package_price ?? '0.00' }}</p>
                         <p>Package Entrance Fee: ₱ {{ ($packages->where('id', $reservationDetails->package_id)->first()->package_max_guests * 100) }}</p>
@@ -144,13 +146,13 @@ input[type="file"] {
                     
                     <div class="mb-3">
                         <label for="mobileNo" class="form-label fw-bold fs-5">Mobile Number:</label>
-                        <input type="text" class="form-control fs-5" name="mobileNo" id="mobileNo" value="{{ auth()->user()->mobileNo }}" required style="height: 55px;">
+                        <input type="text" class="form-control fs-5" name="mobileNo" id="mobileNo" value="{{ $reservationDetails->mobileNo }}" required style="height: 55px;">
                     </div>
                     <div class="mb-3">
                         <div class="d-flex">
                             <div class="me-2">
                                 <label for="amount" class="form-label fw-bold fs-5">Amount:</label>
-                                <input type="text" class="form-control" id="amount" name="amount" value="{{ ($reservationDetails->amount) }}"  required style="height: 55px;" readonly>
+                                <input type="text" class="form-control" id="amount" name="amount" value="₱ {{ number_format($reservationDetails->amount, 2) }}" required style="height: 55px;" readonly>
                             </div>
                             <div>
                                 <label for="upload_payment" class="form-label fw-bold fs-5">Upload Payment:</label>

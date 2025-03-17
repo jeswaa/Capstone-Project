@@ -33,6 +33,7 @@ class ReservationController extends Controller
         $packages = Package::all();
         $reservationDetails = Reservation::where('user_id', Auth::id())->latest()->first();
         $accomodationIds = json_decode($reservationDetails->accomodation_id, true);
+        $accomodationIds = is_array($accomodationIds) && count($accomodationIds) > 0 ? $accomodationIds : [];
         $accomodations = DB::table('accomodations')->whereIn('accomodation_id', $accomodationIds)
             ->selectRaw('SUM(accomodation_price) as accomodation_price')
             ->first();
@@ -69,11 +70,18 @@ class ReservationController extends Controller
             $reservationDetails->address = $request->input('address');
             $reservationDetails->save();
         }
-        $selectedPackage = Package::find($reservationDetails->package_id);
-        // Kunin ang accomodation details
-        $accommodations = DB::table('accomodations')->whereIn('accomodation_id', json_decode($reservationDetails->accomodation_id))->get();
-        // Kunin ang activity details
-        $activities = DB::table('activitiestbl')->whereIn('id', json_decode($reservationDetails->activity_id))->get();
+        $selectedPackage = Package::find($reservationDetails?->package_id);
+        $accomodationIds = json_decode($reservationDetails?->accomodation_id, true);
+        $activityIds = json_decode($reservationDetails?->activity_id, true);
+
+        $accommodations = DB::table('accomodations')
+            ->whereIn('accomodation_id', is_array($accomodationIds) ? $accomodationIds : [])
+            ->get();
+
+        $activities = DB::table('activitiestbl')
+            ->whereIn('id', is_array($activityIds) ? $activityIds : [])
+            ->get();
+
         
         return redirect()->route('paymentProcess')->with(['success' => 'Reservation details saved successfully.', 'selectedPackage' => $selectedPackage , 'accomodations' => $accommodations , 'activities' =>$activities]);
     }
