@@ -54,21 +54,39 @@
                     <label for="roomPreference" class="fw-semibold font-paragraph mb-3 ms-2 text-color-1">Room Preference</label>
                     <div class="container">
                         <div class="row">
-                            @foreach($accomodations as $accomodation)
+                        @foreach($accomodations as $accomodation)
                             <div class="col-md-3 mb-3 d-flex">
-                                <div class="rounded-4 w-100 color-background5 select-accommodation" data-id="{{ $accomodation->accomodation_id }}">
-                                    <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" class="card-img-top rounded-4" alt="accomodation image" style="max-width: 100%; height: 250px; object-fit: cover;">
+                                <div class="rounded-4 w-100 color-background5 select-accommodation 
+                                            {{ $accomodation->accomodation_slot == 0 ? 'disabled' : '' }}" 
+                                    data-id="{{ $accomodation->accomodation_id }}" 
+                                    data-slots="{{ $accomodation->accomodation_slot }}">
+
+                                    <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" 
+                                        class="card-img-top rounded-4" 
+                                        alt="accommodation image" 
+                                        style="max-width: 100%; height: 250px; object-fit: cover;">
+
                                     <div class="card-body p-3">
-                                        <h5 class="fs-4 font-heading fw-bold color-3 text-capitalize">{{ $accomodation->accomodation_name }}</h5>
-                                        <p class="card-text fs-6 font-paragraph text-capitalize">Type: {{ $accomodation->accomodation_type }}</p>
+                                        <h5 class="fs-4 font-heading fw-bold color-3 text-capitalize">
+                                            {{ $accomodation->accomodation_name }}
+                                        </h5>
+                                        <p class="card-text fs-6 font-paragraph text-capitalize">
+                                            Type: {{ $accomodation->accomodation_type }}
+                                        </p>
                                         <p class="card-text font-paragraph">Capacity: {{ $accomodation->accomodation_capacity }}</p>
-                                        <p class="card-text font-paragraph">Price:  ₱ {{ $accomodation->accomodation_price }}</p>
+                                        <p class="card-text font-paragraph">Available Slots: 
+                                            <span class="available-slots">{{ $accomodation->accomodation_slot }}</span>
+                                        </p>
+                                        <p class="card-text font-paragraph">Price: ₱ {{ $accomodation->accomodation_price }}</p>
+
                                         <!-- Hidden input to store selected value -->
-                                        <input type="hidden" name="accomodation_id[]" value="{{ $accomodation->accomodation_id }}" class="hidden-input">
+                                        <input type="hidden" name="accomodation_id[]" value="{{ $accomodation->accomodation_id }}" 
+                                            class="hidden-input" 
+                                            @if($accomodation->accomodation_slot == 0) disabled @endif>
                                     </div>
                                 </div>
                             </div>
-                            @endforeach
+                        @endforeach
                         </div>
                     </div>
                 </div>
@@ -117,22 +135,22 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label for="time">Time</label>
-                        <h1>Check-in Time</h1>
+                        <h1 for="time" class="fw-semibold font-paragraph mt-3 ms-2 text-color-1 fs-6 mb-4">Time</h1>
+                        <label for="check_in">Check-in Time</label>
                         <input type="time" id="check_in" name="reservation_check_in" class="form-control" value="08:00">
-                        <h1>Check-out Time</h1>
-                        <input type="time" id="check_out" name="reservation_check_out" class="form-control" value="12:00">
+                        <label for="check_out">Check-out Time</label>
+                        <input type="time" id="check_out" name="reservation_check_out" class="form-control mb-4" value="12:00">
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <h1>Choose Date</h1>
+                        <h1 class="fw-semibold font-paragraph mt-3 ms-2 mb-4 text-color-1 fs-6">Choose Date</h1>
                         <label for="date">Start Date</label>
                         <input type="date" id="date" name="reservation_check_in_date" class="form-control" min="{{ now()->addDay()->toDateString() }}">
                     </div>
                     <div class="form-group">
                         <label for="date">End Date</label>
-                        <input type="date" id="date" name="reservation_check_out_date" class="form-control" min="{{ now()->addDay()->toDateString() }}">
+                        <input type="date" id="date" name="reservation_check_out_date" class="form-control mb-4" min="{{ now()->addDay()->toDateString() }}">
                     </div>
                 </div>
             </div>
@@ -148,7 +166,7 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="form-group">
-                        <button type="submit" class="btn btn-primary">Save and Continue</button>
+                        <button type="submit" class="color-background5 w-100 border-0 p-2 rounded-3 mt-2 mb-5 font-paragraph text-hover-1 fw-bold text-color-1">Save and Continue</button>
                     </div>
                 </div>
             </div>

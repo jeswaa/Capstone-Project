@@ -132,7 +132,7 @@
                                         <i class="fa-solid fa-users fs-1"></i>
                                         <div>
                                             <h1 class="text-color-1 font-heading fw-bold fs-5">Total Transactions</h1>
-                                            <p class="text-color-1 font-paragraph mt-1"></p>
+                                            <p class="text-color-1 font-paragraph mt-1">{{ $totalPaidTransactions }}</p>
                                         </div>
                                     </div>
 

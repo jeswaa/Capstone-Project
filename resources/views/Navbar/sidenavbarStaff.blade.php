@@ -40,7 +40,7 @@
                         <span class="sidebar-text">Transactions</span>
                     </a>
                     </a>
-                    <a href="#" class="fw-semibold p-4  mt-2 color-3 hover:color-background1 font-paragraph rounded-md text-hoverStaff text-decoration-none d-flex align-items-center" id="logout-link">
+                    <a href="{{ route('staff.logout')}}" class="fw-semibold p-4  mt-2 color-3 hover:color-background1 font-paragraph rounded-md text-hoverStaff text-decoration-none d-flex align-items-center" id="logout-link">
                         <i class="fas fa-sign-out-alt pe-3 fs-4"></i> <!-- Icon for Logout -->
                         <span class="sidebar-text">Logout</span>
                     </a>

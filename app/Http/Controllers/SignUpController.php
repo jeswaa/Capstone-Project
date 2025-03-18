@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\SignUpUser;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use App\Models\User;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Cache;
+use App\Mail\SendOTP;
 
 class SignUpController extends Controller
 {
@@ -16,52 +18,53 @@ class SignUpController extends Controller
         return view('Frontend.signuppage');
     }
 
-    public function store(Request $request)
+    public function sendOTP(Request $request)
     {
-        try {
-            // Validate input
-            $validatedData = $request->validate([
-                'name' => 'required|string|max:255',
-                'address' => 'required|string|max:255',
-                'mobileNo' => 'required|string|max:15',
-                'email' => 'required|email|unique:users,email',
-                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
-                'password' => 'required|string|min:8',
-            ]);
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'mobileNo' => 'required|string|max:15',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
 
-            if ($request->hasFile('image')) {
-                try {
-                    $imageName = $request->file('image')->store('images', 'public');
-                } catch (\Exception $e) {
-                    return back()->withErrors(['image' => 'Error saving image. Please try again.']);
-                }
-            } else {
-                $imageName = null;
-            }
+        $otp = rand(100000, 999999);
+        
+        Cache::put('otp_' . $request->email, [
+            'otp' => $otp,
+            'name' => $request->name,
+            'mobileNo' => $request->mobileNo,
+            'password' => Hash::make($request->password) // Hash the password before saving
+        ], now()->addMinutes(5));
 
-            // Create User
-            $user = new User();
-            $user->name = $validatedData['name'];
-            $user->address = $validatedData['address'];
-            $user->mobileNo = $validatedData['mobileNo'];
-            $user->email = $validatedData['email'];
-            $user->image = $imageName;
-            $user->password = Hash::make($validatedData['password']);
+        Mail::to($request->email)->send(new SendOTP($otp));
 
-            // Save the user
-            if ($user->save()) {
-                return redirect()->route('login')->with('success', 'Account created successfully!');
-            } else {
-                return back()->withErrors(['error' => 'Failed to create account.']);
-            }
-
-        } catch (\Exception $e) {
-            // Log the error for debugging
-            Log::error('Error in SignUpController@store: ' . $e->getMessage());
-            return back()->with('error', 'An error occurred while creating your account. Please try again.');
-        }
+        return response()->json(['message' => 'OTP sent successfully! Please check your email.']);
     }
 
 
-    
+    public function verifyOTP(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'otp' => 'required|digits:6'
+        ]);
+
+        $otpData = Cache::get('otp_' . $request->email);
+
+        if (!$otpData || $otpData['otp'] != $request->otp) {
+            return response()->json(['error' => 'Invalid or expired OTP'], 400);
+        }
+
+        Cache::forget('otp_' . $request->email);
+
+        User::create([
+            'name' => $otpData['name'],
+            'mobileNo' => $otpData['mobileNo'],
+            'email' => $request->email,
+            'password' => $otpData['password'], // Password is already hashed
+        ]);        
+        return response()->json(['message' => 'OTP verified successfully! You can now log in.']);
+        return redirect()->route('login')->with('success', 'Signup successful! You can now log in.');
+    }
+
 }

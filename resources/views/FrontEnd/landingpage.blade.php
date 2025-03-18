@@ -13,7 +13,7 @@
 <style>
 </style>
 <body>
-<section style="background-color: #E5F9DB;">
+<section class="color-background1">
     <!-- Hero Section with Background -->
     <div class="hero vh-100 d-flex flex-column justify-content-center align-items-center text-center text-light position-relative"
         style="background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('{{ asset('images/DSCF2819.JPG') }}') no-repeat center; background-size: cover; border-bottom-left-radius: 100px; overflow: hidden;">
@@ -21,7 +21,7 @@
         <!-- Navbar (Inside Hero) -->
         <nav class="navbar navbar-expand-lg navbar-dark position-absolute top-0 start-0 w-100">
             <div class="container">
-                <h1 class=" fs-1 fw-bold text-color-1 ms-5 mt-3" href="#">Lelo’s Resort</h1>
+                <img src="{{ asset('images/appicon.png') }}" alt="" width="150" height="150">
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -35,6 +35,9 @@
                         </li>
                         <li class="nav-item me-3">
                             <a class="nav-link fs-4 fw-bold text-light text-underline-left-to-right" href="#">Contact Us</a>
+                        </li>
+                        <li class="nav-item me-3 mt-3">
+                            <a class="color-background5 color-3 text-decoration-none p-2 rounded-3 fw-semibold font-paragraph text-hover-1" href="{{ route('login') }}">Log in </a>
                         </li>
                     </ul>
                 </div>

@@ -32,6 +32,33 @@
                         <div class="d-flex justify-content-end" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Admin's Profile">
                             <a href="#"><i class="fa-regular fa-circle-user fs-1 text-decoration-none text-color-1"></i></a>
                         </div>
+                        <form class="d-flex align-items-center w-75 mt-3" role="search">
+                            <input type="search" class="form-control rounded-start-5 bg-light border border-secondary" placeholder="Search by user's name" aria-label="Search">
+                            <button class="btn btn-outline-success rounded-end-5" type="submit">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </button>
+                        </form>
+                        <script>
+                            document.addEventListener("DOMContentLoaded", function () {
+                                let searchInput = document.querySelector("input[type='search']");
+                                let userRows = document.querySelectorAll(".user-row"); // Adjust selector to match your user list/table rows
+
+                                searchInput.addEventListener("input", function () {
+                                    let searchTerm = searchInput.value.toLowerCase().trim();
+
+                                    userRows.forEach(row => {
+                                        let userName = row.querySelector(".user-name").textContent.toLowerCase(); // Adjust selector
+
+                                        if (userName.includes(searchTerm)) {
+                                            row.style.display = ""; // Show matching user
+                                        } else {
+                                            row.style.display = "none"; // Hide non-matching users
+                                        }
+                                    });
+                                });
+                            });
+
+                        </script>
                 </div>
 
                 <div class=" ms-5 mt-4 p-3">
@@ -59,8 +86,8 @@
                             </thead>
                             <tbody>
                                 @foreach ($pending as $reservation)
-                                    <tr>
-                                        <td>{{ $reservation->name }}</td>
+                                    <tr class="user-row">
+                                        <td class="user-name">{{ $reservation->name }}</td>
                                         <td>{{ $reservation->email }}</td>
                                         <td>{{ $reservation->payment_method }}</td>
                                         <td>{{ $reservation->amount }}</td>
@@ -122,8 +149,8 @@
                                 </thead>
                                 <tbody>
                                     @foreach ($paid as $reservation)
-                                        <tr>
-                                            <td>{{ $reservation->name }}</td>
+                                        <tr class="user-row">
+                                            <td class="user-name">{{ $reservation->name }}</td>
                                             <td>{{ $reservation->email }}</td>
                                             <td>{{ $reservation->payment_method }}</td>
                                             <td>{{ $reservation->amount }}</td>
@@ -185,8 +212,8 @@
                                 </thead>
                                 <tbody>
                                     @foreach ($booked as $reservation)
-                                        <tr>
-                                            <td>{{ $reservation->name }}</td>
+                                        <tr class="user-row">
+                                            <td class="user-name">{{ $reservation->name }}</td>
                                             <td>{{ $reservation->email }}</td>
                                             <td>{{ $reservation->payment_method }}</td>
                                             <td>{{ $reservation->amount }}</td>
@@ -249,8 +276,8 @@
                                 </thead>
                                 <tbody>
                                     @foreach ($cancelled as $reservation)
-                                        <tr>
-                                            <td>{{ $reservation->name }}</td>
+                                        <tr class="user-row">
+                                            <td class="user-name">{{ $reservation->name }}</td>
                                             <td>{{ $reservation->email }}</td>
                                             <td>{{ $reservation->payment_method }}</td>
                                             <td>
@@ -341,7 +368,9 @@
     </div>
 </div>
 
-    <script>
+
+
+<script>
         document.addEventListener("DOMContentLoaded", function () {
     let updatePaymentForm = document.getElementById("updatePaymentForm");
 
@@ -393,7 +422,12 @@ function openModal(id, status, amount) {
     document.getElementById('modalPaymentStatus').value = status;
     document.getElementById('modalAmount').value = formattedAmount;
     document.getElementById('modalDiscountAmount').value = formattedDiscountAmount;
-    document.getElementById('modalDiscountedAmount').value = formattedDiscountedAmount;
+
+    if (status.toLowerCase() === 'paid') {
+        document.getElementById('modalDiscountedAmount').value = "₱0.00";
+    } else {
+        document.getElementById('modalDiscountedAmount').value = formattedDiscountedAmount;
+    }
 
     // Update form action dynamically
     document.getElementById("updatePaymentForm").action = "/staff/transactions/update-payment-status/" + id;
