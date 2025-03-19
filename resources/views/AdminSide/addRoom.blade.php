@@ -122,7 +122,13 @@
                                         <a href="#" class="text-warning mx-2 edit-room-btn" data-bs-toggle="modal" data-bs-target="#editRoomModal{{ $accomodation->accomodation_id }}">
                                             <i class="fa-solid fa-pen-to-square"></i>
                                         </a>
-                                        <a href="#" class="text-danger"><i class="fa-solid fa-trash-can"></i></a>
+                                        <a href="{{ route('deleteRoom', ['id' => $accomodation->accomodation_id]) }}" class="text-danger" onclick="event.preventDefault(); if(confirm('Are you sure you want to delete this room?')) { document.getElementById('delete-form-{{ $accomodation->accomodation_id }}').submit(); }">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </a>
+                                        <form id="delete-form-{{ $accomodation->accomodation_id }}" action="{{ route('deleteRoom', ['id' => $accomodation->accomodation_id]) }}" method="POST" style="display: none;">
+                                            @csrf
+                                            @method('DELETE')
+                                        </form>
                                     </td>
                                 </tr>
                                 <!-- Edit Room Modal -->

@@ -40,6 +40,10 @@ Route::get('/profile', [HomePageController::class, 'profilepage'])->name('profil
 Route::get('/profile/edit', [HomePageController::class, 'editProfile'])->name('editProfile');
 Route::post('/profile/edit', [HomePageController::class, 'editProfile'])->name('editProfile.post');
 Route::post('/reservation/cancel/{id}', [ReservationController::class, 'cancelReservation']);
+//qr code
+Route::get('/reservation-summary/{id}', function ($id) {$reservationDetails = Reservation::find($id);
+    return view('reservation-summary', compact('reservationDetails'));
+})->name('reservation.summary');
 Route::get('/user-logout', [HomePageController::class, 'userlogout'])->name('logout.user');
 // Reservation
 Route::get('/reservation/calendar', [ReservationController::class, 'showReservationsInCalendar'])->name('calendar');
@@ -98,6 +102,7 @@ Route::get('/get-bookings', [AdminSideController::class, 'DashboardView']);
 Route::get('/room-availability', [AdminSideController::class, 'roomAvailability'])->name('roomAvailability');
 Route::post('add-room', [AdminSideController::class, 'addRoom'])->name('addRoom');
 Route::put('/rooms/update/{id}', [AdminSideController::class, 'updateRoom'])->name('updateRoom');
+Route::delete('/rooms/delete/{id}', [AdminSideController::class, 'deleteRoom'])->name('deleteRoom');
 Route::get('/rooms-display', [AdminSideController::class, 'DisplayAccomodations'])->name('rooms');
 Route::get('/packages', [AdminSideController::class, 'packages'])->name('packages');
 Route::post('/add-packages', [AdminSideController::class, 'addPackages'])->name('addPackage');
@@ -117,6 +122,7 @@ Route::get('/login/staff', [StaffController::class, 'StaffLogin'])->name('staff.
 Route::post('/login/staff/authenticate', [StaffController::class, 'authenticate'])->name('staff.authenticate');
 Route::get('/staff/dashboard', [StaffController::class, 'dashboard'])->name('staff.dashboard');
 Route::get('/staff/reservation-details', [StaffController::class, 'reservations'])->name('staff.reservation');
+Route::get('/staff/check-new-reservations', [StaffController::class, 'checkNewReservations']);
 Route::post('/staff/transactions/update-payment-status/{id}', [StaffController::class, 'UpdateStatus'])->name('staff.updateStatus');
 Route::put('/staff/reservation/update-status/{id}', [StaffController::class, 'updateReservationStatus'])->name('staff.updateReservationStatus');
 Route::get('/staff/transactions', [StaffController::class, 'transactions'])->name('staff.transactions');

@@ -105,19 +105,78 @@
                                     <i class="fa-solid fa-users fs-1"></i>
                                     <div>
                                         <h1 class="text-color-1 font-heading fw-bold fs-5">Total Guests</h1>
-                                        <p class="text-color-1 font-paragraph mt-1">{{ number_format($totalGuests) }}</p>
+                                        <p class="text-color-1 font-paragraph mt-1">{{ number_format($totalUsers) }}</p>
                                     </div>
                                 </div>
 
-                                <!-- TOTAL REVENUE -->
+                                <!-- Paid Reservation -->
                                 <div class="color-background4 p-4 w-auto h-auto d-flex align-items-center gap-3 rounded-4">
                                     <i class="fa-solid fa-money-bill-trend-up fs-1"></i>
                                     <div>
-                                        <h1 class="text-color-1 font-heading fw-bold fs-5">Total Revenue</h1>
-                                        <p class="text-color-1 font-paragraph mt-1">10,000</p>
+                                        <h1 class="text-color-1 font-heading fw-bold fs-5">Paid Rservations</h1>
+                                        <p class="text-color-1 font-paragraph mt-1">{{ $totalTransactions }}</p>
+                                    </div>
+                                </div>
+
+                                <!-- Pending Reservation -->
+                                <div class="color-background4 p-4 w-auto h-auto d-flex align-items-center gap-3 rounded-4">
+                                    <i class="fa-solid fa-receipt fs-1"></i>
+                                    <div>
+                                        <h1 class="text-color-1 font-heading fw-bold fs-5">Pending Rservations</h1>
+                                        <p class="text-color-1 font-paragraph mt-1">{{ $pendingReservations }}</p>
+                                    </div>
+                                </div>
+
+                                
+                                <!-- Booked Reservation -->
+                                <div class="color-background4 p-4 w-auto h-auto d-flex align-items-center gap-3 rounded-4">
+                                    <i class="fa-solid fa-receipt fs-1"></i>
+                                    <div>
+                                        <h1 class="text-color-1 font-heading fw-bold fs-5">Booked Rservations</h1>
+                                        <p class="text-color-1 font-paragraph mt-1">{{ $bookedReservations }}</p>
+                                    </div>
+                                </div>
+
+                                <!-- Cancelled Reservation -->
+                                <div class="color-background4 p-4 w-auto h-auto d-flex align-items-center gap-3 rounded-4">
+                                    <i class="fa-solid fa-receipt fs-1"></i>
+                                    <div>
+                                        <h1 class="text-color-1 font-heading fw-bold fs-5">Cancel Rservations</h1>
+                                        <p class="text-color-1 font-paragraph mt-1">{{ $cancelledReservations }}</p>
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-3 m-3">
+                    <div class="color-background4 p-4 rounded-5 overflow-hidden">
+                        <h1 class="text-color-1 font-heading fw-bold fs-5">Latest Reservation</h1>
+                        <div class="mt-3">
+                            @foreach ($latestReservations as $reservation)
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <p class="text-end">
+                                            <strong>Status:</strong>
+                                            <span class="badge 
+                                                @if($reservation->payment_status == 'paid') bg-success 
+                                                @elseif($reservation->payment_status == 'pending') bg-warning 
+                                                @else bg-danger 
+                                                @endif"
+                                                style="text-transform: capitalize;">    
+                                                {{ $reservation->payment_status }}
+                                            </span>
+                                        </p>
+                                        <p><strong>Room Type:</strong> {{ $reservation->package_room_type ?? 'N/A' }}</p>
+                                        <p><strong>Check-in:</strong> {{ $reservation->reservation_check_in }}</p>
+                                        <p><strong>Check-out:</strong> {{ $reservation->reservation_check_out }}</p>
+                                        <p><strong>Guests:</strong> {{ $reservation->package_max_guests }}</p>
+                                        <p><strong>Special Request:</strong> {{ $reservation->special_request ?? 'None' }}</p>
+                                        <p><strong>Amount:</strong> {{ $reservation->amount }}</p>
+                                    </div>
+                                </div>
+                            @endforeach
                         </div>
                     </div>
                 </div>
@@ -127,13 +186,18 @@
                     <div class="chart-container p-5 rounded-5 overflow-hidden" id="chart-container">
                         <div class="d-flex justify-content-between align-items-center">
                             <h1 class="fw-bold fs-3" id="chartTitle">Reservation</h1>
-                            <i class="fa-solid fa-arrow-right fs-2 icon-hover" style="cursor: pointer;" onclick="toggleChart()"></i>
+                            <button onclick="toggleChart()">Switch Chart</button>
                         </div>
-                        <div class="chart-wrapper active-chart" id="bookingChartWrapper">
+                        <div id="bookingChartWrapper" class="active-chart chart-wrapper">
                             <canvas id="bookingChart"></canvas>
                         </div>
-                        <div class="chart-wrapper" id="usersChartWrapper">
+                        <div id="usersChartWrapper" class="chart-wrapper">
                             <canvas id="usersChart"></canvas>
+                        </div>
+                        <div id="revenueChartWrapper" class="chart-wrapper">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+
                         </div>
                     </div>
                 </div>
@@ -148,41 +212,78 @@
     document.addEventListener("DOMContentLoaded", function () {
         let bookingChartCtx = document.getElementById('bookingChart').getContext('2d');
         let usersChartCtx = document.getElementById('usersChart').getContext('2d');
+        let revenueChartCtx = document.getElementById('revenueChart').getContext('2d');
 
+        let monthlyBookingsData = @json($monthlyBookingsData); // Bookings per month
+        let years = @json($availableYears); // Available years
+        let selectedYear = years[0]; // Default selected year
         let dailyBookings = @json($dailyBookings);
         let weeklyBookings = @json($weeklyBookings);
-        let monthlyBookings = @json($monthlyBookings);
-        let latestUserDaysAgo = @json($latestUserDaysAgo); // Pre-calculated value
+        let monthlyBookingsCount = @json($monthlyBookings);
+        let yearlyBookings = @json($yearlyBookings);
+        let latestUserDaysAgo = @json($latestUserDaysAgo); 
         let totalUsers = @json($totalUsers);
+        let monthlyRevenueData = @json($monthlyRevenueData); // Revenue per month
 
+        // Reservations Chart
         let bookingChart = new Chart(bookingChartCtx, {
             type: 'bar',
             data: {
-                labels: ['Daily', 'Weekly', 'Monthly'],
+                labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
                 datasets: [{
-                    label: 'Reservation',
-                    data: [dailyBookings, weeklyBookings, monthlyBookings],
-                    backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(255, 206, 86, 0.2)'],
-                    borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)'],
+                    label: 'Reservations',
+                    data: monthlyBookingsData.map(data => data.count),
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
                     borderWidth: 1
                 }]
             },
             options: { responsive: true, maintainAspectRatio: false }
         });
 
+        // Users Growth Chart
         let usersChart = new Chart(usersChartCtx, {
             type: 'line',
             data: {
-                labels: ['Daily', 'Weekly', 'Monthly'],
+                labels: ['Daily', 'Weekly', 'Monthly', 'Yearly'],
                 datasets: [{
                     label: 'Users Count',
-                    data: [latestUserDaysAgo, totalUsers, totalUsers], // Use pre-calculated value
-                    backgroundColor: ['rgba(75, 192, 192, 0.2)'],
-                    borderColor: ['rgba(75, 192, 192, 1)'],
+                    data: [latestUserDaysAgo, totalUsers, totalUsers, totalUsers], 
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
                     borderWidth: 1
                 }]
             },
             options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        // Revenue Chart
+        let revenueChart = new Chart(revenueChartCtx, {
+            type: 'bar',
+            data: {
+                labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'], // Months
+                datasets: [{
+                    label: 'Revenue (PHP)',
+                    data: monthlyRevenueData.map(data => data.revenue), // Revenue per month
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '₱' + value.toLocaleString(); // Format as currency
+                            }
+                        }
+                    }
+                }
+            }
         });
 
         // Quote typing effect
@@ -212,20 +313,37 @@
     });
 
     function toggleChart() {
-        let bookingWrapper = document.getElementById("bookingChartWrapper");
-        let usersWrapper = document.getElementById("usersChartWrapper");
-        let chartTitle = document.getElementById("chartTitle");
+    let bookingWrapper = document.getElementById("bookingChartWrapper");
+    let usersWrapper = document.getElementById("usersChartWrapper");
+    let revenueWrapper = document.getElementById("revenueChartWrapper");
+    let chartTitle = document.getElementById("chartTitle");
 
-        if (bookingWrapper.classList.contains("active-chart")) {
-            bookingWrapper.classList.remove("active-chart");
-            usersWrapper.classList.add("active-chart");
-            chartTitle.textContent = "Users";
-        } else {
-            usersWrapper.classList.remove("active-chart");
-            bookingWrapper.classList.add("active-chart");
-            chartTitle.textContent = "Reservation";
-        }
+    // Ensure all elements exist before modifying classList
+    if (!bookingWrapper || !usersWrapper || !revenueWrapper || !chartTitle) {
+        console.error("One or more chart wrappers are missing!");
+        return;
     }
+
+    if (bookingWrapper.classList.contains("active-chart")) {
+        bookingWrapper.classList.remove("active-chart");
+        usersWrapper.classList.add("active-chart");
+        revenueWrapper.classList.remove("active-chart");
+        chartTitle.textContent = "Users";
+    } else if (usersWrapper.classList.contains("active-chart")) {
+        usersWrapper.classList.remove("active-chart");
+        revenueWrapper.classList.add("active-chart");
+        bookingWrapper.classList.remove("active-chart");
+        chartTitle.textContent = "Revenue";
+    } else {
+        revenueWrapper.classList.remove("active-chart");
+        bookingWrapper.classList.add("active-chart");
+        usersWrapper.classList.remove("active-chart");
+        chartTitle.textContent = "Reservation";
+    }
+    return;
+}
+</script>
+
 </script>
 </body>
 </html>

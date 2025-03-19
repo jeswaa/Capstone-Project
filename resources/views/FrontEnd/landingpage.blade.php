@@ -16,64 +16,146 @@
 <section style="background-color: #E5F9DB;">
     <!-- Hero Section with Background -->
     <div class="hero vh-100 d-flex flex-column justify-content-center align-items-center text-center text-light position-relative"
-        style="background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('{{ asset('images/DSCF2819.JPG') }}') no-repeat center; background-size: cover; border-bottom-left-radius: 100px; overflow: hidden;">
-
+        style="background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.9)), url('{{ asset('images/DSCF2819.JPG') }}') no-repeat center; background-size: cover; overflow: hidden;">
+        <div class="smoke position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.2));"></div>
+        
         <!-- Navbar (Inside Hero) -->
         <nav class="navbar navbar-expand-lg navbar-dark position-absolute top-0 start-0 w-100">
             <div class="container">
-                <h1 class=" fs-1 fw-bold text-color-1 ms-5 mt-3" href="#">Lelo’s Resort</h1>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-                    <ul class="navbar-nav">
+                    <ul class="navbar-nav align-items-center gap-3">
                         <li class="nav-item me-3">
-                            <a class="nav-link fs-4 fw-bold text-light" href="#hero">Home</a>
+                            <a class="nav-link fs-4 fw-bold text-light" href="#">Home</a>
                         </li>
                         <li class="nav-item me-3">
-                            <a class="nav-link fs-4 fw-bold text-light" href="#about">About</a>
+                            <a class="nav-link fs-4 fw-bold text-light" href="#t">About</a>
                         </li>
                         <li class="nav-item me-3">
-                            <a class="nav-link fs-4 fw-bold text-light" href="#footer">Contact Us</a>
+                            <a class="nav-link fs-4 fw-bold text-light" href="#">Contact Us</a>
+                        </li>
+                        <li class="nav-item me-3">
+                            <a class="nav-link fs-4 fw-bold text-light" href="#">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link p-0" href="#">
+                                <img src="{{ asset('images/appicon.png') }}" alt="Logo" class="img-fluid" style="height: 100px;">
+                            </a>
                         </li>
                     </ul>
                 </div>
             </div>
         </nav>
 
+
         <!-- Hero Content with Carousel -->
-        <div id="hero" class="container" style=" box-sizing: content-box;">
-            <div class="row align-items-center">
+        <div id="hero" class="container" style="box-sizing: content-box;">
+            <div class="row align-items-end ms-5 justify-content-end">
                 <!-- Left Side - Text Content -->
-                <div class="col-md-4 text-start ms-5"  style=" box-sizing: content-box;">
-                    <h1 class="display-4 fw-bold color-3"  style="font-size: 65px;" data-aos="fade-right" data-aos-duration="1000">Your Resort’s Digital Booking Companion</h1>
-                    <a href="{{ route('login') }}">
-                    <button class="btn btn-success btn-lg mt-3 p-3 font-paragraph" data-aos="fade-right" data-aos-duration="1000">
-                        Book Your Stay
-                    </button>
-                    </a>
+                <div class="col-md-8 text-end" style="box-sizing: content-box;">
+                    <h1 class="display-4 fw-bold position-relative" style="top: 50px; margin-right: 150px; font-size: 35px;">WELCOME TO YOUR</h1>
+                    <p class="fw-bold text-white" style="color:rgb(173, 221, 112); font-size: 150px;">RESORTS</p>
+                    <h1 class="display-4 fw-bold position-relative" style="bottom: 50px; margin-right: 55px; font-size: 35px;">DIGITAL BOOKING COMPANION</h1>
+                    <button class="btn btn-success btn-sm mt-3 p-2 font-paragraph position-relative" style="margin-right: 55px;">Book Your Stay</button>
                 </div>
-                
-                    <!-- Right Side - Carousels -->
-                    <div class="col-md-7 ms-auto d-flex justify-content-end align-items-center mt-5 me-2" data-aos="fade-left" data-aos-duration="1000">
-                        <div class="d-flex flex-column "> <!-- Stack Carousel 1 & 2 -->
-                            
-                        <!-- Small Carousel 3 (Right Side) -->
-                        <div id="smallHotelCarousel3" class="carousel slide custom-carousel" data-bs-ride="carousel" data-bs-interval="3200" style="max-width: 600px; border-radius: 20px;">
-                            <div class="carousel-inner">
-                                <div class="carousel-item active">
-                                    <img src="{{ asset('images/image8.jpg') }}" class="w-100 rounded-5" alt="Pool Image 1">
-                                </div>
-                                <div class="carousel-item">
-                                    <img src="{{ asset('images/image1.jpg') }}" class="w-100 rounded-5"  alt="Pool Image 2">
-                                </div>
-                                <div class="carousel-item">
-                                    <img src="{{ asset('images/image10.jpg') }}" class="w-100 rounded-5"  alt="Pool Image 3">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            </div>
+        </div>
+
             </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
                     <!-- Welcome Section -->
                     <section id="about" class="py-5" style="background-color: #E5F9DB;">
