@@ -12,43 +12,37 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>
+    <!-- ✅ Navbar (Fixed at the Top with z-index) -->
+    <nav class="navbar navbar-expand-lg  position-absolute top-0 w-100" style="z-index: 10;">
+        <div class="container">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link fw-semibold text-uppercase text-underline-left-to-right me-4" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#Home">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link fw-semibold text-uppercase text-underline-left-to-right me-4" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#About">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link fw-semibold text-uppercase text-underline-left-to-right me-4" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#ContactUs">Contact Us</a>
+                    </li>
+                </ul>
+                <a href="{{ route('login') }}" class="me-3 text-color-2 fs-5 p-2 text-decoration-none fw-semibold text-uppercase text-underline-left-to-right" style="font-family: 'Josefin Sans', sans-serif;">Login</a>
+                <a class="navbar-brand" href="#">
+                    <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort" height="150" width="130">
+                </a>
+            </div>
+        </div>
+    </nav>
     <!-- First Page -->
     <section>
             <!-- Hero Section with Background -->
     <div class="hero vh-100 d-flex flex-column justify-content-center align-items-center text-center text-light position-relative"
         style="background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.9)), url('{{ asset('images/DSCF2819.JPG') }}') no-repeat center; background-size: cover; overflow: hidden;">
         <div class="smoke position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to bottom, transparent, rgba(0,115,0,0.2));"></div>
-        
-        <!-- Navbar (Inside Hero) -->
-        <nav class="navbar navbar-expand-lg navbar-dark position-absolute top-0 start-0 w-100">
-            <div class="container">
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-                    <ul class="navbar-nav align-items-center gap-3">
-                        <li class="nav-item me-3">
-                            <a class="nav-link fs-4 fw-bold text-light" href="#">Home</a>
-                        </li>
-                        <li class="nav-item me-3">
-                            <a class="nav-link fs-4 fw-bold text-light" href="#t">About</a>
-                        </li>
-                        <li class="nav-item me-3">
-                            <a class="nav-link fs-4 fw-bold text-light" href="#">Contact Us</a>
-                        </li>
-                        <li class="nav-item me-3">
-                            <a class="nav-link fs-4 fw-bold text-light" href="#">Login</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link p-0" href="#">
-                                <img src="{{ asset('images/appicon.png') }}" alt="Logo" class="img-fluid" style="height: 100px;">
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-
         <!-- Hero Content with Carousel -->
         <div id="hero" class="container" style="box-sizing: content-box;">
             <div class="row align-items-end ms-5 justify-content-end">
