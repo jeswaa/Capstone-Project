@@ -8,23 +8,16 @@
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>
     <!-- First Page -->
     <section>
-
-    </section>
-
-    <!-- Second Page -->
-    <section>
-
-    </section>
-<section style="background-color: #E5F9DB;">
-    <!-- Hero Section with Background -->
+            <!-- Hero Section with Background -->
     <div class="hero vh-100 d-flex flex-column justify-content-center align-items-center text-center text-light position-relative"
         style="background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.9)), url('{{ asset('images/DSCF2819.JPG') }}') no-repeat center; background-size: cover; overflow: hidden;">
-        <div class="smoke position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.2));"></div>
+        <div class="smoke position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to bottom, transparent, rgba(0,115,0,0.2));"></div>
         
         <!-- Navbar (Inside Hero) -->
         <nav class="navbar navbar-expand-lg navbar-dark position-absolute top-0 start-0 w-100">
@@ -56,7 +49,6 @@
             </div>
         </nav>
 
-
         <!-- Hero Content with Carousel -->
         <div id="hero" class="container" style="box-sizing: content-box;">
             <div class="row align-items-end ms-5 justify-content-end">
@@ -65,104 +57,23 @@
                     <h1 class="display-4 fw-bold position-relative" style="top: 50px; margin-right: 150px; font-size: 35px;">WELCOME TO YOUR</h1>
                     <p class="fw-bold text-white" style="color:rgb(173, 221, 112); font-size: 150px;">RESORTS</p>
                     <h1 class="display-4 fw-bold position-relative" style="bottom: 50px; margin-right: 55px; font-size: 35px;">DIGITAL BOOKING COMPANION</h1>
-                    <button class="btn btn-success btn-sm mt-3 p-2 font-paragraph position-relative" style="margin-right: 55px;">Book Your Stay</button>
+                    <div class="d-flex justify-content-center mt-4">
+                        <button class="btn btn-success btn-lg px-4 font-paragraph position-relative" style="margin-left: 200px; bottom: 50px; border-radius: 50px; background-color: #0c5720; color: white; font-style: italic; font-weight: bold; display: flex; align-items: center; gap: 10px;">BOOK YOUR STAY
+                            <span style="display: inline-block; background-color: white; border-radius: 50%; width: 25px; height: 25px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-chevron-right" style="color: #0c5720;"></i>
+                            </span>
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
+        </div>    
 
-            </section>
+    </section>
 
+    <!-- Second Page -->
+    <section>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    </section>
 
     <!-- Third Page -->
     <section>
@@ -173,139 +84,7 @@
     <section>
 
     </section>
-<!-- Activities Section -->
-<section class="py-5" style="background-color: #E5F9DB;">
-    <div class="container">
-        <h2 class="fw-bold text-center mb-4" data-aos="fade-right" data-aos-duration="1000">ACTIVITIES</h2>
-        <div class="row text-center">
-            <div class="col-md-4">
-                <div class="card bg-dark text-white" data-aos="fade-right" data-aos-duration="1000" data-aos-delay="0">
-                    <img src="{{ asset('images/DSCF2814.jpg') }}" class="card-img activity-img" alt="Swimming">
-                    <div class="card-img-overlay d-flex flex-column justify-content-end">
-                        <h4 class="fw-bold">Swimming</h4>
-                        <p class="small">Enjoy a refreshing swim in our pool or natural water spots.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card bg-dark text-white" data-aos="fade-right" data-aos-duration="1000" data-aos-delay="300">
-                    <img src="{{ asset('images/CAMPING.jpg') }}" class="card-img activity-img" alt="Camping">
-                    <div class="card-img-overlay d-flex flex-column justify-content-end">
-                        <h4 class="fw-bold">Camping</h4>
-                        <p class="small">Experience nature up close with our camping facilities.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card bg-dark text-white" data-aos="fade-right" data-aos-duration="1000" data-aos-delay="600">
-                    <img src="{{ asset('images/DSCF2838.jpg') }}" class="card-img activity-img" alt="Atv">
-                    <div class="card-img-overlay d-flex flex-column justify-content-end">
-                        <h4 class="fw-bold">Atv</h4>
-                        <p class="small">Explore scenic trails with breathtaking views.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
 
         
-
-<!-- Customer Testimonials -->
-<section class="py-5" style="background-color: #E5F9DB;">
-    <div class="container " data-aos="fade-right" data-aos-duration="1000">
-        <div class="card shadow-lg rounded-4 p-4" style="background-color: #97A97C;"> <!-- Changed card background color -->
-        <h2 class="fw-bold text-center position-relative" style="top: 70px;">What Our Customers Say?</h2>
-            <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel">
-                <!-- Carousel Indicators -->
-                <div class="carousel-indicators">
-                    <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="0" class="active" aria-current="true"></button>
-                    <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="1"></button>
-                </div>
-
-                <div class="carousel-inner">
-                    <div class="carousel-item active">
-                        <div class="row align-items-center">
-                            <div class="col-md-4 text-center">
-                                <img src="{{ asset('images/hotelpic.jpg') }}" class="testimonial-img" alt="Customer Review">
-                            </div>
-                            <div class="col-md-8">
-                                <p class="lead">"An amazing experience! The staff was so friendly, and the views were breathtaking. Highly recommended!"</p>
-                                <p class="fw-bold">- Jobert</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="carousel-item">
-                        <div class="row align-items-center">
-                            <div class="col-md-4 text-center">
-                                <img src="{{ asset('images/hotelpic.jpg') }}" class="testimonial-img" alt="Customer Review">
-                            </div>
-                            <div class="col-md-8">
-                                <p class="lead">"The best getaway I’ve had in years. Everything was perfect from the rooms to the activities."</p>
-                                <p class="fw-bold">- Maria</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Carousel Controls -->
-                <button class="carousel-control-prev" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon"></span>
-                </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="next">
-                    <span class="carousel-control-next-icon"></span>
-                </button>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Footer Section -->
-<footer id="footer" class="py-5" style="background-color: #6B8E6B; color: white;">
-    <div class="container">
-        <div class="row d-flex justify-content-between align-items-center">
-            <!-- Logo and Map Section -->
-            <div class="col-md-4">
-                <h4 class="fw-bold fs-1">LOGO NAME</h4>
-                <!-- Map Image Below the Logo Name -->
-                <div class="mt-3">
-                    <img src="{{ asset('images/map.png') }}" class="img-fluid" alt="Map" style="max-width: 110%; height: auto;">
-                </div>
-            </div>
-            <!-- Terms, Privacy Policy, and Facebook Icon Section with Custom Gap -->
-            <div class="d-flex justify-content-end align-items-center custom-gap custom-move">
-                <a href="#" class="text-white text-decoration-none fs-5 fw-bold">Terms of Service</a>
-                <a href="#" class="text-white text-decoration-none fs-5 fw-bold">Privacy Policy</a>
-                <a href="#" class="text-black fs-1 fw-bold"><i class="bi bi-facebook"></i></a>
-            </div>
-            <!-- Contact Info Section -->
-            <div class="col-md-3 text-white align-items-center custom-move-b custom-mt-5">
-                <p><strong>Phone:</strong> +123 456 7890</p>
-                <p><strong>Email:</strong> contact@yourdomain.com</p>
-                <p><strong>Address:</strong> 123 Street Name, City, Country</p>
-            </div>
-        </div> <!-- Closing the row div -->
-    </div> <!-- Closing the container div -->
-</footer>
-
-<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
-<script>
-        document.addEventListener("DOMContentLoaded", function () {
-            let boxes = document.querySelectorAll(".box");
-
-            boxes.forEach((box, index) => {
-                let animation = (index % 2 === 0) ? "fade-right" : "fade-left";
-                box.setAttribute("data-aos", animation);
-                box.setAttribute("data-aos-duration", "1000");
-                box.setAttribute("data-aos-once", "false"); // Para mag-retrigger kapag nag-scroll pataas
-            });
-
-            AOS.init({
-                duration: 1000, // Tagal ng animation
-                once: false, // Para gumana kahit mag-scroll pataas
-                mirror: true // Para ma-trigger ulit kapag bumalik sa viewport
-            });
-        });
-</script>
 </body>
 </html> 
