@@ -6,6 +6,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
+use App\Mail\SendOTP;
 use App\Models\SignUpUser;
 use App\Models\User;
 
@@ -57,6 +61,39 @@ class LoginController extends Controller
             return redirect()->route('calendar')->with('success', 'Welcome, ' . $user->name . '!');
         }
         return back()->with('errorlogin', 'Invalid email or password.')->withInput($request->only('email'));
+    }
+    
+    public function reset(Request $request)
+    {
+        // Validate request
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        // Find user by email
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return back()->withErrors(['email' => 'Email not found.']);
+        }
+
+        // Update the password
+        $user->update([
+            'password' => Hash::make($request->password),
+        ]);
+
+        return back()->with('success', 'Password reset successful! You can now log in.');
+    }
+    public function sendResetLinkEmail(Request $request)
+    {
+        $request->validate(['email' => 'required|email|exists:users,email']);
+
+        $status = Password::sendResetLink($request->only('email'));
+
+        return $status === Password::RESET_LINK_SENT
+            ? back()->with(['status' => __($status)])
+            : back()->withErrors(['email' => __($status)]);
     }
 }
 

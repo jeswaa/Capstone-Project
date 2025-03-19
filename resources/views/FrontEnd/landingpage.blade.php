@@ -10,9 +10,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<style>
-</style>
 <body>
+    <!-- First Page -->
+    <section>
+
+    </section>
+
+    <!-- Second Page -->
+    <section>
+
+    </section>
 <section style="background-color: #E5F9DB;">
     <!-- Hero Section with Background -->
     <div class="hero vh-100 d-flex flex-column justify-content-center align-items-center text-center text-light position-relative"
@@ -157,40 +164,15 @@
 
 
 
-                    <!-- Welcome Section -->
-                    <section id="about" class="py-5" style="background-color: #E5F9DB;">
-                        <div class="container">
-                            <div class="row align-items-center">
-                                <!-- Text Content -->
-                                <div class="col-md-6">
-                                    <div class="d-flex align-items-center">
-                                        <!-- First Heading -->
-                                        <h2 class="display-7 text-center text-md-start ms-4 mt-3"data-aos="fade-right" data-aos-duration="1000">Welcome to</h2>
+    <!-- Third Page -->
+    <section>
 
-                                        <!-- Second Heading with larger font weight -->
-                                        <h2 class="display-4 fw-bold text-center text-md-start ms-3"data-aos="fade-right" data-aos-duration="1000">Lelo’s Resort</h2>
-                                    </div>
+    </section>
 
-                                    <!-- Paragraph -->
-                                    <div class="d-flex flex-column align-items-center justify-content-center text-center me-5"data-aos="fade-right" data-aos-duration="1000">
-                                        <p class="lead text-md-end text-secondary me-5"data-aos="fade-right" data-aos-duration="1000">
-                                            Relax and unwind at Lelo’s Resort, where
-                                            comfort and peace come together. Enjoy 
-                                            beautiful views, great amenities, and friendly 
-                                            service. Booking your stay is quick and easy with
-                                            our simple reservation system!
-                                        </p>
-                                    </div>
-                                </div>
+    <!-- Fourth Page -->
+    <section>
 
-                                <!-- Image Content -->
-                                <div class="col-md-6" data-aos="fade-right" data-aos-duration="500">
-                                    <img src="{{ asset('images/image7.jpg') }}" class="img-fluid rounded" alt="Welcome Image">
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
+    </section>
 <!-- Activities Section -->
 <section class="py-5" style="background-color: #E5F9DB;">
     <div class="container">
@@ -227,6 +209,7 @@
     </div>
 </section>
 
+        
 
 <!-- Customer Testimonials -->
 <section class="py-5" style="background-color: #E5F9DB;">

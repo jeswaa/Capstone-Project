@@ -247,28 +247,34 @@ input[type="file"] {
                 </div>
                 <div class="col-md-6">
                     <h1>Payment Details</h1>
-                    <p>Room Price: ₱ {{ $accomodations->accomodation_price ?? '0.00' }}</p>
-                    <p>Entrance Fee: ₱ {{ ($reservationDetails->number_of_adults * 100) + ($reservationDetails->number_of_children * 50) }}</p>
+                    @if ($accomodations->accomodation_price || $reservationDetails->number_of_adults || $reservationDetails->number_of_children)
+                        <p class="text-color-1 font-paragraph fw-semibold">Room Price: ₱ {{ $accomodations->accomodation_price ?? '0.00' }}</p>
+                        <p class="text-color-1 font-paragraph fw-semibold">Entrance Fee: ₱ {{ ($reservationDetails->number_of_adults * 100) + ($reservationDetails->number_of_children * 50) }}</p>
+                    @endif
                     @if ($reservationDetails->package_id)
-                        <p>Package Price: ₱ {{ $packages->where('id', $reservationDetails->package_id)->first()->package_price ?? '0.00' }}</p>
-                        <p>Package Entrance Fee: ₱ {{ ($packages->where('id', $reservationDetails->package_id)->first()->package_max_guests * 100) }}</p>
+                        <p class="text-color-1 font-paragraph fw-semibold">Package Price: ₱ {{ $packages->where('id', $reservationDetails->package_id)->first()->package_price ?? '0.00' }}</p>
+                        <p class="text-color-1 font-paragraph fw-semibold">Package Entrance Fee: ₱ {{ ($packages->where('id', $reservationDetails->package_id)->first()->package_max_guests * 100) }}</p>
                     @endif
                     
-                    <hr class="my-4">
+                    <hr class="mt-3 mb-5">
                     
                     <div class="mb-3">
-                        <label for="mobileNo" class="form-label fw-bold fs-5">Mobile Number:</label>
-                        <input type="text" class="form-control fs-5" name="mobileNo" id="mobileNo" value="{{ auth()->user()->mobileNo }}" required style="height: 55px;">
+                        <label for="mobileNo" class="form-label fw-bold fs-6">Mobile Number:</label>
+                        <input type="text" class="form-control fs-5" name="mobileNo" id="mobileNo" value="{{ $reservationDetails->mobileNo }}" required style="height: 55px;">
                     </div>
-                    <div class="mb-3">
+                    <div class="">
                         <div class="d-flex">
                             <div class="me-2">
-                                <label for="amount" class="form-label fw-bold fs-5">Amount:</label>
-                                <input type="text" class="form-control" id="amount" name="amount" value="{{ ($reservationDetails->amount) }}"  required style="height: 55px;" readonly>
+                                <label for="amount" class="form-label fw-bold fs-6">Amount:</label>
+                                <input type="text" class="form-control" id="amount" name="amount" value="₱ {{ number_format($reservationDetails->amount, 2) }}" required style="height: 55px;" readonly>
                             </div>
                             <div>
-                                <label for="upload_payment" class="form-label fw-bold fs-5">Upload Payment:</label>
-                                <input class="form-control h-50" type="file" name="upload_payment" id="upload_payment" >
+                                <label for="discount_amount" class="form-label fw-bold fs-6">Downpayment:</label>
+                                <input type="text" class="form-control w-75" id="discount_amount" name="discount_amount" value="₱ {{ number_format($reservationDetails->amount * 0.15, 2) }}" required style="height: 55px;" readonly>
+                            </div>
+                            <div>
+                                <label for="upload_payment" class="form-label fw-bold fs-6">Upload Payment:</label>
+                                <input class="form-control h-50 w-100" type="file" name="upload_payment" id="upload_payment" >
                             </div>
                         </div>
                     </div>
@@ -309,7 +315,7 @@ input[type="file"] {
                     </div>
 
                     <div class="mb-3">
-                        <label for="reference_num" class="form-label fw-bold fs-5">Reference Number:</label>
+                        <label for="reference_num" class="form-label fw-bold fs-6">Reference Number:</label>
                         <input type="text" class="form-control fs-5" name="reference_num" id="reference_num" required style="height: 55px;">
                     </div>
                 </div>
@@ -443,4 +449,3 @@ document.addEventListener('DOMContentLoaded', function () {
 
 </body>
 </html>
-

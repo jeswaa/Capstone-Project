@@ -30,7 +30,7 @@ class StaffController extends Controller
     public function logout()
     {
         auth()->logout();
-        return redirect()->route('StaffLogin')->with('success', 'Logged out successfully!');
+        return redirect()->route('staff.login')->with('success', 'Logged out successfully!');
     }
     public function authenticate(Request $request)
     {
@@ -70,6 +70,10 @@ class StaffController extends Controller
                 ->count();
 
 
+            $totalPaidTransactions = DB::table('reservation_details')
+                ->where('payment_status', 'Paid') // Filter only completed payments
+                ->count();
+
             return view('StaffSide.StaffDashboard', [
                 'staffCredentials' => $staffCredentials,
                 'totalUsers' => $totalUsers,
@@ -78,6 +82,7 @@ class StaffController extends Controller
                 'users' => $users,
                 'reservationData' => $reservationData,
                 'totalTransactions' => $totalTransactions,
+                'totalPaidTransactions' => $totalPaidTransactions,
             ]);
         } else {
             return redirect()->route('staff.login');
@@ -155,6 +160,4 @@ class StaffController extends Controller
         // Redirect back with success message
         return redirect()->back()->with('success', 'Reservation status updated successfully!');
     }
-
-
 }

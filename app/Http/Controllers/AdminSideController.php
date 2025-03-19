@@ -366,6 +366,8 @@ $allMonths = collect(range(1, 12))->map(function ($month) use ($monthlyRevenueDa
             'accomodation_type' => 'required|in:room,cottage',  
             'accomodation_capacity' => 'required|numeric|min:1',
             'accomodation_price' => 'required|numeric|min:0',
+            'accomodation_status' => 'required|in:available,unavailable',
+            'accomodation_slot' => 'required|numeric|min:1',
         ]);
 
         // Attempt to store the image
@@ -383,6 +385,8 @@ $allMonths = collect(range(1, 12))->map(function ($month) use ($monthlyRevenueDa
             'accomodation_type' => $request->accomodation_type,
             'accomodation_capacity' => $request->accomodation_capacity,
             'accomodation_price' => $request->accomodation_price,
+            'accomodation_status' => $request->accomodation_status,
+            'accomodation_slot' => $request->accomodation_slot,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -403,6 +407,9 @@ $allMonths = collect(range(1, 12))->map(function ($month) use ($monthlyRevenueDa
             'accomodation_name' => 'required|string|max:255',
             'accomodation_type' => 'required|in:room,cottage',  
             'accomodation_capacity' => 'required|numeric|min:1',
+            'accomodation_price' => 'required|numeric|min:0',
+            'accomodation_status' => 'required|in:available,unavailable',
+            'accomodation_slot' => 'required|numeric|min:1',
             'accomodation_price' => 'required|numeric|min:0',   
         ]);
 
@@ -430,6 +437,8 @@ $allMonths = collect(range(1, 12))->map(function ($month) use ($monthlyRevenueDa
         $accomodation->accomodation_type = $request->accomodation_type;
         $accomodation->accomodation_capacity = $request->accomodation_capacity;
         $accomodation->accomodation_price = $request->accomodation_price;
+        $accomodation->accomodation_status = $request->accomodation_status;
+        $accomodation->accomodation_slot = $request->accomodation_slot;
         $accomodation->save();
 
         return redirect()->route('rooms')->with('success', 'Accommodation updated successfully!');
@@ -471,10 +480,37 @@ $allMonths = collect(range(1, 12))->map(function ($month) use ($monthlyRevenueDa
 
     public function DisplayAccomodations()
     {
+        // Get all accommodations
         $accomodations = DB::table('accomodations')->orderByDesc('created_at')->get();
-        
-        return view('AdminSide.addRoom', ['accomodations' => $accomodations]);
+
+        // Get total accommodation count
+        $count = count($accomodations);
+
+        // Get total available slots (only for accommodations marked as 'available')
+        $countAvailableRoom = DB::table('accomodations')
+            ->where('accomodation_status', 'available')
+            ->sum('accomodation_slot');
+
+        $countReservedRoom = DB::table('reservation_details')
+        ->where('payment_status', 'booked') // ✅ Get only booked reservations
+        ->count();
+    
+            
+
+        // Merge accommodations with available slots calculation
+        foreach ($accomodations as $accomodation) {
+            $reservedCount = $countReservedRoom[$accomodation->accomodation_id] ?? 0;
+            $accomodation->available_slots = max($accomodation->accomodation_slot - $reservedCount, 0);
+        }
+
+        return view('AdminSide.addRoom', [
+            'accomodations' => $accomodations,
+            'count' => $count,
+            'countAvailableRoom' => $countAvailableRoom,
+            'countReservedRoom' => $countReservedRoom,
+        ]);
     }
+
 
     public function Activities()
     {
