@@ -30,8 +30,9 @@ use App\Http\Controllers\StaffController;
 /* LOGIN */
 Route::get('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/login/authenticate', [LoginController::class, 'authenticate'])->name('login.authenticate');
-Route::post('/forgot-password/reset', [LoginController::class, 'reset'])->name('forgot.reset');
-Route::post('/forgot-password/send-reset-link', [LoginController::class, 'sendResetLinkEmail'])->name('forgot.sendResetLinkEmail');
+Route::post('/forgot/otp', [LoginController::class, 'sendOtp'])->name('forgot.sendOTP');
+Route::post('/forgot/reset', [LoginController::class, 'resetPassword'])->name('forgot.reset');
+
 
 // SIGNUP
 Route::get('/signup', [SignUpController::class, 'signup'])->name('signup');

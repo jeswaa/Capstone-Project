@@ -11,6 +11,23 @@
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
+<style>
+    .animate-button {
+        transform: scale(1.05);
+        box-shadow: 0 0 20px rgba(0, 87, 61, 0.5);
+    }
+    .animate-button.icon-move > span > i {
+        animation: move-icon 0.5s ease-in-out infinite alternate;
+    }
+    @keyframes move-icon {
+        0% {
+            transform: translateX(0);
+        }
+        100% {
+            transform: translateX(10px);
+        }
+    }
+</style>
 <body>
     <!-- ✅ Navbar (Fixed at the Top with z-index) -->
     <nav class="navbar navbar-expand-lg  position-absolute top-0 w-100" style="z-index: 10;">
@@ -58,16 +75,18 @@
 
                         <!-- Responsive Button -->
                         <div class="d-flex justify-content-lg-center justify-content-center mt-4">
-                            <button class="btn btn-success d-flex align-items-center gap-2 px-4 py-2 fw-bold text-white"
-                                style="border-radius: 50px; background-color: #0b573d; font-style: italic;">
+                            <a href="{{ route('login') }}"
+                                class="btn btn-success d-flex align-items-center gap-2 px-4 py-2 fw-bold text-white"
+                                style="border-radius: 50px; background-color: #0b573d; font-style: italic; transition: all 0.3s ease-in-out;"
+                                onmouseover="this.classList.add('animate-button'); this.classList.add('icon-move');"
+                                onmouseout="this.classList.remove('animate-button'); this.classList.remove('icon-move');">
                                 BOOK YOUR STAY
                                 <span class="d-flex align-items-center justify-content-center bg-white rounded-circle"
-                                    style="width: 1.8rem; height: 1.8rem;">
-                                    <i class="fas fa-chevron-right" style="color: #0b573d;"></i>
+                                    style="width: 1.8rem; height: 1.8rem; transition: all 0.3s ease-in-out;">
+                                    <i class="fas fa-chevron-right" style="color: #0b573d; transform: translateX(0);"></i>
                                 </span>
-                            </button>
-                        </div>
-
+                            </a>
+                        </div>[]
                     </div>
                 </div>
             </div>
@@ -128,13 +147,25 @@
                     <div id="carouselExampleInterval" class="carousel slide" data-bs-ride="carousel">
                         <div class="carousel-inner">
                             <div class="carousel-item active" data-bs-interval="5000">
-                                <img src="{{ asset('images/hotelpic.jpg') }}" class="d-block w-100 rounded" alt="Hotel Image 1">
+                                <img src="{{ asset('images/image1.JPG') }}" class="d-block w-100 rounded" alt="Hotel Image 1">
                             </div>
                             <div class="carousel-item" data-bs-interval="5000">
-                                <img src="{{ asset('images/hotelpic.JPG') }}" class="d-block w-100 rounded" alt="Hotel Image 2">
+                                <img src="{{ asset('images/image5.JPG') }}" class="d-block w-100 rounded" alt="Hotel Image 2">
                             </div>
                             <div class="carousel-item" data-bs-interval="5000">
-                                <img src="{{ asset('images/hotelpic.jpg') }}" class="d-block w-100 rounded" alt="Hotel Image 3">
+                                <img src="{{ asset('images/image8.jpg') }}" class="d-block w-100 rounded" alt="Hotel Image 3">
+                            </div>
+                            <div class="carousel-item" data-bs-interval="5000">
+                                <img src="{{ asset('images/image10.jpg') }}" class="d-block w-100 rounded" alt="Hotel Image 3">
+                            </div>
+                            <div class="carousel-item" data-bs-interval="5000">
+                                <img src="{{ asset('images/image3.jpg') }}" class="d-block w-100 rounded" alt="Hotel Image 3">
+                            </div>
+                            <div class="carousel-item" data-bs-interval="5000">
+                                <img src="{{ asset('images/image9.jpg') }}" class="d-block w-100 rounded" alt="Hotel Image 3">
+                            </div>
+                            <div class="carousel-item" data-bs-interval="5000">
+                                <img src="{{ asset('images/image2.jpg') }}" class="d-block w-100 rounded" alt="Hotel Image 3">
                             </div>
                         </div>
                         <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleInterval" data-bs-slide="prev">
