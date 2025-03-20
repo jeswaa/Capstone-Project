@@ -111,15 +111,18 @@
 
      
             <!-- Date and Time Selection -->
+            @php
+                $selectedDate = request()->query('date', ''); // Kunin ang date sa URL
+            @endphp
             <div class="row mt-4 d-flex align-items-center justify-content-between mx-auto date-time-selection" style="margin-top: -20px;">
                 <div class="col-md-5 col-12 mb-3 mb-md-0">
-                    <label for="check_in_date" class="form-label fw-bold">Start Date</label>
-                    <input type="date" id="check_in_date" name="reservation_check_in_date" class="form-control p-3" min="{{ now()->addDay()->toDateString() }}">
-                    
+                    <label for="reservation_date">Selected Date:</label>
+                    <input type="date" id="reservation_date" name="reservation_check_in_date" value="{{ $selectedDate }}" class="form-control" required>
+
                     <label for="check_out_date" class="form-label fw-bold mt-3">End Date</label>
                     <input type="date" id="check_out_date" name="reservation_check_out_date" class="form-control p-3" min="{{ now()->addDay()->toDateString() }}">
                 </div>
-
+                
                 <!-- Check-in and Check-out Time -->
                 <div class="col-md-5 col-12">
                     <label for="check_in" class="form-label fw-bold">Check-in Time</label>
@@ -195,7 +198,9 @@
     computeTotal(); // Compute total initially
 });
         </script>
-
+<script>
+    console.log("Selected Date:", "{{ $selectedDate }}");
+</script>
 </body>
 </html>
 

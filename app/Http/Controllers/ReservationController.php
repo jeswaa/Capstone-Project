@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Package;
@@ -80,13 +81,12 @@ class ReservationController extends Controller
 
     public function fixPackagesSelection(Request $request)
     {
-        
         // Check if selected dates are available
         if (!$this->isDateAvailable($request->reservation_check_in_date) || 
             !$this->isDateAvailable($request->reservation_check_out_date)) {
             return redirect()->back()->with('error', 'The selected reservation date is already taken.');
         }
-
+    
         // Validate input data
         $request->validate([
             'selected_packages' => 'required|array|min:1',
@@ -97,12 +97,12 @@ class ReservationController extends Controller
             'reservation_check_out' => 'required|string',
             'amount' => 'required|numeric',
         ]);
-
+    
         // Convert selected packages for database storage
         $packageValue = count($request->selected_packages) == 1
             ? $request->selected_packages[0]
             : json_encode($request->selected_packages);
-
+    
         // Save reservation
         $reservation = new Reservation();
         $reservation->user_id = Auth::id();
@@ -112,11 +112,12 @@ class ReservationController extends Controller
         $reservation->reservation_check_in = $request->reservation_check_in;
         $reservation->reservation_check_out = $request->reservation_check_out;
         $reservation->amount = $request->amount;
-
+    
         $reservation->save();
-
+    
         return redirect()->route('reservation')->with('success', 'Package selection saved successfully.');
     }
+    
     public function savePackageSelection(Request $request)
     {
        
