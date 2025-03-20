@@ -9,6 +9,17 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <style>
+  /* Global styles */
+h1 {
+    font-size: 22px; /* Default for all H1 */
+}
+
+/* ✅ Target specific H1 elements inside form-group */
+.form-group h1 {
+    font-size: 14px; /* Set desired size */ /* Optional: Make it bold for better visibility */
+    margin-bottom: 8px;
+}
+
     .select-accommodation {
         cursor: pointer;
         transition: transform 0.3s, box-shadow 0.3s;
@@ -23,6 +34,49 @@
     .select-accommodation:hover {
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 16px 32px rgba(0, 0, 0, 0.1);
         transform: translateY(-5px);
+    }
+    @media (max-width: 768px) {
+        .container {
+            max-width: 90%;
+            margin: auto;
+        }
+
+        .form-group label {
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            font-size: 14px;
+            padding: 8px;
+            width: 335px;
+        }
+
+        h1 {
+            font-size: 20px;
+        }
+
+        .btn {
+            width: 100%;
+        }
+
+        .select-accommodation {
+            width: 100%;
+            margin: auto;
+        }
+
+        .select-accommodation img {
+            height: 180px;
+        }
+
+        .col-md-3 {
+            width: 100%;
+        }
+
+        .d-flex.align-items-center {
+            justify-content: flex-start;
+        }
     }
 </style>
 <body class="color-background4">
@@ -118,7 +172,7 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="time">Time</label>
-                        <h1>Check-in Time</h1>
+                        <h1 class="font-size 17">Check-in Time</h1>
                         <input type="time" id="check_in" name="reservation_check_in" class="form-control" value="08:00">
                         <h1>Check-out Time</h1>
                         <input type="time" id="check_out" name="reservation_check_out" class="form-control" value="12:00">
@@ -147,8 +201,8 @@
             <input type="hidden" name="total_amount" id="total_amount">
             <div class="row">
                 <div class="col-md-12">
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-primary">Save and Continue</button>
+                    <div class="form-group color-background5">
+                        <button type="submit" class="btn btn-primary; color-background5" >Save and Continue</button>
                     </div>
                 </div>
             </div>

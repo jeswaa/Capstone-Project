@@ -85,6 +85,16 @@
         .position-fixed.bottom-0.end-0.mb-4.me-5 button {
             width: 400px; /* Adjust this value as needed */
         }
+        .logo-img {
+    width: 100px; /* Adjust size */
+    height: auto;
+    position: absolute;
+    top: -20px;
+    right: 0;
+    left: 80px;
+    margin: 10px;
+}
+
 
     </style>
 </head>
@@ -116,7 +126,7 @@
         
         </div>
         <div style="position: absolute; right: 420px; top: 50px;">
-            <h1 class="fs-3">Logo</h1>
+            <img src="{{ asset('images/appicon.png') }}" alt="Logo" class="logo-img">
         </div>  
         <!-- Right: Centered Image -->
         <div style="position: absolute; right: 0px; top: 130px; width: 500px;" class="d-flex justify-content-center mt-5">
