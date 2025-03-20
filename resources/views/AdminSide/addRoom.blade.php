@@ -70,15 +70,15 @@
                                 <div class="d-flex gap-3 mt-3 justify-content-center">
                                     <div class="color-background5 border-secondary rounded-3 ms-3 p-3 mb-2">
                                         <h1 class="fs-6 font-heading text-color-1">Total Rooms:</h1>
-                                        <p class="fs-4 text-center color-3">10</p>
+                                        <p class="fs-4 text-center color-3">{{ $count }}</p>
                                     </div>
                                     <div class="p-3 color-background5 border-secondary rounded-3 mb-2">
                                         <h1 class="fs-6 font-heading text-color-1">Available Rooms:</h1>
-                                        <p class="fs-4 text-center color-3">5</p>
+                                        <p class="fs-4 text-center color-3">{{ $countAvailableRoom }}</p>
                                     </div>
                                     <div class="p-3 color-background5 border-secondary rounded-3 me-3 mb-2">
                                         <h1 class="fs-6 font-heading text-color-1">Reserved Rooms:</h1>
-                                        <p class="fs-4 text-center color-3">5</p>
+                                        <p class="fs-4 text-center color-3">{{ $countReservedRoom }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -105,6 +105,8 @@
                                     <th scope="col">Room Type</th>
                                     <th scope="col">Room Capacity</th>
                                     <th scope="col">Price</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">Slot</th>
                                     <th scope="col">Actions</th>
                                 </tr>
                             </thead>
@@ -118,6 +120,8 @@
                                     <td>{{ $accomodation->accomodation_type }}</td>
                                     <td>{{ $accomodation->accomodation_capacity }}</td>
                                     <td>{{ $accomodation->accomodation_price }}</td>
+                                    <td>{{ $accomodation->accomodation_status }}</td>
+                                    <td>{{ $accomodation->accomodation_slot }}</td>
                                     <td>
                                         <a href="#" class="text-warning mx-2 edit-room-btn" data-bs-toggle="modal" data-bs-target="#editRoomModal{{ $accomodation->accomodation_id }}">
                                             <i class="fa-solid fa-pen-to-square"></i>
@@ -167,6 +171,17 @@
                                                     <div class="mb-3">
                                                         <label for="editRoomPrice{{ $accomodation->accomodation_id }}" class="form-label">Price</label>
                                                         <input type="number" class="form-control" id="editRoomPrice{{ $accomodation->accomodation_id }}" name="accomodation_price" min="0" required value="{{ $accomodation->accomodation_price }}">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="editRoomStatus{{ $accomodation->accomodation_id }}" class="form-label">Status</label>
+                                                        <select class="form-select" id="editRoomStatus{{ $accomodation->accomodation_id }}" name="accomodation_status" required>
+                                                            <option value="available" {{ $accomodation->accomodation_status == 'available' ? 'selected' : '' }}>Available</option>
+                                                            <option value="unavailable" {{ $accomodation->accomodation_status == 'unavailable' ? 'selected' : '' }}>Not Available</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="editRoomSlot{{ $accomodation->accomodation_id }}" class="form-label">Slot</label>
+                                                        <input type="number" class="form-control" id="editRoomSlot{{ $accomodation->accomodation_id }}" name="accomodation_slot" min="1" required value="{{ $accomodation->accomodation_slot }}">
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="submit" class="btn btn-primary">Save Changes</button>
@@ -225,6 +240,18 @@
                         <div class="mb-3">
                             <label for="accomodationPrice" class="form-label">Price</label>
                             <input type="number" class="form-control" id="accomodationPrice" name="accomodation_price" min="0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="accomodationStatus" class="form-label">Status</label>
+                            <select class="form-select" id="accomodationStatus" name="accomodation_status" required>
+                                <option value="" selected disabled>Select Status</option>
+                                <option value="available">Available</option>
+                                <option value="unavailable">Not Available</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="accomodationSlot" class="form-label">Slot</label>
+                            <input type="number" class="form-control" id="accomodationSlot" name="accomodation_slot" required>
                         </div>
                         <div class="modal-footer">
                             <button type="submit" class="btn btn-primary">Add</button>

@@ -68,20 +68,13 @@ class ReservationController extends Controller
             $reservationDetails->address = $request->input('address');
             $reservationDetails->save();
         }
-        $selectedPackage = Package::find($reservationDetails?->package_id);
-        $accomodationIds = json_decode($reservationDetails?->accomodation_id, true);
-        $activityIds = json_decode($reservationDetails?->activity_id, true);
-
-        $accommodations = DB::table('accomodations')
-            ->whereIn('accomodation_id', is_array($accomodationIds) ? $accomodationIds : [])
-            ->get();
-
-        $activities = DB::table('activitiestbl')
-            ->whereIn('id', is_array($activityIds) ? $activityIds : [])
-            ->get();
-
+        $selectedPackage = Package::find($reservationDetails->package_id);
+        // Kunin ang accomodation details
+        $accommodations = DB::table('accomodations')->whereIn('accomodation_id', json_decode($reservationDetails->accomodation_id))->get();
+        // Kunin ang activity details
+        $activities = DB::table('activitiestbl')->whereIn('id', json_decode($reservationDetails->activity_id))->get();
         
-        return redirect()->route('paymentProcess')->with(['success' => 'Reservation details saved successfully.', 'selectedPackage' => $selectedPackage , 'accomodations' => $accommodations , 'activities' =>$activities]);
+        return redirect()->route('paymentProcess')->with(['success' => 'Reservation details saved successfully.', 'selectedPackage' => $selectedPackage , 'accommodations' => $accommodations , 'activities' =>$activities]);
     }
 
     public function fixPackagesSelection(Request $request)
@@ -138,6 +131,11 @@ class ReservationController extends Controller
 
             // Sum all selected accommodation prices
             $accommodationPrice = $accommodations->sum('accomodation_price');
+
+            // Minus the accommodation slot by 1
+            DB::table('accomodations')
+                ->whereIn('accomodation_id', $selectedAccommodationIds)
+                ->decrement('accomodation_slot', 1);
         }
 
         // Get selected activity (if multiple, store as JSON)
@@ -343,6 +341,21 @@ public function showReservationsInCalendar()
         $reservation->save();
 
         return redirect()->route('profile')->with('success', 'Reservation cancelled successfully.');
+    }
+    
+    public function reservationSummary()
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'User not authenticated.');
+        }
+
+        $reservations = Reservation::where('user_id', $user->id)->latest()->get();
+        if ($reservations->isEmpty()) {
+            return redirect()->back()->with('error', 'No reservations found.');
+        }
+
+        return view('FrontEnd.profilepageReservation', compact('reservations'));
     }
 
 }
