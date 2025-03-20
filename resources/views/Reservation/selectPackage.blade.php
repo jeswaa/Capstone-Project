@@ -34,7 +34,7 @@
 <body class="color-background4">
     
     <div class="d-flex align-items-center mt-5 ms-5">
-        <a href="{{ route('landingpage') }}"><i class="fa-solid fa-circle-left fa-2x color-3 icon me-3"></i></a>
+        <a href="{{ route('calendar') }}"><i class="fa-solid fa-circle-left fa-2x color-3 icon me-3"></i></a>
         <h1 class="me-3 font-paragraph fs-1 fw-bold">Reservation</h1>
     </div>
 
