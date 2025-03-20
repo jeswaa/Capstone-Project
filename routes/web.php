@@ -30,9 +30,13 @@ use App\Http\Controllers\StaffController;
 /* LOGIN */
 Route::get('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/login/authenticate', [LoginController::class, 'authenticate'])->name('login.authenticate');
+Route::post('/forgot-password/reset', [LoginController::class, 'reset'])->name('forgot.reset');
+Route::post('/forgot-password/send-reset-link', [LoginController::class, 'sendResetLinkEmail'])->name('forgot.sendResetLinkEmail');
+
 // SIGNUP
 Route::get('/signup', [SignUpController::class, 'signup'])->name('signup');
-Route::post('/signup/store', [SignUpController::class, 'store'])->name('signup.store');
+Route::post('/signup/send-otp', [SignUpController::class, 'sendOTP'])->name('signup.sendOTP');
+Route::post('/signup/verify-otp', [SignUpController::class, 'verifyOTP'])->name('signup.verifyOTP');
 /*Landing page/index */
 Route::get('/', [LandingPageController::class, 'index'])->name('landingpage');
 
@@ -40,10 +44,9 @@ Route::get('/profile', [HomePageController::class, 'profilepage'])->name('profil
 Route::get('/profile/edit', [HomePageController::class, 'editProfile'])->name('editProfile');
 Route::post('/profile/edit', [HomePageController::class, 'editProfile'])->name('editProfile.post');
 Route::post('/reservation/cancel/{id}', [ReservationController::class, 'cancelReservation']);
+Route::get('/reservation-summary/{id}', [ReservationController::class, 'displayReservationSummary'])->name('displaySummary');
 //qr code
-Route::get('/reservation-summary/{id}', function ($id) {$reservationDetails = Reservation::find($id);
-    return view('reservation-summary', compact('reservationDetails'));
-})->name('reservation.summary');
+Route::get('/reservation-summary/{id}', [ReservationController::class,'reservationSummary'])->name('reservation.summary');
 Route::get('/user-logout', [HomePageController::class, 'userlogout'])->name('logout.user');
 // Reservation
 Route::get('/reservation/calendar', [ReservationController::class, 'showReservationsInCalendar'])->name('calendar');

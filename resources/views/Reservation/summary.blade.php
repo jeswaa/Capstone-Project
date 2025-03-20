@@ -151,14 +151,14 @@
 
 <script>
     function generateQRCode() {
-        let reservationId = '{{ $reservationDetails->id ?? '' }}';
-        if (!reservationId) {
-            alert('No reservation available!');
+        let email = '{{ $reservationDetails->email ?? '' }}'; // Get email instead of ID
+        if (!email) {
+            alert('No reservation email available!');
             return;
         }
 
-        // Use Laravel-generated URL
-        let summaryUrl = '{{ route("reservation.summary", ":id") }}'.replace(':id', reservationId);
+        // Use Laravel-generated URL with email
+        let summaryUrl = '{{ route("reservation.summary", ":email") }}'.replace(':email', encodeURIComponent(email));
 
         // Generate QR Code
         let qr = new QRious({
@@ -186,6 +186,7 @@
         link.click(); // Trigger download
     }
 </script>
+
 </body>
 </html>
 
