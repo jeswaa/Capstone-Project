@@ -61,15 +61,84 @@
                 </div>
             </div>
         </div>    
-
     </section>
 
-    <!-- Second Page -->
-    <section>
+<!-- Second Page -->
+<section class="vh-100 d-flex flex-column justify-content-center align-items-center" style="background-color: white; margin-top: 180px;">
+    <div class="container position-relative" style="bottom: 170px;">
+        <div class="row align-items-center text-center">
+            <!-- Left Image -->
+            <div class="col-md-3" style="clip-path: polygon(0 0, 100% 0, 100% 100%, 0 calc(100% - 1.5rem));">
+                <img src="{{ asset('images/DSCF2820.JPG') }}" alt="Left Image" class="img-fluid w-100 rounded" style="height: 200px; object-fit: cover;">
+            </div>
+            <!-- Center Text -->
+            <div class="col-md-6">
+                <h2 class="fw-bold text-success text-uppercase" style="font-size: 3.5rem; padding: 0.5rem 1rem;">
+                    Relax & Unwind
+                </h2>
+                <p class="fst-italic text-secondary mt-2" style="font-size: 1.2rem;">
+                    at Lelo's Resort, where comfort and peace come together.
+                </p>
+            </div>
+            <!-- Right Image -->
+            <div class="col-md-3" style="clip-path: polygon(0 calc(100% - 1.5rem), 100% 100%, 100% 0, 0 0);">
+                <img src="{{ asset('images/DSCF2821.JPG') }}" alt="Right Image" class="img-fluid w-100 rounded" style="height: 200px; object-fit: cover;">
+            </div>
+        </div>
+    </div>
 
+    <!-- Lower Section with Text & Carousel -->
+    <div class="container mb-5">
+        <div class="row w-100 align-items-center mb-5">
+            <!-- Left Text Section -->
+            <div class="col-md-6 text-center p-4">
+                <hr class="border-success" style="width: 80%; margin: auto;">
+                <p class="fst-italic text-success" style="font-size: 1.5rem;">
+                    Enjoy breathtakingly
+                </p>
+                <h1 class="fw-bold text-success text-uppercase" style="font-size: 3rem; line-height: 1.2;">
+                    Beautiful Views <br>
+                    Great Amenities <br>
+                    & Friendly Service
+                </h1>
+                <div class="mt-3 p-3 rounded-pill" style="background-color: #E6F4E6; display: inline-block;">
+                    <p class="text-success m-0" style="font-size: 1.2rem;">
+                        <em>Booking your stay is quick and easy with our simple reservation system!</em>
+                    </p>
+                </div>
+                <hr class="border-dark" style="width: 80%; margin: auto;">
+            </div>
+            <!-- Right Carousel Section -->
+            <div class="col-md-6 ms-auto">
+                <div id="carouselExampleInterval" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        <div class="carousel-item active" data-bs-interval="5000">
+                            <img src="{{ asset('images/hotelpic.jpg') }}" class="d-block w-100 rounded" alt="Hotel Image 1">
+                        </div>
+                        <div class="carousel-item" data-bs-interval="5000">
+                            <img src="{{ asset('images/hotelpic.JPG') }}" class="d-block w-100 rounded" alt="Hotel Image 2">
+                        </div>
+                        <div class="carousel-item" data-bs-interval="5000">
+                            <img src="{{ asset('images/hotelpic.jpg') }}" class="d-block w-100 rounded" alt="Hotel Image 3">
+                        </div>
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleInterval" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleInterval" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
     </section>
 
     <!-- Third Page -->
+    <section class="vh-100 d-flex flex-column justify-content-center align-items-center" style="background: url('{{ asset('images/RWAR.png') }}') no-repeat center / cover;">
     <section>
 
     </section>
@@ -79,6 +148,5 @@
 
     </section>
 
-        
 </body>
 </html> 
