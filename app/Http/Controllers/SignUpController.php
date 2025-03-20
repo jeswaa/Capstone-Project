@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Cache;
@@ -28,7 +29,7 @@ class SignUpController extends Controller
         ]);
 
         $otp = rand(100000, 999999);
-        
+
         Cache::put('otp_' . $request->email, [
             'otp' => $otp,
             'name' => $request->name,
@@ -40,7 +41,6 @@ class SignUpController extends Controller
 
         return response()->json(['message' => 'OTP sent successfully! Please check your email.']);
     }
-
 
     public function verifyOTP(Request $request)
     {
