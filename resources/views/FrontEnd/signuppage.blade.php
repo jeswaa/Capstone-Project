@@ -4,178 +4,80 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Signup - Lelo's Resort</title>
+
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&family=Poppins:wght@100..900&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Vite (For Laravel Projects) -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
+    <!-- Custom Styles -->
     <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
+        /* Hover Effects */
+        .signup:hover {
+            color: #718355;
+            background-color: #e5f9db;
+            transition: all 0.3s ease-in-out;
         }
-
-        .background-color {
-            background-color: #b5c99a;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .signup-container {
-            width: 100%;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #b5c99a;
-        }
-
-        .signup-form {
-            flex: 1;
-            padding: 20px;
-            max-width: 50%;
-        }
-
-        .image-container {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-        }
-
-        .image-container img {
-            width: 100%;
-            height: 90%;
-            margin-right: 35px;
-            object-fit: cover;
-            border-radius: 50px;
-        }
-
-        .btn-custom {
-            background-color: #61704A !important;
-            border: none !important;
-            margin-top: 20px !important;
-            color: white !important;
-            padding: 0.75rem !important;
-            border-radius: 20px !important;
-            font-weight: 500 !important;
-            display: block;
-            margin-left: 12%;
-        }
-
-        .btn-custom:hover {
-            background-color: #53633D !important;
-            color: white !important;
-        }
-
-        .signup-form .form-control {
-            background-color: #97A97C !important;
-            color: #333 !important;
-            border: 0 !important;
-            border-radius: 20px !important;
-            padding: 10px !important;
-            width: 75% !important;
-        }
-
-        .signup-form .form-control::placeholder {
-            color: #fff !important;
-        }
-
-        .signup-form .form-control:focus {
-            background-color: #fff !important;
-            border-color: #53633D !important;
-            box-shadow: 0 0 5px rgba(81, 102, 57, 0.5) !important;
-        }
-
-        .back-arrow {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            cursor: pointer;
-        }
-
-        .back-arrow i {
-            font-size: 2rem;
-            transform: rotate(-90deg);
-            display: inline-block;
-        }
-
-        .custom-file-label {
-            background-color: #f8f9fa;
-            border: 0;
-            padding: 10px 15px;
-            border-radius: 5px;
-        }
-
-        .signup-form h1 {
-            text-align: center;
-        }
-
-        .mb-3 {
-            display: flex;
-            justify-content: center;
+        .icon:hover {
+            color: #4a4a4a;
+            transition: all 0.3s ease-in-out;
         }
     </style>
 </head>
-<body class="background-color">
-    @if ($errors->any())
-    <div>
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-    @endif
-    @if (session('success'))
-        <div class="alert alert-success mt-3">
-            {{ session('success') }}
-        </div>
-    @endif
-    <div class="position-absolute top-0 start-0 mt-5 ms-5">
-        <a href="{{ route('login') }}"><i class="fa-solid fa-circle-left fa-2x color-3 icon"></i></a>
-    </div>
-    <div class="signup-container">
-        <div class="signup-form">
-            <h1 class="text-color-1 mb-3">Create an Account</h1>
-            <form action="{{ route('signup.store') }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                <div class="mb-3">
-                    <label for="name" class="form-label text-color-1 font-paragraph"></label>
-                    <input type="text" class="form-control font-paragraph mt-4" id="name" name="name" placeholder="Full Name..." required>
-                </div>
-                <div class="mb-3">
-                    <label for="address" class="form-label text-color-1 font-paragraph"></label>
-                    <input type="text" class="form-control font-paragraph" id="address" name="address" placeholder="Address..." required>
-                </div>
-                <div class="mb-3">
-                    <label for="image" class="form-label text-color-1 font-paragraph fw-bold"></label>
-                    <input class="form-control" type="file" id="image" name="image" accept="image/*" required>
-                </div>
+<body class="color-background5 d-flex align-items-center vh-100">
+    <div class="container">
+        <div class="row d-flex align-items-center justify-content-center">
+            
+            <!-- Back Button -->
+            <div class="position-absolute top-0 start-0 mt-4 ms-4">
+                <a href="{{ route('login') }}">
+                    <i class="fa-solid fa-circle-left fa-2x color-3 icon"></i>
+                </a>
+            </div>
 
-                <div class="mb-3">
-                    <label for="email" class="form-label text-color-1 font-paragraph"></label>
-                    <input type="email" class="form-control font-paragraph" id="email" name="email" placeholder="Email..." required>
+            <!-- Left Side: Signup Form (Full Width on Mobile, Half on Larger Screens) -->
+            <div class="col-12 col-md-6 d-flex justify-content-center">
+                <div class="w-100 p-4">
+                    <h1 class="text-color-1 text-center font-heading fs-4">Create an Account</h1>
+                    <form action="{{ route('signup.store') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div class="mb-3">
+                            <input type="text" class="form-control p-3" id="name" name="name" placeholder="Full Name..." required>
+                        </div>
+                        <div class="mb-3">
+                            <input type="text" class="form-control p-3" id="address" name="address" placeholder="Address..." required>
+                        </div>
+                        <div class="mb-3">
+                            <input type="file" class="form-control p-3" id="image" name="image" accept="image/*" required>
+                        </div>
+                        <div class="mb-3">
+                            <input type="email" class="form-control p-3" id="email" name="email" placeholder="Email..." required>
+                        </div>
+                        <div class="mb-3">
+                            <input type="number" class="form-control p-3" id="mobileNo" name="mobileNo" placeholder="Mobile Number..." required>
+                        </div>
+                        <div class="mb-3">
+                            <input type="password" class="form-control p-3" id="password" name="password" placeholder="Password..." required>
+                        </div>
+                        <button type="submit" class="mb-3 mt-4 border-0 p-2 rounded-4 color-background6 w-100 font-paragraph fw-bold color-3 signup">
+                            SIGNUP
+                        </button>
+                    </form>
                 </div>
-                <div class="mb-3">
-                    <label for="mobileNo" class="form-label text-color-1 font-paragraph"> </label>
-                    <input type="number" class="form-control font-paragraph" id="mobileNo" name="mobileNo" placeholder="Mobile Number..." required>
-                </div>
-                <div class="mb-3">
-                    <label for="password" class="form-label text-color-1 font-paragraph">   </label>
-                    <input type="password" class="form-control font-paragraph" id="password" name="password" placeholder="Password..." required>
-                </div>
-                <button type="submit" class="btn btn-custom w-75 btn-custom">SIGNUP</button>
-            </form>
-        </div>
-        <div class="image-container">
-            <img src="{{ asset('images/hotelpic.jpg') }}" alt="Resort Image">
+            </div>
+
+            <!-- Right Side: Image (Hidden on Small Screens, Visible on Larger) -->
+            <div class="col-md-6 d-none d-md-block">
+                <img src="{{ asset('images/hotelpic.jpg') }}" alt="Resort Image" class="img-fluid rounded-5">
+            </div>
         </div>
     </div>
+
 </body>
 </html>
-
-

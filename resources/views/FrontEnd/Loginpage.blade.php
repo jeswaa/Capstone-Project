@@ -4,38 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Lelo's Resort</title>
+
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&family=Poppins:wght@100..900&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Vite (For Laravel Projects) -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <!-- Custom Styles -->
     <style>
-        .login-form {
-            width: 100vw;
-            height: 80vh;
-        }
-        .login-center {
-            margin: 0 auto;
-        }
-        .login-img {
-            height: 95vh;
-            object-position: center;
-        }
-        .text-hover-effect {
-            background: linear-gradient(to right, currentColor 100%, transparent 100%);
-            margin-top: 10px;
-            background-size: 0% 2px;
-            background-repeat: no-repeat;
-            background-position: 0% 100%;
-            transition: background-size 0.4s ease-in-out;
-            &:hover {
-                background-size: 100% 2px;
-            }
-        }
+        /* Hover Effects */
         .google:hover {
-           background-color: #4a4a4a;
-           color: #fff;
-           transition: all 0.3s ease-in-out;
+            background-color: #4a4a4a;
+            color: #fff;
+            transition: all 0.3s ease-in-out;
         }
-        .login:hover{
+        .login:hover {
             color: #718355;
             background-color: #e5f9db;
             transition: all 0.3s ease-in-out;
@@ -46,57 +33,65 @@
         }
     </style>
 </head>
-<body class="color-background5 d-flex justify-content-center align-items-center">
-    <div class="position-absolute top-0 start-0 mt-5 ms-5">
-        <a href="{{ route('landingpage') }}"><i class="fa-solid fa-circle-left fa-2x color-3 icon"></i></a>
-    </div>
-    <div class="login-center login-form d-flex justify-content-center align-items-center">
-        <div class="w-50">
-            <h1 class="text-color-1 mt-3 font-heading fs-4 text-center">Welcome to Lelo's Resort</h1>
-            <form action="{{ route('login.authenticate') }}" method="POST">
-                @csrf
-                <div class="mb-3 mt-3">
-                    <label for="email" class="form-label text-color-1"></label>
-                    <input type="email" class="form-control p-2 @error('email') is-invalid @enderror" id="email" name="email" placeholder="Email..." required>
-                    @error('email')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                    @else
-                        @if(session()->has('error'))
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ session()->get('error') }}</strong>
-                            </span>
-                        @endif
-                    @enderror
-                </div>
-                <div class="mb-3">
-                    <label for="password" class="form-label text-color-1"></label>
-                    <input type="password" class="form-control p-2 @error('password') is-invalid @enderror" id="password" name="password" placeholder="Password..." required>
-                    @error('password')
-                        <div class="invalid-feedback">
-                            <strong>{{ $message }}</strong>
-                        </div>
-                    @else
-                        @if(session()->has('error'))
-                            <div class="invalid-feedback ">
-                                <strong>{{ session()->get('error') }}</strong>
-                            </div>
-                        @endif
-                    @enderror
-                </div>
-                    <button type="submit" class="mb-3 mt-4 border-0 p-2 rounded-4 color-background6 w-100 font-paragraph fw-bold color-3 login">LOGIN</button>
-                    <p class="text-center mt-3 text-color-1 font-paragraph">Don't have an account?<a href="{{ route('signup') }}" class="font-paragraph text-color-1 ms-3 text-decoration-none text-hover-effect">Sign Up</a></p>
-               <hr>
-               <a href="{{ route('google.redirect') }}" class="color-3 font-paragraph text-decoration-none fw-bold">
-                    <div class="d-flex justify-content-center w-100 color-background6 p-2 rounded-4 google">
-                            <img src="{{ asset('images/google.png') }}" alt="" srcset="" width="20" height="20" class="me-2"></i> Sign up using Google
-                    </div>
+<body class="color-background5 d-flex align-items-center vh-100">
+    <div class="container">
+        <div class="row d-flex align-items-center justify-content-center">
+            <!-- Back Button -->
+            <div class="position-absolute top-0 start-0 mt-4 ms-4">
+                <a href="{{ route('landingpage') }}">
+                    <i class="fa-solid fa-circle-left fa-2x color-3 icon"></i>
                 </a>
-            </form>
+            </div>
+
+            <!-- Left Side: Login Form (Full Width on Mobile, Half on Larger Screens) -->
+            <div class="col-12 col-md-6 d-flex justify-content-center">
+                <div class="w-100 p-4">
+                    <h1 class="text-color-1 text-center font-heading fs-4">Welcome to Lelo's Resort</h1>
+                    <form action="{{ route('login.authenticate') }}" method="POST">
+                        @csrf
+                        <div class="mb-3 mt-3">
+                            <input type="email" class="form-control p-3 @error('email') is-invalid @enderror" id="email" name="email" placeholder="Email..." required>
+                            @error('email')
+                                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                            @else
+                                @if(session()->has('error'))
+                                    <span class="invalid-feedback" role="alert"><strong>{{ session()->get('error') }}</strong></span>
+                                @endif
+                            @enderror
+                        </div>
+                        <div class="mb-3">
+                            <input type="password" class="form-control p-3 @error('password') is-invalid @enderror" id="password" name="password" placeholder="Password..." required>
+                            @error('password')
+                                <div class="invalid-feedback"><strong>{{ $message }}</strong></div>
+                            @else
+                                @if(session()->has('error'))
+                                    <div class="invalid-feedback"><strong>{{ session()->get('error') }}</strong></div>
+                                @endif
+                            @enderror
+                        </div>
+                        <button type="submit" class="mb-3 mt-4 border-0 p-2 rounded-4 color-background6 w-100 font-paragraph fw-bold color-3 login">
+                            LOGIN
+                        </button>
+                        <p class="text-center mt-3 text-color-1 font-paragraph">
+                            Don't have an account?
+                            <a href="{{ route('signup') }}" class="font-paragraph text-color-1 ms-2 text-decoration-none">Sign Up</a>
+                        </p>
+                        <hr>
+                        <a href="{{ route('google.redirect') }}" class="text-decoration-none">
+                            <div class="mb-3 mt-4 border-0 p-2 rounded-4 color-background6 w-100 font-paragraph fw-bold color-3 login">
+                                <img src="{{ asset('images/google.png') }}" width="20" height="20" class="me-2"> Sign up using Google
+                            </div>
+                        </a>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Right Side: Image (Hidden on Small Screens, Visible on Larger) -->
+            <div class="col-md-6 d-none d-md-block">
+                <img src="{{ asset('images/hotelpic.jpg') }}" alt="Resort Image" class="img-fluid rounded-5">
+            </div>
         </div>
     </div>
-    <img src="{{ asset('images/hotelpic.jpg') }}" alt="Resort Image" class="login-img w-50 mt-3 me-3 rounded-5">
+
 </body>
 </html>
-

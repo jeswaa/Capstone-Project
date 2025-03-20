@@ -15,31 +15,31 @@
             <div class="col-md-3"></div>
             <div class="col-md-9 main-content color-background3 rounded-start-50 ps-0 pe-0 h-100 mt-4">
                 <div class="container p-4">
-                    <h2 class="text-center">Reservation Summary Report</h2>
+                    <h2 class="text-center font-heading text-color-1 fs-2 mt-4 mb-2">Reservation Summary Report</h2>
 
                     <div class="row mt-4">
                         <div class="col-md-3">
-                            <div class="card bg-primary text-white p-3">
-                                <h4>Total Reservations</h4>
-                                <p style="font-size: 2em;">{{ number_format($totalReservations) }}</p>
+                            <div class="rounded-3 color-background5 text-white p-3">
+                                <h4 class="font-paragraph fs-5 text-color-1 fw-semibold">Total Reservations</h4>
+                                <p class="fs-2 font-paragraph color-3">{{ number_format($totalReservations) }}</p>
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="card bg-danger text-white p-3">
-                                <h4>Cancelled Reservations</h4>
-                                <p style="font-size: 2em;">{{ number_format($totalCancelled) }}</p>
+                            <div class="rounded-3 color-background5 text-white p-3">
+                                <h4 class="font-paragraph fs-5 text-color-1 fw-semibold">Cancelled Reservations</h4>
+                                <p class="fs-2 font-paragraph color-3">{{ number_format($totalCancelled) }}</p>
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="card bg-success text-white p-3">
-                                <h4>Confirmed Reservations</h4>
-                                <p style="font-size: 2em;">{{ number_format($totalConfirmed) }}</p>
+                            <div class="rounded-3 color-background5 text-white p-3">
+                                <h4 class="font-paragraph fs-5 text-color-1 fw-semibold">Confirmed Reservations</h4>
+                                <p class="fs-2 font-paragraph color-3">{{ number_format($totalConfirmed) }}</p>
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="card bg-warning text-white p-3">
-                                <h4>Pending Reservations</h4>
-                                <p style="font-size: 2em;">{{ number_format($totalPending) }}</p>
+                            <div class="rounded-3 color-background5 text-white p-3">
+                                <h4 class="font-paragraph fs-5 text-color-1 fw-semibold">Pending Reservations</h4>
+                                <p class="fs-2 font-paragraph color-3">{{ number_format($totalPending) }}</p>
                             </div>
                         </div>
                     </div>
@@ -58,7 +58,7 @@
                                     datasets: [{
                                         label: "Reservations",
                                         data: [{{ $dailyReservations }}, {{ $weeklyReservations }}, {{ $monthlyReservations }}, {{ $yearlyReservations }}],
-                                        backgroundColor: ["#3498db", "#2ecc71", "#e74c3c", "#f1c40f"],
+                                        backgroundColor: ["#718355", "#718355", "#718355", "#718355"],
                                         borderColor: "#333",
                                         borderWidth: 1
                                     }]
@@ -81,9 +81,9 @@
                     </script>
 
 
-                    <h3 class="mt-4">Most Booked Package</h3>
+                    <h3 class="mt-4 fs-2 text-color-1 font-heading fw-bold">Most Booked Package</h3>
                     @if($mostBooked)
-                        <p><strong>{{ $mostBooked->package_room_type }}</strong> ({{ number_format($mostBooked->count) }} bookings)</p>
+                        <p class="font-paragraph fs-4 text-color-1"><strong class="font-paragraph fs-4 text-color-1">{{ $mostBooked->package_room_type }}</strong> ({{ number_format($mostBooked->count) }} bookings)</p>
                     @else
                         <p>No bookings yet.</p>
                     @endif

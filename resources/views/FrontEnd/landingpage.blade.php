@@ -10,6 +10,246 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* 🌟 Default Styling for All Screens */
+body {
+    font-family: 'Poppins', sans-serif;
+}
+
+/* ============================ */
+/* 📱 Small Phones (up to 480px) */
+/* ============================ */
+@media screen and (max-width: 480px) {
+    /* Hero Section */
+    .hero {
+        height: 80vh;
+        text-align: center;
+        border-bottom-left-radius: 50px;
+    }
+    
+    .hero h1 {
+        font-size: 32px !important; /* Smaller heading */
+    }
+
+    .hero button {
+        font-size: 14px !important;
+        padding: 10px 15px !important;
+    }
+
+    /* Navbar */
+    .navbar {
+        padding: 10px;
+    }
+    
+    .navbar .fs-1 {
+        font-size: 22px !important;
+    }
+
+    /* Carousel */
+    .custom-carousel {
+        max-width: 100% !important;
+    }
+
+    /* Welcome Section */
+    .display-7,
+    .display-4 {
+        font-size: 26px !important;
+        text-align: center;
+    }
+
+    .lead {
+        font-size: 14px;
+        text-align: center;
+    }
+
+    /* Activities Section */
+    .card h4 {
+        font-size: 18px !important;
+    }
+
+    /* Testimonials */
+    .testimonial-img {
+        width: 80px !important;
+    }
+
+    /* Footer */
+    footer {
+        text-align: center;
+    }
+
+    .custom-gap {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .custom-move-b {
+        text-align: center;
+    }
+}
+
+/* ============================ */
+/* 📱 Medium Phones (up to 576px) */
+/* ============================ */
+@media screen and (max-width: 576px) {
+    /* Hero Section */
+    .hero {
+        height: 85vh;
+        border-bottom-left-radius: 60px;
+    }
+
+    .hero h1 {
+        font-size: 36px !important;
+    }
+
+    .hero button {
+        font-size: 16px !important;
+        padding: 12px 18px !important;
+    }
+
+    /* Carousel */
+    .custom-carousel {
+        max-width: 100% !important;
+    }
+
+    /* Activities Section */
+    .card h4 {
+        font-size: 20px !important;
+    }
+
+    /* Testimonials */
+    .testimonial-img {
+        width: 90px !important;
+    }
+
+    /* Footer */
+    .custom-move-b {
+        text-align: center;
+    }
+}
+
+/* ============================ */
+/* 📱 Large Phones (up to 768px) */
+/* ============================ */
+@media screen and (max-width: 768px) {
+    /* Hero Section */
+    .hero {
+        height: 90vh;
+    }
+
+    .hero h1 {
+        font-size: 40px !important;
+    }
+
+    .hero button {
+        font-size: 18px !important;
+        padding: 14px 20px !important;
+    }
+
+    /* Navbar */
+    .navbar {
+        padding: 15px;
+    }
+    
+    .navbar .fs-1 {
+        font-size: 28px !important;
+    }
+
+    /* Carousel */
+    .custom-carousel {
+        max-width: 100% !important;
+    }
+
+    /* Welcome Section */
+    .display-7,
+    .display-4 {
+        font-size: 30px !important;
+    }
+
+    .lead {
+        font-size: 16px;
+    }
+
+    /* Activities Section */
+    .card h4 {
+        font-size: 22px !important;
+    }
+
+    /* Testimonials */
+    .testimonial-img {
+        width: 100px !important;
+    }
+
+    /* Footer */
+    .custom-move-b {
+        text-align: center;
+    }
+}
+
+/* ============================ */
+/* 🖥️ Tablets (up to 1024px) */
+/* ============================ */
+@media screen and (max-width: 1024px) {
+    /* Hero Section */
+    .hero {
+        height: 100vh;
+    }
+
+    .hero h1 {
+        font-size: 50px !important;
+    }
+
+    .hero button {
+        font-size: 20px !important;
+        padding: 16px 24px !important;
+    }
+
+    /* Navbar */
+    .navbar {
+        padding: 20px;
+    }
+    
+    .navbar .fs-1 {
+        font-size: 32px !important;
+    }
+
+    /* Carousel */
+    .custom-carousel {
+        max-width: 100% !important;
+    }
+
+    /* Welcome Section */
+    .display-7,
+    .display-4 {
+        font-size: 36px !important;
+    }
+
+    .lead {
+        font-size: 18px;
+    }
+
+    /* Activities Section */
+    .card h4 {
+        font-size: 24px !important;
+    }
+
+    /* Testimonials */
+    .testimonial-img {
+        width: 120px !important;
+    }
+
+    /* Footer */
+    .custom-move-b {
+        text-align: center;
+    }
+}
+
+</style>
 <body>
 <section style="background-color: #E5F9DB;">
     <!-- Hero Section with Background -->

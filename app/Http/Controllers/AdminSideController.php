@@ -72,6 +72,7 @@ class AdminSideController extends Controller
         return view('AdminSide.transactions');
     }
 
+    
     public function reports()
     {
         $totalReservations = DB::table('reservation_details')->count();
@@ -201,16 +202,13 @@ class AdminSideController extends Controller
     ->get();
 
 // Ensure all 12 months exist in the result
-$allMonths = collect(range(1, 12))->map(function ($month) use ($monthlyRevenueData) {
-    return [
-        'month_number' => $month,
-        'revenue' => $monthlyRevenueData->firstWhere('month_number', $month)->revenue ?? 0
-    ];
-});
+    $allMonths = collect(range(1, 12))->map(function ($month) use ($monthlyRevenueData) {
+        return [
+            'month_number' => $month,
+            'revenue' => $monthlyRevenueData->firstWhere('month_number', $month)->revenue ?? 0
+        ];
+    });
 
-
-
-    
         // Latest Reservations with Joins
         $latestReservations = DB::table('reservation_details')
             ->join('packagestbl', 'reservation_details.package_id', '=', 'packagestbl.id')

@@ -31,14 +31,13 @@
             <span class="sidebar-text">Transactions</span>
         </a>
         <div class="dropdown">
-            <a href="#" class="fw-semibold p-4 mt-2 color-3 hover:color-background1 font-paragraph rounded-md text-hover text-decoration-none d-flex align-items-center dropdown-toggle" id="reports-link" data-bs-toggle="dropdown" aria-expanded="false">
+            <a href="#" class="fw-semibold p-4 mt-2 color-3 hover:color-background1 font-paragraph  text-hover text-decoration-none d-flex align-items-center dropdown-toggle" id="reports-link" data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="fas fa-chart-line pe-3 fs-4"></i>
                 <span class="sidebar-text">Reports</span>
             </a>
-            <ul class="dropdown-menu rounded-md w-100 border" aria-labelledby="reports-link">
-                <li><a class="dropdown-item" href="{{ route('reports') }}">Summary Report</a></li>
-                <li><a class="dropdown-item" href="#">Transaction Report</a></li>
-                <li><a class="dropdown-item" href="#">Reservation Report</a></li>
+            <ul class="dropdown-menu w-100 border" aria-labelledby="reports-link">
+                <li><a class="dropdown-item font-paragraph text-color-1 hover:bg-light" href="{{ route('reports') }}">Reservation Report</a></li>
+                <li><a class="dropdown-item font-paragraph text-color-1 hover:bg-light" href="#">Transaction Report</a></li>
             </ul>
         </div>
         <a href="{{ route('logout') }}" class="fw-semibold p-4 mt-2 color-3 hover:color-background1 font-paragraph rounded-md text-hover text-decoration-none d-flex align-items-center" id="logout-link">
