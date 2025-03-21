@@ -33,7 +33,7 @@
                             <span class="sidebar-text">Reservations</span>
                         </a>
                         <ul class="dropdown-menu w-100" aria-labelledby="reservations-link">
-                            <li><a class="dropdown-item w-100" href="{{ route('staff.reservation') }}">All Reservations</a></li>
+                            <li><a class="dropdown-item w-100" href="{{ route('staff.reservation') }}">Reservations</a></li>
                             <li><a class="dropdown-item w-100" href="{{ route('staff.accomodations')}}">Room Availability</a></li>
                         </ul>
                     </div>

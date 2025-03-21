@@ -103,6 +103,7 @@
                                 <th style="font-size: x-small;">Check In</th>
                                 <th style="font-size: x-small;">Check Out</th>
                                 <th style="font-size: x-small;">Room</th>
+                                <th style="font-size: x-small;">Activity</th>
                                 <th style="font-size: x-small;">Amount</th>
                                 <th style="font-size: x-small;">Balance</th>
                                 <th style="font-size: x-small;">Reservation Status</th>
@@ -120,7 +121,12 @@
                                         <td style="font-size: x-small;">{{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('F j, Y') }}</td>
                                         <td style="font-size: x-small;">{{ \Carbon\Carbon::parse($reservation->reservation_check_in)->format('g:i A') }}</td>
                                         <td style="font-size: x-small;">{{ \Carbon\Carbon::parse($reservation->reservation_check_out)->format('g:i A') }}</td>
-                                        <td style="font-size: x-small;">{{ $reservation->package_name }}</td>
+                                        <td style="font-size: x-small;">
+                                            {{ $reservation->package_name ?: implode(', ', $reservation->accommodations) }}
+                                        </td>
+                                        <td style="font-size: x-small;">
+                                            {{ implode(', ', $reservation->activities) ?: $reservation->package_activities }}
+                                        </td>
                                         <td style="font-size: x-small;">{{ $reservation->amount }}</td>
                                         <td style="font-size: x-small;" id="balance-{{ $reservation->id }}"></td>
                                         <script>
@@ -310,32 +316,33 @@
     </script>
 
     <script>
-       document.addEventListener("DOMContentLoaded", function () {
-            let shown = false;
+        let shown = false;
 
-            setInterval(function () {
-                fetch('/staff/check-new-reservations')
-                    .then(response => response.json())
-                    .then(data => {
-                        let alertBox = document.getElementById("newReservationAlert");
+        function checkForNewReservations() {
+            fetch('/staff/check-new-reservations')
+                .then(response => response.json())
+                .then(data => {
+                    let alertBox = document.getElementById("newReservationAlert");
 
-                        if (data.new_reservations > 0 && !shown) {
-                            alertBox.innerHTML = `
-                                <div class="alert alert-warning" id="reservationAlert">
-                                    <strong>${data.new_reservations}</strong> new reservation(s) received! 
-                                    <a href="/staff/transactions" id="viewReservations">View</a>
-                                </div>`;
-                            shown = true;
+                    if (data.new_reservations > 0 && !shown) {
+                        alertBox.innerHTML = `
+                            <div class="alert alert-warning" id="reservationAlert">
+                                <strong>${data.new_reservations}</strong> new reservation(s) received! 
+                                <a href="/staff/reservation-details" id="viewReservations">View</a>
+                            </div>`;
 
-                            // Remove notification when "View" is clicked
-                            document.getElementById("viewReservations").addEventListener("click", function () {
-                                alertBox.innerHTML = ""; // Remove the alert box
-                                shown = false; // Allow future notifications
-                            });
-                        }
+                        shown = true;
+                    }
+
+                    // Remove notification when "View" is clicked
+                    document.getElementById("viewReservations").addEventListener("click", function () {
+                        alertBox.innerHTML = ""; // Remove the alert box
+                        shown = false; // Allow future notifications
                     });
-            }, 5000); // Every 5 seconds
-        });
+                });
+        }
+
+        checkForNewReservations();
     </script>
 
 <script>

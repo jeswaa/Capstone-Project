@@ -15,61 +15,64 @@ class HomePageController extends Controller
         return view('Frontend.homepage'); // Ensure 'homepage' matches your blade file name
     }
     public function profilepage()
-    {
-        $userId = Auth::id();
+{
+    $userId = Auth::id();
 
-        // Fetch user details
-        $user = DB::table('users')->where('id', $userId)->first();
+    // Fetch user details
+    $user = DB::table('users')->where('id', $userId)->first();
 
-        $latestReservation = DB::table('reservation_details')
-            ->leftJoin('packagestbl', 'reservation_details.package_id', '=', 'packagestbl.id')
-            ->leftJoin('activitiestbl', 'reservation_details.activity_id', '=', 'activitiestbl.id')
-            ->where('reservation_details.user_id', $userId)
-            ->select(
-                'reservation_details.*', 
-                'packagestbl.package_name', 
-                'packagestbl.package_room_type', 
-                'packagestbl.package_max_guests',
-                'activitiestbl.activity_name',
-                'activitiestbl.id as activity_id',
-            )
-            ->orderByDesc('reservation_details.id')
-            ->first();
+    $latestReservation = DB::table('reservation_details')
+        ->leftJoin('packagestbl', 'reservation_details.package_id', '=', 'packagestbl.id')
+        ->leftJoin('activitiestbl', 'reservation_details.activity_id', '=', 'packagestbl.id')
+        ->where('reservation_details.user_id', $userId)
+        ->select(
+            'reservation_details.*', 
+            'packagestbl.package_name', 
+            'packagestbl.package_room_type', 
+            'packagestbl.package_max_guests',
+            'activitiestbl.activity_name',
+            'activitiestbl.id as activity_id',
+        )
+        ->orderByDesc('reservation_details.id')
+        ->first();
 
-        // --- Fetch Accommodations ---
-        $accommodationIds = json_decode($latestReservation->accomodation_id, true);
-        $accommodations = [];
-
+    // --- Fetch Accommodations Safely ---
+    $accommodations = [];
+    if ($latestReservation) {
+        $accommodationIds = json_decode($latestReservation->accomodation_id ?? '[]', true);
+        
         if (is_array($accommodationIds) && count($accommodationIds) > 0) {
             $accommodations = DB::table('accomodations')
                 ->whereIn('accomodation_id', $accommodationIds)
                 ->pluck('accomodation_name')
                 ->toArray();
-        } elseif (is_numeric($accommodationIds)) { // Handle single integer
+        } elseif (is_numeric($accommodationIds)) { 
             $accommodations = DB::table('accomodations')
                 ->where('accomodation_id', $accommodationIds)
                 ->pluck('accomodation_name')
                 ->toArray();
         }
-        
-        // Fetch all past reservations except the latest one (check if latestReservation exists)
-        $pastReservations = [];
-        if ($latestReservation) {
-            $pastReservations = DB::table('reservation_details')
-                ->join('packagestbl', 'reservation_details.package_id', '=', 'packagestbl.id')
-                ->where('reservation_details.user_id', $userId)
-                ->where('reservation_details.id', '!=', $latestReservation->id) // Exclude the latest reservation
-                ->orderBy('reservation_details.reservation_check_in_date', 'desc')
-                ->get();
-        }
-
-        return view('Frontend.profilepage', [
-            'user' => $user,
-            'latestReservation' => $latestReservation,
-            'pastReservations' => $pastReservations,
-            'accommodations' =>  $accommodations
-        ]);
     }
+
+    // Fetch all past reservations except the latest one
+    $pastReservations = [];
+    if ($latestReservation) {
+        $pastReservations = DB::table('reservation_details')
+            ->join('packagestbl', 'reservation_details.package_id', '=', 'packagestbl.id')
+            ->where('reservation_details.user_id', $userId)
+            ->where('reservation_details.id', '!=', $latestReservation->id) 
+            ->orderBy('reservation_details.reservation_check_in_date', 'desc')
+            ->get();
+    }
+
+    return view('Frontend.profilepage', [
+        'user' => $user,
+        'latestReservation' => $latestReservation,
+        'pastReservations' => $pastReservations,
+        'accommodations' => $accommodations
+    ]);
+}
+
 
 
     public function editProfile(Request $request)

@@ -120,7 +120,6 @@ class ReservationController extends Controller
     
     public function savePackageSelection(Request $request)
     {
-       
         // Get selected accommodations (can be multiple)
         $selectedAccommodationIds = $request->input('accomodation_id', []);
 
@@ -134,15 +133,23 @@ class ReservationController extends Controller
             // Sum all selected accommodation prices
             $accommodationPrice = $accommodations->sum('accomodation_price');
 
-            // Minus the accommodation slot by 1
-            DB::table('accomodations')
-                ->whereIn('accomodation_id', $selectedAccommodationIds)
-                ->decrement('accomodation_slot', 1);
+            // Decrement accommodation slot by 1 for each selected accommodation
+            foreach ($selectedAccommodationIds as $accommodationId) {
+                DB::table('accomodations')
+                    ->where('accomodation_id', $accommodationId)
+                    ->whereExists(function ($query) use ($accommodationId) {
+                        $query->select(DB::raw(1))
+                            ->from('reservation_details')
+                            ->whereRaw("JSON_CONTAINS(reservation_details.accomodation_id, ?)", [json_encode($accommodationId)])
+                            ->whereIn('reservation_details.payment_status', ['booked', 'paid']);
+                    })
+                    ->decrement('accomodation_slot', 1);
+            }
         }
 
-        // Get selected activity (if multiple, store as JSON)
+        // Get selected activities (if multiple, store as JSON)
         $activityIds = $request->input('activity_id', []);
-        $selectedActivityId = count($activityIds) == 1 ? reset($activityIds) : json_encode($activityIds);
+        $selectedActivityId = count($activityIds) === 1 ? $activityIds[0] : json_encode($activityIds);
 
         // Compute entrance fee
         $numAdults = (int) $request->input('number_of_adults', 0);
@@ -160,8 +167,8 @@ class ReservationController extends Controller
         $reservationDetails->rent_as_whole = $request->input('rent_as_whole');
         $reservationDetails->reservation_check_in = $request->input('reservation_check_in');
         $reservationDetails->reservation_check_out = $request->input('reservation_check_out');
-        $reservationDetails->reservation_check_in_date = new DateTime($request->input('reservation_check_in_date'));
-        $reservationDetails->reservation_check_out_date = new DateTime($request->input('reservation_check_out_date'));
+        $reservationDetails->reservation_check_in_date = Carbon::parse($request->input('reservation_check_in_date'));
+        $reservationDetails->reservation_check_out_date = Carbon::parse($request->input('reservation_check_out_date'));
         $reservationDetails->special_request = $request->input('special_request');
         $reservationDetails->total_guest = $numAdults + $numChildren;
         $reservationDetails->number_of_adults = $numAdults;
@@ -171,6 +178,7 @@ class ReservationController extends Controller
 
         return redirect()->route('reservation')->with('success', 'Package selection saved successfully.');
     }
+
 
     private function isDateAvailable($date)
     {
@@ -279,51 +287,47 @@ public function displayReservationSummary()
     ]);
 }
 
+    public function showReservationsInCalendar()
+    {
+        $userId = Auth::id();
 
-public function showReservationsInCalendar()
-{
-    $userId = Auth::id(); // Get the logged-in user ID
+        $reservations = DB::table('reservation_details')->get();
 
-    // Fetch all reservations
-    $reservations = DB::table('reservation_details')->get();
+        $events = $reservations->map(function ($reservation) use ($userId) {
+            $package = DB::table('packagestbl')->where('id', $reservation->package_id)->first();
 
-    $events = $reservations->map(function ($reservation) use ($userId) {
-        $package = DB::table('packagestbl')->where('id', $reservation->package_id)->first();
-        
-        // Fetch accommodations
-        $accommodationIds = json_decode($reservation->accomodation_id, true);
-        $accommodations = DB::table('accomodations')
-            ->whereIn('accomodation_id', (array) $accommodationIds)
-            ->pluck('accomodation_name')
-            ->toArray();
+            // Fetch accommodations
+            $accommodationIds = json_decode($reservation->accomodation_id, true);
+            $accommodations = DB::table('accomodations')
+                ->whereIn('accomodation_id', (array) $accommodationIds)
+                ->pluck('accomodation_name')
+                ->toArray();
 
-        // Fetch activities
-        $activityIds = json_decode($reservation->activity_id, true);
-        $activities = DB::table('activitiestbl')
-            ->whereIn('id', (array) $activityIds)
-            ->pluck('activity_name')
-            ->toArray();
+            // Fetch activities
+            $activityIds = json_decode($reservation->activity_id, true);
+            $activities = DB::table('activitiestbl')
+                ->whereIn('id', (array) $activityIds)
+                ->pluck('activity_name')
+                ->toArray();
 
-        return [
-            'title' => ($reservation->user_id == $userId) ? 'Your Reservation' : 'Reserved',
-            'start' => $reservation->reservation_check_in_date,
-            'extendedProps' => [
-                'user_id' => $reservation->user_id,
-                'name' => ($reservation->user_id == $userId) ? $reservation->name : 'Reserved',
-                'date' => (new DateTime($reservation->reservation_check_in_date))->format('F j, Y'),
-                'check_in' => (new DateTime($reservation->reservation_check_in))->format('g:i A'),
-                'check_out' => (new DateTime($reservation->reservation_check_out))->format('g:i A'),
-                'package_room_type' => $package->package_room_type ?? '',
-                'accommodations' => $accommodations,
-                'activities' => $activities,
-                'is_owner' => ($reservation->user_id == $userId) ? true : false, // Check if the user is the owner
-            ],
-        ];
-    })->toArray();
+            return [
+                'title' => ($reservation->user_id == $userId) ? 'Your Reservation' : 'Reserved',
+                'start' => $reservation->reservation_check_in_date, // ✅ ONLY Check-in date is displayed
+                'allDay' => true, // ✅ Prevents time from appearing in FullCalendar
+                'extendedProps' => [
+                    'user_id' => $reservation->user_id,
+                    'name' => ($reservation->user_id == $userId) ? $reservation->name : 'Reserved',
+                    'package_room_type' => $package->package_room_type ?? '',
+                    'accommodations' => $accommodations,
+                    'activities' => $activities,
+                    'is_owner' => $reservation->user_id == $userId,
+                ],
+            ];
+        })->toArray();
 
-    return view('Reservation.Events_reservation', compact('events', 'userId'));
-}
-
+        return view('Reservation.Events_reservation', compact('events', 'userId'));
+    }
+    
 
     public function cancelReservation(Request $request, $id)
     {
