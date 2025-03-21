@@ -13,11 +13,11 @@
     <!-- Container for rectangular top section -->
     <div class="container-fluid position-relative" style="background: url('{{ asset('images/image4.jpg') }}') no-repeat center center; background-size: cover; height: 300px;">
         <a href="{{ route('calendar')}}">
-            <i class="fa-solid fa-circle-left fa-2x text-color-1 icon icon-hover mt-5 ms-3"></i>
+            <i class="text-color-1 fa-2x fa-circle-left fa-solid icon icon-hover ms-3 mt-5"></i>
         </a>
     </div>
 
-    <div class="position-absolute top-0 start-0 m-3 z-3 w-auto">
+    <div class="m-3 position-absolute w-auto start-0 top-0 z-3">
         @if ($errors->any())
             <div class="alert alert-danger">
                 <ul>
@@ -35,9 +35,9 @@
     </div>
 
     <!-- Left-aligned, slightly moved to the right with custom margin -->
-    <div class="position-absolute start-0 top-custom-l translate-middle-y ms-custom-l">
-        <div class="bg shadow p-4" style="width: 25vw; height: 600px; border-radius: 20px; background-color: #B5C99A; position: relative;">
-        <a href="{{ route('logout.user') }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Log out"><i class="fa-solid fa-right-from-bracket text-color-1 fs-4 icon-hover"></i></a>
+    <div class="position-absolute ms-custom-l start-0 top-custom-l translate-middle-y">
+        <div class="p-4 shadow bg" style="width: 25vw; height: 600px; border-radius: 20px; background-color: #B5C99A; position: relative;">
+        <a href="{{ route('logout.user') }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Log out"><i class="text-color-1 fa-right-from-bracket fa-solid fs-4 icon-hover"></i></a>
             <!-- Circle inside the container, centered -->
             <div class="circle" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -120%); width: 50%; height: 30%; border-radius: 50%; background-color: #718355; border: 3px solid #fff; z-index: 1;">
                 <img src="{{ $user->image ? url('storage/' . $user->image) : asset('images/default-profile.jpg') }}" alt="Profile Image" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
@@ -54,13 +54,13 @@
             </p>
 
             <!-- Address at the bottom center of the container -->
-            <p class="text-center" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); color: #444; font-size: 20px; font-weight: bold; z-index: 2;">
+            <p class="text-center" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); color: #444; font-size: 11px; font-weight: bold; z-index: 2;">
                 {{ $user->address }}
             </p>
 
             <!-- Clickable Edit Icon in the upper right -->
-            <a href="#" class="edit-icon " data-bs-toggle="modal" data-bs-target="#editModal" style="position: absolute; top: 25px; right: 25px; cursor: pointer; z-index: 2;" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit your profile">
-                <i class="fa-solid fa-pen text-color-1 icon-hover" style="font-size: 20px;"></i>
+            <a href="#" class="edit-icon" data-bs-toggle="modal" data-bs-target="#editModal" style="position: absolute; top: 25px; right: 25px; cursor: pointer; z-index: 2;" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit your profile">
+                <i class="text-color-1 fa-pen fa-solid icon-hover" style="font-size: 20px;"></i>
             </a>
         </div>
     </div>
@@ -108,17 +108,17 @@
 
     <!-- Right-aligned, slightly moved to the right with custom margin -->
 <div class="position-absolute end-0" style="margin-right: 10%; top: 31%;">
-    <div class="bg shadow p-4" style="width: 50vw; height: 480px; border-radius: 20px; background-color: #B5C99A; position: relative;">
+    <div class="p-4 shadow bg" style="width: 50vw; height: 480px; border-radius: 20px; background-color: #B5C99A; position: relative;">
         <!-- Navigation Bar -->
         <nav class="navbar navbar-expand-lg navbar-light" style="background-color: transparent;">
             <div class="container-fluid">
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav gap-2">
                         <li class="nav-item me-4">
-                            <a class="nav-link fw-bold text-underline-left-to-right" href="#" onclick="toggleHistory(event, 'reservation-list-section')">Reservation</a>
+                            <a class="nav-link text-underline-left-to-right fw-bold" href="#" onclick="toggleHistory(event, 'reservation-list-section')">Reservation</a>
                         </li>
                         <li class="nav-item me-4">
-                            <a class="nav-link fw-bold text-underline-left-to-right" href="#" onclick="toggleHistory(event, 'history-section')">History</a>
+                            <a class="nav-link text-underline-left-to-right fw-bold" href="#" onclick="toggleHistory(event, 'history-section')">History</a>
                         </li>
                     </ul>
                 </div>
@@ -126,7 +126,7 @@
         </nav>
 
         <section id="reservation-list-section">
-                <h5 class="text-center mb-1 font-paragraph">Your Reservation</h5>
+                <h5 class="text-center font-paragraph mb-1">Your Reservation</h5>
                 @if ($latestReservation)
                     <div class="card mb-3 mt-2">
                         <div class="card-body">
@@ -165,7 +165,7 @@
             </section>
             
             <section id="history-section" style="display: none; overflow-y: scroll; max-height: 50vh;">
-                <h5 class="text-center mb-3 mt-3 font-paragraph">Your Reservation History</h5>
+                <h5 class="text-center font-paragraph mb-3 mt-3">Your Reservation History</h5>
                 @forelse ($pastReservations as $reservation)
                     <div class="card mb-3 mt-4">
                         <div class="card-body">

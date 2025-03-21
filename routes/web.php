@@ -125,9 +125,12 @@ Route::get('/login/staff', [StaffController::class, 'StaffLogin'])->name('staff.
 Route::post('/login/staff/authenticate', [StaffController::class, 'authenticate'])->name('staff.authenticate');
 Route::get('/staff/dashboard', [StaffController::class, 'dashboard'])->name('staff.dashboard');
 Route::get('/staff/reservation-details', [StaffController::class, 'reservations'])->name('staff.reservation');
+Route::get('/staff/accomodations', [StaffController::class, 'accomodations'])->name('staff.accomodations');
+Route::put('/staff/edit-room/{id}', [StaffController::class, 'editRoom'])->name('staff.editRoom');
+Route::post('/staff/book-room', [StaffController::class, 'bookRoom'])->name('staff.bookRoom');
+Route::post('/staff/cancel-reservation/{id}', [StaffController::class, 'cancelReservation'])->name('staff.cancelReservation');
 Route::get('/staff/check-new-reservations', [StaffController::class, 'checkNewReservations']);
 Route::post('/staff/transactions/update-payment-status/{id}', [StaffController::class, 'UpdateStatus'])->name('staff.updateStatus');
-Route::put('/staff/reservation/update-status/{id}', [StaffController::class, 'updateReservationStatus'])->name('staff.updateReservationStatus');
 Route::get('/staff/transactions', [StaffController::class, 'transactions'])->name('staff.transactions');
 Route::post('/staff/send-email', [StaffController::class, 'sendEmail'])->name('staff.sendEmail');
 Route::get('/staff/guests', [StaffController::class, 'guests'])->name('staff.guests');
