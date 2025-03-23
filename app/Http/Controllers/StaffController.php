@@ -6,11 +6,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use App\Models\Accomodation;
 use App\Models\Staff;
 use App\Models\Reservation;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use App\Mail\ReservationStatusUpdated;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class StaffController extends Controller
 {
@@ -90,49 +92,240 @@ class StaffController extends Controller
     }
     public function reservations()
     {
-        $reservations = DB::table('reservation_details')->orderBy('created_at', 'desc')->paginate(10);
-        return view('StaffSide.StaffReservation', compact('reservations'));  
-    }
+        $reservations = DB::table('reservation_details')
+            ->leftJoin('accomodations', 'reservation_details.accomodation_id', '=', 'accomodations.accomodation_id')
+            ->leftJoin('packagestbl', 'reservation_details.package_id', '=', 'packagestbl.id')
+            ->select(
+                'reservation_details.*',
+                'accomodations.accomodation_name',
+                'packagestbl.package_name',
+                'packagestbl.package_activities'
+            )
+            ->orderByDesc('reservation_details.created_at')
+            ->paginate(10); // Get all reservations
 
-    public function transactions()
-    {
-        $reservations = DB::table('reservation_details')->orderByDesc('created_at')->paginate(10);
-        $amounts = DB::table('reservation_details')->value('amount');
-        $pending = DB::table('reservation_details')->where('payment_status', 'pending')->orderByDesc('created_at')->paginate(10);
-        $paid = DB::table('reservation_details')->where('payment_status', 'paid')->orderByDesc('created_at')->paginate(10);
-        $booked = DB::table('reservation_details')->where('payment_status', 'booked')->orderByDesc('created_at')->paginate(10);
-        $cancelled = DB::table('reservation_details')->where('payment_status', 'cancelled')->orderByDesc('created_at')->paginate(10);
-        return view('Staffside.StaffTransaction', compact('reservations', 'pending', 'paid', 'booked', 'cancelled', 'amounts'));
-    }
-    public function UpdateStatus(Request $request, $id)
-    {
-        $request->validate([
-            'payment_status' => 'required|string',
-            'custom_message' => 'nullable|max:255'
-        ]);
+        // Process each reservation
+        foreach ($reservations as $reservation) {
+            // --- Handle Activities ---
+            $activityIds = json_decode($reservation->activity_id, true);
+            $reservation->activities = [];
 
-        $reservation = Reservation::find($id);
-
-        if ($reservation) {
-            // Update payment status
-            $reservation->payment_status = $request->payment_status;
-            
-            // I-update lang ang custom_message kung may laman
-            if (!empty($request->custom_message)) {
-                $reservation->custom_message = $request->custom_message;
+            if (is_array($activityIds) && count($activityIds) > 0) {
+                $reservation->activities = DB::table('activitiestbl')
+                    ->whereIn('id', $activityIds)
+                    ->pluck('activity_name')
+                    ->toArray();
+            } elseif (is_numeric($activityIds)) { // Single integer case
+                $reservation->activities = DB::table('activitiestbl')
+                    ->where('id', $activityIds)
+                    ->pluck('activity_name')
+                    ->toArray();
             }
 
-            // **Force save even if Laravel doesn't detect a change**
-            $reservation->setAttribute('updated_at', now());
-            $reservation->save();
+            // --- Handle Accommodations ---
+            $accommodationIds = json_decode($reservation->accomodation_id, true);
+            $reservation->accommodations = [];
 
-            Mail::to($reservation->email)->send(new ReservationStatusUpdated($reservation, $request->custom_message));
-
-            return redirect()->route('staff.transactions')->with('success', 'Payment status updated successfully!');
+            if (is_array($accommodationIds) && count($accommodationIds) > 0) {
+                $reservation->accommodations = DB::table('accomodations')
+                    ->whereIn('accomodation_id', $accommodationIds)
+                    ->pluck('accomodation_name')
+                    ->toArray();
+            } elseif (is_numeric($accommodationIds)) { // Single integer case
+                $reservation->accommodations = DB::table('accomodations')
+                    ->where('accomodation_id', $accommodationIds)
+                    ->pluck('accomodation_name')
+                    ->toArray();
+            }
         }
 
-        return redirect()->route('staff.transactions')->with('error', 'Reservation not found.');
+        // Debugging: Log the fetched details
+        \Log::info('All Reservations:', ['reservations' => $reservations]);
+
+        return view('StaffSide.StaffReservation', compact('reservations'));
     }
+
+
+    public function accomodations()
+    {
+            // Fetch all accommodations
+                $accomodations = DB::table('accomodations')->get();
+                // Compute Room Overview
+                $totalRooms = $accomodations->count();
+                $vacantRooms = $accomodations->sum('accomodation_slot');
+
+                // Adjust reservedRooms count and update available slots
+                $reservedRooms = DB::table('reservation_details')
+                    ->whereIn('payment_status', ['booked', 'paid'])
+                    ->count();
+        return view('StaffSide.StaffsideAccomodations', compact('accomodations', 'totalRooms', 'vacantRooms', 'reservedRooms'));
+    }
+
+    
+    public function editRoom(Request $request, $accomodation_id)
+    {
+        $request->validate([
+            'accomodation_image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+            'accomodation_name' => 'required|string|max:255',
+            'accomodation_type' => 'required|in:room,cottage',
+            'accomodation_capacity' => 'required|numeric|min:1',
+            'accomodation_price' => 'required|numeric|min:0',
+            'accomodation_status' => 'required|in:available,unavailable,maintenance',
+            'accomodation_slot' => 'required|numeric|min:1',
+            'accomodation_price' => 'required|numeric|min:0',
+            'accomodation_description' => 'nullable|string',
+        ]);
+
+        // Find accommodation using Eloquent
+        $accomodation = Accomodation::find($accomodation_id);
+        if (!$accomodation) {
+            return redirect()->back()->with('error', 'Accommodation not found.');
+        }
+
+        // Handle image upload
+        if ($request->hasFile('accomodation_image')) {
+            // Delete the old image if it exists
+            if ($accomodation->accomodation_image) {
+                Storage::delete('public/' . $accomodation->accomodation_image);
+            }
+
+            // Store the new image
+            $imagePath = $request->file('accomodation_image')->store('public/accomodations');
+            $accomodation->accomodation_image = str_replace('public/', '', $imagePath);
+        }
+
+        // Update other fields
+        $accomodation->accomodation_name = $request->accomodation_name;
+        $accomodation->accomodation_type = $request->accomodation_type;
+        $accomodation->accomodation_capacity = $request->accomodation_capacity;
+        $accomodation->accomodation_price = $request->accomodation_price;
+        $accomodation->accomodation_status = $request->accomodation_status;
+        $accomodation->accomodation_slot = $request->accomodation_slot;
+        $accomodation->accomodation_description = $request->accomodation_description;
+        $accomodation->save();
+
+        return redirect()->route('staff.accomodations')->with('success', 'Rooms updated successfully!');
+    }
+
+    public function bookRoom(Request $request)
+    {
+        $roomId = $request->input('room_id');
+        $room = DB::table('accomodations')->where('accomodation_id', $roomId)->first();
+
+        // Check if room is available
+        if ($room->accomodation_slot > 0) {
+            // Create the reservation
+            $reservationId = DB::table('reservation_details')->insertGetId([
+                'user_id' => Auth::id(),
+                'accomodation_id' => json_encode([$roomId]), // Store as JSON for multiple rooms
+                'reservation_check_in_date' => $request->input('check_in'),
+                'reservation_check_out_date' => $request->input('check_out'),
+                'created_at' => now(),
+            ]);
+
+            // Update the reservation status to booked
+            DB::table('reservation_details')->where('id', $reservationId)->update([
+                'payment_status' => 'booked,paid',
+            ]);
+
+            // Reduce slot only if payment status is booked
+            DB::table('accomodations')
+                ->where('accomodation_id', $roomId)
+                ->whereRaw('accomodation_slot > (SELECT COUNT(*) FROM reservation_details WHERE payment_status = "booked" AND accomodation_id = ?)', [$roomId])
+                ->decrement('accomodation_slot');
+
+            return response()->json(['success' => true, 'message' => 'Room booked successfully!']);
+        } else {
+            return response()->json(['success' => false, 'message' => 'No slots available for this room.']);
+        }
+    }
+
+    public function cancelReservation($reservationId)
+    {
+        $reservation = DB::table('reservation_details')->where('id', $reservationId)->first();
+
+        if ($reservation && in_array($reservation->payment_status, ['cancelled', 'checked_out']) && in_array($reservation->reservation_status, ['Checked-out', 'Cancelled'])) {
+            $roomIds = json_decode($reservation->accomodation_id, true);
+
+            // Increase slots for each room booked
+            DB::table('accomodations')
+                ->whereIn('accomodation_id', $roomIds)
+                ->increment('available_slots');
+
+            // Delete reservation
+            DB::table('reservation_details')->where('id', $reservationId)->delete();
+
+            return response()->json(['success' => true, 'message' => 'Reservation canceled, slot restored.']);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Reservation not found or not eligible for cancellation.']);
+    }
+
+    public function UpdateStatus(Request $request, $id)
+{
+    // Validate the input
+    $request->validate([
+        'payment_status' => 'required|string',
+        'custom_message' => 'nullable|max:255',
+        'reservation_status' => 'required|in:Upcoming,Checked-in,Checked-out,Cancelled',
+    ]);
+
+    // Find the reservation
+    $reservation = Reservation::select('reservation_details.*', 'accomodations.accomodation_id', 'accomodations.accomodation_slot', 'reservation_details.accomodation_id as booked_rooms')
+        ->leftJoin('accomodations', 'reservation_details.accomodation_id', '=', 'accomodations.accomodation_id')
+        ->findOrFail($id);
+
+    // Store old and new payment statuses
+    $oldPaymentStatus = $reservation->payment_status;
+    $newPaymentStatus = $request->payment_status;
+
+    // Update payment status
+    $reservation->payment_status = $newPaymentStatus;
+
+    // Update reservation status
+    $reservation->reservation_status = $request->reservation_status;
+
+    // Update custom message if present
+    if (!empty($request->custom_message)) {
+        $reservation->custom_message = $request->custom_message;
+    }
+
+    // Convert JSON accomodation_id to an array
+    $accomodationIds = json_decode($reservation->booked_rooms, true);
+
+    if (is_array($accomodationIds)) {
+        foreach ($accomodationIds as $accomodationId) {
+            $accomodationId = (int) $accomodationId;
+
+            // **Decrease** slot if status changes to "booked" or "paid"
+            if (in_array($newPaymentStatus, ['booked', 'paid']) && !in_array($oldPaymentStatus, ['booked', 'paid'])) {
+                DB::table('accomodations')
+                    ->where('accomodation_id', $accomodationId)
+                    ->where('accomodation_slot', '>', 0) // Prevent negative slots
+                    ->decrement('accomodation_slot');
+            }
+
+            // **Increase** slot if status changes to "Cancelled" or "Checked-out"
+            if (in_array($newPaymentStatus, ['cancelled', 'Checked-out']) && in_array($oldPaymentStatus, ['booked', 'paid'])) {
+                DB::table('accomodations')
+                    ->where('accomodation_id', $accomodationId)
+                    ->increment('accomodation_slot');
+            }
+        }
+    }
+
+    // Force save even if Laravel doesn't detect a change
+    $reservation->setAttribute('updated_at', now());
+    $reservation->save();
+
+    // Send email with reservation details
+    Mail::to($reservation->email)->send(new ReservationStatusUpdated($reservation, $request->custom_message, $reservation));
+
+    return redirect()->route('staff.reservation')->with('success', 'Payment and reservation status updated successfully!');
+}
+
+    
+
     public function checkNewReservations()
     {
         $newReservations = Reservation::whereBetween('created_at', [now()->subMinutes(5), now()])->count();
@@ -140,24 +333,29 @@ class StaffController extends Controller
         return response()->json([
             'new_reservations' => $newReservations
         ]);
-    }
-
-    public function updateReservationStatus(Request $request, $id)
+    }    
+    public function sendEmail(Request $request)
     {
-        
-        // Validate the input
         $request->validate([
-            'reservation_status' => 'required|in:Upcoming,Checked-in,Checked-out,Cancelled',
+            'email' => 'required|email',
+            'subject' => 'required|string|max:255',
+            'message' => 'required|string',
+            'reservation_id' => 'nullable|exists:reservations,id', // Validate reservation ID if provided
         ]);
 
-        // Find the reservation
-        $reservation = Reservation::findOrFail($id);
+        // Fetch reservation details if an ID is provided
+        $reservationDetails = null;
+        if ($request->has('reservation_id')) {
+            $reservationDetails = Reservation::select('reservation_details.*', 'accomodations.accomodation_name', 'accomodations.accomodation_type', 'accomodations.accomodation_capacity', 'accomodations.accomodation_price', 'accomodations.accomodation_status', 'accomodations.accomodation_slot', 'accomodations.accomodation_image', 'activities.activity_name', 'packages.package_room_type', 'packages.package_max_guests', 'packages.package_name')
+                ->leftJoin('accomodations', 'reservation_details.accomodation_id', '=', 'accomodations.accomodation_id')
+                ->leftJoin('activitiestbl AS activities', 'reservation_details.activity_id', '=', 'activities.id')
+                ->leftJoin('packagestbl AS packages', 'reservation_details.package_id', '=', 'packages.id')
+                ->findOrFail($request->reservation_id);
+        }
 
-        // Update the status
-        $reservation->reservation_status = $request->reservation_status;
-        $reservation->save();
+        // Send email with reservation details
+        Mail::to($request->email)->send(new SendEmail($request->subject, $request->message, $reservationDetails));
 
-        // Redirect back with success message
-        return redirect()->back()->with('success', 'Reservation status updated successfully!');
+        return redirect()->route('staff.reservation')->with('success', 'Email sent successfully!');
     }
 }

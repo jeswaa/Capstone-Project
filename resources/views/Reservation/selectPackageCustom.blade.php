@@ -26,12 +26,12 @@
     }
 </style>
 <body class="color-background4">
-    <div class="mt-5 ms-5 d-flex align-items-center">
-        <a href="{{ route('selectPackage') }}"><i class="fa-solid fa-circle-left fa-2x color-3 icon ms-4 icon-hover"></i></a><h1 class="font-heading ms-3 text-uppercase text-color-1">Reservation</h1>
+    <div class="d-flex align-items-center ms-5 mt-5">
+        <a href="{{ route('selectPackage') }}"><i class="color-3 fa-2x fa-circle-left fa-solid icon icon-hover ms-4"></i></a><h1 class="text-color-1 text-uppercase font-heading ms-3">Reservation</h1>
     </div>
     
     <div class="container">
-    <h1 class="font-heading fs-2 text-color-1 mt-3">Select and Customize your Package</h1>
+    <h1 class="text-color-1 font-heading fs-2 mt-3">Select and Customize your Package</h1>
         <form method="POST" action="{{ route('savePackageSelection') }}">
             @csrf
             <input type="hidden" name="package_type" value="custom">
@@ -39,8 +39,8 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label for="rentAsWhole" class="fw-semibold font-paragraph mb-3 ms-2 mt-2 text-color-1">Rent as Whole</label>
-                        <select id="rentAsWhole" name="rent_as_whole" class="form-control ms-2 w-50">
+                        <label for="rentAsWhole" class="text-color-1 font-paragraph fw-semibold mb-3 ms-2 mt-2">Rent as Whole</label>
+                        <select id="rentAsWhole" name="rent_as_whole" class="form-control w-50 ms-2">
                             <option value="" selected disabled hidden>Please select</option>
                             <option value="yes">Yes</option>
                             <option value="no">No</option>
@@ -51,41 +51,46 @@
 
             <div class="col-md-12 d-flex flex-column">
                 <div class="form-group">
-                    <label for="roomPreference" class="fw-semibold font-paragraph mb-3 ms-2 text-color-1">Room Preference</label>
+                    <label for="roomPreference" class="text-color-1 font-paragraph fw-semibold mb-3 ms-2">Room Preference</label>
                     <div class="container">
                         <div class="row">
                         @foreach($accomodations as $accomodation)
-                            <div class="col-md-3 mb-3 d-flex">
-                                <div class="rounded-4 w-100 color-background5 select-accommodation 
-                                            {{ $accomodation->accomodation_slot == 0 ? 'disabled' : '' }}" 
-                                    data-id="{{ $accomodation->accomodation_id }}" 
-                                    data-slots="{{ $accomodation->accomodation_slot }}">
+                        <div class="col-md-3 d-flex mb-3">
+                            <div class="rounded-4 w-100 color-background5 select-accommodation 
+                                        {{ $accomodation->accomodation_slot == 0 ? 'disabled' : '' }}" 
+                                data-id="{{ $accomodation->accomodation_id }}" 
+                                data-slots="{{ $accomodation->accomodation_slot }}">
 
-                                    <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" 
-                                        class="card-img-top rounded-4" 
-                                        alt="accommodation image" 
-                                        style="max-width: 100%; height: 250px; object-fit: cover;">
+                                <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" 
+                                    class="card-img-top rounded-4" 
+                                    alt="accommodation image" 
+                                    style="max-width: 100%; height: 250px; object-fit: cover;">
 
-                                    <div class="card-body p-3">
-                                        <h5 class="fs-4 font-heading fw-bold color-3 text-capitalize">
-                                            {{ $accomodation->accomodation_name }}
-                                        </h5>
-                                        <p class="card-text fs-6 font-paragraph text-capitalize">
-                                            Type: {{ $accomodation->accomodation_type }}
-                                        </p>
-                                        <p class="card-text font-paragraph">Capacity: {{ $accomodation->accomodation_capacity }}</p>
-                                        <p class="card-text font-paragraph">Available Slots: 
-                                            <span class="available-slots">{{ $accomodation->accomodation_slot }}</span>
-                                        </p>
-                                        <p class="card-text font-paragraph">Price: ₱ {{ $accomodation->accomodation_price }}</p>
+                                <div class="card-body p-3 position-relative">
+                                    <h5 class="color-3 text-capitalize font-heading fs-4 fw-bold">
+                                        {{ $accomodation->accomodation_name }}
+                                    </h5>
 
-                                        <!-- Hidden input to store selected value -->
-                                        <input type="hidden" name="accomodation_id[]" value="{{ $accomodation->accomodation_id }}" 
-                                            class="hidden-input" 
-                                            @if($accomodation->accomodation_slot == 0) disabled @endif>
-                                    </div>
+                                    <p class="text-color-1 font-paragraph" style="font-size: smaller;">Description:
+                                        {{ $accomodation->accomodation_description }}
+                                    </p>
+
+                                    <p class="card-text text-capitalize font-paragraph fs-6">
+                                        Type: {{ $accomodation->accomodation_type }}
+                                    </p>
+                                    <p class="card-text font-paragraph">Capacity: {{ $accomodation->accomodation_capacity }}</p>
+                                    <p class="card-text font-paragraph">Available Slots: 
+                                        <span class="available-slots">{{ $accomodation->accomodation_slot }}</span>
+                                    </p>
+                                    <p class="card-text font-paragraph">Price: ₱ {{ $accomodation->accomodation_price }}</p>
+
+                                    <!-- Hidden input to store selected value -->
+                                    <input type="hidden" name="accomodation_id[]" value="{{ $accomodation->accomodation_id }}" 
+                                        class="hidden-input" 
+                                        @if($accomodation->accomodation_slot == 0) disabled @endif>
                                 </div>
                             </div>
+                        </div>
                         @endforeach
                         </div>
                     </div>
@@ -93,20 +98,17 @@
             </div>
 
             <div>
-                <label for="activities" class="fw-semibold font-paragraph mt-3 ms-2 text-color-1">Activities</label>
+                <label for="activities" class="text-color-1 font-paragraph fw-semibold ms-2 mt-3">Activities</label>
                 <div class="container">
                     <div class="row">
                         @foreach($activities as $activity)
                             <div class="col-md-3 mb-3 mt-3">
-                                <div class="color-background5 rounded-3  w-100">
-                                    <img src="{{ asset('storage/' . $activity->activity_image) }}" class="img-fluid rounded mb-2" style="width: 100%; height: 200px; object-fit: cover;" alt="{{ $activity->activity_name }}">
+                                <div class="color-background5 rounded-3 w-100">
+                                    <img src="{{ asset('storage/' . $activity->activity_image) }}" class="rounded img-fluid mb-2" style="width: 100%; height: 200px; object-fit: cover;" alt="{{ $activity->activity_name }}">
                                         <div class="d-flex align-items-center ms-3">
-                                            <span class="badge bg-{{ $activity->activity_status == 'Available' ? 'success' : 'danger' }} mb-2 me-2">
-                                                {{ $activity->activity_status }}
-                                            </span>
-                                            <p class="mb-2 font-paragraph fs-5 fw-semibold color-3 text-capitalize">{{ $activity->activity_name }}</p>
+                                            <p class="color-3 text-capitalize font-paragraph fs-5 fw-semibold mb-2">{{ $activity->activity_name }}</p>
                                         </div>
-                                    <div class="form-check d-none">
+                                    <div class="d-none form-check">
                                         <input class="form-check-input" type="checkbox" id="activity{{ $activity->id }}" name="activity_id[]" value="{{ $activity->id }}" {{ old('activity_id') && in_array($activity->id, old('activity_id')) ? 'checked' : 'checked' }}>
                                         <label class="form-check-label" for="activity{{ $activity->id }}"></label>
                                     </div>
@@ -119,34 +121,38 @@
 
             <div class="row">
                 <div class="col-md-6">
+                    <label for="roomPreference" class="text-color-1 font-paragraph fw-semibold mb-3 ms-2">Number of Visitors</label>
                     <div class="form-group">
-                        <label for="number_of_adults">Number of Adults:</label>
-                        <input type="number" name="number_of_adults" id="number_of_adults" class="form-control" min="0" value="0" oninput="calculateTotalGuest()">
+                        <label for="number_of_adults">Adults (Ages 18 and above):</label>
+                        <input type="number" name="number_of_adults" id="number_of_adults" class="form-control p-2" min="0" oninput="calculateTotalGuest()">
                     </div>
                     <div class="form-group">
-                        <label for="number_of_children">Number of Children:</label>
-                        <input type="number" name="number_of_children" id="number_of_children" class="form-control" min="0" value="0" oninput="calculateTotalGuest()">
+                        <label for="number_of_children">Children (Ages 3-12):</label>
+                        <input type="number" name="number_of_children" id="number_of_children" class="form-control p-2" min="0" oninput="calculateTotalGuest()">
                     </div>
                     <div class="form-group">
-                        <label for="total_guests">Total Guests:</label>
-                        <input type="number" name="total_guest" id="total_guests" class="form-control" readonly>
+                        <label for="total_guests">Total Number of Guests: </label>
+                        <input type="number" name="total_guest" id="total_guests" class="form-control p-2" readonly>
                     </div>
                 </div>
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
-                        <h1 for="time" class="fw-semibold font-paragraph mt-3 ms-2 text-color-1 fs-6 mb-4">Time</h1>
+                        <h1 for="time" class="text-color-1 font-paragraph fs-6 fw-semibold mb-4 ms-2 mt-3">Time</h1>
                         <label for="check_in">Check-in Time</label>
                         <input type="time" id="check_in" name="reservation_check_in" class="form-control" value="08:00">
                         <label for="check_out">Check-out Time</label>
                         <input type="time" id="check_out" name="reservation_check_out" class="form-control mb-4" value="12:00">
                     </div>
                 </div>
+                @php
+                    $selectedDate = request()->query('date', ''); // Kunin ang date sa URL
+                @endphp
                 <div class="col-md-6">
                     <div class="form-group">
-                        <h1 class="fw-semibold font-paragraph mt-3 ms-2 mb-4 text-color-1 fs-6">Choose Date</h1>
+                        <h1 class="text-color-1 font-paragraph fs-6 fw-semibold mb-4 ms-2 mt-3">Choose Date</h1>
                         <label for="date">Start Date</label>
-                        <input type="date" id="date" name="reservation_check_in_date" class="form-control" min="{{ now()->addDay()->toDateString() }}">
+                        <input type="date" id="reservation_date" name="reservation_date" value="{{ $selectedDate }}" class="form-control" required>
                     </div>
                     <div class="form-group">
                         <label for="date">End Date</label>
@@ -166,7 +172,7 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="form-group">
-                        <button type="submit" class="color-background5 w-100 border-0 p-2 rounded-3 mt-2 mb-5 font-paragraph text-hover-1 fw-bold text-color-1">Save and Continue</button>
+                        <button type="submit" class="color-background5 border-0 p-2 rounded-3 text-color-1 text-hover-1 w-100 font-paragraph fw-bold mb-5 mt-2">Save and Continue</button>
                     </div>
                 </div>
             </div>
@@ -248,6 +254,9 @@
     // Attach event listeners for guest count changes
     document.getElementById("number_of_adults").addEventListener("input", calculateTotalGuest);
     document.getElementById("number_of_children").addEventListener("input", calculateTotalGuest);
+</script>
+<script>
+    console.log("Selected Date:", "{{ $selectedDate }}");
 </script>
 
 </body>
