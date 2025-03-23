@@ -86,7 +86,7 @@
                                     <i class="fas fa-chevron-right" style="color: #0b573d; transform: translateX(0);"></i>
                                 </span>
                             </a>
-                        </div>[]
+                        </div>
                     </div>
                 </div>
             </div>
