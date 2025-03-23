@@ -86,7 +86,7 @@
                                     <i class="fas fa-chevron-right" style="color: #0b573d; transform: translateX(0);"></i>
                                 </span>
                             </a>
-                        </div>[]
+                        </div>
                     </div>
                 </div>
             </div>
@@ -183,7 +183,6 @@
     </section>
 
     <!-- Third Page -->
-    <section class="vh-100 d-flex flex-column justify-content-center align-items-center" style="background: url('{{ asset('images/RWAR.png') }}') no-repeat center / cover;">
     <section>
 
     </section>
@@ -271,5 +270,6 @@
         </div>
     </footer>
 
+        
 </body>
 </html> 

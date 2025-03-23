@@ -6,19 +6,31 @@
     <title>Login - Lelo's Resort</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&family=Poppins:wght@100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css">
-    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         body {
-            overflow: hidden; /* Prevent content from cutting off */
+        background: url("{{ asset('images/logosheesh.png') }}") no-repeat center center fixed;
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+        position: relative;
         }
+        
+        body::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 20vh; /* Adjust height as needed */
+            background: linear-gradient(to top, rgba(0, 93, 59, 0.8), transparent); /* Dark green smoke effect */
+            pointer-events: none;
+        }
+
         .login-form {
             width: 100vw;
             height: 80vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
         .login-center {
             margin: 0 auto;
@@ -26,8 +38,6 @@
         .login-img {
             height: 95vh;
             object-position: center;
-            opacity: 0; /* Hide initially for smooth animation */
-            transition: opacity 1s ease-in-out;
         }
         .text-hover-effect {
             background: linear-gradient(to right, currentColor 100%, transparent 100%);
@@ -36,16 +46,16 @@
             background-repeat: no-repeat;
             background-position: 0% 100%;
             transition: background-size 0.4s ease-in-out;
-        }
-        .text-hover-effect:hover {
-            background-size: 100% 2px;
+            &:hover {
+                background-size: 100% 2px;
+            }
         }
         .google:hover {
            background-color: #4a4a4a;
            color: #fff;
            transition: all 0.3s ease-in-out;
         }
-        .login:hover {
+        .login:hover{
             color: #718355;
             background-color: #e5f9db;
             transition: all 0.3s ease-in-out;
@@ -54,108 +64,98 @@
             color: #4a4a4a;
             transition: all 0.3s ease-in-out;
         }
-        .form-control {
+
+        .login-button {
+            background-color: #0B5D3B; /* Dark Green */
+            color: white;
+            font-weight: bold;
+            font-size: 0.8rem;
+            padding: 5px 10px;
             border: none;
-            border-radius: 0;
-            background-color: #f5f5f5;
-            padding: 1rem;
-            transition: background-color 0.3s ease-in-out;
+            border-radius: 50px; /* Makes it pill-shaped */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 150px; /* Adjust width as needed */
+            cursor: pointer;
+            margin: 0 auto;
         }
-        .form-control:focus {
-            background-color: #e5f9db;
-            outline: none;
+
+        .login-button .arrow {
+            background-color: white;
+            color: #0B5D3B;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 5px;
+            font-size: .7rem;
         }
-        .btn-login {
-            background-color: #718355;
-            color: #fff;
-            border: none;
-            padding: 1rem 2rem;
-            border-radius: 0;
-            transition: background-color 0.3s ease-in-out;
-        }
-        .btn-login:hover {
-            background-color: #4a4a4a;
-            color: #fff;
-            transition: all 0.3s ease-in-out;
-        }
+
     </style>
 </head>
-<body class="color-background5 d-flex justify-content-center align-items-center">
-    @if ($errors->any())
-        <div class="position-absolute top-0 end-0 translate-middle-x mt-5 w-auto alert alert-danger alert-dismissible fade show" role="alert">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-    @if (session('success'))
-        <div class="position-absolute top-0 start-50 translate-middle-x mt-5 w-auto alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-    <div class="d-flex justify-content-center align-items-center vh-100">
-    <div class="container">
-        <div class="row justify-content-between align-items-center">
+<body>
+<div class="position-absolute top-0 start-0 mt-5 ms-5">
+    <a href="{{ url('/') }}" class="d-flex align-items-center justify-content-center rounded-circle shadow"
+       style="width: 45px; height: 45px; background-color: #0B5D3B; text-decoration: none;">
+        <i class="fa-solid fa-arrow-left text-white fs-4"></i>
+    </a>
+</div>
+
+    <div class="position-absolute top-0 end-0 mt-3 me-5">
+        <a href="{{ url('/') }}" class="text-decoration-none">
+            <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="120" class="rounded-pill">
+        </a>
+    </div>
+<div class="d-flex justify-content-center align-items-center vh-100">
+    <div class="container p-4 shadow-lg rounded-4 bg-white" style="max-width: 1000px;">
+        <div class="row align-items-center">
             
             <!-- Left Side: Login Form -->
-            <div class="col-lg-6 d-flex flex-column align-items-center">
-                
-                <!-- Back Button & Title -->
-                <div class="d-flex align-items-center w-100 mb-3 mt-n3"> <!-- Adjusted margin for higher placement -->
-                    <a href="{{ route('landingpage') }}" class="me-3">
-                        <i class="fa-solid fa-circle-left fa-xl color-3 icon-hover fs-2"></i> <!-- Reduced icon size -->
-                    </a>
-                    <h1 class="text-color-1 font-paragraph mx-auto fs-2 text-center">Welcome to Lelo's Resort</h1> <!-- Reduced font size -->
+            <div class="col-md-6">
+                <div class="d-flex align-items-center w-100 mb-3">
+                    <h1 class="text-success font-paragraph mx-auto fs-4 text-center fw-bold">Welcome to Lelo's Resort</h1>
                 </div>
 
-                <!-- Login Form -->
-                <form action="{{ route('login.authenticate') }}" method="POST" class="w-100">
+                <form action="{{ route('login.authenticate') }}" method="POST">
                     @csrf
-                    <div class="mb-5 mt-5"> 
-                        <input type="email" class="form-control @error('email') is-invalid @enderror p-3 mb-3" 
-                            name="email" placeholder="Email..." required>
+                    <div class="mb-4">
+                        <input type="email" class="form-control @error('email') is-invalid @enderror p-3" 
+                               name="email" placeholder="Email..." required>
                         @error('email')
                             <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
-                        @else
-                            @if(session()->has('error'))
-                                <span class="invalid-feedback"><strong>{{ session()->get('error') }}</strong></span>
-                            @endif
                         @enderror
                     </div>
 
-                    <div class="mb-4 mt-4">
-                        <input type="password" class="form-control  @error('password') is-invalid @enderror p-3" 
+                    <div class="mb-4">
+                        <input type="password" class="form-control @error('password') is-invalid @enderror p-3" 
                                name="password" placeholder="Password..." required>
                         @error('password')
                             <div class="invalid-feedback"><strong>{{ $message }}</strong></div>
-                        @else
-                            @if(session()->has('error'))
-                                <div class="invalid-feedback"><strong>{{ session()->get('error') }}</strong></div>
-                            @endif
                         @enderror
                     </div>
 
-                    <!-- Forgot Password -->
                     <div class="text-end">
                         <a data-bs-toggle="modal" data-bs-target="#forgotPasswordModal" 
                            class="text-decoration-none text-color-1 font-paragraph text-underline-left-to-right"
                            style="cursor: pointer; font-size: 0.85rem;">Forgot Password?</a>
                     </div>
 
-                    <!-- Login Button -->
-                    <button type="submit" class="mb-2 mt-3 border-0 p-3 text-hover-1 rounded-4 color-background6 w-100 font-paragraph fw-bold color-3">
-                        LOGIN
+                    <button type="submit" class="login-button d-flex align-items-center justify-content-center">
+                        LOG IN 
+                        <span class="arrow d-flex align-items-center justify-content-center rounded-circle" style="width: 20px; height: 20px; margin-left: 10px;">
+                            &rsaquo;
+                        </span>
                     </button>
+
 
                     <div class="form-check text-start mt-3">
                         <input class="form-check-input" type="checkbox" id="agreeTerms" required>
-                        <label class="form-check-label text-color-1 font-paragraph" for="agreeTerms" style="font-size: 0.9rem; color: #555;">
+                        <label class="form-check-label text-color-1 font-paragraph" for="agreeTerms" style="font-size: 0.9rem;">
                             I agree to the  
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#privacyPolicyModal" class="font-paragraph fs-6 text-decoration-none text-color-1 fw-semibold text-underline-left-to-right">Privacy Policy</a>
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#privacyPolicyModal" class="font-paragraph text-decoration-none text-color-1 fw-semibold text-underline-left-to-right">Privacy Policy</a>
                         </label>
                     </div>
 
@@ -175,16 +175,11 @@
                         </div>
                     </div>
 
-
-                    <!-- Signup Link -->
                     <p class="text-center mt-2 text-color-1 font-paragraph" style="font-size: 0.85rem;">
                         Don't have an account? 
                         <a href="{{ route('signup') }}" class="text-color-1 ms-1 text-decoration-none text-hover-effect">Sign Up</a>
                     </p>
 
-                    <hr>
-
-                    <!-- Google Login -->
                     <a href="{{ route('google.redirect') }}" class="color-3 font-paragraph text-decoration-none fw-bold">
                         <div class="d-flex justify-content-center align-items-center color-background6 p-3 rounded-4 google"
                              style="font-size: 0.9rem;">
@@ -193,18 +188,15 @@
                         </div>
                     </a>
                 </form>
-            </div>  
-
-            <!-- Right Side: Image (Visible on Large Screens) -->
-            <div class="col-lg-6 d-none d-lg-flex align-items-center justify-content-center">
-                <img src="{{ asset('images/DSCF2819.JPG') }}" alt="Signup Image" class="img-fluid rounded-4 ms-5" 
-                     style="max-width: 100%; height: 90vh; object-fit: cover;">
             </div>
 
+            <!-- Right Side: Image -->
+            <div class="col-md-6 d-none d-md-block">
+                <img src="{{ asset('images/labasneto.jpg') }}" alt="Login Image" class="img-fluid rounded-4" style="height: 65vh;">
+            </div>
         </div>
     </div>
 </div>
-
 
 
 
@@ -253,54 +245,6 @@
                     </button>
                 </form>
             </div>
-<body class="color-background5 d-flex justify-content-center align-items-center" onload="AOS.init();">
-        <div class="position-absolute top-0 start-0 mt-5 ms-5">
-            <a href="{{ route('landingpage') }}"><i class="fa-solid fa-circle-left fa-2x color-3 icon"></i></a>
-        </div>
-    <div class="login-center login-form d-flex justify-content-center align-items-center">
-        <div class="w-50" data-aos="fade-right" data-aos-duration="1000" data-aos-once="true" data-aos-delay="100">
-            <h1 class="text-color-1 mt-3 font-heading fs-4 text-center">Welcome to Lelo's Resort</h1>
-            <form action="{{ route('login.authenticate') }}" method="POST">
-                @csrf
-                <div class="mb-3 mt-3">
-                    <label for="email" class="form-label text-color-1"></label>
-                    <input type="email" class="form-control p-2 @error('email') is-invalid @enderror" id="email" name="email" placeholder="Email..." required>
-                    @error('email')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                    @else
-                        @if(session()->has('error'))
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ session()->get('error') }}</strong>
-                            </span>
-                        @endif
-                    @enderror
-                </div>
-                <div class="mb-3">
-                    <label for="password" class="form-label text-color-1"></label>
-                    <input type="password" class="form-control p-2 @error('password') is-invalid @enderror" id="password" name="password" placeholder="Password..." required>
-                    @error('password')
-                        <div class="invalid-feedback">
-                            <strong>{{ $message }}</strong>
-                        </div>
-                    @else
-                        @if(session()->has('error'))
-                            <div class="invalid-feedback ">
-                                <strong>{{ session()->get('error') }}</strong>
-                            </div>
-                        @endif
-                    @enderror
-                </div>
-                <button type="submit" class="mb-3 mt-4 border-0 p-2 rounded-4 color-background6 w-100 font-paragraph fw-bold color-3 btn-login" data-aos="fade-up" data-aos-duration="1000" data-aos-once="true" data-aos-delay="200">LOGIN</button>
-                <p class="text-center mt-3 text-color-1 font-paragraph" data-aos="fade-up" data-aos-duration="1000" data-aos-once="true" data-aos-delay="300">Don't have an account?<a href="{{ route('signup') }}" class="font-paragraph text-color-1 ms-3 text-decoration-none text-hover-effect">Sign Up</a></p>
-               <hr>
-               <a href="{{ route('google.redirect') }}" class="color-3 font-paragraph text-decoration-none fw-bold" data-aos="fade-up" data-aos-duration="1000" data-aos-once="true" data-aos-delay="400">
-                    <div class="d-flex justify-content-center w-100 color-background6 p-2 rounded-4 google">
-                            <img src="{{ asset('images/google.png') }}" alt="" width="20" height="20" class="me-2"> Sign up using Google
-                    </div>
-                </a>
-            </form>
         </div>
     </div>
 </div>
@@ -400,8 +344,5 @@
         });
     }
 </script>
-
-
 </body>
 </html>
-

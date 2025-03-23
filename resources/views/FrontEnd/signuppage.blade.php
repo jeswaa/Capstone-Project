@@ -8,144 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])        
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-
-    <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-        }
-
-        .background-color {
-            background-color: #b5c99a;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .signup-container {
-            width: 100%;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #b5c99a;
-            opacity: 0;
-            animation: fadeIn 1.5s ease-in-out forwards;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .signup-form {
-            flex: 1;
-            padding: 20px;
-            max-width: 50%;
-            animation: slideInLeft 1s ease-in-out;
-        }
-
-        .image-container {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-            animation: slideInRight 1s ease-in-out;
-        }
-
-        @keyframes slideInLeft {
-            from { opacity: 0; transform: translateX(-50px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        @keyframes slideInRight {
-            from { opacity: 0; transform: translateX(50px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        .image-container img {
-            width: 100%;
-            height: 90%;
-            margin-right: 35px;
-            object-fit: cover;
-            border-radius: 50px;
-            transition: transform 0.5s ease-in-out;
-        }
-
-        .image-container img:hover {
-            transform: scale(1.05);
-        }
-
-        .btn-custom {
-            background-color: #61704A !important;
-            border: none !important;
-            margin-top: 20px !important;
-            color: white !important;
-            padding: 0.75rem !important;
-            border-radius: 20px !important;
-            font-weight: 500 !important;
-            display: block;
-            margin-left: 12%;
-            transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
-        }
-
-        .btn-custom:hover {
-            background-color: #53633D !important;
-            color: white !important;
-            transform: scale(1.05);
-        }
-
-        .signup-form .form-control {
-            background-color: #97A97C !important;
-            color: #333 !important;
-            border: 0 !important;
-            border-radius: 20px !important;
-            padding: 10px !important;
-            width: 75% !important;
-            transition: transform 0.3s ease-in-out, background-color 0.3s ease-in-out;
-        }
-
-        .signup-form .form-control:focus {
-            background-color: #fff !important;
-            border-color: #53633D !important;
-            box-shadow: 0 0 5px rgba(81, 102, 57, 0.5) !important;
-            transform: scale(1.05);
-        }
-
-        .back-arrow {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            cursor: pointer;
-            animation: bounce 2s infinite;
-        }
-
-        .back-arrow i {
-            font-size: 2rem;        
-            display: inline-block;
-        }
-
-        .signup-form h1 {
-            text-align: center;
-            opacity: 0;
-            animation: fadeInText 1.5s ease-in-out forwards 0.5s;
-        }
-
-        @keyframes fadeInText {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .mb-3 {
-            display: flex;
-            justify-content: center;
-        }
-    </style>
 </head>
 <body class="color-background4">
     @if (session('success'))
@@ -210,34 +72,6 @@
         </div>
     </div>
 </div>
-    @if (session('success'))
-        <div class="alert alert-success mt-3">
-            {{ session('success') }}
-        </div>
-    @endif
-    <div class="signup-container">
-<div class="position-absolute top-0 start-0 mt-4 ms-4">
-    <a href="{{ route('login') }}" class="back-arrow">
-        <i class="fa-solid fa-circle-left fa-2x" style="color: #f5f5f5;"></i>
-    </a>
-</div>
-
-        <div class="signup-form">
-            <h1 class="text-color-1 mb-3">Create an Account</h1>
-            <form action="{{ route('signup.store') }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                <div class="mb-3">
-                    <label for="name" class="form-label text-color-1 font-paragraph"></label>
-                    <input type="text" class="form-control font-paragraph mt-4" id="name" name="name" placeholder="Full Name..." required>
-                </div>
-                <div class="mb-3">
-                    <label for="address" class="form-label text-color-1 font-paragraph"></label>
-                    <input type="text" class="form-control font-paragraph" id="address" name="address" placeholder="Address..." required>
-                </div>
-                <div class="mb-3">
-                    <label for="image" class="form-label text-color-1 font-paragraph fw-bold"></label>
-                    <input class="form-control" type="file" id="image" name="image" accept="image/*" required>
-                </div>
 
 <!-- OTP Verification Modal -->
 <div class="modal fade" id="otpModal" tabindex="-1" aria-labelledby="otpModalLabel" aria-hidden="true">
@@ -254,11 +88,6 @@
             <div class="modal-footer">
                 <button type="button" id="verify-otp" class="btn btn-primary">Verify OTP</button>
             </div>
-                <button type="submit" class="btn btn-custom w-75 btn-custom">SIGNUP</button>
-            </form>
-        </div>
-        <div class="image-container">
-            <img src="{{ asset('images/DSCF2819.jpg') }}" alt="Resort Image">
         </div>
     </div>
 </div>
