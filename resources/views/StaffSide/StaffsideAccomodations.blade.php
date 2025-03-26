@@ -36,34 +36,61 @@
                         
                     </div>
                 </div>
-                <h1 class="text-color-1 font-paragraph fs-1 fw-bold ms-4 mt-3">Rooms</h1>
-                <div class="d-flex justify-content-end">
-                    <button type="button" class="color-background4 border-0 p-3 rounded-3 text-capitalize text-hover-1 w-25 font-paragraph fw-bold mb-3 me-3 mt-3" data-bs-toggle="modal" data-bs-target="#addRoomModal">
-                        Add Room
-                    </button>
+                <h1 class="text-color-1 text-uppercase font-paragraph fs-1 fw-bold ms-5 mt-5">Room Overview</h1>
+                <div class="container p-4 mt-4">
+                    <h2 class="text-center mb-4"></h2>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card bg-primary text-white mb-3">
+                                <div class="card-header">Total Rooms</div>
+                                <div class="card-body">
+                                    <h5 class="card-title" id="totalRooms">{{ $totalRooms }}</h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-success text-white mb-3">
+                                <div class="card-header">Vacant Rooms</div>
+                                <div class="card-body">
+                                    <h5 class="card-title" id="vacantRooms">{{ $vacantRooms }}</h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-danger text-white mb-3">
+                                <div class="card-header">Reserved Rooms</div>
+                                <div class="card-body">
+                                    <h5 class="card-title" id="reservedRooms">{{ $reservedRooms }}</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="container-custom p-3">
+
+                <div class="container-custom p-5">
                     <table class="table">
                         <thead>
                             <tr>
+                                <th>Room ID</th>
                                 <th>Room Image</th>
-                                <th>Room Type</th>
+                                <th>Room Name</th>
+                                <th>Room Description</th>
                                 <th>Price</th>
                                 <th>Capacity</th>
                                 <th>Availability</th>
-                                <th>Slot</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($accomodations as $accomodation)
                                 <tr>
+                                    <td>{{ $accomodation->room_id}}</td>
                                     <td><img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" alt="Room Image" width="50" height="50"></td>
                                     <td>{{ $accomodation->accomodation_name }}</td>
+                                    <td>{{ $accomodation->accomodation_description }}</td>
                                     <td>{{ $accomodation->accomodation_price }}</td>
                                     <td>{{ $accomodation->accomodation_capacity }}</td>
                                     <td>{{ $accomodation->accomodation_status }}</td>
-                                    <td>{{ $accomodation->accomodation_slot }}</td>
                                     <td>
                                     <a href="#" class="btn btn-warning text-white" data-bs-toggle="modal" data-bs-target="#editRoomModal{{ $accomodation->accomodation_id }}">
                                         <i class="fa-pen-to-square fa-solid"></i>
@@ -93,6 +120,10 @@
                                                     <div class="mb-3">
                                                         <label for="editRoomName{{ $accomodation->accomodation_id }}" class="form-label">Name</label>
                                                         <input type="text" class="form-control" id="editRoomName{{ $accomodation->accomodation_id }}" name="accomodation_name" required value="{{ $accomodation->accomodation_name }}">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="editRoomDescription{{ $accomodation->accomodation_id }}" class="form-label">Description</label>
+                                                        <textarea class="form-control" id="editRoomDescription{{ $accomodation->accomodation_id }}" name="accomodation_description" rows="3">{{ $accomodation->accomodation_description }}</textarea>
                                                     </div>
                                                     <div class="mb-3">
                                                         <label for="editRoomType{{ $accomodation->accomodation_id }}" class="form-label">Type</label>
@@ -137,62 +168,6 @@
             </div>
         </div>
     </div>
-<!-- Add Room Modal -->
-<div class="modal fade" id="addRoomModal" tabindex="-1" aria-labelledby="addRoomModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="addRoomModalLabel">Add Room</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form method="POST" action="{{ route('staff.addRoom') }}" enctype="multipart/form-data">
-                    @csrf
-                    <div class="mb-3">
-                        <label for="addRoomImage" class="form-label">Image</label>
-                        <input type="file" class="form-control" id="addRoomImage" name="accomodation_image" accept="image/*" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="addRoomName" class="form-label">Name</label>
-                        <input type="text" class="form-control" id="addRoomName" name="accomodation_name" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="addRoomType" class="form-label">Type</label>
-                        <select class="form-select" id="addRoomType" name="accomodation_type" required>
-                            <option value="" selected disabled>Select Type</option>
-                            <option value="room">Room</option>
-                            <option value="cottage">Cottage</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="addRoomCapacity" class="form-label">Capacity</label>
-                        <input type="number" class="form-control" id="addRoomCapacity" name="accomodation_capacity" min="1" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="addRoomPrice" class="form-label">Price</label>
-                        <input type="number" class="form-control" id="addRoomPrice" name="accomodation_price" min="0" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="addRoomStatus" class="form-label">Status</label>
-                        <select class="form-select" id="addRoomStatus" name="accomodation_status" required>
-                            <option value="" selected disabled>Select Status</option>
-                            <option value="available">Available</option>
-                            <option value="unavailable">Not Available</option>
-                            <option value="maintenance">Under Maintenance</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="addRoomSlot" class="form-label">Slot</label>
-                        <input type="number" class="form-control" id="addRoomSlot" name="accomodation_slot" min="1" required>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">Add Room</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
 <script>
     const addRoomButton = document.querySelector(".btn-primary.w-25");
     if (addRoomButton) {

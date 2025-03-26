@@ -79,7 +79,7 @@
                             <p><strong>Room Type:</strong>
                                 
                                     @if(!empty($reservationDetails->package_room_type))
-                                        {{ $reservationDetails->package_room_type }}    
+                                    <td>{{ DB::table('accomodations')->where('accomodation_id', $reservationDetails->package_room_type)->value('accomodation_name') }}</td>
                                     @endif
                                     @foreach($accommodations as $acocomodation)
                                         {{ $acocomodation }}
@@ -98,7 +98,7 @@
                             <p><strong>Reservation Date:</strong> {{ $reservationDetails->reservation_check_in_date }}</p>
                             <p><strong>Check-in Time:</strong> {{ $reservationDetails->reservation_check_in }}</p>
                             <p><strong>Check-out Time:</strong> {{ $reservationDetails->reservation_check_out }}</p>
-                            <p><strong>Special Request:</strong> {{ $reservationDetails->special_request }}</p>
+                            <p><strong>Special Request:</strong> {{ $reservationDetails->special_request ?? 'No special request' }}</p>
                             <p><strong>Payment Method:</strong> {{ $reservationDetails->payment_method }}</p>
                             <p><strong>Amount:</strong> {{ $reservationDetails->amount }}</p>
                             <p><strong>Reference Number:</strong> {{ $reservationDetails->reference_num }}</p>
@@ -151,19 +151,47 @@
 
 <script>
     function generateQRCode() {
-        let email = '{{ $reservationDetails->email ?? '' }}'; // Get email instead of ID
-        if (!email) {
-            alert('No reservation email available!');
+        let reservationId = '{{ $reservationDetails->id ?? '' }}'; // Get email instead of ID
+        let name = '{{ $reservationDetails->name ?? '' }}';
+        let email = '{{ $reservationDetails->email ?? '' }}';
+        let totalGuest = '{{ !empty($reservationDetails->total_guest) ? $reservationDetails->total_guest : $reservationDetails->package_max_guest ?? '' }}';
+        let package = '{{ $reservationDetails->package_name ?? 'N/A' }}';
+        let roomType = '';
+
+        @if(!empty($reservationDetails->package_room_type))
+            roomType = '{{ DB::table('accomodations')->where('accomodation_id', $reservationDetails->package_room_type)->value('accomodation_name') }}';
+        @else
+            roomType = '{{ implode(", ", $accommodations) }}';
+        @endif
+        let reservationCheckInDate = '{{ $reservationDetails->reservation_check_in_date ?? '' }}';
+        let reservationCheckIn = '{{ $reservationDetails->reservation_check_in ?? '' }}';
+        let reservationCheckOut = '{{ $reservationDetails->reservation_check_out ?? '' }}';
+        let specialRequest = '{{ $reservationDetails->special_request ?? '' }}';
+        let paymentMethod = '{{ $reservationDetails->payment_method ?? '' }}';
+        let amount = '{{ $reservationDetails->amount ?? '' }}';
+
+        if (!reservationId) {
+            alert('No reservation ID available!');
             return;
         }
 
         // Use Laravel-generated URL with email
-        let summaryUrl = '{{ route("reservation.summary", ":email") }}'.replace(':email', encodeURIComponent(email));
+        let summaryUrl = '{{ route("reservation.summary", ":id") }}'.replace(':id', encodeURIComponent(reservationId));
 
         // Generate QR Code
         let qr = new QRious({
             element: document.getElementById('qr-code'),
-            value: summaryUrl,
+            value: `
+                Name: ${name}
+                Email: ${email}
+                Total Guest: ${totalGuest}
+                Package: ${package}
+                Room Type: ${roomType}
+                Reservation Date: ${reservationCheckInDate}
+                Check-in Time: ${reservationCheckIn}
+                Check-out Time: ${reservationCheckOut}
+                Amount: ${amount}
+            `,
             size: 300
         });
 
@@ -177,7 +205,6 @@
         // Show the download button
         document.getElementById('download-qr').style.display = 'inline-block';
     }
-
     function downloadQRCode() {
         let canvas = document.getElementById('qr-code');
         let link = document.createElement('a');

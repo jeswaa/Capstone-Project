@@ -33,17 +33,13 @@
                             <span class="sidebar-text">Reservations</span>
                         </a>
                         <ul class="dropdown-menu w-100" aria-labelledby="reservations-link">
-                            <li><a class="dropdown-item w-100" href="{{ route('staff.reservation') }}">All Reservations</a></li>
+                            <li><a class="dropdown-item w-100" href="{{ route('staff.reservation') }}">Reservations</a></li>
                             <li><a class="dropdown-item w-100" href="{{ route('staff.accomodations')}}">Room Availability</a></li>
                         </ul>
                     </div>
                     <a href="{{ route ('staff.guests')}}" class="color-3 d-flex align-items-center p-4 rounded-md text-decoration-none text-hoverStaff font-paragraph fw-semibold hover:color-background1 mt-2" id="guests-link">
                         <i class="fa-users fas fs-4 pe-3"></i> <!-- Icon for Guests -->
                         <span class="sidebar-text">Guests</span>
-                    </a>
-                    <a href="{{ route('staff.transactions') }}" class="color-3 d-flex align-items-center p-4 rounded-md text-decoration-none text-hoverStaff font-paragraph fw-semibold hover:color-background1 mt-2" id="transactions-link">
-                        <i class="fa-credit-card fas fs-4 pe-3"></i> <!-- Icon for Transactions -->
-                        <span class="sidebar-text">Transactions</span>
                     </a>
                     </a>
                     <a href="{{ route('staff.logout')}}" class="color-3 d-flex align-items-center p-4 rounded-md text-decoration-none text-hoverStaff font-paragraph fw-semibold hover:color-background1 mt-2" id="logout-link">

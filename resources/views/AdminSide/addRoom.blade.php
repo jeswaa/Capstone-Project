@@ -18,16 +18,16 @@
     }
 }
 </style>
-@if (session('error'))
-    <div class="alert alert-danger position-absolute top-0 start-100 translate-middle-x d-flex align-items-center" style="animation: fadeOut 1s forwards;">
-        {{ session('error') }}
+@if ($errors->any())
+    <div class="alert alert-danger">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
     </div>
 @endif
-@if (session('error'))
-    <div class="alert alert-danger position-absolute top-0 start-100 translate-middle-x d-flex align-items-center" style="animation: fadeOut 1s forwards;">
-        {{ session('error') }}
-    </div>
-@endif
+
 @if (session('success'))
     <div class="alert alert-success position-absolute top-0 start-100 translate-middle-x d-flex align-items-center" style="animation: fadeOut 1s forwards;">
         {{ session('success') }}
@@ -87,6 +87,17 @@
 
                     <hr>
 
+                    <div class="mb-3">
+                        <label for="roomTypeFilter" class="form-label">Filter by Room Type:</label>
+                        <select class="form-select w-25" id="roomTypeFilter">
+                            <option value="all">All</option>
+                            <option value="room">Room</option>
+                            <option value="cottage">Cottage</option>
+                            <option value="cabin">Cabin Room</option>
+                        </select>
+                    </div>
+
+
                     <div class="mt-5">
                         <div class="d-flex align-items-end">
                             <h1><a href="{{ route('rooms') }}" class="fs-5 text-decoration-none font-paragraph text-color-1 mb-1 fw-bold text-underline-left-to-right">Rooms</a></h1>
@@ -100,28 +111,30 @@
                         <table class="table table-striped">
                             <thead>
                                 <tr>
+                                    <th scope="col">Room ID</th>
                                     <th scope="col">Room Image</th>
                                     <th scope="col">Room Name</th>
                                     <th scope="col">Room Type</th>
+                                    <th scope="col">Description</th>
                                     <th scope="col">Room Capacity</th>
                                     <th scope="col">Price</th>
                                     <th scope="col">Status</th>
-                                    <th scope="col">Slot</th>
                                     <th scope="col">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach ($accomodations as $accomodation)
                                 <tr>
+                                    <td>{{$accomodation->room_id}}</td>
                                     <td> 
                                     <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" alt="Accommodation Image" width="100" height="100">
                                     </td>
                                     <td>{{ $accomodation->accomodation_name }}</td>
                                     <td>{{ $accomodation->accomodation_type }}</td>
+                                    <td>{{ $accomodation->accomodation_description}}</td>
                                     <td>{{ $accomodation->accomodation_capacity }}</td>
                                     <td>{{ $accomodation->accomodation_price }}</td>
                                     <td>{{ $accomodation->accomodation_status }}</td>
-                                    <td>{{ $accomodation->accomodation_slot }}</td>
                                     <td>
                                         <a href="#" class="text-warning mx-2 edit-room-btn" data-bs-toggle="modal" data-bs-target="#editRoomModal{{ $accomodation->accomodation_id }}">
                                             <i class="fa-solid fa-pen-to-square"></i>
@@ -149,6 +162,10 @@
                                                     @method('PUT')
                                                     <input type="hidden" id="editRoomId" name="room_id" value="{{ $accomodation->accomodation_id }}">
                                                     <div class="mb-3">
+                                                        <label for="editRoomId{{ $accomodation->accomodation_id }}" class="form-label">Room ID</label>
+                                                        <input type="text" class="form-control" id="editRoomId{{ $accomodation->accomodation_id }}" name="room_id" required value="{{ $accomodation->room_id }}">
+                                                    </div>
+                                                    <div class="mb-3">
                                                         <label for="editRoomImage{{ $accomodation->accomodation_id }}" class="form-label">Image</label>
                                                         <input type="file" class="form-control" id="editRoomImage{{ $accomodation->accomodation_id }}" name="accomodation_image" accept="image/*" onchange="previewImage(event, 'preview{{ $accomodation->accomodation_id }}')">
                                                         <img id="preview{{ $accomodation->accomodation_id }}" src="{{ asset('storage/' . $accomodation->accomodation_image) }}" alt="Preview" width="100" height="100">
@@ -165,6 +182,10 @@
                                                         </select>
                                                     </div>
                                                     <div class="mb-3">
+                                                        <label for="editRoomDescription{{ $accomodation->accomodation_id }}" class="form-label">Description</label>
+                                                        <textarea class="form-control" id="editRoomDescription{{ $accomodation->accomodation_id }}" name="accomodation_description" rows="3">{{ $accomodation->accomodation_description }}</textarea>
+                                                    </div>
+                                                    <div class="mb-3">
                                                         <label for="editRoomCapacity{{ $accomodation->accomodation_id }}" class="form-label">Capacity</label>
                                                         <input type="number" class="form-control" id="editRoomCapacity{{ $accomodation->accomodation_id }}" name="accomodation_capacity" min="1" required value="{{ $accomodation->accomodation_capacity }}">
                                                     </div>
@@ -178,10 +199,6 @@
                                                             <option value="available" {{ $accomodation->accomodation_status == 'available' ? 'selected' : '' }}>Available</option>
                                                             <option value="unavailable" {{ $accomodation->accomodation_status == 'unavailable' ? 'selected' : '' }}>Not Available</option>
                                                         </select>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label for="editRoomSlot{{ $accomodation->accomodation_id }}" class="form-label">Slot</label>
-                                                        <input type="number" class="form-control" id="editRoomSlot{{ $accomodation->accomodation_id }}" name="accomodation_slot" min="1" required value="{{ $accomodation->accomodation_slot }}">
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="submit" class="btn btn-primary">Save Changes</button>
@@ -222,6 +239,10 @@
                             @endif
                         </div>
                         <div class="mb-3">
+                            <label for="accomodationId" class="form-label">Room ID</label>
+                            <input type="text" class="form-control" id="accomodationId" name="room_id" required>
+                        </div>
+                        <div class="mb-3">
                             <label for="accomodationName" class="form-label">Name</label>
                             <input type="text" class="form-control" id="accomodationName" name="accomodation_name" required>
                         </div>
@@ -232,6 +253,10 @@
                                 <option value="room">Room</option>
                                 <option value="cottage">Cottage</option>
                             </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="accomodationDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="accomodationDescription" name="accomodation_description" rows="3"></textarea>
                         </div>
                         <div class="mb-3">
                             <label for="accomodationCapacity" class="form-label">Capacity</label>
@@ -248,10 +273,6 @@
                                 <option value="available">Available</option>
                                 <option value="unavailable">Not Available</option>
                             </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="accomodationSlot" class="form-label">Slot</label>
-                            <input type="number" class="form-control" id="accomodationSlot" name="accomodation_slot" required>
                         </div>
                         <div class="modal-footer">
                             <button type="submit" class="btn btn-primary">Add</button>
@@ -292,6 +313,21 @@
                 });
             });
         });
+
+        document.getElementById("roomTypeFilter").addEventListener("change", function () {
+            let filterValue = this.value.toLowerCase();
+            let rows = document.querySelectorAll("tbody tr");
+
+            rows.forEach(row => {
+                let roomType = row.children[3].textContent.toLowerCase(); // Get Room Type column
+                if (filterValue === "all" || roomType.includes(filterValue)) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+        });
+
     </script>
 </body>
 </html>

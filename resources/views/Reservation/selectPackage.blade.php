@@ -42,36 +42,56 @@
             </ul>
         </div>
     @endif
-    <div class="container d-flex justify-content-start">
-        <div class="row w-75 g-4 mt-4">
-        <form method="POST" action="{{ route('fixPackagesSelection') }}">
-            @csrf
-            <input type="hidden" name="package_type" value="predefined">
-            <h1 class="font-heading">Packages</h1>
-            @php
-                use Illuminate\Support\Facades\DB;
-                $packages = DB::table('packagestbl')->get();
-            @endphp
-            @foreach($packages as $package)
-            <div class="col">
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="package{{ $package->id }}" 
-                        name="selected_packages[]" 
-                        value="{{ $package->id }}" 
-                        data-price="{{ $package->package_price }}" 
-                        data-max-guests="{{ $package->package_max_guests }}">
-                    <label class="form-check-label" for="package{{ $package->id }}">
-                        <div class="card">
-                            <div class="card-header">{{ $package->package_name }}</div>
-                            <div class="card-body">
-                                <img src="{{ asset('storage/' . $package->image_package) }}" alt="Package Image" style="max-width: 100px; height: auto;">
-                                <p>{{ $package->package_description }}</p>
-                                <p>Duration: {{ $package->package_duration }}</p>
-                                <p>Room: {{ $package->package_room_type }}</p>
-                                <p>Max Guests: <span class="max-guests">{{ $package->package_max_guests }}</span></p>
-                                <p>Activities: {{ $package->package_activities }}</p>
-                                <p>Price: ₱ <span class="package-price">{{ $package->package_price }}</span></p>
-                            </div>
+
+    <div class="d-flex mt-5 mb-5 me-5">
+        <a href="{{ route('selectPackageCustom') }}" class="text-decoration-none text-color-1 p-3 color-background5 rounded-3 text-paragraph fw-semibold text-hover-1" style="margin-left: auto;">Custom Package</a>
+    </div>
+
+    <form method="POST" action="{{ route('fixPackagesSelection') }}">
+        @csrf
+        <input type="hidden" name="package_type" value="predefined">
+        
+        <!-- Package Selection -->
+        <div class="container d-flex justify-content-start" style="margin-top: -50px;">
+            <div class="row w-100 mt-2">
+            <form method="POST" action="{{ route('fixPackagesSelection') }}">
+                @csrf
+                <input type="hidden" name="package_type" value="predefined">
+                <h1 class="font-paragraph fw-bold text-color-1 ms-3">Packages</h1>
+                @php
+                    use Illuminate\Support\Facades\DB;
+                    $packages = DB::table('packagestbl')->get();
+                @endphp
+                <div class="row">
+                    @foreach($packages as $package)
+                    <div class="col-lg-4 col-md-6 col-12 mb-3 package-card">
+                        <div class="form-check">
+                            <input type="checkbox" id="package{{ $package->id }}" 
+                                name="selected_packages[]" 
+                                value="{{ $package->id }}" 
+                                data-price="{{ $package->package_price }}" 
+                                data-max-guests="{{ $package->package_max_guests }}" 
+                                class="position-absolute opacity-0 package-checkbox">
+                            
+                            <label class="form-check-label w-100 rounded-3 package-label" for="package{{ $package->id }}">
+                                <div class="card border-0 shadow-sm h-100">
+                                    <div class="position-relative">
+                                        <img src="{{ asset('storage/' . $package->image_package) }}" 
+                                            alt="Package Image" 
+                                            class="card-img-top img-fluid object-fit-cover"
+                                            style="height: 200px;">
+                                    </div>
+                                    <div class="card-body color-background5">
+                                        <h5 class="fs-3 fw-bold text-capitalize color-3 font-paragraph">{{ $package->package_name }}</h5>
+                                        <p class="card-text mb-1 font-paragraph fs-6 text-color-1">{{ $package->package_description }}</p>
+                                        <p class="mb-1 font-paragraph fs-6 text-color-1"><strong>Duration:</strong> {{ $package->package_duration }}</p>
+                                        <p class="mb-1 font-paragraph fs-6 text-color-1"><strong>Room:</strong>  <td>{{ DB::table('accomodations')->where('accomodation_id', $package->package_room_type)->value('accomodation_name') }}</td></p>
+                                        <p class="mb-1 font-paragraph fs-6 text-color-1"><strong>Max Guests:</strong> <span class="max-guests">{{ $package->package_max_guests }}</span></p>
+                                        <p class="mb-1 font-paragraph fs-6 text-color-1"><strong>Activities:</strong> {{ $package->package_activities }}</p>
+                                        <p class="fw-bold mb-0 font-paragraph fs-6 text-color-1">Price: ₱ <span class="package-price">{{ $package->package_price }}</span></p>
+                                    </div>
+                                </div>
+                            </label>
                         </div>
                     </div>
 

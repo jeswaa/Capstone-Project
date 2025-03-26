@@ -4,249 +4,209 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reservation Calendar</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&family=Poppins:wght@100;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Ensure jQuery is included -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
-    <style>
-        #calendar {
-            float: left;
-            width: 1000px;
-            height: 650px;
-            margin: 50px 20px;
-        }
-        #event-modal {
-            display: none;
-            position: fixed;
-            top: 25%;
-            right: 20px;
-            background: #b5c99a;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.3);
-            width: 450px;
-            height: auto;
-        }
-        .reserved-day {
-            background-color: #414141 !important;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .fc-event {
-            border: none !important;
-            color: black !important;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .fc-event-title {
-            font-size: 12px;
-            color: #e5f9db;
-            font-weight: bold;
-            text-align: center;
-            text-transform: uppercase;
-        }
-        .fc-toolbar-title {
-            font-size: 20px;
-            color: #4a4a4a;
-            font-family: "Montserrat", serif !important;
-            text-transform: uppercase;
-        }
-        .fc-daygrid-day-number, .fc-col-header-cell-cushion {
-            color: #4a4a4a !important;
-        }
-        .fc-today-button, .fc-button {
-            background-color: #718355 !important;
-            border-color: #718355 !important;
-            color: #e5f9db !important;
-            font-weight: bold;
-        }
-        .fc-daygrid-event {
-            position: relative;
-        }
-        .fc-daygrid-event:hover::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8);
-            color: #fff;
-            padding: 8px;
-            border-radius: 5px;
-            font-size: 12px;
-            white-space: nowrap;
-            z-index: 1000;
-        }
-        .fc-day-today {
-            background-color: #fff !important; /* Light green */
-        }        
-        .position-fixed.bottom-0.end-0.mb-4.me-5 button {
-            width: 400px; /* Adjust this value as needed */
-        }
-        .disabled-date {
-            pointer-events: none; /* Disable click */
-            background-color: #e0e0e0 !important; /* Gray out */
-            color: #a0a0a0 !important; /* Lighten text */
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-    </style>
 </head>
-<body>
 
-    @if (session('success'))
-        <div class="alert alert-success alert-dismissible fade show position-absolute top-0 end-0 mt-3 me-3 z-2" role="alert" style="animation: fadeOut 5s forwards;">
-            {{ session('success') }}
-            <style>
-                @keyframes fadeOut {
-                    0% {
-                        opacity: 1;
-                    }
-                    100% {
-                        opacity: 0;
-                    }
-                }
-            </style>
+<style>
+    #calendar {
+        background-color: #97a97c !important;
+        color: white !important;
+    }
+    .fc-event-title {
+        font-size: 13px !important;
+        font-weight: bold !important;
+        text-align: center !important;
+    }
+    .fc-daygrid-day-number {
+        color: white !important;
+        text-decoration: none !important;
+    }
+    .fc-col-header-cell-cushion {
+        color: white !important;
+    }
+    .fc-prev-button, .fc-next-button {
+        background-color: #4a4a4a !important;
+    }
+</style>
+
+<body class="font-paragraph">
+
+    <!-- Navbar -->
+    <div class="container d-flex justify-content-end mt-5">
+        <div>
+            <a href="{{ route('profile') }}" title="Your Profile" class="text-dark text-decoration-none">
+                <i class="fa-circle-user fa-solid fs-1"></i>
+            </a>
         </div>
-    @endif 
-    
-    
-    <div style="position: absolute; right: 20px; top: 50px;" title="Your Profile">
-        <a href="{{ route('profile') }}"><i class="fa-solid fa-circle-user fs-1 text-color-1 icon-hover"></i></a>
     </div>
-        
-        <!-- Left: Calendar -->
-        <div id="calendar" class="color-background4 p-4 rounded-3" >
-        
-        </div>
-        <div style="position: absolute; right: 420px; top: 50px;">
-            <h1 class="fs-3">Logo</h1>
-        </div>  
-        <!-- Right: Centered Image -->
-        <div style="position: absolute; right: 0px; top: 130px; width: 500px;" class="d-flex justify-content-center mt-5">
-            <img src="{{ asset('images/Searching - Looking.png') }}" alt="Searching" class="w-75">
-        </div>
-        
 
-
+    <div class="container-fluid py-4">
+        <div class="row justify-content-center">
+            <!-- Calendar -->
+            <div class="col-12 col-lg-8 col-md-10">
+                <div id="calendar" class="bg-white border p-3 rounded shadow"></div>
+            </div>
+        </div>
     </div>
+
     <!-- Modal -->
-    <div id="event-modal">
-        <h3 id="event-title" class="text-center font-heading fw-bold"></h3>
-        <p><strong class="font-heading">Name:</strong> <span id="event-name" class="text-color-1 font-paragraph"></span></p>
-        <p><strong class="font-heading">Date:</strong> <span id="event-date" class="text-color-1 font-paragraph"></span></p>
-        <p><strong class="font-heading">Check-in:</strong> <span id="event-check_in" class="text-color-1 font-paragraph"></span></p>
-        <p><strong class="font-heading">Check-out:</strong> <span id="event-check_out" class="text-color-1 font-paragraph"></span></p>
-        <p><strong class="font-heading">Package:</strong> <span id="event-room_type" class="text-color-1 font-paragraph"></span></p> 
-        <p><strong class="font-heading">Rooms:</strong> <span id="event-accommodations" class="text-color-1 font-paragraph"></span></p>
-        <p><strong class="font-heading">Activities:</strong> <span id="event-activities" class="text-color-1 font-paragraph"></span></p>
-        <button class="w-100 border-0 p-2 color-background5 font-paragraph text-color-3 fw-semibold rounded text-hover-1" onclick="closeModal()">Close</button>
+    <div class="modal fade" id="eventModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">Reservation Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Name:</strong> <span id="event-name"></span></p>
+                    <p><strong>Date:</strong> <span id="event-date"></span></p>
+                    <p><strong>Check-in:</strong> <span id="event-check_in"></span></p>
+                    <p><strong>Check-out:</strong> <span id="event-check_out"></span></p>
+                    <p><strong>Package:</strong> <span id="event-room_type"></span></p>
+                    <p><strong>Rooms:</strong> <span id="event-accommodations"></span></p>
+                    <p><strong>Activities:</strong> <span id="event-activities"></span></p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary w-100" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="position-fixed bottom-0 end-0 mb-4 me-5">
-        <button onclick="window.location.href='{{ route('selectPackage') }}'" class="text-hover-1 color-background6 p-2 border-0 font-paragraph fw-semibold rounded-3">Reserve Now</button>
-    </div>
-
-    <!-- FullCalendar JS -->
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+    
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-        const calendarEl = document.getElementById('calendar');
+  document.addEventListener('DOMContentLoaded', function () {
+    // Get the calendar element
+    const calendarEl = document.getElementById('calendar');
+    console.log("Calendar Element:", calendarEl); // Debugging
 
-        if (!calendarEl) {
-            console.error("Calendar element not found!");
-            return;
-        }
+    // Get events data from Laravel
+    const allEvents = @json($events);
+    console.log("Events received from Laravel:", allEvents); // Debugging
 
-        const userId = @json($userId); // Get logged-in user ID
-        const allEvents = @json($events);
-        const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+    // Get the logged-in user's ID
+    const userId = @json(auth()->id());
+    console.log("Logged-in User ID:", userId); // Debugging
 
-        console.log("Fetched Events:", allEvents);
-
-        try {
-            const calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
-                headerToolbar: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
-                },
-                events: allEvents.map(event => ({
-                    ...event,
-                    color: event.extendedProps.is_owner ? '#97a97c' : '#4a4a4a',
-                    textColor: 'black',
-                })),
-                dateClick: function(info) {
-                    let selectedDate = info.dateStr;
-
-                    // Debugging: Check if selectedDate is correct
-                    console.log("Clicked Date:", selectedDate);  
-
-                    // Disable selection for past dates and today
-                    if (selectedDate <= today) {
-                        Swal.fire({
-                            title: "Invalid Selection",
-                            text: "You cannot select past dates.",
-                            icon: "warning",
-                            confirmButtonText: "OK"
-                        });
-                        return;
-                    }
-
-                    // Check if the date is already booked
-                    let isBooked = allEvents.some(event => event.start === selectedDate);
-
-                    if (!isBooked) {
-                        // Save selected date in session storage
-                        sessionStorage.setItem("selectedDate", selectedDate);
-
-                        // SweetAlert2 custom dialog
-                        Swal.fire({
-                            title: "This date is available!",
-                            text: "Select a reservation type:",
-                            icon: "question",
-                            showCancelButton: true,
-                            confirmButtonText: "⚙️ Custom Package",
-                            cancelButtonText: "📅 Fixed Package",
-                            reverseButtons: true
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.href = "{{ route('selectPackageCustom') }}?date=" + selectedDate;
-                            } else if (result.dismiss === Swal.DismissReason.cancel) {
-                                window.location.href = "{{ route('selectPackage') }}?date=" + selectedDate;
-                            }
-                        });
-                    } else {
-                        Swal.fire({
-                            title: "Unavailable Date",
-                            text: "This date is already reserved. Please choose another date.",
-                            icon: "error",
-                            confirmButtonText: "OK"
-                        });
-                    }
-                },
-                dayCellDidMount: function(info) {
-                    let cellDate = info.date.toISOString().split('T')[0];
-                    if (cellDate < today) {
-                        info.el.classList.add('disabled-date');
-                    }
+    // Initialize FullCalendar
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        events: allEvents.map(event => {
+            console.log("Mapping Event:", event); // Debugging
+            return {
+                id: event.id,
+                title: event.title, // Use event.title for the calendar display
+                start: event.start,
+                allDay: true,
+                color: event.user_id == userId ? '#97a97c' : '#4a4a4a', // Green for user, dark for others
+                textColor: 'white',
+                extendedProps: {
+                    ...event, // Include all event data
                 }
-            });
+            };
+        }),
 
-            calendar.render();
-        } catch (error) {
-            console.error("Error initializing FullCalendar:", error);
+        // Event click handler (SweetAlert instead of Modal)
+        eventClick: function (info) {
+    console.log("Event Clicked:", info.event); // Debugging
+    console.log("Extended Props:", info.event.extendedProps); // Debugging
+    
+    let eventData = info.event.extendedProps || {};
+
+    console.log("Raw Event Data:", eventData); // Debugging
+
+    // Ayusin ang property names (dapat case-sensitive)
+    let checkIn = eventData.check_in ? eventData.check_in : "Not specified";
+    let checkOut = eventData.check_out ? eventData.check_out : "Not specified";
+    let roomType = eventData.room_type ? eventData.room_type : "Not specified"; // Dapat `room_type`
+    let accommodations = eventData.accommodations ? eventData.accommodations : "Not specified";
+    let activities = eventData.activities ? eventData.activities : "Not specified";
+
+    let reservationDetails = `
+        <strong>Date:</strong> ${info.event.startStr || "Not specified"}<br>
+        <strong>Check-in:</strong> ${checkIn}<br>
+        <strong>Check-out:</strong> ${checkOut}<br>
+        <strong>Room Type:</strong> ${roomType}<br>
+        <strong>Accommodations:</strong> ${accommodations}<br>
+        <strong>Activities:</strong> ${activities}
+    `;
+
+    console.log("Final Reservation Details:", reservationDetails); // Debugging
+
+    Swal.fire({
+        title: "Reservation Details",
+        html: reservationDetails,
+        icon: "info"
+    });
+}
+,
+
+        // Date click handler
+        dateClick: function (info) {
+            let selectedDate = info.dateStr;
+            console.log("Selected Date:", selectedDate); // Debugging
+
+            let today = new Date().toISOString().split('T')[0];
+            if (selectedDate < today) {
+                Swal.fire("Invalid Selection", "You cannot select past dates.", "warning");
+                return;
+            }
+
+            // Check if the selected date is already booked
+            let isBooked = allEvents.some(event => event.start === selectedDate);
+            console.log("Is Booked:", isBooked); // Debugging
+
+            if (!isBooked) {
+                // Store the selected date in session storage
+                sessionStorage.setItem("selectedDate", selectedDate);
+
+                // Show a confirmation dialog for reservation type
+                Swal.fire({
+                    title: "This date is available!",
+                    text: "Select a reservation type:",
+                    icon: "question",
+                    showCancelButton: true,
+                    confirmButtonText: "Custom Package",
+                    cancelButtonText: "Fixed Package",
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = "{{ route('selectPackageCustom') }}?date=" + selectedDate;
+                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                        window.location.href = "{{ route('selectPackage') }}?date=" + selectedDate;
+                    }
+                });
+            } else {
+                // Show an error if the date is already booked
+                Swal.fire({
+                    icon: "error",
+                    title: "Date Unavailable",
+                    text: "This date is already booked."
+                });
+            }
         }
     });
-    function closeModal() {
-        document.getElementById('event-modal').style.display = 'none';
-    }
-    </script>
+
+    // Render the calendar
+    calendar.render();
+    console.log("Calendar rendered successfully!"); // Debugging
+});
+
+</script>
 
 </body>
 </html>
