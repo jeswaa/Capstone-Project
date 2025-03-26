@@ -142,11 +142,14 @@
                         <input type="time" id="check_out" name="reservation_check_out" class="form-control mb-4" value="12:00">
                     </div>
                 </div>
+                @php
+                    $selectedDate = request()->query('date', ''); // Kunin ang date sa URL
+                @endphp
                 <div class="col-md-6">
                     <div class="form-group">
                         <h1 class="fw-semibold font-paragraph mt-3 ms-2 mb-4 text-color-1 fs-6">Choose Date</h1>
                         <label for="date">Start Date</label>
-                        <input type="date" id="date" name="reservation_check_in_date" class="form-control" min="{{ now()->addDay()->toDateString() }}">
+                        <input type="date" id="reservation_date" name="reservation_date" value="{{ $selectedDate }}" class="form-control" required>
                     </div>
                     <div class="form-group">
                         <label for="date">End Date</label>
@@ -248,6 +251,9 @@
     // Attach event listeners for guest count changes
     document.getElementById("number_of_adults").addEventListener("input", calculateTotalGuest);
     document.getElementById("number_of_children").addEventListener("input", calculateTotalGuest);
+</script>
+<script>
+    console.log("Selected Date:", "{{ $selectedDate }}");
 </script>
 
 </body>

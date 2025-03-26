@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&family=Poppins:wght@100;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
@@ -85,6 +86,13 @@
         .position-fixed.bottom-0.end-0.mb-4.me-5 button {
             width: 400px; /* Adjust this value as needed */
         }
+        .disabled-date {
+            pointer-events: none; /* Disable click */
+            background-color: #e0e0e0 !important; /* Gray out */
+            color: #a0a0a0 !important; /* Lighten text */
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
 
     </style>
 </head>
@@ -146,7 +154,7 @@
     <!-- FullCalendar JS -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
     <script>
-    document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function () {
         const calendarEl = document.getElementById('calendar');
 
         if (!calendarEl) {
@@ -156,6 +164,7 @@
 
         const userId = @json($userId); // Get logged-in user ID
         const allEvents = @json($events);
+        const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
 
         console.log("Fetched Events:", allEvents);
 
@@ -169,56 +178,62 @@
                 },
                 events: allEvents.map(event => ({
                     ...event,
-                    color: event.extendedProps.is_owner ? '#97a97c' : '#4a4a4a', // Green for own reservation, Gray for others
+                    color: event.extendedProps.is_owner ? '#97a97c' : '#4a4a4a',
                     textColor: 'black',
                 })),
-                eventClick: function(info) {
-                    let event = info.event;
-                    console.log("Clicked Event:", event.extendedProps);
+                dateClick: function(info) {
+                    let selectedDate = info.dateStr;
 
-                    const eventModal = document.getElementById("event-modal");
-                    const eventTitle = document.getElementById("event-title");
-                    const eventName = document.getElementById("event-name");
-                    const eventDate = document.getElementById("event-date");
-                    const eventCheckIn = document.getElementById("event-check_in");
-                    const eventCheckOut = document.getElementById("event-check_out");
-                    const eventRoomType = document.getElementById("event-room_type").parentElement;
-                    const eventAccommodations = document.getElementById("event-accommodations").parentElement;
-                    const eventActivities = document.getElementById("event-activities").parentElement;
+                    // Debugging: Check if selectedDate is correct
+                    console.log("Clicked Date:", selectedDate);  
 
-                    if (event.extendedProps.is_owner) {
-                        eventTitle.textContent = "Your Reservation";
-                        eventName.innerHTML = event.extendedProps.name || "N/A";
-                        eventDate.innerHTML = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric' }).format(event.start);
-                        eventCheckIn.innerHTML = event.extendedProps.check_in || "N/A";
-                        eventCheckOut.innerHTML = event.extendedProps.check_out || "N/A";
-                        // Hide Package Room Type if empty
-                        if (event.extendedProps.package_room_type) {
-                            eventRoomType.style.display = "block";
-                            document.getElementById("event-room_type").innerHTML = event.extendedProps.package_room_type;
-                        } else {
-                            eventRoomType.style.display = "none";
-                        }
+                    // Disable selection for past dates and today
+                    if (selectedDate <= today) {
+                        Swal.fire({
+                            title: "Invalid Selection",
+                            text: "You cannot select past dates.",
+                            icon: "warning",
+                            confirmButtonText: "OK"
+                        });
+                        return;
+                    }
 
-                        // Hide Accommodations if empty
-                        if (event.extendedProps.accommodations && event.extendedProps.accommodations.length > 0) {
-                            eventAccommodations.style.display = "block";
-                            document.getElementById("event-accommodations").innerHTML = event.extendedProps.accommodations.join(', ');
-                        } else {
-                            eventAccommodations.style.display = "none";
-                        }
+                    // Check if the date is already booked
+                    let isBooked = allEvents.some(event => event.start === selectedDate);
 
-                        // Hide Activities if empty
-                        if (event.extendedProps.activities && event.extendedProps.activities.length > 0) {
-                            eventActivities.style.display = "block";
-                            document.getElementById("event-activities").innerHTML = event.extendedProps.activities.join(', ');
-                        } else {
-                            eventActivities.style.display = "none";
-                        }
+                    if (!isBooked) {
+                        // Save selected date in session storage
+                        sessionStorage.setItem("selectedDate", selectedDate);
 
-                        eventModal.style.display = "block";
+                        // SweetAlert2 custom dialog
+                        Swal.fire({
+                            title: "This date is available!",
+                            text: "Select a reservation type:",
+                            icon: "question",
+                            showCancelButton: true,
+                            confirmButtonText: "⚙️ Custom Package",
+                            cancelButtonText: "📅 Fixed Package",
+                            reverseButtons: true
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "{{ route('selectPackageCustom') }}?date=" + selectedDate;
+                            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                                window.location.href = "{{ route('selectPackage') }}?date=" + selectedDate;
+                            }
+                        });
                     } else {
-                        alert("This date is already reserved.");
+                        Swal.fire({
+                            title: "Unavailable Date",
+                            text: "This date is already reserved. Please choose another date.",
+                            icon: "error",
+                            confirmButtonText: "OK"
+                        });
+                    }
+                },
+                dayCellDidMount: function(info) {
+                    let cellDate = info.date.toISOString().split('T')[0];
+                    if (cellDate < today) {
+                        info.el.classList.add('disabled-date');
                     }
                 }
             });
@@ -228,7 +243,6 @@
             console.error("Error initializing FullCalendar:", error);
         }
     });
-
     function closeModal() {
         document.getElementById('event-modal').style.display = 'none';
     }

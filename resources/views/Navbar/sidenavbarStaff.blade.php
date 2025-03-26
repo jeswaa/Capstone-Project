@@ -18,30 +18,36 @@
 </style>
 <body>
     <!-- SIDEBAR -->
-    <div class="col-md-3 col-12 sidebar" id="sidebar">
+    <div class="col-12 col-md-3 sidebar" id="sidebar">
                 <div class="d-flex flex-column ms-5 mt-5">
                     <h1 class="text-color-1 font-heading sidebar-text" id="resort-name"><span>LELO'S RESORT</span></h1>
                     
                     <!-- Collapsible Sidebar Links -->
-                    <a href="{{ route('staff.dashboard') }}" class="fw-semibold p-4 mt-2 color-3 hover:color-background3 font-paragraph rounded-md text-hoverStaff text-decoration-none d-flex align-items-center" id="dashboard-link">
-                        <i class="fas fa-tachometer-alt pe-3 fs-4"></i> <!-- Icon for Dashboard -->
+                    <a href="{{ route('staff.dashboard') }}" class="color-3 d-flex align-items-center p-4 rounded-md text-decoration-none text-hoverStaff font-paragraph fw-semibold hover:color-background3 mt-2" id="dashboard-link">
+                        <i class="fa-tachometer-alt fas fs-4 pe-3"></i> <!-- Icon for Dashboard -->
                         <span class="sidebar-text">Dashboard</span>
                     </a>
-                    <a href="{{ route('staff.reservation') }}" class="fw-semibold p-4 mt-2 color-3 hover:color-background1 font-paragraph rounded-md text-hoverStaff transition duration-300 ease-in-out text-decoration-none d-flex align-items-center" id="reservations-link">
-                        <i class="fas fa-calendar-alt pe-3 fs-4"></i> <!-- Icon for Reservations -->
-                        <span class="sidebar-text">Reservations</span>
-                    </a>
-                    <a href="{{ route ('staff.guests')}}" class="fw-semibold p-4  mt-2 color-3 hover:color-background1 font-paragraph rounded-md text-hoverStaff text-decoration-none d-flex align-items-center" id="guests-link">
-                        <i class="fas fa-users pe-3 fs-4"></i> <!-- Icon for Guests -->
+                    <div class="dropdown w-full">
+                        <a href="#" class="color-3 d-flex align-items-center p-4 rounded-md text-decoration-none text-hoverStaff w-full duration-300 ease-in-out font-paragraph fw-semibold hover:color-background1 mt-2 transition" id="reservations-link" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa-calendar-alt fas fs-4 pe-3"></i> <!-- Icon for Reservations -->
+                            <span class="sidebar-text">Reservations</span>
+                        </a>
+                        <ul class="dropdown-menu w-100" aria-labelledby="reservations-link">
+                            <li><a class="dropdown-item w-100" href="{{ route('staff.reservation') }}">All Reservations</a></li>
+                            <li><a class="dropdown-item w-100" href="{{ route('staff.accomodations')}}">Room Availability</a></li>
+                        </ul>
+                    </div>
+                    <a href="{{ route ('staff.guests')}}" class="color-3 d-flex align-items-center p-4 rounded-md text-decoration-none text-hoverStaff font-paragraph fw-semibold hover:color-background1 mt-2" id="guests-link">
+                        <i class="fa-users fas fs-4 pe-3"></i> <!-- Icon for Guests -->
                         <span class="sidebar-text">Guests</span>
                     </a>
-                    <a href="{{ route('staff.transactions') }}" class="fw-semibold p-4  mt-2 color-3 hover:color-background1 font-paragraph rounded-md text-hoverStaff text-decoration-none d-flex align-items-center" id="transactions-link">
-                        <i class="fas fa-credit-card pe-3 fs-4"></i> <!-- Icon for Transactions -->
+                    <a href="{{ route('staff.transactions') }}" class="color-3 d-flex align-items-center p-4 rounded-md text-decoration-none text-hoverStaff font-paragraph fw-semibold hover:color-background1 mt-2" id="transactions-link">
+                        <i class="fa-credit-card fas fs-4 pe-3"></i> <!-- Icon for Transactions -->
                         <span class="sidebar-text">Transactions</span>
                     </a>
                     </a>
-                    <a href="{{ route('staff.logout')}}" class="fw-semibold p-4  mt-2 color-3 hover:color-background1 font-paragraph rounded-md text-hoverStaff text-decoration-none d-flex align-items-center" id="logout-link">
-                        <i class="fas fa-sign-out-alt pe-3 fs-4"></i> <!-- Icon for Logout -->
+                    <a href="{{ route('staff.logout')}}" class="color-3 d-flex align-items-center p-4 rounded-md text-decoration-none text-hoverStaff font-paragraph fw-semibold hover:color-background1 mt-2" id="logout-link">
+                        <i class="fa-sign-out-alt fas fs-4 pe-3"></i> <!-- Icon for Logout -->
                         <span class="sidebar-text">Logout</span>
                     </a>
                 </div>
