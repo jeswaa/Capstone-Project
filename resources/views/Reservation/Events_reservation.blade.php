@@ -9,43 +9,121 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
 <style>
     #calendar {
-        background-color: #97a97c !important;
-        color: white !important; /* Ensures text is visible */
+        width: 100% !important;
+        max-width: 65vw !important;
+        height: 80vh !important;
+        background-color: white !important;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
+
+    @media (max-width: 768px) {
+        #calendar {
+            width: 95vw !important;
+            height: 70vh !important;
+            padding: 10px;
+        }
+    }
+
+    /* Calendar Header */
+    .fc-toolbar-title {
+        font-size: 20px !important;
+        font-weight: bold;
+    }
+
+    @media (max-width: 768px) {
+        .fc-toolbar-title {
+            font-size: 18px !important;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .fc-toolbar-title {
+            font-size: 16px !important;
+        }
+    }
+
+    .fc-prev-button, .fc-next-button {
+        background-color: #0b573d !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 5px !important;
+        padding: 5px 10px !important;
+    }
+
+    /* Day Grid */
+    .fc-daygrid-day {
+        border: 1px solid #ddd !important;
+        transition: background-color 0.2s;
+    }
+
+    .fc-daygrid-day:hover {
+        background-color: #f0f0f0 !important;
+    }
+
+    /* Weekend Highlight */
+    .fc-day-sun, .fc-day-sat {
+        background-color: #f8f9fa !important;
+    }
+
+    /* Current Day Highlight */
+    .fc-day-today {
+        background-color: #0b573d !important;
+        color: black !important;
+        font-weight: bold !important;
+    }
+
+    /* Events */
     .fc-daygrid-event {
-        background-color: #4a4a4a !important; 
-    }
-    .fc-event-title {
-        font-size: 13px !important;
+        background-color: #0b573d !important;
+        border-radius: 5px !important;
+        padding: 2px 5px !important;
+        font-size: 12px !important;
         font-weight: bold !important;
         text-align: center !important;
         color: white !important;
     }
+
+    /* Event Title */
+    .fc-event-title {
+        font-size: 13px !important;
+        font-weight: bold !important;
+        color: white !important;
+    }
+
+    /* Day Number */
     .fc-daygrid-day-number {
-        color: white !important;
-        text-decoration: none !important;
-    }
-    .fc-col-header-cell-cushion {
-        color: white !important;
-        text-decoration: none !important;
-    }
-    .fc-prev-button, .fc-next-button {
-        background-color: #4a4a4a !important;
+        font-weight: bold;
+        color: black !important;
     }
 </style>
 
-<body class="bg-light font-paragraph">
+
+
+<body class="bg-light font-paragraph" style="background: url('{{ asset('images/logosheesh.png') }}') no-repeat center center fixed; background-size: cover;">
 
     <!-- Navbar -->
-    <div class="container d-flex justify-content-end mt-5">
+    <div class="container d-flex justify-content-between mt-5">
         <div>
-            <a href="{{ route('profile') }}" title="Your Profile" class="text-dark text-decoration-none">
-                <i class="fa-circle-user fa-solid fs-1"></i>
+            <a href="{{ route('profile') }}" title="Your Profile" class="text-decoration-none">
+                <div class="rounded-circle bg-success d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                    <i class="fa-solid fa-user text-white"></i>
+                </div>
+            </a>
+        </div>
+        <div>
+            <a href="{{ url('/') }}" title="Home" class="text-decoration-none">
+                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                    <img src="{{ asset('images/appicon.png') }}" alt="App Logo" class="" style="width: 130px; height: 120px">
+                </div>
             </a>
         </div>
     </div>
@@ -55,11 +133,15 @@
             <!-- Calendar -->
             <div class="col-12 col-lg-8 col-md-10">
                 <div id="calendar" class="bg-white border p-3 rounded shadow"></div>
+                <div class="mt-3 text-center">
+                    <button class="btn btn-success w-50 border border-2 border-dark rounded-5" style="box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);">RESERVE NOW </button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal -->
+
+ <!-- Modal -->
     <div class="modal fade" id="eventModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -83,10 +165,8 @@
         </div>
     </div>
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
-    
+
+
     <script>
        document.addEventListener('DOMContentLoaded', function () {
     const calendarEl = document.getElementById('calendar');
@@ -147,5 +227,8 @@
 
 
     </script>
+
+
 </body>
 </html>
+

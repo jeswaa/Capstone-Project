@@ -10,11 +10,8 @@
     <style>
         body {
             background: url("{{ asset('images/logosheesh.png') }}") no-repeat center center fixed;
-        -webkit-background-size: cover;
-        -moz-background-size: cover;
-        -o-background-size: cover;
-        background-size: cover;
-        position: relative;
+            background-size: cover;
+            position: relative;
         }
         body::after {
             content: "";
@@ -27,7 +24,7 @@
         }
         .container-custom {
             width: 100vw;
-            height: 80vh;
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -45,6 +42,57 @@
             color: #4a4a4a;
             transition: .3s ease-out;
         }
+        .switch-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+        input:focus + .slider {
+            box-shadow: 0 0 1px #2196F3;
+        }
+        input:checked + .slider:before {
+            -webkit-transform: translateX(26px);
+            -ms-transform: translateX(26px);
+            transform: translateX(26px);
+        }
     </style>
 </head>
 <body>
@@ -54,12 +102,20 @@
                 <!-- Left Side (Login Form) -->
                 <div class="col-md-6 bg-white p-5">
                     <div class="d-flex justify-content-between align-items-center">
-                        <a href="{{ url('/') }}" class="btn btn-sm btn-secondary rounded-pill text-white hover-effect">
-                            Go Back
-                        </a>
-                        <h2 class="text-center text-uppercase font-heading mt-5" style="color: #008000;">Admin Login</h2>
+                        <h2 id="login-title" class="text-center text-uppercase font-heading mt-5 mx-auto" style="color: #008000; width: fit-content;">Admin Login</h2>
                     </div>
-                    <form action="{{ route('authenticate') }}" method="post">
+                    
+                    <!-- Toggle Switch -->
+                    <div class="switch-container">
+                        <span>Admin</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="role-switch">
+                            <span class="slider round"></span>
+                        </label>
+                        <span>Staff</span>
+                    </div>
+
+                    <form id="login-form" action="{{ route('authenticate') }}" method="post">
                         @csrf
                         <div class="mb-3">
                             <label for="username" class="mt-3 mb-3 font-heading">Username</label>
@@ -92,5 +148,27 @@
             </div>
         </div>
     </div>
+
+<script>
+    document.getElementById('role-switch').addEventListener('change', function () {
+        let loginTitle = document.getElementById('login-title');
+        let loginForm = document.getElementById('login-form');
+        let usernameInput = document.getElementById('username');
+        let passwordInput = document.getElementById('password');
+
+        if (this.checked) {
+            loginTitle.textContent = "Staff Login";
+            loginForm.action = "{{ route('staff.authenticate') }}";
+            usernameInput.placeholder = "staff123...";
+            passwordInput.placeholder = "Staff Password...";
+        } else {
+            loginTitle.textContent = "Admin Login";
+            loginForm.action = "{{ route('authenticate') }}";
+            usernameInput.placeholder = "admin123...";
+            passwordInput.placeholder = "Admin Password...";
+        }
+    });
+</script>
 </body>
 </html>
+
