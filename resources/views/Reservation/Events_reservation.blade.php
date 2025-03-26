@@ -9,22 +9,19 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Ensure jQuery is included -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
 <style>
     #calendar {
         background-color: #97a97c !important;
-        color: white !important; /* Ensures text is visible */
-    }
-    .fc-daygrid-event {
-        background-color: #4a4a4a !important; 
+        color: white !important;
     }
     .fc-event-title {
         font-size: 13px !important;
         font-weight: bold !important;
         text-align: center !important;
-        color: white !important;
     }
     .fc-daygrid-day-number {
         color: white !important;
@@ -32,14 +29,13 @@
     }
     .fc-col-header-cell-cushion {
         color: white !important;
-        text-decoration: none !important;
     }
     .fc-prev-button, .fc-next-button {
         background-color: #4a4a4a !important;
     }
 </style>
 
-<body class="bg-light font-paragraph">
+<body class="font-paragraph">
 
     <!-- Navbar -->
     <div class="container d-flex justify-content-end mt-5">
@@ -88,12 +84,20 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
     
     <script>
-       document.addEventListener('DOMContentLoaded', function () {
+  document.addEventListener('DOMContentLoaded', function () {
+    // Get the calendar element
     const calendarEl = document.getElementById('calendar');
+    console.log("Calendar Element:", calendarEl); // Debugging
+
+    // Get events data from Laravel
     const allEvents = @json($events);
+    console.log("Events received from Laravel:", allEvents); // Debugging
 
-    console.log("Events received:", allEvents); // 🛠️ Debug: Check if `start` is correct
+    // Get the logged-in user's ID
+    const userId = @json(auth()->id());
+    console.log("Logged-in User ID:", userId); // Debugging
 
+    // Initialize FullCalendar
     const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         headerToolbar: {
@@ -101,33 +105,83 @@
             center: 'title',
             right: 'dayGridMonth,timeGridWeek,timeGridDay'
         },
-        events: allEvents.map(event => ({
-            title: event.title,
-            start: event.start, // ✅ Only start date is displayed
-            allDay: true, // ✅ Prevents time from appearing
-            color: event.extendedProps.is_owner ? '#97a97c' : '#4a4a4a',
-            textColor: 'white',
-        })),
-        dateClick: function(info) {
-            let selectedDate = info.dateStr;
-            let today = new Date().toISOString().split('T')[0];
+        events: allEvents.map(event => {
+            console.log("Mapping Event:", event); // Debugging
+            return {
+                id: event.id,
+                title: event.title, // Use event.title for the calendar display
+                start: event.start,
+                allDay: true,
+                color: event.user_id == userId ? '#97a97c' : '#4a4a4a', // Green for user, dark for others
+                textColor: 'white',
+                extendedProps: {
+                    ...event, // Include all event data
+                }
+            };
+        }),
 
-            if (selectedDate <= today) {
+        // Event click handler (SweetAlert instead of Modal)
+        eventClick: function (info) {
+    console.log("Event Clicked:", info.event); // Debugging
+    console.log("Extended Props:", info.event.extendedProps); // Debugging
+    
+    let eventData = info.event.extendedProps || {};
+
+    console.log("Raw Event Data:", eventData); // Debugging
+
+    // Ayusin ang property names (dapat case-sensitive)
+    let checkIn = eventData.check_in ? eventData.check_in : "Not specified";
+    let checkOut = eventData.check_out ? eventData.check_out : "Not specified";
+    let roomType = eventData.room_type ? eventData.room_type : "Not specified"; // Dapat `room_type`
+    let accommodations = eventData.accommodations ? eventData.accommodations : "Not specified";
+    let activities = eventData.activities ? eventData.activities : "Not specified";
+
+    let reservationDetails = `
+        <strong>Date:</strong> ${info.event.startStr || "Not specified"}<br>
+        <strong>Check-in:</strong> ${checkIn}<br>
+        <strong>Check-out:</strong> ${checkOut}<br>
+        <strong>Room Type:</strong> ${roomType}<br>
+        <strong>Accommodations:</strong> ${accommodations}<br>
+        <strong>Activities:</strong> ${activities}
+    `;
+
+    console.log("Final Reservation Details:", reservationDetails); // Debugging
+
+    Swal.fire({
+        title: "Reservation Details",
+        html: reservationDetails,
+        icon: "info"
+    });
+}
+,
+
+        // Date click handler
+        dateClick: function (info) {
+            let selectedDate = info.dateStr;
+            console.log("Selected Date:", selectedDate); // Debugging
+
+            let today = new Date().toISOString().split('T')[0];
+            if (selectedDate < today) {
                 Swal.fire("Invalid Selection", "You cannot select past dates.", "warning");
                 return;
             }
 
+            // Check if the selected date is already booked
             let isBooked = allEvents.some(event => event.start === selectedDate);
+            console.log("Is Booked:", isBooked); // Debugging
 
             if (!isBooked) {
+                // Store the selected date in session storage
                 sessionStorage.setItem("selectedDate", selectedDate);
+
+                // Show a confirmation dialog for reservation type
                 Swal.fire({
                     title: "This date is available!",
                     text: "Select a reservation type:",
                     icon: "question",
                     showCancelButton: true,
-                    confirmButtonText: "⚙️ Custom Package",
-                    cancelButtonText: "📅 Fixed Package",
+                    confirmButtonText: "Custom Package",
+                    cancelButtonText: "Fixed Package",
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
@@ -137,15 +191,22 @@
                     }
                 });
             } else {
-                Swal.fire("Unavailable Date", "This date is already reserved. Please choose another date.", "error");
+                // Show an error if the date is already booked
+                Swal.fire({
+                    icon: "error",
+                    title: "Date Unavailable",
+                    text: "This date is already booked."
+                });
             }
         }
     });
 
+    // Render the calendar
     calendar.render();
+    console.log("Calendar rendered successfully!"); // Debugging
 });
 
+</script>
 
-    </script>
 </body>
 </html>

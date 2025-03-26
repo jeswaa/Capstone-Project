@@ -35,19 +35,6 @@
         <form method="POST" action="{{ route('savePackageSelection') }}">
             @csrf
             <input type="hidden" name="package_type" value="custom">
-            
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="rentAsWhole" class="text-color-1 font-paragraph fw-semibold mb-3 ms-2 mt-2">Rent as Whole</label>
-                        <select id="rentAsWhole" name="rent_as_whole" class="form-control w-50 ms-2">
-                            <option value="" selected disabled hidden>Please select</option>
-                            <option value="yes">Yes</option>
-                            <option value="no">No</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
 
             <div class="col-md-12 d-flex flex-column">
                 <div class="form-group">
@@ -58,18 +45,18 @@
                         <div class="col-md-3 d-flex mb-3">
                             <div class="rounded-4 w-100 color-background5 select-accommodation 
                                         {{ $accomodation->accomodation_slot == 0 ? 'disabled' : '' }}" 
-                                data-id="{{ $accomodation->accomodation_id }}" 
-                                data-slots="{{ $accomodation->accomodation_slot }}">
-
+                                data-id="{{ $accomodation->accomodation_id }}" >
                                 <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" 
                                     class="card-img-top rounded-4" 
                                     alt="accommodation image" 
                                     style="max-width: 100%; height: 250px; object-fit: cover;">
-
                                 <div class="card-body p-3 position-relative">
                                     <h5 class="color-3 text-capitalize font-heading fs-4 fw-bold">
                                         {{ $accomodation->accomodation_name }}
                                     </h5>
+                                    <span class="card-text font-paragraph" style="background-color: {{ $accomodation->accomodation_status === 'available' ? '#C6F7D0' : '#F4C2C7' }};">
+                                        {{ ucfirst($accomodation->accomodation_status) }}
+                                    </span>
 
                                     <p class="text-color-1 font-paragraph" style="font-size: smaller;">Description:
                                         {{ $accomodation->accomodation_description }}
@@ -78,10 +65,7 @@
                                     <p class="card-text text-capitalize font-paragraph fs-6">
                                         Type: {{ $accomodation->accomodation_type }}
                                     </p>
-                                    <p class="card-text font-paragraph">Capacity: {{ $accomodation->accomodation_capacity }}</p>
-                                    <p class="card-text font-paragraph">Available Slots: 
-                                        <span class="available-slots">{{ $accomodation->accomodation_slot }}</span>
-                                    </p>
+                                    <p class="card-text font-paragraph">Capacity: {{ $accomodation->accomodation_capacity }} pax</p>
                                     <p class="card-text font-paragraph">Price: ₱ {{ $accomodation->accomodation_price }}</p>
 
                                     <!-- Hidden input to store selected value -->
@@ -152,7 +136,7 @@
                     <div class="form-group">
                         <h1 class="text-color-1 font-paragraph fs-6 fw-semibold mb-4 ms-2 mt-3">Choose Date</h1>
                         <label for="date">Start Date</label>
-                        <input type="date" id="reservation_date" name="reservation_date" value="{{ $selectedDate }}" class="form-control" required>
+                        <input type="date" id="reservation_date" name="reservation_check_in_date" value="{{ $selectedDate }}" class="form-control" required>
                     </div>
                     <div class="form-group">
                         <label for="date">End Date</label>

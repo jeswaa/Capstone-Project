@@ -41,10 +41,6 @@
                         <i class="fa-users fas fs-4 pe-3"></i> <!-- Icon for Guests -->
                         <span class="sidebar-text">Guests</span>
                     </a>
-                    <a href="{{ route('staff.transactions') }}" class="color-3 d-flex align-items-center p-4 rounded-md text-decoration-none text-hoverStaff font-paragraph fw-semibold hover:color-background1 mt-2" id="transactions-link">
-                        <i class="fa-credit-card fas fs-4 pe-3"></i> <!-- Icon for Transactions -->
-                        <span class="sidebar-text">Transactions</span>
-                    </a>
                     </a>
                     <a href="{{ route('staff.logout')}}" class="color-3 d-flex align-items-center p-4 rounded-md text-decoration-none text-hoverStaff font-paragraph fw-semibold hover:color-background1 mt-2" id="logout-link">
                         <i class="fa-sign-out-alt fas fs-4 pe-3"></i> <!-- Icon for Logout -->

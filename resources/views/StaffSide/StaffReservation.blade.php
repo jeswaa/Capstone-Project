@@ -75,6 +75,8 @@
 
                 <div class="p-3 mt-1">
                     <div class="h-50 p-4 rounded-5 mt-1 overflow-y-auto">
+                        @include('StaffSide.qrscanner')
+                        
                         <h1 class="text-color-1 font-heading fs-1 fw-bold mb-4">Reservations</h1>
                         <!-- Search bar -->
                         <form class="d-flex align-items-center w-100 ms-auto" role="search">

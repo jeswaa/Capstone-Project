@@ -9,8 +9,28 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </head>
+<style>
+    @keyframes fadeOut {
+        0% {
+            opacity: 1;
+        }
+        100% {
+            opacity: 0;
+        }
+    }
+</style>
 <body class="color-background5">
     <div class="container-fluid">
+        @if (session('success'))
+            <div class="position-absolute top-0 end-0 p-3 mt-3 me-3 alert alert-success alert-dismissible fade show" role="alert" style="animation: fadeOut 3s forwards;">
+                {{ session('success') }}
+            </div>
+        @endif
+        @if (session('error'))
+            <div class="position-absolute top-0 end-0 p-3 mt-3 me-3 alert alert-danger alert-dismissible fade show" role="alert" style="animation: fadeOut 5s forwards;">
+                {{ session('error') }}
+            </div>
+        @endif
         <div class="row h-100">
             <!-- Main Content -->
              <div class="col-md-9 col-12 main-content color-background3 rounded-start-50 ps-0 pe-0 mt-4 flex-column align-items-end ms-auto" >
@@ -86,7 +106,7 @@
                                   <td>{{ $package->package_name }}</td>
                                   <td>{{ $package->package_description }}</td>
                                   <td>{{ $package->package_duration }}</td>
-                                  <td>{{ $package->package_room_type }}</td>
+                                  <td>{{ DB::table('accomodations')->where('accomodation_id', $package->package_room_type)->value('accomodation_name') }}</td>
                                   <td>{{ $package->package_max_guests }}</td>
                                   <td>{{ $package->package_activities }}</td>
                                   <td>{{ $package->package_price }}</td>
@@ -196,7 +216,12 @@
           </div>
           <div class="mb-3">
             <label for="packageRoomType" class="form-label">Package Room Type</label>
-            <input type="text" class="form-control" id="packageRoomType" name="package_room_type" placeholder="Enter package room type">
+            <select class="form-select" id="packageRoomType" name="package_room_type">
+              <option value="">Select Room Type</option>
+              @foreach ($accomodations as $accomodation)
+                <option value="{{ $accomodation->accomodation_id }}">{{ $accomodation->accomodation_name }}</option>
+              @endforeach
+            </select>
           </div>
           <div class="mb-3">
             <label for="packagePrice" class="form-label">Package Price</label>
