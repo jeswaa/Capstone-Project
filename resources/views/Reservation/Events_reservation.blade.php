@@ -195,37 +195,48 @@ document.addEventListener('DOMContentLoaded', function () {
             textColor: 'white',
         })),
         dateClick: function (info) {
-            let selectedDate = info.dateStr;
+    let selectedDate = info.dateStr;
 
-            if (selectedDate < today) {
-                Swal.fire("Invalid Selection", "You cannot select past dates.", "warning");
-                return;
-            }
+    if (selectedDate < today) {
+        Swal.fire("Invalid Selection", "You cannot select past dates.", "warning");
+        return;
+    }
 
-            if (!checkInDate) {
-                // Set check-in date
-                checkInDate = selectedDate;
-                Swal.fire("Check-in Date Selected", `Check-in: ${checkInDate}`, "success");
-            } else if (!checkOutDate && selectedDate > checkInDate) {
-                // Set check-out date
-                checkOutDate = selectedDate;
-                Swal.fire("Check-out Date Selected", `Check-in: ${checkInDate}\nCheck-out: ${checkOutDate}`, "success");
+    if (!checkInDate) {
+        // Set check-in date
+        checkInDate = selectedDate;
+        Swal.fire("Check-in Date Selected", `Check-in: ${checkInDate}`, "success");
+    } else if (!checkOutDate && selectedDate > checkInDate) {
+        // Set check-out date
+        checkOutDate = selectedDate;
+        Swal.fire("Check-out Date Selected", `Check-in: ${checkInDate}\nCheck-out: ${checkOutDate}`, "success")
+            .then(() => {
+                // Let user choose between Fixed or Custom package
+                Swal.fire({
+                    title: "Select Reservation Type",
+                    text: "Choose your preferred reservation type.",
+                    icon: "question",
+                    showDenyButton: true,
+                    confirmButtonText: "Fixed Package",
+                    denyButtonText: "Custom Selection",
+                }).then((result) => {
+                    let route = result.isConfirmed ? "{{ route('selectPackage') }}" : "{{ route('selectPackageCustom') }}";
+                    // Redirect to appropriate reservation page
+                    window.location.href = `${route}?checkIn=${checkInDate}&checkOut=${checkOutDate}`;
+                });
+            });
+    } else if (selectedDate <= checkInDate) {
+        Swal.fire("Invalid Selection", "Check-out must be after check-in.", "error");
+    } else {
+        // Reset selection if clicking again
+        checkInDate = selectedDate;
+        checkOutDate = null;
+        Swal.fire("New Check-in Date Selected", `Check-in: ${checkInDate}`, "success");
+    }
 
-                // Redirect to reservation page
-                setTimeout(() => {
-                    window.location.href = `{{ route('selectPackage') }}?checkIn=${checkInDate}&checkOut=${checkOutDate}`;
-                }, 1000);
-            } else if (selectedDate <= checkInDate) {
-                Swal.fire("Invalid Selection", "Check-out must be after check-in.", "error");
-            } else {
-                // Reset selection if clicking again
-                checkInDate = selectedDate;
-                checkOutDate = null;
-                Swal.fire("New Check-in Date Selected", `Check-in: ${checkInDate}`, "success");
-            }
+    highlightSelectedDates();
+},
 
-            highlightSelectedDates();
-        },
         dayCellDidMount: function (info) {
             let cellDate = info.date.toISOString().split('T')[0];
 
@@ -272,8 +283,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
-
-
     </script>
 
 

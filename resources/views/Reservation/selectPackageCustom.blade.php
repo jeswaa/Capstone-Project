@@ -133,15 +133,15 @@
                     $selectedDate = request()->query('date', ''); // Kunin ang date sa URL
                 @endphp
                 <div class="col-md-6">
-                    <div class="form-group">
-                        <h1 class="text-color-1 font-paragraph fs-6 fw-semibold mb-4 ms-2 mt-3">Choose Date</h1>
-                        <label for="date">Start Date</label>
-                        <input type="date" id="reservation_date" name="reservation_check_in_date" value="{{ $selectedDate }}" class="form-control" required>
+                <div class="row mt-4 d-flex align-items-center justify-content-between mx-auto">
+                    <div class="col-md-5 col-12 mb-3 mb-md-0">
+                        <label for="reservation_date">Check-in Date:</label>
+                        <input type="date" id="reservation_date" name="reservation_check_in_date" class="form-control" required>
+
+                        <label for="check_out_date" class="form-label fw-bold mt-3">Check-out Date</label>
+                        <input type="date" id="check_out_date" name="reservation_check_out_date" class="form-control">
                     </div>
-                    <div class="form-group">
-                        <label for="date">End Date</label>
-                        <input type="date" id="date" name="reservation_check_out_date" class="form-control mb-4" min="{{ now()->addDay()->toDateString() }}">
-                    </div>
+                </div>
                 </div>
             </div>
 
@@ -242,7 +242,22 @@
 <script>
     console.log("Selected Date:", "{{ $selectedDate }}");
 </script>
+<script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Get check-in and check-out dates from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const checkIn = urlParams.get("checkIn") || "";
+            const checkOut = urlParams.get("checkOut") || "";
 
+            // Set values in the date inputs
+            document.getElementById("reservation_date").value = checkIn;
+            document.getElementById("check_out_date").value = checkOut;
+
+            // Set hidden inputs for form submission
+            document.getElementById("hidden_checkin").value = checkIn;
+            document.getElementById("hidden_checkout").value = checkOut;
+        });
+    </script>
 </body>
 </html>
 
