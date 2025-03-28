@@ -9,25 +9,35 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
-        .row {
-            height: 100%;
-        }
-        .form-check-input[type="radio"] {
-            display: none;
-        }
-        .form-check-input[type="radio"]:checked + label span {
-            background-color: #007bff;
-            color: white;
-        }
-    </style>
+<style> 
+.package-label {
+    cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.05);
+}
+
+/* Hover Effect */
+.package-card:hover .package-label {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 16px 32px rgba(0, 0, 0, 0.1);
+    transform: translateY(-5px);
+}
+
+/* Selected Effect */
+.package-checkbox:checked + .package-label,
+.package-label.selected {
+    background-color: #718355; /* Light green background to indicate selection */
+    border: 2px solid #414141;
+}
+
+</style>
 </head>
-<body>
+<body class="color-background4">
+    
+    <div class="d-flex align-items-center mt-5 ms-5">
+        <a href="{{ route('calendar') }}"><i class="fa-solid fa-circle-left fa-2x color-3 icon me-3"></i></a>
+        <h1 class="me-3 font-paragraph fs-1 fw-bold">Reservation</h1>
+    </div>
+
     @if(session('error'))
         <div class="alert alert-danger">
             {{ session('error') }}
@@ -124,45 +134,28 @@
                     <input type="time" id="check_out" name="reservation_check_out" class="form-control p-3" value="12:00">
                 </div>
             </div>
-        @endforeach
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label for="time">Time</label>
-                    <h1>Check-in Time</h1>
-                    <input type="time" id="check_in" name="reservation_check_in" class="form-control" value="08:00">
-                    <h1>Check-out Time</h1>
-                    <input type="time" id="check_out" name="reservation_check_out" class="form-control" value="12:00">
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label for="date">Start Date</label>
-                    <input type="date" id="date" name="reservation_check_in_date" class="form-control" min="{{ now()->addDay()->toDateString() }}">
-                </div>
-                <div class="form-group">
-                    <label for="date">End Date</label>
-                    <input type="date" id="date" name="reservation_check_out_date" class="form-control" min="{{ now()->addDay()->toDateString() }}">
-                </div>
-            </div>
-            <input type="hidden" name="amount" id="amount">
-            <button type="submit" class="btn btn-primary">Next</button>
-        </form>
-        </div>
-    </div>
-    
-    <input type="hidden" name="amount" id="amount">
 
-    <div class="position-absolute top-0 end-0 mt-3 me-3">
-        <a href="{{ route ('selectPackageCustom') }}"><button type="button" class="btn btn-primary">Custom Package</button></a>
-    </div>
-</div>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
+            <!-- Special Request Section -->
+            <div class="container mt-5">
+                <div class="mb-3">
+                    <label for="special_requests" class="form-label fw-bold font-paragraph">Special Requests</label>
+                    <textarea class="form-control" id="special_requests" name="special_requests" rows="4" placeholder="E.g., vegetarian meal, room decoration, accessibility needs" style="resize: none;"></textarea>
+                </div>
+            </div>
+        <!-- Submit Button -->
+        <input type="hidden" id="amount" name="amount">
+        <div class="d-flex mt-5 mb-5"  style="text-align: right;">
+            <button type="submit" class="color-background5 text-hover-1 fw-semibold font-paragraph p-3 w-25 rounded-3 border-0 " style="margin-left: auto;">Next</button>
+        </div>
+    </form>
+
+    <script>
+       document.addEventListener("DOMContentLoaded", function () {
     function computeTotal() {
         let selectedPackages = document.querySelectorAll('input[name="selected_packages[]"]:checked');
         let amountField = document.getElementById('amount');
 
-        let entranceFee = 100; // Fixed entrance fee
+        let entranceFee = 100;
         let totalAmount = 0;
 
         selectedPackages.forEach(packageCheckbox => {
@@ -172,17 +165,39 @@ document.addEventListener('DOMContentLoaded', function () {
             totalAmount += (maxGuests * entranceFee) + packagePrice;
         });
 
-        // Update hidden input field
         amountField.value = totalAmount.toFixed(2);
-        console.log("Total Amount: ₱ " + totalAmount.toFixed(2)); // Debugging
     }
 
-    // Attach event listeners to checkboxes
-    document.querySelectorAll('input[name="selected_packages[]"]').forEach(checkbox => {
-        checkbox.addEventListener('change', computeTotal);
+    function updateSelectionUI() {
+        let packageCheckboxes = document.querySelectorAll('input[name="selected_packages[]"]');
+
+        packageCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener("change", function () {
+                let label = this.closest(".form-check").querySelector(".package-label");
+
+                if (this.checked) {
+                    label.classList.add("selected"); // Add highlight class
+                } else {
+                    label.classList.remove("selected"); // Remove highlight class
+                }
+
+                computeTotal(); // Update amount immediately
+            });
+        });
+    }
+
+    // 🔥 Ensure the amount is computed before submitting the form
+    document.querySelector("form").addEventListener("submit", function (event) {
+        computeTotal(); // Ensure amount field is set
+        let amountValue = document.getElementById('amount').value;
+        if (!amountValue || amountValue === "0.00") {
+            event.preventDefault(); // Stop form submission if no package is selected
+            alert("Please select at least one package before proceeding.");
+        }
     });
 
-    computeTotal(); // Compute on page load
+    updateSelectionUI();
+    computeTotal(); // Compute total initially
 });
         </script>
 <script>
@@ -206,6 +221,3 @@ document.addEventListener('DOMContentLoaded', function () {
     </script>
 </body>
 </html>
-
-
-

@@ -134,11 +134,21 @@ input[type="file"] {
                 <div class="col-md-6">
                     <h1>Payment Details</h1>
                     <p>Room Price: ₱ {{ $accomodations->accomodation_price ?? '0.00' }}</p>
-                    <p>Entrance Fee: ₱ {{ ($reservationDetails->number_of_adults * 100) + ($reservationDetails->number_of_children * 50) }}</p>
-                    @if ($reservationDetails->package_id)
-                        <p class="text-color-1 font-paragraph fw-semibold">Package Price: ₱ {{ $packages->where('id', $reservationDetails->package_id)->first()->package_price ?? '0.00' }}</p>
-                        <p class="text-color-1 font-paragraph fw-semibold">Package Entrance Fee: ₱ {{ ($packages->where('id', $reservationDetails->package_id)->first()->package_max_guests * 100) }}</p>
+
+                    <p>Entrance Fee: ₱ {{ (($reservationDetails->number_of_adults ?? 0) * 100) + 
+                    (($reservationDetails->number_of_children ?? 0) * 50) }}</p>
+
+@if ((is_array($reservationDetails) && isset($reservationDetails['package_id'])) || 
+     (is_object($reservationDetails) && isset($reservationDetails->package_id)))
+
+                        <p class="text-color-1 font-paragraph fw-semibold">
+                            Package Price: ₱ {{ $packages->where('id', $reservationDetails->package_id)->first()->package_price ?? '0.00' }}
+                        </p>
+                        <p class="text-color-1 font-paragraph fw-semibold">
+                            Package Entrance Fee: ₱ {{ ($packages->where('id', $reservationDetails->package_id)->first()->package_max_guests * 100) }}
+                        </p>
                     @endif
+
                     
                     <hr class="mt-3 mb-5">
                     
@@ -146,18 +156,21 @@ input[type="file"] {
                         <label for="mobileNo" class="form-label fw-bold fs-5">Mobile Number:</label>
                         <input type="text" class="form-control fs-5" name="mobileNo" id="mobileNo" value="{{ auth()->user()->mobileNo }}" required style="height: 55px;">
                     </div>
+                    @php
+                        $amount = is_array($reservationDetails) ? ($reservationDetails['amount'] ?? '0.00') : ($reservationDetails->amount ?? '0.00');
+                    @endphp
                     <div class="">
                         <div class="d-flex">
                             <div class="me-2">
                                 <label for="amount" class="form-label fw-bold fs-6">Amount:</label>
                                 <<input type="text" class="form-control" id="amount" name="amount" 
-                                    value="₱ {{ number_format((float) str_replace(['₱', ','], '', $reservationDetails->amount), 2) }}" 
+                                    value="₱ {{ $amount }}" 
                                     required style="height: 55px;" readonly>
                             </div>
                             <div>
                                 <label for="discount_amount" class="form-label fw-bold fs-6">Downpayment:</label>
                                 <input type="text" class="form-control w-75" id="discount_amount" name="discount_amount" 
-                                    value="₱ {{ number_format((float) str_replace(['₱', ','], '', $reservationDetails->amount) * 0.15, 2) }}" 
+                                    value="₱{{ $amount }}" 
                                     required style="height: 55px;" readonly>
                             </div>
                             <div>
