@@ -68,23 +68,34 @@
                             <p><strong>Email:</strong> {{ $reservationDetails->email }}</p>
                             <p><strong>Mobile No:</strong> {{ $reservationDetails->mobileNo }}</p>
                             <p><strong>Number of Guests:</strong> 
-                                {{ $reservationDetails->total_guest }} 
+                                @if(!empty($reservationDetails->total_guest))
+                                    {{ $reservationDetails->total_guest }}
+                                @endif
                                 @if(!empty($reservationDetails->package_max_guests))
                                     {{ $reservationDetails->package_max_guests }}
                                 @endif
                             </p>
-                            @if(!empty($reservationDetails->package_name))
-                                <p><strong>Package:</strong> {{ $reservationDetails->package_name }}</p>
-                            @endif
-                            <p><strong>Room Type:</strong>
-                                
-                                    @if(!empty($reservationDetails->package_room_type))
-                                    <td>{{ DB::table('accomodations')->where('accomodation_id', $reservationDetails->package_room_type)->value('accomodation_name') }}</td>
-                                    @endif
-                                    @foreach($accommodations as $acocomodation)
-                                        {{ $acocomodation }}
-                                    @endforeach
-                                
+                            <p><strong>Package:</strong> 
+                                @if(!empty($reservationDetails->package_name))
+                                    {{ $reservationDetails->package_name }}
+                                @else
+                                    No package
+                                @endif
+                            </p>
+                            
+                            <p><strong>Room:</strong>
+                                @if(!empty($reservationDetails->package_room_type))
+                                    @php
+                                        $roomTypeIds = json_decode($reservationDetails->package_room_type, true);
+                                        $roomNames = DB::table('accomodations')
+                                            ->whereIn('accomodation_id', $roomTypeIds)
+                                            ->pluck('accomodation_name')
+                                            ->toArray();
+                                    @endphp
+                                    {{ implode(', ', $roomNames) }}
+                                @else
+                                    {{ implode(', ', $accommodations) }}
+                                @endif
                             </p>
 
                             <p><strong>Activities:</strong> 

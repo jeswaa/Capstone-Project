@@ -99,7 +99,8 @@ class StaffController extends Controller
                 'reservation_details.*',
                 'accomodations.accomodation_name',
                 'packagestbl.package_name',
-                'packagestbl.package_activities'
+                'packagestbl.package_activities',
+                'packagestbl.package_room_type'
             )
             ->orderByDesc('reservation_details.created_at')
             ->paginate(10); // Get all reservations
@@ -262,88 +263,27 @@ class StaffController extends Controller
     }
 
     public function UpdateStatus(Request $request, $id)
-{
-    // Validate the input
-    $request->validate([
-        'payment_status' => 'required|string',
-        'custom_message' => 'nullable|max:255',
-        'reservation_status' => 'required|in:Upcoming,Checked-in,Checked-out,Cancelled',
-    ]);
+    {
+        // Validate the input
+        $request->validate([
+            'payment_status' => 'required|string',
+            'custom_message' => 'nullable|max:255',
+            'reservation_status' => 'required|in:Upcoming,Checked-in,Checked-out,Cancelled',
+        ]);
 
-    // Find the reservation with accommodation and package details
-    $reservation = Reservation::select(
-        'reservation_details.*', 
-        'accomodations.accomodation_id', 
-        'accomodations.accomodation_slot', 
-        'reservation_details.accomodation_id as booked_rooms',
-        'packagestbl.id',
-        'packagestbl.package_room_type',
-    )
-    ->leftJoin('accomodations', 'reservation_details.accomodation_id', '=', 'accomodations.accomodation_id')
-    ->leftJoin('packagestbl', 'accomodations.accomodation_id', '=', 'packagestbl.package_room_type') // Join packagestbl
-    ->findOrFail($id);
+        // Update payment status and reservation status
+        DB::table('reservation_details')->where('id', $id)->update([
+            'payment_status' => $request->payment_status,
+            'reservation_status' => $request->reservation_status,
+            'custom_message' => $request->custom_message ?? null,
+        ]);
 
-    // Store old and new payment statuses
-    $oldPaymentStatus = $reservation->payment_status;
-    $newPaymentStatus = $request->payment_status;
+        // Send email with reservation details
+        $reservation = Reservation::findOrFail($id);
+        Mail::to($reservation->email)->send(new ReservationStatusUpdated($reservation, $request->custom_message, $reservation));
 
-    // Update payment status and reservation status
-    $reservation->payment_status = $newPaymentStatus;
-    $reservation->reservation_status = $request->reservation_status;
-
-    // Update custom message if present
-    if (!empty($request->custom_message)) {
-        $reservation->custom_message = $request->custom_message;
+        return redirect()->route('staff.reservation')->with('success', 'Payment and reservation status updated successfully!');
     }
-
-    // Convert JSON accomodation_id to an array
-    $accomodationIds = json_decode($reservation->booked_rooms, true);
-
-    if (is_array($accomodationIds)) {
-        foreach ($accomodationIds as $accomodationId) {
-            $accomodationId = (int) $accomodationId;
-
-            // **Decrease slot for both room and package if status is "booked" or "paid"**
-            if (in_array($newPaymentStatus, ['booked', 'paid']) && !in_array($oldPaymentStatus, ['booked', 'paid'])) {
-                DB::table('accomodations')
-                    ->where('accomodation_id', $accomodationId)
-                    ->where('accomodation_slot', '>', 0) // Prevent negative slots
-                    ->decrement('accomodation_slot');
-
-                // Also decrease package slot if this accommodation is part of a package
-                if (!empty($reservation->package_id)) {
-                    DB::table('packagestbl')
-                        ->where('package_id', $reservation->package_id)
-                        ->where('package_slot', '>', 0) // Prevent negative slots
-                        ->decrement('package_slot');
-                }
-            }
-
-            // **Increase slot for both room and package if status is "Cancelled" or "Checked-out"**
-            if (in_array($newPaymentStatus, ['cancelled', 'Checked-out']) && in_array($oldPaymentStatus, ['booked', 'paid'])) {
-                DB::table('accomodations')
-                    ->where('accomodation_id', $accomodationId)
-                    ->increment('accomodation_slot');
-
-                // Also increase package slot if this accommodation is part of a package
-                if (!empty($reservation->package_id)) {
-                    DB::table('packagestbl')
-                        ->where('package_id', $reservation->package_id)
-                        ->increment('package_slot');
-                }
-            }
-        }
-    }
-
-    // Force save even if Laravel doesn't detect a change
-    $reservation->setAttribute('updated_at', now());
-    $reservation->save();
-
-    // Send email with reservation details
-    Mail::to($reservation->email)->send(new ReservationStatusUpdated($reservation, $request->custom_message, $reservation));
-
-    return redirect()->route('staff.reservation')->with('success', 'Payment and reservation status updated successfully!');
-}
 
     
 

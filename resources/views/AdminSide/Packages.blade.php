@@ -102,25 +102,34 @@
                                     @else
                                         No image uploaded
                                     @endif
-                                  </td>
-                                  <td>{{ $package->package_name }}</td>
-                                  <td>{{ $package->package_description }}</td>
-                                  <td>{{ $package->package_duration }}</td>
-                                  <td>{{ DB::table('accomodations')->where('accomodation_id', $package->package_room_type)->value('accomodation_name') }}</td>
-                                  <td>{{ $package->package_max_guests }}</td>
-                                  <td>{{ $package->package_activities }}</td>
-                                  <td>{{ $package->package_price }}</td>
-                                  <td class="d-flex gap-2">
-                                      <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editPackageModal{{ $package->id }}">
-                                          Edit
-                                      </button>
-                                      <form action="{{ route('deletePackage', $package->id) }}" method="POST" style="display:inline;">
-                                          @csrf
-                                          @method('DELETE')
-                                          <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                                      </form>
-                                  </td>
-                              </tr>
+                                    </td>
+                                    <td>{{ $package->package_name }}</td>
+                                    <td>{{ $package->package_description }}</td>
+                                    <td>{{ $package->package_duration }}</td>
+                                    <td>
+                                        @php
+                                            $roomTypeIds = json_decode($package->package_room_type, true);
+                                            $roomNames = DB::table('accomodations')
+                                                ->whereIn('accomodation_id', $roomTypeIds)
+                                                ->pluck('accomodation_name')
+                                                ->toArray();
+                                        @endphp
+                                        {{ implode(', ', $roomNames) }}
+                                    </td>
+                                    <td>{{ $package->package_max_guests }}</td>
+                                    <td>{{ $package->package_activities }}</td>
+                                    <td>{{ $package->package_price }}</td>
+                                    <td class="d-flex gap-2">
+                                        <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editPackageModal{{ $package->id }}">
+                                            Edit
+                                        </button>
+                                        <form action="{{ route('deletePackage', $package->id) }}" method="POST" style="display:inline;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
 
                               <!-- Edit Package Modal -->
                               <div class="modal fade" id="editPackageModal{{ $package->id }}" tabindex="-1" aria-labelledby="editPackageModalLabel{{ $package->id }}" aria-hidden="true">
@@ -214,15 +223,15 @@
             <label for="packageDescription" class="form-label">Package Description</label>
             <textarea class="form-control" id="packageDescription" name="package_description" rows="3" placeholder="Enter package description"></textarea>
           </div>
-          <div class="mb-3">
-            <label for="packageRoomType" class="form-label">Package Room Type</label>
-            <select class="form-select" id="packageRoomType" name="package_room_type">
-              <option value="">Select Room Type</option>
-              @foreach ($accomodations as $accomodation)
-                <option value="{{ $accomodation->accomodation_id }}">{{ $accomodation->accomodation_name }}</option>
-              @endforeach
-            </select>
-          </div>
+            <div class="mb-3">
+                <label for="packageRoomType" class="form-label">Package Room Type</label>
+                <select class="form-select" id="packageRoomType" name="package_room_type[]" multiple required>
+                    @foreach ($accomodations as $accomodation)
+                        <option value="{{ $accomodation->accomodation_id }}">{{ $accomodation->accomodation_name }}</option>
+                    @endforeach
+                </select>
+                <small class="text-muted font-paragraph">Hold CTRL (Windows) or CMD (Mac) to select multiple options.</small>
+            </div>
           <div class="mb-3">
             <label for="packagePrice" class="form-label">Package Price</label>
             <input type="number" class="form-control" id="packagePrice" name="package_price" placeholder="Enter package price" required>

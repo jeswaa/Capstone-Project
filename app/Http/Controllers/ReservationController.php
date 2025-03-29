@@ -27,18 +27,53 @@ class ReservationController extends Controller
         return view('Reservation.selectPackageCustom', ['accomodations' => $accomodations, 'activities' => $activities]);
     }
     public function paymentProcess()
-    {
+{
+    // Retrieve reservation details from session
+    $reservationDetails = session('reservation_details');
+
+    if (!$reservationDetails) {
         $reservationDetails = Reservation::where('user_id', Auth::id())->latest()->first();
-        $packages = Package::all();
-        $reservationDetails = Reservation::where('user_id', Auth::id())->latest()->first();
-        $accomodationIds = json_decode($reservationDetails->accomodation_id, true);
-        $accomodationIds = is_array($accomodationIds) && count($accomodationIds) > 0 ? $accomodationIds : [];
-        $accomodations = DB::table('accomodations')->whereIn('accomodation_id', $accomodationIds)
-            ->selectRaw('SUM(accomodation_price) as accomodation_price')
-            ->first();
-        $entranceFee = Transaction::first()->entrance_fee ?? 0;
-        return view('Reservation.paymentProcess', compact('reservationDetails', 'packages', 'entranceFee', 'accomodations'));
     }
+
+    // If no reservation is found, return error
+    if (!$reservationDetails) {
+        return back()->with('error', 'No reservation found. Please complete the reservation first.');
+    }
+
+    // Convert stdClass to array if retrieved from database
+    if (is_object($reservationDetails)) {
+        $reservationDetails = (array) $reservationDetails;
+    }
+
+    $packages = Package::all();
+
+    // Ensure accommodation IDs are properly handled
+    $accomodationIds = isset($reservationDetails['accomodation_id']) 
+        ? json_decode($reservationDetails['accomodation_id'], true) 
+        : [];
+
+    // Fetch accommodation details and compute total accommodation price
+    $accomodations = DB::table('accomodations')->whereIn('accomodation_id', $accomodationIds)->get();
+    $totalAccomodationPrice = $accomodations->sum('accomodation_price');
+
+    // Retrieve entrance fee
+    $entranceFee = Transaction::first()->entrance_fee ?? 0;
+
+    // Compute total entrance fee
+    $totalGuests = $reservationDetails['total_guest'] ?? 0;
+    $totalEntranceFee = $totalGuests * $entranceFee;
+
+    return view('Reservation.paymentProcess', compact(
+        'reservationDetails', 
+        'packages', 
+        'entranceFee', 
+        'totalAccomodationPrice', 
+        'totalEntranceFee', 
+        'accomodations'
+    ));
+}
+
+
 
     public function summary(){
         return view('Reservation.summary');
@@ -130,35 +165,45 @@ class ReservationController extends Controller
             'amount' => $request->amount,
         ]]);
 
-        return redirect()->route('reservation')->with('success', 'Package selection saved. Proceed to enter personal information.');
+        return redirect()->route('paymentProcess')->with('success', 'Package selection saved. Proceed to enter personal information.');
     }
 
     
     public function savePackageSelection(Request $request)
 {
-    // Check if selected dates are available
+    
+    // Check if the selected dates are available
     if (!$this->isDateAvailable($request->reservation_check_in_date) || 
         !$this->isDateAvailable($request->reservation_check_out_date)) {
-        return redirect()->back()->with('error', 'The selected reservation date is already taken.');
+       
     }
-   
-    // Get selected accommodations (can be multiple)
+    // Validate input data
+    $request->validate([
+        'reservation_check_in_date' => 'required|date|after_or_equal:today',
+        'reservation_check_out_date' => 'required|date|after_or_equal:reservation_check_in_date',
+        'reservation_check_in' => 'required|date_format:H:i',
+        'reservation_check_out' => 'required|date_format:H:i',
+        'number_of_adults' => 'required|integer|min:1',
+        'number_of_children' => 'required|integer|min:0',
+    ]);
+    
+
+    // Validate selected accommodations
     $selectedAccommodationIds = $request->input('accomodation_id', []);
+    if (empty($selectedAccommodationIds)) {
+        return redirect()->back()->with('error', 'Please select at least one accommodation.');
+    }
 
     // Fetch accommodation prices
-    $accommodationPrice = 0;
-    if (!empty($selectedAccommodationIds)) {
-        $accommodations = DB::table('accomodations')
-            ->whereIn('accomodation_id', $selectedAccommodationIds)
-            ->get();
+    $accommodations = DB::table('accomodations')
+        ->whereIn('accomodation_id', $selectedAccommodationIds)
+        ->get();
+    
+    $accommodationPrice = (float) $accommodations->sum('accomodation_price');
 
-        // Sum all selected accommodation prices
-        $accommodationPrice = $accommodations->sum('accomodation_price');
-    }
-
-    // Get selected activity (if multiple, store as JSON)
+    // Handle activity selection (store as JSON if multiple)
     $activityIds = $request->input('activity_id', []);
-    $selectedActivityId = count($activityIds) == 1 ? reset($activityIds) : json_encode($activityIds);
+    $selectedActivityId = count($activityIds) > 1 ? json_encode($activityIds) : (count($activityIds) === 1 ? $activityIds[0] : null);
 
     // Compute entrance fee
     $numAdults = (int) $request->input('number_of_adults', 0);
@@ -168,11 +213,11 @@ class ReservationController extends Controller
     // Compute total price
     $totalPrice = $entranceFee + $accommodationPrice;
 
-    // Store reservation details in session instead of saving to database
-    $reservationDetails = [
-        'user_id' => Auth::user()->id,
-        'accomodation_id' => json_encode($selectedAccommodationIds), // Store as JSON array
-        'activity_id' => $selectedActivityId, // Store as JSON array if multiple
+    // Store reservation details in session
+    session()->put('reservation_details', [
+        'user_id' => Auth::id(),
+        'accomodation_id' => json_encode($selectedAccommodationIds),
+        'activity_id' => $selectedActivityId,
         'rent_as_whole' => $request->input('rent_as_whole'),
         'reservation_check_in' => $request->input('reservation_check_in'),
         'reservation_check_out' => $request->input('reservation_check_out'),
@@ -183,11 +228,10 @@ class ReservationController extends Controller
         'number_of_adults' => $numAdults,
         'number_of_children' => $numChildren,
         'amount' => $totalPrice,
-    ];
+    ]);
+    
 
-    session(['reservation_details' => $reservationDetails]);
-
-    return redirect()->route('reservation')->with('success', 'Package selection saved successfully.');
+    return redirect()->route('paymentProcess')->with('success', 'Package selection saved successfully.');
 }
 
     private function isDateAvailable($date)
@@ -199,59 +243,72 @@ class ReservationController extends Controller
 
 
     public function savePaymentProcess(Request $request)
-{
+    {
+        // Retrieve reservation details from session instead of database
+        $reservationDetails = session('reservation_details');
     
-    // Retrieve reservation details from session instead of database
-    $reservationDetails = session('reservation_details');
-
-    if (!$reservationDetails) {
-        return redirect()->route('summary')->with('error', 'No reservation details found. Please complete the reservation process.');
+        if (!$reservationDetails) {
+            return redirect()->route('summary')->with('error', 'No reservation details found. Please complete the reservation process.');
+        }
+    
+        // Ensure reservationDetails is an array
+        if (!is_array($reservationDetails)) {
+            $reservationDetails = (array) $reservationDetails;
+        }
+    
+        // Retrieve entrance fee from transactions table
+        $entranceFee = Transaction::first()->entrance_fee ?? 0;
+    
+        // Retrieve package details
+        $packages = Package::find($reservationDetails['package_id'] ?? null);
+    
+        // Check if `accomodation_id` exists before decoding
+        $accomodationIds = isset($reservationDetails['accomodation_id']) 
+            ? json_decode($reservationDetails['accomodation_id'], true) 
+            : [];
+    
+        // Ensure it's an array
+        $accomodationIds = is_array($accomodationIds) ? json_encode($accomodationIds) : json_encode([]);
+    
+        // Store payment details in session
+        $reservationDetails['amount'] = $request->input('amount');
+        $reservationDetails['payment_method'] = $request->input('payment_method', 'gcash');
+        $reservationDetails['mobileNo'] = $request->input('mobileNo');
+        $reservationDetails['upload_payment'] = $request->file('upload_payment')->store('public/payments');
+        $reservationDetails['reference_num'] = $request->input('reference_num');
+        $reservationDetails['payment_status'] = 'pending';
+    
+        // Save reservation details to database
+        $reservation = new Reservation();
+        $reservation->user_id = Auth::id();
+        $reservation->name = Auth::user()->name;
+        $reservation->email = Auth::user()->email;
+        $reservation->package_id = $reservationDetails['package_id'] ?? null;
+        $reservation->total_guest = $reservationDetails['total_guest'] ?? 0;
+        $reservation->number_of_adults = $reservationDetails['number_of_adults'] ?? 0;
+        $reservation->number_of_children = $reservationDetails['number_of_children'] ?? 0;
+        $reservation->accomodation_id = $accomodationIds; // Now properly handled
+        $reservation->activity_id = $reservationDetails['activity_id'] ?? null;
+        $reservation->reservation_check_in_date = $reservationDetails['reservation_check_in_date'] ?? null;
+        $reservation->reservation_check_out_date = $reservationDetails['reservation_check_out_date'] ?? null;
+        $reservation->reservation_check_in = $reservationDetails['reservation_check_in'] ?? null;
+        $reservation->reservation_check_out = $reservationDetails['reservation_check_out'] ?? null;
+        $reservation->amount = $reservationDetails['amount'];
+        $reservation->payment_method = $reservationDetails['payment_method'];
+        $reservation->mobileNo = $reservationDetails['mobileNo'];
+        $reservation->upload_payment = $reservationDetails['upload_payment'];
+        $reservation->reference_num = $reservationDetails['reference_num'];
+        $reservation->payment_status = $reservationDetails['payment_status'];
+        $reservation->save();
+    
+        // Clear session after saving to database
+        session()->forget('reservation_details');
+    
+        return redirect()->route('summary')->with([
+            'success' => 'Payment details saved and reservation completed successfully.'
+        ]);
     }
-
-    // Retrieve entrance fee from transactions table
-    $entranceFee = Transaction::first()->entrance_fee ?? 0;
-
-    // Retrieve package details
-    $packages = Package::find($reservationDetails['package_id'] ?? null);
-
-    // Store payment details in session
-    $reservationDetails['amount'] = $request->input('amount');
-    $reservationDetails['payment_method'] = $request->input('payment_method', 'gcash');
-    $reservationDetails['mobileNo'] = $request->input('mobileNo');
-    $reservationDetails['upload_payment'] = $request->file('upload_payment')->store('public/payments');
-    $reservationDetails['reference_num'] = $request->input('reference_num');
-    $reservationDetails['payment_status'] = 'pending';
-
-    // Save reservation details to database upon completion of payment process
-    $reservation = new Reservation();
-    $reservation->user_id = Auth::id();
-    $reservation->name = Auth::user()->name;
-    $reservation->email = Auth::user()->email;
-    $reservation->package_id = $reservationDetails['package_id'] ?? null;
-    $reservation->total_guest = $reservationDetails['total_guest'] ?? 0;
-    $reservation->number_of_adults = $reservationDetails['number_of_adults'] ?? 0;
-    $reservation->number_of_children = $reservationDetails['number_of_children'] ?? 0;
-    $reservation->accomodation_id = json_encode(json_decode($reservationDetails['accomodation_id'], true));
-    $reservation->activity_id = $reservationDetails['activity_id'] ?? null;
-    $reservation->reservation_check_in_date = $reservationDetails['reservation_check_in_date'];
-    $reservation->reservation_check_out_date = $reservationDetails['reservation_check_out_date'];
-    $reservation->reservation_check_in = $reservationDetails['reservation_check_in'];
-    $reservation->reservation_check_out = $reservationDetails['reservation_check_out'];
-    $reservation->amount = $reservationDetails['amount'];
-    $reservation->payment_method = $reservationDetails['payment_method'];
-    $reservation->mobileNo = $reservationDetails['mobileNo'];
-    $reservation->upload_payment = $reservationDetails['upload_payment'];
-    $reservation->reference_num = $reservationDetails['reference_num'];
-    $reservation->payment_status = $reservationDetails['payment_status'];
-    $reservation->save();
-
-    // Clear session after saving to database
-    session()->forget('reservation_details');
-
-    return redirect()->route('summary')->with([
-        'success' => 'Payment details saved and reservation completed successfully.'
-    ]);
-}
+    
 
 
 public function displayReservationSummary()
@@ -260,17 +317,18 @@ public function displayReservationSummary()
 
     // Fetch latest reservation
     $reservationDetails = DB::table('reservation_details')
-        ->leftJoin('packagestbl', 'reservation_details.package_id', '=', 'packagestbl.id')
-        ->where('reservation_details.user_id', $userId)
-        ->select(
-            'reservation_details.*',
-            'packagestbl.package_name',
-            'packagestbl.package_room_type',
-            'packagestbl.package_max_guests',
-            'packagestbl.package_activities'
-        )
-        ->latest('reservation_details.created_at') // Get the latest reservation
-        ->first(); // Fetch one latest reservation only
+    ->leftJoin('packagestbl', 'reservation_details.package_id', '=', 'packagestbl.id')
+    ->where('reservation_details.user_id', $userId)
+    ->select(
+        'reservation_details.*',
+        'packagestbl.package_name',
+        'packagestbl.package_room_type', // palitan mo ito ng package_room_type
+        'packagestbl.package_max_guests',
+        'packagestbl.package_activities'
+    )
+    ->latest('reservation_details.created_at')
+    ->first();
+
 
     // Redirect if no reservation found
     if (!$reservationDetails) {
@@ -308,14 +366,6 @@ public function displayReservationSummary()
             ->pluck('accomodation_name')
             ->toArray();
     }
-
-    // Debugging: Log fetched details
-    \Log::info('Reservation Summary:', [
-        'reservation' => $reservationDetails,
-        'activities' => $activities,
-        'accommodations' => $accommodations
-    ]);
-
     return view('Reservation.summary', [
         'reservationDetails' => $reservationDetails,
         'activities' => $activities,
