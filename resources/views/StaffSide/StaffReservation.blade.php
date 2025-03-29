@@ -126,28 +126,17 @@
                                         <td style="font-size: x-small;">{{ \Carbon\Carbon::parse($reservation->reservation_check_out)->format('g:i A') }}</td>
                                         <td style="font-size: x-small;">{{ $reservation->package_name ?: 'No Package' }}</td>
                                         <td style="font-size: x-small;">
-    @php
-        $roomNames = [];
-
-        // Check if package_room_type exists and is not empty
-        if (!empty($reservation->package_room_type)) {
-            $roomTypeIds = json_decode($reservation->package_room_type, true);
-
-            if (is_array($roomTypeIds) && count($roomTypeIds) > 0) {
-                $roomNames = DB::table('accomodations')
-                    ->whereIn('accomodation_id', $roomTypeIds)
-                    ->pluck('accomodation_name')
-                    ->toArray();
-            }
-        }
-
-        // If no package_room_type, use accommodations
-        if (empty($roomNames)) {
-            $roomNames = (array) $reservation->accommodations;
-        }
-    @endphp
-    {{ $reservation->package_name ?: implode(', ', $roomNames) }}
-</td>
+                                            @php
+                                                $roomTypeIds = json_decode($reservation->package_room_type, true);
+                                                $roomNames = is_array($roomTypeIds) ? DB::table('accomodations')
+                                                    ->whereIn('accomodation_id', $roomTypeIds)
+                                                    ->pluck('accomodation_name')
+                                                    ->toArray() : [];
+                                                $accommodationNames = is_array($reservation->accommodations) ? $reservation->accommodations : [];
+                                            @endphp
+                                            {{ count($roomNames) > 0 ? implode(', ', $roomNames) : '' }}
+                                            {{ count($accommodationNames) > 0 ? ', ' . implode(', ', $accommodationNames) : '' }}
+                                        </td>
 
                                         <td style="font-size: x-small;">
                                             {{ implode(', ', $reservation->activities) ?: $reservation->package_activities }}
