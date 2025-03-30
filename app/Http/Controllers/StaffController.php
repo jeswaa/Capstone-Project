@@ -151,8 +151,8 @@ class StaffController extends Controller
             // Fetch all accommodations
                 $accomodations = DB::table('accomodations')->get();
                 // Compute Room Overview
-                $totalRooms = $accomodations->count();
-                $vacantRooms = $accomodations->sum('accomodation_slot');
+                $totalRooms = DB::table('accomodations')->count();
+                $vacantRooms = DB::table('accomodations')->where('accomodation_status', 'available')->count();
 
                 // Adjust reservedRooms count and update available slots
                 $reservedRooms = DB::table('reservation_details')
@@ -270,19 +270,25 @@ class StaffController extends Controller
         'reservation_status' => 'required|in:Upcoming,Checked-in,Checked-out,Cancelled',
     ]);
 
-    // Find the reservation
-    $reservation = Reservation::select('reservation_details.*', 'accomodations.accomodation_id', 'accomodations.accomodation_slot', 'reservation_details.accomodation_id as booked_rooms')
-        ->leftJoin('accomodations', 'reservation_details.accomodation_id', '=', 'accomodations.accomodation_id')
-        ->findOrFail($id);
+    // Find the reservation with accommodation and package details
+    $reservation = Reservation::select(
+        'reservation_details.*', 
+        'accomodations.accomodation_id', 
+        'accomodations.accomodation_slot', 
+        'reservation_details.accomodation_id as booked_rooms',
+        'packagestbl.id',
+        'packagestbl.package_room_type',
+    )
+    ->leftJoin('accomodations', 'reservation_details.accomodation_id', '=', 'accomodations.accomodation_id')
+    ->leftJoin('packagestbl', 'accomodations.accomodation_id', '=', 'packagestbl.package_room_type') // Join packagestbl
+    ->findOrFail($id);
 
     // Store old and new payment statuses
     $oldPaymentStatus = $reservation->payment_status;
     $newPaymentStatus = $request->payment_status;
 
-    // Update payment status
+    // Update payment status and reservation status
     $reservation->payment_status = $newPaymentStatus;
-
-    // Update reservation status
     $reservation->reservation_status = $request->reservation_status;
 
     // Update custom message if present
@@ -297,19 +303,34 @@ class StaffController extends Controller
         foreach ($accomodationIds as $accomodationId) {
             $accomodationId = (int) $accomodationId;
 
-            // **Decrease** slot if status changes to "booked" or "paid"
+            // **Decrease slot for both room and package if status is "booked" or "paid"**
             if (in_array($newPaymentStatus, ['booked', 'paid']) && !in_array($oldPaymentStatus, ['booked', 'paid'])) {
                 DB::table('accomodations')
                     ->where('accomodation_id', $accomodationId)
                     ->where('accomodation_slot', '>', 0) // Prevent negative slots
                     ->decrement('accomodation_slot');
+
+                // Also decrease package slot if this accommodation is part of a package
+                if (!empty($reservation->package_id)) {
+                    DB::table('packagestbl')
+                        ->where('package_id', $reservation->package_id)
+                        ->where('package_slot', '>', 0) // Prevent negative slots
+                        ->decrement('package_slot');
+                }
             }
 
-            // **Increase** slot if status changes to "Cancelled" or "Checked-out"
+            // **Increase slot for both room and package if status is "Cancelled" or "Checked-out"**
             if (in_array($newPaymentStatus, ['cancelled', 'Checked-out']) && in_array($oldPaymentStatus, ['booked', 'paid'])) {
                 DB::table('accomodations')
                     ->where('accomodation_id', $accomodationId)
                     ->increment('accomodation_slot');
+
+                // Also increase package slot if this accommodation is part of a package
+                if (!empty($reservation->package_id)) {
+                    DB::table('packagestbl')
+                        ->where('package_id', $reservation->package_id)
+                        ->increment('package_slot');
+                }
             }
         }
     }

@@ -89,19 +89,6 @@ h1 {
         <form method="POST" action="{{ route('savePackageSelection') }}">
             @csrf
             <input type="hidden" name="package_type" value="custom">
-            
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="rentAsWhole" class="text-color-1 font-paragraph fw-semibold mb-3 ms-2 mt-2">Rent as Whole</label>
-                        <select id="rentAsWhole" name="rent_as_whole" class="form-control w-50 ms-2">
-                            <option value="" selected disabled hidden>Please select</option>
-                            <option value="yes">Yes</option>
-                            <option value="no">No</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
 
             <div class="col-md-12 d-flex flex-column">
                 <div class="form-group">
@@ -112,18 +99,18 @@ h1 {
                         <div class="col-md-3 d-flex mb-3">
                             <div class="rounded-4 w-100 color-background5 select-accommodation 
                                         {{ $accomodation->accomodation_slot == 0 ? 'disabled' : '' }}" 
-                                data-id="{{ $accomodation->accomodation_id }}" 
-                                data-slots="{{ $accomodation->accomodation_slot }}">
-
+                                data-id="{{ $accomodation->accomodation_id }}" >
                                 <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" 
                                     class="card-img-top rounded-4" 
                                     alt="accommodation image" 
                                     style="max-width: 100%; height: 250px; object-fit: cover;">
-
                                 <div class="card-body p-3 position-relative">
                                     <h5 class="color-3 text-capitalize font-heading fs-4 fw-bold">
                                         {{ $accomodation->accomodation_name }}
                                     </h5>
+                                    <span class="card-text font-paragraph" style="background-color: {{ $accomodation->accomodation_status === 'available' ? '#C6F7D0' : '#F4C2C7' }};">
+                                        {{ ucfirst($accomodation->accomodation_status) }}
+                                    </span>
 
                                     <p class="text-color-1 font-paragraph" style="font-size: smaller;">Description:
                                         {{ $accomodation->accomodation_description }}
@@ -132,10 +119,7 @@ h1 {
                                     <p class="card-text text-capitalize font-paragraph fs-6">
                                         Type: {{ $accomodation->accomodation_type }}
                                     </p>
-                                    <p class="card-text font-paragraph">Capacity: {{ $accomodation->accomodation_capacity }}</p>
-                                    <p class="card-text font-paragraph">Available Slots: 
-                                        <span class="available-slots">{{ $accomodation->accomodation_slot }}</span>
-                                    </p>
+                                    <p class="card-text font-paragraph">Capacity: {{ $accomodation->accomodation_capacity }} pax</p>
                                     <p class="card-text font-paragraph">Price: ₱ {{ $accomodation->accomodation_price }}</p>
 
                                     <!-- Hidden input to store selected value -->
@@ -203,15 +187,15 @@ h1 {
                     $selectedDate = request()->query('date', ''); // Kunin ang date sa URL
                 @endphp
                 <div class="col-md-6">
-                    <div class="form-group">
-                        <h1 class="text-color-1 font-paragraph fs-6 fw-semibold mb-4 ms-2 mt-3">Choose Date</h1>
-                        <label for="date">Start Date</label>
-                        <input type="date" id="reservation_date" name="reservation_date" value="{{ $selectedDate }}" class="form-control" required>
+                <div class="row mt-4 d-flex align-items-center justify-content-between mx-auto">
+                    <div class="col-md-5 col-12 mb-3 mb-md-0">
+                        <label for="reservation_date">Check-in Date:</label>
+                        <input type="date" id="reservation_date" name="reservation_check_in_date" class="form-control" required>
+
+                        <label for="check_out_date" class="form-label fw-bold mt-3">Check-out Date</label>
+                        <input type="date" id="check_out_date" name="reservation_check_out_date" class="form-control">
                     </div>
-                    <div class="form-group">
-                        <label for="date">End Date</label>
-                        <input type="date" id="date" name="reservation_check_out_date" class="form-control mb-4" min="{{ now()->addDay()->toDateString() }}">
-                    </div>
+                </div>
                 </div>
             </div>
 
@@ -312,7 +296,22 @@ h1 {
 <script>
     console.log("Selected Date:", "{{ $selectedDate }}");
 </script>
+<script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Get check-in and check-out dates from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const checkIn = urlParams.get("checkIn") || "";
+            const checkOut = urlParams.get("checkOut") || "";
 
+            // Set values in the date inputs
+            document.getElementById("reservation_date").value = checkIn;
+            document.getElementById("check_out_date").value = checkOut;
+
+            // Set hidden inputs for form submission
+            document.getElementById("hidden_checkin").value = checkIn;
+            document.getElementById("hidden_checkout").value = checkOut;
+        });
+    </script>
 </body>
 </html>
 

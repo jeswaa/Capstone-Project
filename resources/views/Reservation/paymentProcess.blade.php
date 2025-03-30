@@ -152,11 +152,15 @@ input[type="file"] {
                         <div class="d-flex">
                             <div class="me-2">
                                 <label for="amount" class="form-label fw-bold fs-6">Amount:</label>
-                                <input type="text" class="form-control" id="amount" name="amount" value="₱ {{ number_format($reservationDetails->amount, 2) }}" required style="height: 55px;" readonly>
+                                <<input type="text" class="form-control" id="amount" name="amount" 
+                                    value="₱ {{ number_format((float) str_replace(['₱', ','], '', $reservationDetails->amount), 2) }}" 
+                                    required style="height: 55px;" readonly>
                             </div>
                             <div>
                                 <label for="discount_amount" class="form-label fw-bold fs-6">Downpayment:</label>
-                                <input type="text" class="form-control w-75" id="discount_amount" name="discount_amount" value="₱ {{ number_format($reservationDetails->amount * 0.15, 2) }}" required style="height: 55px;" readonly>
+                                <input type="text" class="form-control w-75" id="discount_amount" name="discount_amount" 
+                                    value="₱ {{ number_format((float) str_replace(['₱', ','], '', $reservationDetails->amount) * 0.15, 2) }}" 
+                                    required style="height: 55px;" readonly>
                             </div>
                             <div>
                                 <label for="upload_payment" class="form-label fw-bold fs-6">Upload Payment:</label>
