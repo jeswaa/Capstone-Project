@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Package;
+use App\Models\Accomodation;
 use App\Models\Transaction;
 use App\Models\Reservation;
 use DateTime;
@@ -373,48 +374,79 @@ public function displayReservationSummary()
     ]);
 }
 
-    public function showReservationsInCalendar()
-    {
-        $userId = Auth::id();
+public function showReservationsInCalendar()
+{
+    $userId = Auth::id();
 
-        $reservations = DB::table('reservation_details')->get();
+    // Fetch all reservations
+    $reservations = DB::table('reservation_details')->get();
 
-        $events = $reservations->map(function ($reservation) use ($userId) {
-            $package = DB::table('packagestbl')->where('id', $reservation->package_id)->first();
+    // Fetch accommodation statuses
+    $accommodationStatuses = DB::table('accomodations')
+        ->select('accomodation_id', 'accomodation_status')
+        ->get()
+        ->groupBy('accomodation_status');
 
-            // Fetch accommodations
-            $accommodationIds = json_decode($reservation->accomodation_id, true);
-            $accommodations = DB::table('accomodations')
-                ->whereIn('accomodation_id', (array) $accommodationIds)
-                ->pluck('accomodation_name')
-                ->toArray();
+    // Get Fully Booked Dates (Only when all accommodations are unavailable on that date)
+    $fullyBookedDates = DB::table('reservation_details')
+        ->select('reservation_check_in_date')
+        ->groupBy('reservation_check_in_date')
+        ->havingRaw('COUNT(*) >= (SELECT COUNT(*) FROM accomodations)')
+        ->pluck('reservation_check_in_date')
+        ->toArray();
 
-            // Fetch activities
-            $activityIds = json_decode($reservation->activity_id, true);
-            $activities = DB::table('activitiestbl')
-                ->whereIn('id', (array) $activityIds)
-                ->pluck('activity_name')
-                ->toArray();
+    $events = $reservations->map(function ($reservation) use ($userId) {
+        $package = DB::table('packagestbl')->where('id', $reservation->package_id)->first();
 
-            return [
-                'title' => ($reservation->user_id == $userId) ? 'Your Reservation' : 'Reserved',
-                'start' => $reservation->reservation_check_in_date, // ✅ ONLY Check-in date is displayed
-                'allDay' => true, // ✅ Prevents time from appearing in FullCalendar
-                'extendedProps' => [
-                   'user_id' => (int) $reservation->user_id,
-                    'name' => ($reservation->user_id == $userId) ? $reservation->name : 'Reserved',
-                    'check_in' => $reservation->reservation_check_in_date,
-                    'check_out' => $reservation->reservation_check_out_date,
-                    'room_type' => $package->package_room_type ?? '',
-                    'accommodations' => implode(", ", $accommodations),
-                    'activities' => implode(", ", $activities),
-                    'is_owner' => (int) $reservation->user_id === (int) $userId,
-                ],
-            ];
-        })->toArray();
+        // Fetch accommodations
+        $accommodationIds = json_decode($reservation->accomodation_id, true);
+        $accommodations = DB::table('accomodations')
+            ->whereIn('accomodation_id', (array) $accommodationIds)
+            ->pluck('accomodation_name')
+            ->toArray();
 
-        return view('Reservation.Events_reservation', compact('events', 'userId'));
+        // Fetch activities
+        $activityIds = json_decode($reservation->activity_id, true);
+        $activities = DB::table('activitiestbl')
+            ->whereIn('id', (array) $activityIds)
+            ->pluck('activity_name')
+            ->toArray();
+
+        return [
+            'title' => ($reservation->user_id == $userId) ? 'Your Reservation' : 'Reserved',
+            'start' => \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('Y-m-d'),
+            'end' => \Carbon\Carbon::parse($reservation->reservation_check_out_date)->format('Y-m-d'),
+            'allDay' => true,
+            'color' => ($reservation->user_id == $userId) ? '#97a97c' : '#4a4a4a', 
+            'extendedProps' => [
+                'user_id' => (int) $reservation->user_id,
+                'name' => ($reservation->user_id == $userId) ? $reservation->name : 'Reserved',
+                'check_in' => $reservation->reservation_check_in_date,
+                'check_out' => $reservation->reservation_check_out_date,
+                'room_type' => $package->package_room_type ?? '',
+                'accommodations' => implode(", ", $accommodations),
+                'activities' => implode(", ", $activities),
+                'is_owner' => (int) $reservation->user_id === (int) $userId,
+            ],
+        ];
+    })->toArray();
+
+    // Add Fully Booked events for specific dates
+    foreach ($fullyBookedDates as $date) {
+        $fullyBookedEvent = [
+            'title' => 'Fully Booked',
+            'start' => $date, 
+            'allDay' => true,
+            'color' => '#FF0000',
+            'textColor' => 'white'
+        ];
+        $events[] = $fullyBookedEvent;
     }
+
+    return view('Reservation.Events_reservation', compact('events', 'userId'));
+}
+
+
     
 
     public function cancelReservation(Request $request, $id)
@@ -451,5 +483,28 @@ public function displayReservationSummary()
 
         return view('FrontEnd.profilepageReservation', compact('reservations'));
     }
+    public function getAvailableAccommodations(Request $request)
+{
+    $selectedDate = $request->input('date');
+
+    // Kunin lahat ng accommodations
+    $accommodations = Accomodation::all();
+
+    // Kunin lahat ng reservations sa napiling date
+    $reservedAccommodations = Reservation::where('reservation_check_in_date', '<=', $selectedDate)
+        ->where('reservation_check_out_date', '>', $selectedDate)
+        ->whereNotIn('reservation_status', ['checked_out', 'cancelled'])
+        ->pluck('accomodation_id')
+        ->toArray();
+
+    // Markahan ang mga hindi available
+    foreach ($accommodations as $accommodation) {
+        $accommodation->is_available = !in_array($accommodation->id, $reservedAccommodations);
+    }
+
+    return redirect()->back()->with('accommodations', $accommodations);
+}
+
+
 
 }

@@ -304,7 +304,7 @@ class StaffController extends Controller
     }
 
     // If status is 'pending' or 'cancelled', set accommodation as available
-    if (in_array($request->payment_status, ['pending', 'cancelled'])) {
+    if (in_array($request->payment_status, ['pending', 'cancelled', 'checked-out'])) {
         DB::table('accomodations')
             ->whereIn('accomodation_id', $accommodationIds)
             ->update(['accomodation_status' => 'available']);

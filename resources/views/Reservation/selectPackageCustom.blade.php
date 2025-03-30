@@ -179,74 +179,78 @@
 
     <script>
     document.addEventListener("DOMContentLoaded", function () {
-        const accommodationCards = document.querySelectorAll(".select-accommodation");
-        const totalAmountInput = document.getElementById("total_amount");
-        const form = document.querySelector("form");
+    const accommodationCards = document.querySelectorAll(".select-accommodation");
+    const totalAmountInput = document.getElementById("total_amount");
+    const form = document.querySelector("form");
 
-        function calculateTotalGuest() {
-            let adults = parseInt(document.getElementById("number_of_adults").value) || 0;
-            let children = parseInt(document.getElementById("number_of_children").value) || 0;
-            let totalGuests = adults + children;
+    function calculateTotalGuest() {
+        let adults = parseInt(document.getElementById("number_of_adults").value) || 0;
+        let children = parseInt(document.getElementById("number_of_children").value) || 0;
+        let totalGuests = adults + children;
 
-            document.getElementById("total_guests").value = totalGuests;
+        document.getElementById("total_guests").value = totalGuests;
+        calculateTotalAmount();
+    }
+
+    function calculateTotalAmount() {
+        let adultEntranceFee = 100;
+        let childEntranceFee = 50;
+        let numAdults = parseInt(document.getElementById("number_of_adults").value) || 0;
+        let numChildren = parseInt(document.getElementById("number_of_children").value) || 0;
+
+        let entranceTotal = (numAdults * adultEntranceFee) + (numChildren * childEntranceFee);
+
+        let accommodationTotal = 0;
+        document.querySelectorAll('.select-accommodation.selected').forEach(card => {
+            let price = parseFloat(card.getAttribute("data-price")) || 0;
+            accommodationTotal += price;
+        });
+
+        let totalAmount = entranceTotal + accommodationTotal;
+        totalAmountInput.value = totalAmount.toFixed(2);
+    }
+
+    accommodationCards.forEach(card => {
+        card.addEventListener("click", function () {
+            this.classList.toggle("selected");
+
+            let accommodationId = this.getAttribute("data-id");
+            let existingInput = document.querySelector(`input[name="accomodation_id[]"][value="${accommodationId}"]`);
+
+            if (this.classList.contains("selected")) {
+                // Add hidden input if not existing
+                if (!existingInput) {
+                    let input = document.createElement("input");
+                    input.type = "hidden";
+                    input.name = "accomodation_id[]";
+                    input.value = accommodationId;
+                    form.appendChild(input);
+                }
+            } else {
+                // Remove input if unselected
+                if (existingInput) existingInput.remove();
+            }
+
             calculateTotalAmount();
-        }
-
-        function calculateTotalAmount() {
-            let adultEntranceFee = 100;
-            let childEntranceFee = 50;
-            let numAdults = parseInt(document.getElementById("number_of_adults").value) || 0;
-            let numChildren = parseInt(document.getElementById("number_of_children").value) || 0;
-
-            let entranceTotal = (numAdults * adultEntranceFee) + (numChildren * childEntranceFee);
-
-            let accommodationTotal = 0;
-            document.querySelectorAll('.select-accommodation.selected').forEach(card => {
-                let price = parseFloat(card.getAttribute("data-price")) || 0;
-                accommodationTotal += price;
-            });
-
-            let totalAmount = entranceTotal + accommodationTotal;
-            totalAmountInput.value = totalAmount.toFixed(2);
-        }
-
-        accommodationCards.forEach(card => {
-            card.addEventListener("click", function () {
-                this.classList.toggle("selected");
-
-                let accommodationId = this.getAttribute("data-id");
-                let hiddenInput = document.querySelector(`input[name="accomodation_id[]"][value="${accommodationId}"]`);
-
-                if (this.classList.contains("selected")) {
-                    if (!hiddenInput) {
-                        let input = document.createElement("input");
-                        input.type = "hidden";
-                        input.name = "accomodation_id[]";
-                        input.value = accommodationId;
-                        form.appendChild(input);
-                    }
-                } else {
-                    if (hiddenInput) hiddenInput.remove();
-                }
-
-                calculateTotalAmount();
-            });
         });
-
-        form.addEventListener("submit", function () {
-            document.querySelectorAll(".select-accommodation").forEach(card => {
-                let accommodationId = card.getAttribute("data-id");
-                let hiddenInput = document.querySelector(`input[name="accomodation_id[]"][value="${accommodationId}"]`);
-
-                if (!card.classList.contains("selected") && hiddenInput) {
-                    hiddenInput.remove();
-                }
-            });
-        });
-
-        document.getElementById("number_of_adults").addEventListener("input", calculateTotalGuest);
-        document.getElementById("number_of_children").addEventListener("input", calculateTotalGuest);
     });
+
+    form.addEventListener("submit", function () {
+        // Ensure only selected accommodations are submitted
+        document.querySelectorAll("input[name='accomodation_id[]']").forEach(input => {
+            let accommodationId = input.value;
+            let card = document.querySelector(`.select-accommodation[data-id="${accommodationId}"]`);
+
+            if (!card.classList.contains("selected")) {
+                input.remove();
+            }
+        });
+    });
+
+    document.getElementById("number_of_adults").addEventListener("input", calculateTotalGuest);
+    document.getElementById("number_of_children").addEventListener("input", calculateTotalGuest);
+});
+
     </script>
 <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -260,6 +264,45 @@
             document.getElementById("check_out_date").value = checkOut;
         });
     </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+    const checkInDateInput = document.getElementById("reservation_date");
+    const accommodationList = document.getElementById("accommodationList");
+    const accommodationMessage = document.getElementById("accommodationMessage");
+
+    checkInDateInput.addEventListener("change", function () {
+        let checkInDate = this.value;
+        if (!checkInDate) return;
+
+        fetch(`/get-available-accommodations?date=${checkInDate}`)
+            .then(response => response.json())
+            .then(data => {
+                accommodationList.innerHTML = ""; // Clear list
+                if (data.length === 0) {
+                    accommodationMessage.innerHTML = "No accommodations available for this date.";
+                    return;
+                }
+
+                data.forEach(accommodation => {
+                    let div = document.createElement("div");
+                    div.classList.add("accommodation-item", "p-3", "mb-2", "border", "rounded");
+                    div.innerHTML = `
+                        <h5>${accommodation.name}</h5>
+                        <p>Type: ${accommodation.type}</p>
+                        <p>Capacity: ${accommodation.capacity} pax</p>
+                        <p>Price: ₱${accommodation.price}</p>
+                        <span class="badge bg-${accommodation.available ? 'success' : 'danger'}">
+                            ${accommodation.available ? "Available" : "Fully Booked"}
+                        </span>
+                    `;
+                    accommodationList.appendChild(div);
+                });
+            })
+            .catch(error => console.error("Error fetching accommodations:", error));
+    });
+});
+
+    </script>
 </body>
 </html>
-

@@ -168,17 +168,50 @@
 
 
     <script>
-document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function () {
     const calendarEl = document.getElementById('calendar');
     const allEvents = @json($events);
     const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
-
     console.log("Events received:", allEvents);
 
-    const filteredEvents = allEvents.filter(event => event.start >= today); // Remove past events
-
+    // Declare check-in and check-out dates globally
     let checkInDate = null;
     let checkOutDate = null;
+    let fullyBookedDates = new Set(); // Store fully booked dates
+
+    // Group events by date
+    let eventsByDate = {};
+
+    allEvents.forEach(event => {
+        let eventDate = event.start;
+        
+        if (!eventsByDate[eventDate]) {
+            eventsByDate[eventDate] = [];
+        }
+        eventsByDate[eventDate].push(event);
+    });
+
+    // Process events: Remove "Reserved" if "Fully Booked" exists on the same date
+    let filteredEvents = [];
+
+    Object.keys(eventsByDate).forEach(date => {
+        let events = eventsByDate[date];
+
+        // Check if there's a Fully Booked event
+        let isFullyBooked = events.some(event => event.title === "Fully Booked");
+
+        if (isFullyBooked) {
+            // Store fully booked date to prevent selection
+            fullyBookedDates.add(date);
+
+            // Keep only "Fully Booked" events, remove "Reserved" ones
+            let onlyFullyBooked = events.filter(event => event.title === "Fully Booked");
+            filteredEvents.push(...onlyFullyBooked);
+        } else {
+            // If no Fully Booked, keep all events for that date
+            filteredEvents.push(...events);
+        }
+    });
 
     const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
@@ -191,57 +224,60 @@ document.addEventListener('DOMContentLoaded', function () {
             title: event.title,
             start: event.start,
             allDay: true,
-            color: event.extendedProps.is_owner ? '#97a97c' : '#4a4a4a',
+            color: event?.extendedProps?.is_owner ? '#97a97c' : '#4a4a4a',
             textColor: 'white',
         })),
         dateClick: function (info) {
-    let selectedDate = info.dateStr;
+            let selectedDate = info.dateStr;
 
-    if (selectedDate < today) {
-        Swal.fire("Invalid Selection", "You cannot select past dates.", "warning");
-        return;
-    }
+            // Prevent selection of past dates
+            if (selectedDate < today) {
+                Swal.fire("Invalid Selection", "You cannot select past dates.", "warning");
+                return;
+            }
 
-    if (!checkInDate) {
-        // Set check-in date
-        checkInDate = selectedDate;
-        Swal.fire("Check-in Date Selected", `Check-in: ${checkInDate}`, "success");
-    } else if (!checkOutDate && selectedDate > checkInDate) {
-        // Set check-out date
-        checkOutDate = selectedDate;
-        Swal.fire("Check-out Date Selected", `Check-in: ${checkInDate}\nCheck-out: ${checkOutDate}`, "success")
-            .then(() => {
-                // Let user choose between Fixed or Custom package
-                Swal.fire({
-                    title: "Select Reservation Type",
-                    text: "Choose your preferred reservation type.",
-                    icon: "question",
-                    showDenyButton: true,
-                    confirmButtonText: "Fixed Package",
-                    denyButtonText: "Custom Selection",
-                }).then((result) => {
-                    let route = result.isConfirmed ? "{{ route('selectPackage') }}" : "{{ route('selectPackageCustom') }}";
-                    // Redirect to appropriate reservation page
-                    window.location.href = `${route}?checkIn=${checkInDate}&checkOut=${checkOutDate}`;
-                });
-            });
-    } else if (selectedDate <= checkInDate) {
-        Swal.fire("Invalid Selection", "Check-out must be after check-in.", "error");
-    } else {
-        // Reset selection if clicking again
-        checkInDate = selectedDate;
-        checkOutDate = null;
-        Swal.fire("New Check-in Date Selected", `Check-in: ${checkInDate}`, "success");
-    }
+            // Prevent selection of Fully Booked dates
+            if (fullyBookedDates.has(selectedDate)) {
+                Swal.fire("Fully Booked", "This date is fully booked and cannot be selected.", "error");
+                return;
+            }
 
-    highlightSelectedDates();
-},
+            if (!checkInDate) {
+                checkInDate = selectedDate;
+                Swal.fire("Check-in Date Selected", `Check-in: ${checkInDate}`, "success");
+            } else if (!checkOutDate && selectedDate > checkInDate) {
+                checkOutDate = selectedDate;
+                Swal.fire("Check-out Date Selected", `Check-in: ${checkInDate}\nCheck-out: ${checkOutDate}`, "success")
+                    .then(() => {
+                        Swal.fire({
+                            title: "Select Reservation Type",
+                            text: "Choose your preferred reservation type.",
+                            icon: "question",
+                            showDenyButton: true,
+                            confirmButtonText: "Fixed Package",
+                            denyButtonText: "Custom Selection",
+                        }).then((result) => {
+                            let route = result.isConfirmed ? "{{ route('selectPackage') }}" : "{{ route('selectPackageCustom') }}";
+                            window.location.href = `${route}?checkIn=${checkInDate}&checkOut=${checkOutDate}`;
+                        });
+                    });
+            } else if (selectedDate <= checkInDate) {
+                Swal.fire("Invalid Selection", "Check-out must be after check-in.", "error");
+            } else {
+                checkInDate = selectedDate;
+                checkOutDate = null;
+                Swal.fire("New Check-in Date Selected", `Check-in: ${checkInDate}`, "success");
+            }
+
+            highlightSelectedDates();
+        },
 
         dayCellDidMount: function (info) {
             let cellDate = info.date.toISOString().split('T')[0];
 
+            // Highlight past dates
             if (cellDate < today) {
-                info.el.style.opacity = "0.5"; // Lower opacity for past dates
+                info.el.style.opacity = "0.5";
                 info.el.style.position = "relative";
 
                 let xMark = document.createElement("div");
@@ -255,6 +291,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 xMark.style.fontWeight = "bold";
                 info.el.appendChild(xMark);
             }
+
+           
         }
     });
 
@@ -264,8 +302,8 @@ document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('.fc-daygrid-day').forEach(cell => {
             let cellDate = cell.getAttribute('data-date');
 
-            if (cellDate < today) {
-                return; // Skip past dates so ❌ remains
+            if (cellDate < today || fullyBookedDates.has(cellDate)) {
+                return; // Skip past and fully booked dates
             }
 
             cell.style.backgroundColor = "";
@@ -278,11 +316,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 cell.style.backgroundColor = "#dc3545"; // Red for check-out
                 cell.style.color = "white";
             } else if (checkInDate && checkOutDate && cellDate > checkInDate && cellDate < checkOutDate) {
-                cell.style.backgroundColor = "#ffc107"; // Yellow for range
+                cell.style.backgroundColor = "#ffc107"; // Yellow for selected range
             }
         });
     }
 });
+
     </script>
 
 

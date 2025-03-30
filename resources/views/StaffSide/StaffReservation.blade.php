@@ -207,6 +207,7 @@
                                                                         <option value="booked" {{ $reservation->payment_status == 'booked' ? 'selected' : '' }}>Booked</option>
                                                                         <option value="paid" {{ $reservation->payment_status == 'paid' ? 'selected' : '' }}>Paid</option>
                                                                         <option value="cancelled" {{ $reservation->payment_status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                                                                        <option value="checked-out" {{ $reservation->payment_status == 'checked-out' ? 'selected' : '' }}>Checked-out</option>
                                                                     </select>
                                                                 </div>
                                                                 <div class="mb-3">
