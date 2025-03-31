@@ -154,7 +154,7 @@
 
                 <!-- Right Side: Image -->
                 <div class="col-md-6 d-none d-md-block">
-                    <img src="{{ asset('images/labasneto.jpg') }}" alt="Login Image" class="img-fluid rounded-4" style="height: 65vh;">
+                    <img src="{{ asset('images/labasneto.JPG') }}" alt="Login Image" class="img-fluid rounded-4" style="height: 65vh;">
                 </div>
             </div>
         </div>

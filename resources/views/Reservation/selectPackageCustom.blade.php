@@ -55,15 +55,16 @@
                         <div class="row">
                         @foreach($accomodations as $accomodation)
                         <div class="col-md-3 d-flex mb-3">
-                        <input type="hidden" name="accomodation_id[]" value="{{ $accomodation->accomodation_id }}">
                             <div class="rounded-4 w-100 color-background5 select-accommodation 
                                         {{ $accomodation->accomodation_slot == 0 ? 'disabled' : '' }}" 
-                                data-id="{{ $accomodation->accomodation_id }}" >
-                                
+                                data-id="{{ $accomodation->accomodation_id }}" 
+                                data-price="{{ $accomodation->accomodation_price }}">
+
                                 <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" 
                                     class="card-img-top rounded-4" 
                                     alt="accommodation image" 
                                     style="max-width: 100%; height: 250px; object-fit: cover;">
+
                                 <div class="card-body p-3 position-relative">
                                     <h5 class="color-3 text-capitalize font-heading fs-4 fw-bold">
                                         {{ $accomodation->accomodation_name }}
@@ -82,13 +83,11 @@
                                     <p class="card-text font-paragraph">Capacity: {{ $accomodation->accomodation_capacity }} pax</p>
                                     <p class="card-text font-paragraph">Price: ₱ {{ $accomodation->accomodation_price }}</p>
 
-                                    <!-- Hidden input to store selected value -->
-                                    <input type="hidden" name="accomodation_id[]" value="{{ $accomodation->accomodation_id }}" 
-                                        class="hidden-input" 
-                                        @if($accomodation->accomodation_slot == 0) disabled @endif>
+                                    <!-- Hidden input to store selected value (added dynamically by JS) -->
                                 </div>
                             </div>
                         </div>
+
                         @endforeach
                         </div>
                     </div>
@@ -159,6 +158,13 @@
                 </div>
             </div>
 
+            <div class="col-12 mt-4">
+                <h1 class="text-color-1 font-paragraph fs-6 fw-semibold mb-4 ms-2 mt-3">Add Ons</h1>
+                <div class="row">
+                    <!-- add ons  -->
+                </div>
+            </div>
+
             </div>
             <div class="col-12">
                 <div class="form-group">
@@ -178,18 +184,40 @@
     </div>
 
     <script>
-    document.addEventListener("DOMContentLoaded", function () {
-    const accommodationCards = document.querySelectorAll(".select-accommodation");
-    const totalAmountInput = document.getElementById("total_amount");
-    const form = document.querySelector("form");
+    function resetFrontendAccommodations() {
+        console.log("Resetting accommodations to available...");
 
+        document.querySelectorAll(".select-accommodation").forEach(item => {
+            item.classList.remove("disabled");
+            item.classList.add("available");
+
+            // I-update ang status text at background color
+            let statusSpan = item.querySelector(".card-text");
+            if (statusSpan) {
+                statusSpan.textContent = "Available";
+                statusSpan.style.backgroundColor = "#C6F7D0"; // Green background for available
+            }
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const checkInDateInput = document.getElementById("reservation_date");
+
+        checkInDateInput.addEventListener("change", function () {
+            resetFrontendAccommodations(); // I-reset ang frontend kapag nagbago ang check-in date
+        });
+    });
+</script>
+
+<script>
+    // Move function outside DOMContentLoaded to prevent "ReferenceError"
     function calculateTotalGuest() {
         let adults = parseInt(document.getElementById("number_of_adults").value) || 0;
         let children = parseInt(document.getElementById("number_of_children").value) || 0;
         let totalGuests = adults + children;
 
         document.getElementById("total_guests").value = totalGuests;
-        calculateTotalAmount();
+        calculateTotalAmount(); // Ensure total amount updates correctly
     }
 
     function calculateTotalAmount() {
@@ -199,59 +227,59 @@
         let numChildren = parseInt(document.getElementById("number_of_children").value) || 0;
 
         let entranceTotal = (numAdults * adultEntranceFee) + (numChildren * childEntranceFee);
-
         let accommodationTotal = 0;
+
         document.querySelectorAll('.select-accommodation.selected').forEach(card => {
             let price = parseFloat(card.getAttribute("data-price")) || 0;
             accommodationTotal += price;
         });
 
         let totalAmount = entranceTotal + accommodationTotal;
-        totalAmountInput.value = totalAmount.toFixed(2);
+        document.getElementById("total_amount").value = totalAmount.toFixed(2);
     }
 
-    accommodationCards.forEach(card => {
-        card.addEventListener("click", function () {
-            this.classList.toggle("selected");
+    document.addEventListener("DOMContentLoaded", function () {
+        const accommodationCards = document.querySelectorAll(".select-accommodation");
+        const totalAmountInput = document.getElementById("total_amount");
+        const form = document.querySelector("form");
 
-            let accommodationId = this.getAttribute("data-id");
-            let existingInput = document.querySelector(`input[name="accomodation_id[]"][value="${accommodationId}"]`);
+        accommodationCards.forEach(card => {
+            card.addEventListener("click", function () {
+                this.classList.toggle("selected");
 
-            if (this.classList.contains("selected")) {
-                // Add hidden input if not existing
-                if (!existingInput) {
-                    let input = document.createElement("input");
-                    input.type = "hidden";
-                    input.name = "accomodation_id[]";
-                    input.value = accommodationId;
-                    form.appendChild(input);
+                let accommodationId = this.getAttribute("data-id");
+                let existingInput = document.querySelector(`input[name="accomodation_id[]"][value="${accommodationId}"]`);
+
+                if (this.classList.contains("selected")) {
+                    if (!existingInput) {
+                        let input = document.createElement("input");
+                        input.type = "hidden";
+                        input.name = "accomodation_id[]";
+                        input.value = accommodationId;
+                        form.appendChild(input);
+                    }
+                } else {
+                    if (existingInput) existingInput.remove();
                 }
-            } else {
-                // Remove input if unselected
-                if (existingInput) existingInput.remove();
-            }
 
-            calculateTotalAmount();
+                calculateTotalAmount();
+            });
         });
-    });
 
-    form.addEventListener("submit", function () {
-        // Ensure only selected accommodations are submitted
-        document.querySelectorAll("input[name='accomodation_id[]']").forEach(input => {
-            let accommodationId = input.value;
-            let card = document.querySelector(`.select-accommodation[data-id="${accommodationId}"]`);
-
-            if (!card.classList.contains("selected")) {
-                input.remove();
-            }
+        form.addEventListener("submit", function () {
+            document.querySelectorAll("input[name='accomodation_id[]']").forEach(input => {
+                let accommodationId = input.value;
+                let card = document.querySelector(`.select-accommodation[data-id="${accommodationId}"]`);
+                if (!card.classList.contains("selected")) {
+                    input.remove();
+                }
+            });
         });
+
+        document.getElementById("number_of_adults").addEventListener("input", calculateTotalGuest);
+        document.getElementById("number_of_children").addEventListener("input", calculateTotalGuest);
     });
-
-    document.getElementById("number_of_adults").addEventListener("input", calculateTotalGuest);
-    document.getElementById("number_of_children").addEventListener("input", calculateTotalGuest);
-});
-
-    </script>
+</script>
 <script>
         document.addEventListener("DOMContentLoaded", function () {
             // Get check-in and check-out dates from URL
@@ -263,9 +291,8 @@
             document.getElementById("reservation_date").value = checkIn;
             document.getElementById("check_out_date").value = checkOut;
         });
-    </script>
-
-    <script>
+</script>
+<script>
         document.addEventListener("DOMContentLoaded", function () {
     const checkInDateInput = document.getElementById("reservation_date");
     const accommodationList = document.getElementById("accommodationList");
@@ -302,7 +329,7 @@
             .catch(error => console.error("Error fetching accommodations:", error));
     });
 });
+</script>
 
-    </script>
 </body>
 </html>

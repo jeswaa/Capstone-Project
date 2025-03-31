@@ -10,10 +10,16 @@ class Kernel extends ConsoleKernel
     /**
      * Define the application's command schedule.
      */
-    protected function schedule(Schedule $schedule): void
+    protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        $schedule->call(function () {
+            Artisan::call('route:call', ['uri' => route('admin.update.rooms')]);
+        })->dailyAt('00:01'); // Runs every midnight
+
+        $schedule->command('accommodations:update-status')->everyMinute();
     }
+    
+
 
     /**
      * Register the commands for the application.
@@ -24,4 +30,8 @@ class Kernel extends ConsoleKernel
 
         require base_path('routes/console.php');
     }
+    protected $commands = [
+        \App\Console\Commands\UpdateAccommodationStatus::class,
+    ];
+    
 }
