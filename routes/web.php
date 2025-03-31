@@ -14,6 +14,7 @@ use App\Http\Controllers\HomePageController;
 use App\Http\Controllers\SignUpController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\StaffController;
+use App\Http\Controllers\Admin\RoomController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,7 +26,7 @@ use App\Http\Controllers\StaffController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-
+Route::get('/admin/update-rooms', [RoomController::class, 'updateRoomAvailability'])->name('admin.update.rooms');
 
 /* LOGIN */
 Route::get('/login', [LoginController::class, 'login'])->name('login');
