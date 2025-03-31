@@ -9,11 +9,45 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="color-background1">  
+<style>
+body {
+    background: 
+        url("{{ asset('images/Screenshot.png') }}") no-repeat center top, 
+        url("{{ asset('images/logosheesh.png') }}") no-repeat center bottom;
+    background-size: 100% 40%, 100% 70%; /* 30% taas, 70% baba */
+    background-attachment: fixed, fixed; /* Para hindi gumalaw habang nag-scroll */
+    position: relative;
+    height: 100vh;
+    margin: 0;
+}
+body::before {
+    content: "";
+    position: fixed;
+    top: 10%; /* Aligns with the bottom of the top section */
+    left: 0;
+    width: 100%;
+    height: 30%; /* Covers the top section */
+    background: linear-gradient(to top, rgba(0, 93, 59, 0.8), transparent); /* Green smoke effect */
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* White Overlay for Bottom Background */
+body::after {
+    content: "";
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60%; /* Covers the bottom background */
+    background: rgba(255, 255, 255, 0.8); /* White overlay */
+    pointer-events: none;
+    z-index: -1;
+}
+</style>  
 
     <!-- Background Banner -->
     <div class="container-fluid position-relative p-0 mb-n5">
-        <div class="bg-image" style="background: url('{{ asset('images/Screenshot.png') }}') no-repeat center center; background-size: cover; height: 300px;">
             <div class="d-flex justify-content-start align-items-start">
                 <a href="{{ route('calendar') }}" class="m-3 mt-5">
                     <i class="text-color-1 fa-2x fa-circle-left fa-solid icon icon-hover color-3"></i>
@@ -34,6 +68,12 @@
         @if (session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
         @endif
+    </div>
+
+    <div class="position-absolute top-0 end-0 mt-3 me-5">
+        <a href="{{ url('/') }}" class="text-decoration-none">
+            <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="120" class="rounded-pill">
+        </a>
     </div>
 
     <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
@@ -77,7 +117,7 @@
     </div>
 
     <!-- Main Layout: Profile & Reservation Section -->
-    <div class="container mt-1 mt-n3 mb-5 position-relative">
+    <div class="container mt-1 mt-n3 position-relative">
         <div class="row justify-content-center">
             <!-- Profile Card -->
             <div class="col-md-4">
@@ -92,7 +132,7 @@
                     <!-- User Info -->
                     
                     <div class="text-center mt-3">
-                        <p class="fw-bold text-start"><i class="fa-solid fa-circle-user"></i>&nbsp;{{ $user->name }}</p>
+
                         <p class="fw-bold text-start"><i class="fa-solid fa-envelope"></i>&nbsp;{{ $user->email }}</p>
                         <p class="fw-bold text-start"><i class="fa-solid fa-phone"></i>&nbsp;{{ $user->mobileNo }}</p>
                         <p class="fw-bold text-start"><i class="fa-solid fa-location-dot"></i>&nbsp;{{ $user->address }}</p>
@@ -110,8 +150,10 @@
                 </div>
             </div>
 
-            <!-- Reservation Section -->
             <div class="col-md-8" >
+            <div>
+                <p class="fw-bold text-start display-4"><span class="text-white fs-1">Hello,<br></span><span class="color-3">{{ $user->name }}</span></p>
+            </div>
                 <div class="p-4 shadow bg rounded-4 text-white color-background8 mt-5" >
                     <!-- Navigation Tabs -->
                     <ul class="nav nav-tabs">
@@ -122,26 +164,50 @@
                             <a class="nav-link text-white" href="#" onclick="toggleHistory(event, 'history-section')">History</a>
                         </li>
                     </ul>
+                    
 
                     <!-- Reservation List -->
                    <section id="reservation-list-section">
-                       <h5 class="mb-3 mt-3 fw-bold">YOUR CURRENT RESERVATION</h5>
+                       <h5 class="mb-3 fw-bold">YOUR CURRENT RESERVATION</h5>
                        @if ($latestReservation)
                            <div class="row">
-                               <div class="col-md-8">
-                                   <div class="card mb-3">
-                                       <div class="card-body fw-bold">
-                                           <p><strong>Room Type:</strong> 
-                                               {{ $reservationDetails->package_room_type ?? 'N/A' }}  
-                                               @foreach($accommodations as $accommodation) {{ $accommodation }} @endforeach 
-                                           </p>                             
-                                           <p><strong>Check-in:</strong> {{ $latestReservation->reservation_check_in }} - {{ $latestReservation->reservation_check_out }}</p>
-                                           <p><strong>Check-in Date:</strong> {{ \Carbon\Carbon::parse($latestReservation->reservation_check_in_date)->format('F j, Y') }}</p>
-                                           <p><strong>Special Request:</strong> {{ $latestReservation->special_request ?? 'None' }}</p>
-                                           <p><strong>Amount:</strong> {{ $latestReservation->amount }}</p>
-                                       </div>
-                                   </div>
-                               </div>
+                            <div class="col-md-8">
+                                <div class="card mb-4 shadow-sm ">
+                                    <div class="card-body fw-bold">
+                                        <p>
+                                            <strong class="me-5">Room Type:</strong> 
+                                            <span class="d-inline-block ms-4">
+                                                {{ $reservationDetails->package_room_type ?? 'N/A' }}  
+                                                @foreach($accommodations as $accommodation) {{ $accommodation }} @endforeach
+                                            </span>
+                                        </p>
+                                        <p>
+                                            <strong class="me-5">Check-in:</strong> 
+                                            <span class="d-inline-block ms-4">
+                                                {{ $latestReservation->reservation_check_in }} - {{ $latestReservation->reservation_check_out }}
+                                            </span>
+                                        </p>
+                                        <p>
+                                            <strong class="me-2">Check-in Date:</strong> 
+                                            <span class="d-inline-block ms-4">
+                                                {{ \Carbon\Carbon::parse($latestReservation->reservation_check_in_date)->format('F j, Y') }}
+                                            </span>
+                                        </p>
+                                        <p>
+                                            <strong class="me-1">Special Request:</strong> 
+                                            <span class="d-inline-block ms-4">
+                                                {{ $latestReservation->special_request ?? 'None' }}
+                                            </span>
+                                        </p>
+                                        <p>
+                                            <strong class="me-5">Amount:</strong> 
+                                            <span class="d-inline-block ms-4">
+                                                {{ $latestReservation->amount }}
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
                                <div class="col-md-4 d-flex justify-content-between align-items-center">
                                    <p><strong>Status:</strong> 
                                    <span class="badge mb-5
