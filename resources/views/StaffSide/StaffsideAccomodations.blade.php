@@ -71,26 +71,26 @@
                     <table class="table">
                         <thead>
                             <tr>
+                                <th>Room ID</th>
                                 <th>Room Image</th>
                                 <th>Room Name</th>
                                 <th>Room Description</th>
                                 <th>Price</th>
                                 <th>Capacity</th>
                                 <th>Availability</th>
-                                <th>Slot</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($accomodations as $accomodation)
                                 <tr>
+                                    <td>{{ $accomodation->room_id}}</td>
                                     <td><img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" alt="Room Image" width="50" height="50"></td>
                                     <td>{{ $accomodation->accomodation_name }}</td>
                                     <td>{{ $accomodation->accomodation_description }}</td>
                                     <td>{{ $accomodation->accomodation_price }}</td>
                                     <td>{{ $accomodation->accomodation_capacity }}</td>
                                     <td>{{ $accomodation->accomodation_status }}</td>
-                                    <td>{{ $accomodation->accomodation_slot }}</td>
                                     <td>
                                     <a href="#" class="btn btn-warning text-white" data-bs-toggle="modal" data-bs-target="#editRoomModal{{ $accomodation->accomodation_id }}">
                                         <i class="fa-pen-to-square fa-solid"></i>

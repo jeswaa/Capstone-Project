@@ -168,67 +168,123 @@
 
 
     <script>
-       document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function () {
     const calendarEl = document.getElementById('calendar');
     const allEvents = @json($events);
+    const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
 
-    console.log("Events received:", allEvents); // 🛠️ Debug: Check if `start` is correct
+    console.log("Events received:", allEvents);
+
+    const filteredEvents = allEvents.filter(event => event.start >= today); // Remove past events
+
+    let checkInDate = null;
+    let checkOutDate = null;
 
     const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            right: 'dayGridMonth'
         },
-        events: allEvents.map(event => ({
+        events: filteredEvents.map(event => ({
             title: event.title,
-            start: event.start, // ✅ Only start date is displayed
-            allDay: true, // ✅ Prevents time from appearing
+            start: event.start,
+            allDay: true,
             color: event.extendedProps.is_owner ? '#97a97c' : '#4a4a4a',
             textColor: 'white',
         })),
-        dateClick: function(info) {
-            let selectedDate = info.dateStr;
-            let today = new Date().toISOString().split('T')[0];
+        dateClick: function (info) {
+    let selectedDate = info.dateStr;
 
-            if (selectedDate <= today) {
-                Swal.fire("Invalid Selection", "You cannot select past dates.", "warning");
-                return;
-            }
+    if (selectedDate < today) {
+        Swal.fire("Invalid Selection", "You cannot select past dates.", "warning");
+        return;
+    }
 
-            let isBooked = allEvents.some(event => event.start === selectedDate);
-
-            if (!isBooked) {
-                sessionStorage.setItem("selectedDate", selectedDate);
+    if (!checkInDate) {
+        // Set check-in date
+        checkInDate = selectedDate;
+        Swal.fire("Check-in Date Selected", `Check-in: ${checkInDate}`, "success");
+    } else if (!checkOutDate && selectedDate > checkInDate) {
+        // Set check-out date
+        checkOutDate = selectedDate;
+        Swal.fire("Check-out Date Selected", `Check-in: ${checkInDate}\nCheck-out: ${checkOutDate}`, "success")
+            .then(() => {
+                // Let user choose between Fixed or Custom package
                 Swal.fire({
-                    title: "This date is available!",
-                    text: "Select a reservation type:",
+                    title: "Select Reservation Type",
+                    text: "Choose your preferred reservation type.",
                     icon: "question",
-                    showCancelButton: true,
-                    confirmButtonText: "⚙️ Custom Package",
-                    cancelButtonText: "📅 Fixed Package",
-                    reverseButtons: true
+                    showDenyButton: true,
+                    confirmButtonText: "Fixed Package",
+                    denyButtonText: "Custom Selection",
                 }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = "{{ route('selectPackageCustom') }}?date=" + selectedDate;
-                    } else if (result.dismiss === Swal.DismissReason.cancel) {
-                        window.location.href = "{{ route('selectPackage') }}?date=" + selectedDate;
-                    }
+                    let route = result.isConfirmed ? "{{ route('selectPackage') }}" : "{{ route('selectPackageCustom') }}";
+                    // Redirect to appropriate reservation page
+                    window.location.href = `${route}?checkIn=${checkInDate}&checkOut=${checkOutDate}`;
                 });
-            } else {
-                Swal.fire("Unavailable Date", "This date is already reserved. Please choose another date.", "error");
+            });
+    } else if (selectedDate <= checkInDate) {
+        Swal.fire("Invalid Selection", "Check-out must be after check-in.", "error");
+    } else {
+        // Reset selection if clicking again
+        checkInDate = selectedDate;
+        checkOutDate = null;
+        Swal.fire("New Check-in Date Selected", `Check-in: ${checkInDate}`, "success");
+    }
+
+    highlightSelectedDates();
+},
+
+        dayCellDidMount: function (info) {
+            let cellDate = info.date.toISOString().split('T')[0];
+
+            if (cellDate < today) {
+                info.el.style.opacity = "0.5"; // Lower opacity for past dates
+                info.el.style.position = "relative";
+
+                let xMark = document.createElement("div");
+                xMark.innerHTML = "❌";
+                xMark.style.position = "absolute";
+                xMark.style.top = "50%";
+                xMark.style.left = "50%";
+                xMark.style.transform = "translate(-50%, -50%)";
+                xMark.style.fontSize = "1.5rem";
+                xMark.style.color = "red";
+                xMark.style.fontWeight = "bold";
+                info.el.appendChild(xMark);
             }
         }
     });
 
     calendar.render();
+
+    function highlightSelectedDates() {
+        document.querySelectorAll('.fc-daygrid-day').forEach(cell => {
+            let cellDate = cell.getAttribute('data-date');
+
+            if (cellDate < today) {
+                return; // Skip past dates so ❌ remains
+            }
+
+            cell.style.backgroundColor = "";
+            cell.style.color = "black";
+
+            if (cellDate === checkInDate) {
+                cell.style.backgroundColor = "#28a745"; // Green for check-in
+                cell.style.color = "white";
+            } else if (cellDate === checkOutDate) {
+                cell.style.backgroundColor = "#dc3545"; // Red for check-out
+                cell.style.color = "white";
+            } else if (checkInDate && checkOutDate && cellDate > checkInDate && cellDate < checkOutDate) {
+                cell.style.backgroundColor = "#ffc107"; // Yellow for range
+            }
+        });
+    }
 });
-
-
     </script>
 
 
 </body>
 </html>
-

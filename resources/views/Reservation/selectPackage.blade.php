@@ -95,7 +95,15 @@
                                         <h5 class="fs-3 fw-bold text-capitalize color-3 font-paragraph">{{ $package->package_name }}</h5>
                                         <p class="card-text mb-1 font-paragraph fs-6 text-color-1">{{ $package->package_description }}</p>
                                         <p class="mb-1 font-paragraph fs-6 text-color-1"><strong>Duration:</strong> {{ $package->package_duration }}</p>
-                                        <p class="mb-1 font-paragraph fs-6 text-color-1"><strong>Room:</strong> {{ $package->package_room_type }}</p>
+                                        <p class="mb-1 font-paragraph fs-6 text-color-1"><strong>Room:</strong>
+                                        @php
+                                            $roomTypeIds = json_decode($package->package_room_type, true);
+                                            $roomNames = DB::table('accomodations')
+                                                ->whereIn('accomodation_id', $roomTypeIds)
+                                                ->pluck('accomodation_name')
+                                                ->toArray();
+                                        @endphp
+                                        {{ implode(', ', $roomNames) }}
                                         <p class="mb-1 font-paragraph fs-6 text-color-1"><strong>Max Guests:</strong> <span class="max-guests">{{ $package->package_max_guests }}</span></p>
                                         <p class="mb-1 font-paragraph fs-6 text-color-1"><strong>Activities:</strong> {{ $package->package_activities }}</p>
                                         <p class="fw-bold mb-0 font-paragraph fs-6 text-color-1">Price: ₱ <span class="package-price">{{ $package->package_price }}</span></p>
@@ -115,14 +123,16 @@
                 $selectedDate = request()->query('date', ''); // Kunin ang date sa URL
             @endphp
             <div class="row mt-4 d-flex align-items-center justify-content-between mx-auto date-time-selection" style="margin-top: -20px;">
-                <div class="col-md-5 col-12 mb-3 mb-md-0">
-                    <label for="reservation_date">Selected Date:</label>
-                    <input type="date" id="reservation_date" name="reservation_check_in_date" value="{{ $selectedDate }}" class="form-control" required>
+                <div class="row mt-4 d-flex align-items-center justify-content-between mx-auto">
+                    <div class="col-md-5 col-12 mb-3 mb-md-0">
+                        <label for="reservation_date">Check-in Date:</label>
+                        <input type="date" id="reservation_date" name="reservation_check_in_date" class="form-control" required>
 
-                    <label for="check_out_date" class="form-label fw-bold mt-3">End Date</label>
-                    <input type="date" id="check_out_date" name="reservation_check_out_date" class="form-control p-3" min="{{ now()->addDay()->toDateString() }}">
+                        <label for="check_out_date" class="form-label fw-bold mt-3">Check-out Date</label>
+                        <input type="date" id="check_out_date" name="reservation_check_out_date" class="form-control">
+                    </div>
                 </div>
-                
+                    
                 <!-- Check-in and Check-out Time -->
                 <div class="col-md-5 col-12">
                     <label for="check_in" class="form-label fw-bold">Check-in Time</label>
@@ -201,6 +211,22 @@
 <script>
     console.log("Selected Date:", "{{ $selectedDate }}");
 </script>
+<script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Get check-in and check-out dates from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const checkIn = urlParams.get("checkIn") || "";
+            const checkOut = urlParams.get("checkOut") || "";
+
+            // Set values in the date inputs
+            document.getElementById("reservation_date").value = checkIn;
+            document.getElementById("check_out_date").value = checkOut;
+
+            // Set hidden inputs for form submission
+            document.getElementById("hidden_checkin").value = checkIn;
+            document.getElementById("hidden_checkout").value = checkOut;
+        });
+    </script>
 </body>
 </html>
 

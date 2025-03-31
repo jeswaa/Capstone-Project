@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Landing Page</title>
+    <title>Lelo's Resort</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css">
     <link href="https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet">
@@ -49,7 +49,7 @@
                 </ul>
                 <a href="{{ route('login') }}" class="me-3 text-color-2 fs-5 p-2 text-decoration-none fw-semibold text-uppercase text-underline-left-to-right" style="font-family: 'Josefin Sans', sans-serif;">Login</a>
                 <a class="navbar-brand d-none d-md-block" href="#">
-                    <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort" height="150" width="130">
+                    <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort" id="logo" height="150" width="130">
                 </a>
             </div>
         </div>
@@ -270,6 +270,28 @@
         </div>
     </footer>
 
-        
+     <script>
+        document.addEventListener("DOMContentLoaded", function () {
+        let logo = document.getElementById("logo"); // Target the logo
+        let clickCount = 0;
+        let timeout;
+
+        if (logo) {
+            logo.addEventListener("click", function () {
+                clickCount++;
+
+                if (clickCount === 5) {
+                    window.location.href = "login/admin"; // Change to your admin login URL
+                }
+
+                // Reset click count after 2 seconds of inactivity
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    clickCount = 0;
+                }, 2000);
+            });
+        }
+    });
+     </script>   
 </body>
 </html> 

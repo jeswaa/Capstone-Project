@@ -16,15 +16,27 @@
     }
 
     .select-accommodation.selected {
-        background-color: #718355; /* Light green background to indicate selection */
-        border: 2px solid #414141;
+        background-color: #718355 !important;  
+        border: 2px solid #414141 !important;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        transform: scale(1.05);
     }
 
     .select-accommodation:hover {
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 16px 32px rgba(0, 0, 0, 0.1);
         transform: translateY(-5px);
     }
+
 </style>
+@if ($errors->any())
+    <div class="alert alert-danger mt-3">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
 <body class="color-background4">
     <div class="d-flex align-items-center ms-5 mt-5">
         <a href="{{ route('selectPackage') }}"><i class="color-3 fa-2x fa-circle-left fa-solid icon icon-hover ms-4"></i></a><h1 class="text-color-1 text-uppercase font-heading ms-3">Reservation</h1>
@@ -35,19 +47,6 @@
         <form method="POST" action="{{ route('savePackageSelection') }}">
             @csrf
             <input type="hidden" name="package_type" value="custom">
-            
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="rentAsWhole" class="text-color-1 font-paragraph fw-semibold mb-3 ms-2 mt-2">Rent as Whole</label>
-                        <select id="rentAsWhole" name="rent_as_whole" class="form-control w-50 ms-2">
-                            <option value="" selected disabled hidden>Please select</option>
-                            <option value="yes">Yes</option>
-                            <option value="no">No</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
 
             <div class="col-md-12 d-flex flex-column">
                 <div class="form-group">
@@ -56,20 +55,22 @@
                         <div class="row">
                         @foreach($accomodations as $accomodation)
                         <div class="col-md-3 d-flex mb-3">
+                        <input type="hidden" name="accomodation_id[]" value="{{ $accomodation->accomodation_id }}">
                             <div class="rounded-4 w-100 color-background5 select-accommodation 
                                         {{ $accomodation->accomodation_slot == 0 ? 'disabled' : '' }}" 
-                                data-id="{{ $accomodation->accomodation_id }}" 
-                                data-slots="{{ $accomodation->accomodation_slot }}">
-
+                                data-id="{{ $accomodation->accomodation_id }}" >
+                                
                                 <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" 
                                     class="card-img-top rounded-4" 
                                     alt="accommodation image" 
                                     style="max-width: 100%; height: 250px; object-fit: cover;">
-
                                 <div class="card-body p-3 position-relative">
                                     <h5 class="color-3 text-capitalize font-heading fs-4 fw-bold">
                                         {{ $accomodation->accomodation_name }}
                                     </h5>
+                                    <span class="card-text font-paragraph" style="background-color: {{ $accomodation->accomodation_status === 'available' ? '#C6F7D0' : '#F4C2C7' }};">
+                                        {{ ucfirst($accomodation->accomodation_status) }}
+                                    </span>
 
                                     <p class="text-color-1 font-paragraph" style="font-size: smaller;">Description:
                                         {{ $accomodation->accomodation_description }}
@@ -78,10 +79,7 @@
                                     <p class="card-text text-capitalize font-paragraph fs-6">
                                         Type: {{ $accomodation->accomodation_type }}
                                     </p>
-                                    <p class="card-text font-paragraph">Capacity: {{ $accomodation->accomodation_capacity }}</p>
-                                    <p class="card-text font-paragraph">Available Slots: 
-                                        <span class="available-slots">{{ $accomodation->accomodation_slot }}</span>
-                                    </p>
+                                    <p class="card-text font-paragraph">Capacity: {{ $accomodation->accomodation_capacity }} pax</p>
                                     <p class="card-text font-paragraph">Price: ₱ {{ $accomodation->accomodation_price }}</p>
 
                                     <!-- Hidden input to store selected value -->
@@ -149,15 +147,15 @@
                     $selectedDate = request()->query('date', ''); // Kunin ang date sa URL
                 @endphp
                 <div class="col-md-6">
-                    <div class="form-group">
-                        <h1 class="text-color-1 font-paragraph fs-6 fw-semibold mb-4 ms-2 mt-3">Choose Date</h1>
-                        <label for="date">Start Date</label>
-                        <input type="date" id="reservation_date" name="reservation_date" value="{{ $selectedDate }}" class="form-control" required>
+                <div class="row mt-4 d-flex align-items-center justify-content-between mx-auto">
+                    <div class="col-md-5 col-12 mb-3 mb-md-0">
+                        <label for="reservation_date">Check-in Date:</label>
+                        <input type="date" id="reservation_date" name="reservation_check_in_date" class="form-control" required>
+
+                        <label for="check_out_date" class="form-label fw-bold mt-3">Check-out Date</label>
+                        <input type="date" id="check_out_date" name="reservation_check_out_date" class="form-control">
                     </div>
-                    <div class="form-group">
-                        <label for="date">End Date</label>
-                        <input type="date" id="date" name="reservation_check_out_date" class="form-control mb-4" min="{{ now()->addDay()->toDateString() }}">
-                    </div>
+                </div>
                 </div>
             </div>
 
@@ -180,85 +178,88 @@
     </div>
 
     <script>
-    function calculateTotalGuest() {
-        let adults = parseInt(document.getElementById("number_of_adults").value) || 0;
-        let children = parseInt(document.getElementById("number_of_children").value) || 0;
-        let totalGuests = adults + children;
-
-        document.getElementById("total_guests").value = totalGuests;
-
-        calculateTotalAmount();
-    }
-
-    function calculateTotalAmount() {
-        let adultEntranceFee = 100; // Entrance fee per adult
-        let childEntranceFee = 50;  // Entrance fee per child
-        let numAdults = parseInt(document.getElementById("number_of_adults").value) || 0;
-        let numChildren = parseInt(document.getElementById("number_of_children").value) || 0;
-
-        let entranceTotal = (numAdults * adultEntranceFee) + (numChildren * childEntranceFee);
-
-        // Calculate accommodation total (Only selected)
-        let accommodationTotal = 0;
-        document.querySelectorAll('.select-accommodation.selected').forEach((card) => {
-            let priceElement = card.querySelector(".card-text:last-child"); // Get last text element (price)
-            if (priceElement) {
-                let price = parseFloat(priceElement.textContent.replace("Price: ", "").replace("₱", "")) || 0;
-                accommodationTotal += price;
-            }
-        });
-
-        // Final total price (Entrance + Accommodation)
-        let totalAmount = entranceTotal + accommodationTotal;
-
-        // Assign total amount to hidden input
-        document.getElementById("total_amount").value = totalAmount.toFixed(2);
-    }
-
-    // Handle Accommodation Selection
     document.addEventListener("DOMContentLoaded", function () {
-    const accommodationCards = document.querySelectorAll(".select-accommodation");
+        const accommodationCards = document.querySelectorAll(".select-accommodation");
+        const totalAmountInput = document.getElementById("total_amount");
+        const form = document.querySelector("form");
 
-    accommodationCards.forEach(card => {
-        card.addEventListener("click", function () {
-            this.classList.toggle("selected"); // Toggle selection
-            const hiddenInput = this.querySelector(".hidden-input");
-            
-            if (!this.classList.contains("selected")) {
-                if (hiddenInput) hiddenInput.remove(); // Remove hidden input if unselected
-            } else {
-                // Add hidden input if selected (ensure it exists)
-                if (!hiddenInput) {
-                    const input = document.createElement("input");
-                    input.type = "hidden";
-                    input.name = "accomodation_id[]";
-                    input.value = this.getAttribute("data-id");
-                    input.classList.add("hidden-input");
-                    this.appendChild(input);
+        function calculateTotalGuest() {
+            let adults = parseInt(document.getElementById("number_of_adults").value) || 0;
+            let children = parseInt(document.getElementById("number_of_children").value) || 0;
+            let totalGuests = adults + children;
+
+            document.getElementById("total_guests").value = totalGuests;
+            calculateTotalAmount();
+        }
+
+        function calculateTotalAmount() {
+            let adultEntranceFee = 100;
+            let childEntranceFee = 50;
+            let numAdults = parseInt(document.getElementById("number_of_adults").value) || 0;
+            let numChildren = parseInt(document.getElementById("number_of_children").value) || 0;
+
+            let entranceTotal = (numAdults * adultEntranceFee) + (numChildren * childEntranceFee);
+
+            let accommodationTotal = 0;
+            document.querySelectorAll('.select-accommodation.selected').forEach(card => {
+                let price = parseFloat(card.getAttribute("data-price")) || 0;
+                accommodationTotal += price;
+            });
+
+            let totalAmount = entranceTotal + accommodationTotal;
+            totalAmountInput.value = totalAmount.toFixed(2);
+        }
+
+        accommodationCards.forEach(card => {
+            card.addEventListener("click", function () {
+                this.classList.toggle("selected");
+
+                let accommodationId = this.getAttribute("data-id");
+                let hiddenInput = document.querySelector(`input[name="accomodation_id[]"][value="${accommodationId}"]`);
+
+                if (this.classList.contains("selected")) {
+                    if (!hiddenInput) {
+                        let input = document.createElement("input");
+                        input.type = "hidden";
+                        input.name = "accomodation_id[]";
+                        input.value = accommodationId;
+                        form.appendChild(input);
+                    }
+                } else {
+                    if (hiddenInput) hiddenInput.remove();
                 }
-            }
+
+                calculateTotalAmount();
+            });
         });
-    });
 
-    // Ensure only selected accommodations are submitted
-    document.querySelector("form").addEventListener("submit", function () {
-        document.querySelectorAll(".hidden-input").forEach(input => {
-            if (!input.closest(".select-accommodation").classList.contains("selected")) {
-                input.remove(); // Remove unselected hidden inputs before submission
-            }
+        form.addEventListener("submit", function () {
+            document.querySelectorAll(".select-accommodation").forEach(card => {
+                let accommodationId = card.getAttribute("data-id");
+                let hiddenInput = document.querySelector(`input[name="accomodation_id[]"][value="${accommodationId}"]`);
+
+                if (!card.classList.contains("selected") && hiddenInput) {
+                    hiddenInput.remove();
+                }
+            });
         });
+
+        document.getElementById("number_of_adults").addEventListener("input", calculateTotalGuest);
+        document.getElementById("number_of_children").addEventListener("input", calculateTotalGuest);
     });
-});
-
-
-    // Attach event listeners for guest count changes
-    document.getElementById("number_of_adults").addEventListener("input", calculateTotalGuest);
-    document.getElementById("number_of_children").addEventListener("input", calculateTotalGuest);
-</script>
+    </script>
 <script>
-    console.log("Selected Date:", "{{ $selectedDate }}");
-</script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Get check-in and check-out dates from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const checkIn = urlParams.get("checkIn") || "";
+            const checkOut = urlParams.get("checkOut") || "";
 
+            // Set values in the date inputs
+            document.getElementById("reservation_date").value = checkIn;
+            document.getElementById("check_out_date").value = checkOut;
+        });
+    </script>
 </body>
 </html>
 
