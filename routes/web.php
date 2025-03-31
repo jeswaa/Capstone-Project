@@ -11,7 +11,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\HomePageController;
-use App\Http\Controllers\SignupController;
+use App\Http\Controllers\SignUpController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\StaffController;
 
@@ -51,6 +51,7 @@ Route::get('/reservation-summary/{id}', [ReservationController::class,'reservati
 Route::get('/user-logout', [HomePageController::class, 'userlogout'])->name('logout.user');
 // Reservation
 Route::get('/reservation/calendar', [ReservationController::class, 'showReservationsInCalendar'])->name('calendar');
+Route::get('/get-available-accommodations', [ReservationController::class, 'getAvailableAccommodations'])->name('getAvailableAccommodations');
 Route::get('/reservation', [ReservationController::class, 'reservation'])->name('reservation');
 Route::get('/reservation/fetch-accomodation-data', [ReservationController::class, 'fetchAccomodationData'])->name('selectPackage');
 Route::get('/reservation/select-package-custom', [ReservationController::class, 'selectPackageCustom'])->name('selectPackageCustom');

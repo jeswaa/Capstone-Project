@@ -208,9 +208,6 @@ $allMonths = collect(range(1, 12))->map(function ($month) use ($monthlyRevenueDa
     ];
 });
 
-
-
-    
         // Latest Reservations with Joins
         $latestReservations = DB::table('reservation_details')
             ->join('packagestbl', 'reservation_details.package_id', '=', 'packagestbl.id')
@@ -267,41 +264,46 @@ $allMonths = collect(range(1, 12))->map(function ($month) use ($monthlyRevenueDa
     }
 
     public function addPackages(Request $request)
-    {
-        $request->validate([
-            'image_package' => 'required|image|mimes:jpeg,png,jpg,gif',
-            'package_name' => 'required|string|max:255',
-            'package_description' => 'nullable|string',
-            'package_price' => 'required|numeric|min:0',
-            'package_duration' => 'nullable|string',
-            'package_max_guests' => 'nullable|string',
-            'package_room_type' => 'nullable|string',
-            'package_activities' => 'nullable|string',
-        ]);
+{
+    $request->validate([
+        'image_package' => 'required|image|mimes:jpeg,png,jpg,gif',
+        'package_name' => 'required|string|max:255',
+        'package_description' => 'nullable|string',
+        'package_price' => 'required|numeric|min:0',
+        'package_duration' => 'nullable|string',
+        'package_max_guests' => 'nullable|string',
+        'package_room_type' => 'nullable|array', // ✅ Change from string to array
+        'package_activities' => 'nullable|string',
+    ]);
 
-        if ($request->hasFile('image_package')) {
-            try {
-                $imagePath = $request->file('image_package')->store('package_images', 'public');
-            } catch (\Exception $e) {
-                return back()->withErrors(['image_package' => 'Error saving image. Please try again.']);
-            }
-        } else {
-            $imagePath = null;
+    // ✅ Handle file upload properly
+    if ($request->hasFile('image_package')) {
+        try {
+            $imagePath = $request->file('image_package')->store('package_images', 'public');
+        } catch (\Exception $e) {
+            return back()->withErrors(['image_package' => 'Error saving image. Please try again.']);
         }
-
-        DB::table('packagestbl')->insert([
-            'image_package' => $imagePath,
-            'package_name' => $request->package_name,
-            'package_description' => $request->package_description,
-            'package_room_type' => $request->package_room_type,
-            'package_price' => $request->package_price,
-            'package_duration' => $request->package_duration,
-            'package_max_guests' => $request->package_max_guests,
-            'package_activities' => $request->package_activities,
-        ]);
-
-        return redirect()->route('packages')->with('success', 'Package added successfully!');
+    } else {
+        $imagePath = null;
     }
+
+    // ✅ Convert multiple room types to JSON before storing
+    $packageRoomTypes = $request->package_room_type ? json_encode($request->package_room_type) : null;
+
+    DB::table('packagestbl')->insert([
+        'image_package' => $imagePath,
+        'package_name' => $request->package_name,
+        'package_description' => $request->package_description,
+        'package_room_type' => $packageRoomTypes, // ✅ Store as JSON
+        'package_price' => $request->package_price,
+        'package_duration' => $request->package_duration,
+        'package_max_guests' => $request->package_max_guests,
+        'package_activities' => $request->package_activities,
+    ]);
+
+    return redirect()->route('packages')->with('success', 'Package added successfully!');
+}
+
     public function updatePackage(Request $request, $id)
 {
     // Validate the request
@@ -352,18 +354,39 @@ $allMonths = collect(range(1, 12))->map(function ($month) use ($monthlyRevenueDa
 }
 
 
-    public function packages()
-    {
-        $packages = DB::table('packagestbl')
-            ->leftJoin('accomodations', 'packagestbl.package_room_type', '=', 'accomodations.accomodation_id')
-            ->select('packagestbl.*', 'accomodations.accomodation_name')
-            ->get();
-        $accomodations = DB::table('accomodations')->get();
-        return view('AdminSide.packages', [
-            'packages' => $packages,
-            'accomodations' => $accomodations
-        ]);
+public function packages()
+{
+    $packages = DB::table('packagestbl')->get();
+    $accomodations = DB::table('accomodations')->get();
+
+    foreach ($packages as $package) {
+        // Decode the JSON room type IDs
+        $roomTypeIds = json_decode($package->package_room_type, true);
+
+        // Initialize room_types property
+        $package->room_types = 'No rooms assigned';
+
+        if (!empty($roomTypeIds)) {
+            // Fetch accommodation names based on IDs
+            $roomNames = DB::table('accomodations')
+                ->whereIn('accomodation_id', $roomTypeIds)
+                ->pluck('accomodation_name')
+                ->toArray();
+
+            // Store room names in the package object
+            if (!empty($roomNames)) {
+                $package->room_types = implode(', ', $roomNames);
+            }
+        }
     }
+
+    return view('AdminSide.packages', compact('packages', 'accomodations'));
+}
+
+
+
+
+
 
     public function addRoom(Request $request)
     {

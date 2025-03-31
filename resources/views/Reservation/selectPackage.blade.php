@@ -95,7 +95,15 @@
                                         <h5 class="fs-3 fw-bold text-capitalize color-3 font-paragraph">{{ $package->package_name }}</h5>
                                         <p class="card-text mb-1 font-paragraph fs-6 text-color-1">{{ $package->package_description }}</p>
                                         <p class="mb-1 font-paragraph fs-6 text-color-1"><strong>Duration:</strong> {{ $package->package_duration }}</p>
-                                        <p class="mb-1 font-paragraph fs-6 text-color-1"><strong>Room:</strong>  <td>{{ DB::table('accomodations')->where('accomodation_id', $package->package_room_type)->value('accomodation_name') }}</td></p>
+                                        <p class="mb-1 font-paragraph fs-6 text-color-1"><strong>Room:</strong>
+                                        @php
+                                            $roomTypeIds = json_decode($package->package_room_type, true);
+                                            $roomNames = DB::table('accomodations')
+                                                ->whereIn('accomodation_id', $roomTypeIds)
+                                                ->pluck('accomodation_name')
+                                                ->toArray();
+                                        @endphp
+                                        {{ implode(', ', $roomNames) }}
                                         <p class="mb-1 font-paragraph fs-6 text-color-1"><strong>Max Guests:</strong> <span class="max-guests">{{ $package->package_max_guests }}</span></p>
                                         <p class="mb-1 font-paragraph fs-6 text-color-1"><strong>Activities:</strong> {{ $package->package_activities }}</p>
                                         <p class="fw-bold mb-0 font-paragraph fs-6 text-color-1">Price: ₱ <span class="package-price">{{ $package->package_price }}</span></p>

@@ -27,58 +27,27 @@ h1 {
     }
 
     .select-accommodation.selected {
-        background-color: #718355; /* Light green background to indicate selection */
-        border: 2px solid #414141;
+        background-color: #718355 !important;  
+        border: 2px solid #414141 !important;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        transform: scale(1.05);
     }
 
     .select-accommodation:hover {
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 16px 32px rgba(0, 0, 0, 0.1);
         transform: translateY(-5px);
     }
-    @media (max-width: 768px) {
-        .container {
-            max-width: 90%;
-            margin: auto;
-        }
 
-        .form-group label {
-            font-size: 14px;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            font-size: 14px;
-            padding: 8px;
-            width: 335px;
-        }
-
-        h1 {
-            font-size: 20px;
-        }
-
-        .btn {
-            width: 100%;
-        }
-
-        .select-accommodation {
-            width: 100%;
-            margin: auto;
-        }
-
-        .select-accommodation img {
-            height: 180px;
-        }
-
-        .col-md-3 {
-            width: 100%;
-        }
-
-        .d-flex.align-items-center {
-            justify-content: flex-start;
-        }
-    }
 </style>
+@if ($errors->any())
+    <div class="alert alert-danger mt-3">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
 <body class="color-background4">
     <div class="d-flex align-items-center ms-5 mt-5">
         <a href="{{ route('selectPackage') }}"><i class="color-3 fa-2x fa-circle-left fa-solid icon icon-hover ms-4"></i></a><h1 class="text-color-1 text-uppercase font-heading ms-3">Reservation</h1>
@@ -97,9 +66,11 @@ h1 {
                         <div class="row">
                         @foreach($accomodations as $accomodation)
                         <div class="col-md-3 d-flex mb-3">
+                        <input type="hidden" name="accomodation_id[]" value="{{ $accomodation->accomodation_id }}">
                             <div class="rounded-4 w-100 color-background5 select-accommodation 
                                         {{ $accomodation->accomodation_slot == 0 ? 'disabled' : '' }}" 
                                 data-id="{{ $accomodation->accomodation_id }}" >
+                                
                                 <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" 
                                     class="card-img-top rounded-4" 
                                     alt="accommodation image" 
@@ -218,84 +189,80 @@ h1 {
     </div>
 
     <script>
+    document.addEventListener("DOMContentLoaded", function () {
+    const accommodationCards = document.querySelectorAll(".select-accommodation");
+    const totalAmountInput = document.getElementById("total_amount");
+    const form = document.querySelector("form");
+
     function calculateTotalGuest() {
         let adults = parseInt(document.getElementById("number_of_adults").value) || 0;
         let children = parseInt(document.getElementById("number_of_children").value) || 0;
         let totalGuests = adults + children;
 
         document.getElementById("total_guests").value = totalGuests;
-
         calculateTotalAmount();
     }
 
     function calculateTotalAmount() {
-        let adultEntranceFee = 100; // Entrance fee per adult
-        let childEntranceFee = 50;  // Entrance fee per child
+        let adultEntranceFee = 100;
+        let childEntranceFee = 50;
         let numAdults = parseInt(document.getElementById("number_of_adults").value) || 0;
         let numChildren = parseInt(document.getElementById("number_of_children").value) || 0;
 
         let entranceTotal = (numAdults * adultEntranceFee) + (numChildren * childEntranceFee);
 
-        // Calculate accommodation total (Only selected)
         let accommodationTotal = 0;
-        document.querySelectorAll('.select-accommodation.selected').forEach((card) => {
-            let priceElement = card.querySelector(".card-text:last-child"); // Get last text element (price)
-            if (priceElement) {
-                let price = parseFloat(priceElement.textContent.replace("Price: ", "").replace("₱", "")) || 0;
-                accommodationTotal += price;
-            }
+        document.querySelectorAll('.select-accommodation.selected').forEach(card => {
+            let price = parseFloat(card.getAttribute("data-price")) || 0;
+            accommodationTotal += price;
         });
 
-        // Final total price (Entrance + Accommodation)
         let totalAmount = entranceTotal + accommodationTotal;
-
-        // Assign total amount to hidden input
-        document.getElementById("total_amount").value = totalAmount.toFixed(2);
+        totalAmountInput.value = totalAmount.toFixed(2);
     }
-
-    // Handle Accommodation Selection
-    document.addEventListener("DOMContentLoaded", function () {
-    const accommodationCards = document.querySelectorAll(".select-accommodation");
 
     accommodationCards.forEach(card => {
         card.addEventListener("click", function () {
-            this.classList.toggle("selected"); // Toggle selection
-            const hiddenInput = this.querySelector(".hidden-input");
-            
-            if (!this.classList.contains("selected")) {
-                if (hiddenInput) hiddenInput.remove(); // Remove hidden input if unselected
-            } else {
-                // Add hidden input if selected (ensure it exists)
-                if (!hiddenInput) {
-                    const input = document.createElement("input");
+            this.classList.toggle("selected");
+
+            let accommodationId = this.getAttribute("data-id");
+            let existingInput = document.querySelector(`input[name="accomodation_id[]"][value="${accommodationId}"]`);
+
+            if (this.classList.contains("selected")) {
+                // Add hidden input if not existing
+                if (!existingInput) {
+                    let input = document.createElement("input");
                     input.type = "hidden";
                     input.name = "accomodation_id[]";
-                    input.value = this.getAttribute("data-id");
-                    input.classList.add("hidden-input");
-                    this.appendChild(input);
+                    input.value = accommodationId;
+                    form.appendChild(input);
                 }
+            } else {
+                // Remove input if unselected
+                if (existingInput) existingInput.remove();
+            }
+
+            calculateTotalAmount();
+        });
+    });
+
+    form.addEventListener("submit", function () {
+        // Ensure only selected accommodations are submitted
+        document.querySelectorAll("input[name='accomodation_id[]']").forEach(input => {
+            let accommodationId = input.value;
+            let card = document.querySelector(`.select-accommodation[data-id="${accommodationId}"]`);
+
+            if (!card.classList.contains("selected")) {
+                input.remove();
             }
         });
     });
 
-    // Ensure only selected accommodations are submitted
-    document.querySelector("form").addEventListener("submit", function () {
-        document.querySelectorAll(".hidden-input").forEach(input => {
-            if (!input.closest(".select-accommodation").classList.contains("selected")) {
-                input.remove(); // Remove unselected hidden inputs before submission
-            }
-        });
-    });
-});
-
-
-    // Attach event listeners for guest count changes
     document.getElementById("number_of_adults").addEventListener("input", calculateTotalGuest);
     document.getElementById("number_of_children").addEventListener("input", calculateTotalGuest);
-</script>
-<script>
-    console.log("Selected Date:", "{{ $selectedDate }}");
-</script>
+});
+
+    </script>
 <script>
         document.addEventListener("DOMContentLoaded", function () {
             // Get check-in and check-out dates from URL
@@ -306,12 +273,47 @@ h1 {
             // Set values in the date inputs
             document.getElementById("reservation_date").value = checkIn;
             document.getElementById("check_out_date").value = checkOut;
-
-            // Set hidden inputs for form submission
-            document.getElementById("hidden_checkin").value = checkIn;
-            document.getElementById("hidden_checkout").value = checkOut;
         });
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+    const checkInDateInput = document.getElementById("reservation_date");
+    const accommodationList = document.getElementById("accommodationList");
+    const accommodationMessage = document.getElementById("accommodationMessage");
+
+    checkInDateInput.addEventListener("change", function () {
+        let checkInDate = this.value;
+        if (!checkInDate) return;
+
+        fetch(`/get-available-accommodations?date=${checkInDate}`)
+            .then(response => response.json())
+            .then(data => {
+                accommodationList.innerHTML = ""; // Clear list
+                if (data.length === 0) {
+                    accommodationMessage.innerHTML = "No accommodations available for this date.";
+                    return;
+                }
+
+                data.forEach(accommodation => {
+                    let div = document.createElement("div");
+                    div.classList.add("accommodation-item", "p-3", "mb-2", "border", "rounded");
+                    div.innerHTML = `
+                        <h5>${accommodation.name}</h5>
+                        <p>Type: ${accommodation.type}</p>
+                        <p>Capacity: ${accommodation.capacity} pax</p>
+                        <p>Price: ₱${accommodation.price}</p>
+                        <span class="badge bg-${accommodation.available ? 'success' : 'danger'}">
+                            ${accommodation.available ? "Available" : "Fully Booked"}
+                        </span>
+                    `;
+                    accommodationList.appendChild(div);
+                });
+            })
+            .catch(error => console.error("Error fetching accommodations:", error));
+    });
+});
+
     </script>
 </body>
 </html>
-
