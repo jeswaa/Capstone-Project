@@ -132,24 +132,39 @@ input[type="file"] {
                     <img src="{{ asset('images/qrcode.jpg') }}" alt="QR Code" style="width:550px; height:550px;">
                 </div>
                 <div class="col-md-6">
-                    <h1>Payment Details</h1>
-                    <p>Room Price: ₱ {{ $accomodations->accomodation_price ?? '0.00' }}</p>
+                <h3>Payment</h3>
+                @if (!isset($reservationDetails->package_id) && count($accomodations) > 0)
+                    <ul>
+                        @foreach ($accomodations as $accomodation)
+                            <li>{{ $accomodation->accomodation_name }} - ₱{{ number_format($accomodation->accomodation_price, 2) }}</li>
+                        @endforeach
+                    </ul>
+                    <p><strong>Total Accommodation Price:</strong> ₱{{ number_format($totalAccomodationPrice, 2) }}</p>
+                    <p><strong>Entrance Fee per Person:</strong> ₱{{ number_format($entranceFee, 2) }}</p>
+                    <p><strong>Total Guests:</strong> {{ $reservationDetails['total_guest'] ?? 0 }}</p>
+                    <p><strong>Total Entrance Fee:</strong> ₱{{ number_format($totalEntranceFee, 2) }}</p>
+                @endif
 
-                    <p>Entrance Fee: ₱ {{ (($reservationDetails->number_of_adults ?? 0) * 100) + 
-                    (($reservationDetails->number_of_children ?? 0) * 50) }}</p>
 
-@if ((is_array($reservationDetails) && isset($reservationDetails['package_id'])) || 
-     (is_object($reservationDetails) && isset($reservationDetails->package_id)))
 
-                        <p class="text-color-1 font-paragraph fw-semibold">
-                            Package Price: ₱ {{ $packages->where('id', $reservationDetails->package_id)->first()->package_price ?? '0.00' }}
-                        </p>
-                        <p class="text-color-1 font-paragraph fw-semibold">
-                            Package Entrance Fee: ₱ {{ ($packages->where('id', $reservationDetails->package_id)->first()->package_max_guests * 100) }}
-                        </p>
-                    @endif
+                    @php
+                        // Ensure $reservationDetails is always treated as an object
+                        $reservationDetails = is_array($reservationDetails) ? (object) $reservationDetails : $reservationDetails;
+                    @endphp
 
-                    
+                    @if (isset($reservationDetails->package_id))
+                    @php
+                        $selectedPackage = $packages->where('id', $reservationDetails->package_id)->first();
+                        $packagePrice = $selectedPackage->package_price ?? 0;
+                        $packageEntranceFee = ($selectedPackage->package_max_guests ?? 0) * 100;
+                        $totalPackageCost = $packagePrice + $packageEntranceFee;
+                    @endphp
+
+                    <p class="text-color-1 font-paragraph fw-semibold">
+                        Total Package Cost: ₱ {{ number_format($totalPackageCost, 2) }}
+                    </p>
+                @endif
+                                                    
                     <hr class="mt-3 mb-5">
                     
                     <div class="mb-3">
@@ -157,20 +172,22 @@ input[type="file"] {
                         <input type="text" class="form-control fs-5" name="mobileNo" id="mobileNo" value="{{ auth()->user()->mobileNo }}" required style="height: 55px;">
                     </div>
                     @php
-                        $amount = is_array($reservationDetails) ? ($reservationDetails['amount'] ?? '0.00') : ($reservationDetails->amount ?? '0.00');
+                        $amount = is_array($reservationDetails) ? ($reservationDetails['amount'] ?? 0.00) : ($reservationDetails->amount ?? 0.00);
+                        $downpayment = $amount * 0.15; // Compute 15% of the amount
                     @endphp
                     <div class="">
                         <div class="d-flex">
                             <div class="me-2">
                                 <label for="amount" class="form-label fw-bold fs-6">Amount:</label>
-                                <<input type="text" class="form-control" id="amount" name="amount" 
-                                    value="₱ {{ $amount }}" 
+                                <input type="text" class="form-control" id="amount" name="amount" 
+                                value="₱ {{ number_format($amount, 2) }}" 
                                     required style="height: 55px;" readonly>
                             </div>
+                            
                             <div>
                                 <label for="discount_amount" class="form-label fw-bold fs-6">Downpayment:</label>
                                 <input type="text" class="form-control w-75" id="discount_amount" name="discount_amount" 
-                                    value="₱{{ $amount }}" 
+                                    value="₱{{ number_format($downpayment, 2) }}" 
                                     required style="height: 55px;" readonly>
                             </div>
                             <div>

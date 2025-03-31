@@ -104,6 +104,7 @@
                                 <th style="font-size: x-small;">Check in Date</th>
                                 <th style="font-size: x-small;">Check In</th>
                                 <th style="font-size: x-small;">Check Out</th>
+                                <th style="font-size: x-small;">Packages</th>
                                 <th style="font-size: x-small;">Room</th>
                                 <th style="font-size: x-small;">Activity</th>
                                 <th style="font-size: x-small;">Amount</th>
@@ -123,9 +124,20 @@
                                         <td style="font-size: x-small;">{{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('F j, Y') }}</td>
                                         <td style="font-size: x-small;">{{ \Carbon\Carbon::parse($reservation->reservation_check_in)->format('g:i A') }}</td>
                                         <td style="font-size: x-small;">{{ \Carbon\Carbon::parse($reservation->reservation_check_out)->format('g:i A') }}</td>
+                                        <td style="font-size: x-small;">{{ $reservation->package_name ?: 'No Package' }}</td>
                                         <td style="font-size: x-small;">
-                                            {{ $reservation->package_name ?: implode(', ', $reservation->accommodations) }}
+                                            @php
+                                                $roomTypeIds = json_decode($reservation->package_room_type, true);
+                                                $roomNames = is_array($roomTypeIds) ? DB::table('accomodations')
+                                                    ->whereIn('accomodation_id', $roomTypeIds)
+                                                    ->pluck('accomodation_name')
+                                                    ->toArray() : [];
+                                                $accommodationNames = is_array($reservation->accommodations) ? $reservation->accommodations : [];
+                                            @endphp
+                                            {{ count($roomNames) > 0 ? implode(', ', $roomNames) : '' }}
+                                            {{ count($accommodationNames) > 0 ? ', ' . implode(', ', $accommodationNames) : '' }}
                                         </td>
+
                                         <td style="font-size: x-small;">
                                             {{ implode(', ', $reservation->activities) ?: $reservation->package_activities }}
                                         </td>
@@ -195,6 +207,7 @@
                                                                         <option value="booked" {{ $reservation->payment_status == 'booked' ? 'selected' : '' }}>Booked</option>
                                                                         <option value="paid" {{ $reservation->payment_status == 'paid' ? 'selected' : '' }}>Paid</option>
                                                                         <option value="cancelled" {{ $reservation->payment_status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                                                                        <option value="checked-out" {{ $reservation->payment_status == 'checked-out' ? 'selected' : '' }}>Checked-out</option>
                                                                     </select>
                                                                 </div>
                                                                 <div class="mb-3">
@@ -220,76 +233,19 @@
                                                 </div>
                                             </div>
                                         </td>
-                                        <!-- Modal -->
-                                        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                            <div class="modal-dialog">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="exampleModalLabel">Edit Payment Status</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <form action="{{ route('staff.updateStatus', ['id' => $reservation->id]) }}" method="POST">
-                                                            @csrf
-                                                            <div class="mb-3">
-                                                                <label for="payment_status" class="form-label">Payment Status</label>
-                                                                <select class="form-select" name="payment_status" id="payment_status">
-                                                                    <option value="pending" name="payment_status">Pending</option>
-                                                                    <option value="paid" name="payment_status">Paid</option>
-                                                                    <option value="cancelled" name="payment_status">Cancelled</option>
-                                                                </select>
-                                                            </div>
-                                                            <div class="mb-3">
-                                                                <input type="hidden" name="id" value="{{ $reservation->id }}">
-                                                            </div>
-                                                            <button type="submit" class="btn btn-primary">Save</button>
-                                                        </form>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
                                     </tr>
                                 @endforeach
                             </tbody>
                         </table>
-                        {{ $reservations->links() }}
-                        
-                    </div>
-                </div>
-
-                
-
-                <!-- Email Modal -->
-                <div class="modal fade" id="emailModal" tabindex="-1" aria-labelledby="emailModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="emailModalLabel">Send Email</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <form action="{{ route('staff.sendEmail') }}" method="POST">
-                                    @csrf
-                                    <input type="hidden" name="id" id="email_id">
-                                    <div class="mb-3">
-                                        <label for="email_to" class="form-label">To</label>
-                                        <input type="email" class="form-control" name="email_to" id="email_to" readonly>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="email_subject" class="form-label">Subject</label>
-                                        <input type="text" class="form-control" name="email_subject" id="email_subject" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="email_message" class="form-label">Message</label>
-                                        <textarea class="form-control" name="email_message" id="email_message" rows="4" required></textarea>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary">Send Email</button>
-                                </form>
-                            </div>
+                        <div class="d-flex justify-content-center mt-4">
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination">
+                                    {{ $reservations->links('pagination::bootstrap-4') }}
+                                </ul>
+                            </nav>
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>

@@ -49,7 +49,7 @@
                 </ul>
                 <a href="{{ route('login') }}" class="me-3 text-color-2 fs-5 p-2 text-decoration-none fw-semibold text-uppercase text-underline-left-to-right" style="font-family: 'Josefin Sans', sans-serif;">Login</a>
                 <a class="navbar-brand d-none d-md-block" href="#">
-                    <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort" height="150" width="130">
+                    <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort" id="logo" height="150" width="130">
                 </a>
             </div>
         </div>
@@ -86,7 +86,7 @@
                                     <i class="fas fa-chevron-right" style="color: #0b573d; transform: translateX(0);"></i>
                                 </span>
                             </a>
-                        </div>[]
+                        </div>
                     </div>
                 </div>
             </div>
@@ -270,6 +270,28 @@
         </div>
     </footer>
 
-        
+     <script>
+        document.addEventListener("DOMContentLoaded", function () {
+        let logo = document.getElementById("logo"); // Target the logo
+        let clickCount = 0;
+        let timeout;
+
+        if (logo) {
+            logo.addEventListener("click", function () {
+                clickCount++;
+
+                if (clickCount === 5) {
+                    window.location.href = "login/admin"; // Change to your admin login URL
+                }
+
+                // Reset click count after 2 seconds of inactivity
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    clickCount = 0;
+                }, 2000);
+            });
+        }
+    });
+     </script>   
 </body>
 </html> 
