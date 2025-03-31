@@ -16,7 +16,7 @@ class SignUpController extends Controller
 {
     public function signup()
     {
-        return view('Frontend.signuppage');
+        return view('FrontEnd.signuppage');
     }
 
     public function sendOTP(Request $request)

@@ -104,9 +104,20 @@
         font-weight: bold;
         color: black !important;
     }
+
+    /* Button Group Styles */
+    .btn-group .btn.active {
+        background-color: #0b573d !important;
+        color: white !important;
+        font-weight: bold;
+        transform: scale(0.98);
+    }
+
+    .btn-group .btn:not(.active) {
+        background-color: #28a745 !important;
+        opacity: 0.8;
+    }
 </style>
-
-
 
 <body class="bg-light font-paragraph" style="background: url('{{ asset('images/logosheesh.png') }}') no-repeat center center fixed; background-size: cover;">
 
@@ -132,16 +143,28 @@
         <div class="row justify-content-center">
             <!-- Calendar -->
             <div class="col-12 col-lg-8 col-md-10">
+                <!-- Reservation Type Buttons -->
+                <div class="text-center mb-4">
+                    <div class="btn-group w-75" role="group">
+                        <button type="button" class="btn btn-success border border-2 border-dark rounded-5 active" 
+                                id="stayinBtn" style="box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);">
+                            STAY-IN
+                        </button>
+                        <button type="button" class="btn btn-success border border-2 border-dark rounded-5" 
+                                id="daytourBtn" style="box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);">
+                            DAY TOUR
+                        </button>
+                    </div>
+                </div>
+
                 <div id="calendar" class="bg-white border p-3 rounded shadow"></div>
                 <div class="mt-3 text-center">
-                    <button class="btn btn-success w-50 border border-2 border-dark rounded-5" style="box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);">RESERVE NOW </button>
                 </div>
             </div>
         </div>
     </div>
 
-
- <!-- Modal -->
+    <!-- Modal -->
     <div class="modal fade" id="eventModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -165,165 +188,156 @@
         </div>
     </div>
 
-
-
     <script>
     document.addEventListener('DOMContentLoaded', function () {
-    const calendarEl = document.getElementById('calendar');
-    const allEvents = @json($events);
-    const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
-    console.log("Events received:", allEvents);
+        const calendarEl = document.getElementById('calendar');
+        const allEvents = @json($events);
+        const today = new Date().toISOString().split('T')[0];
+        const stayinBtn = document.getElementById('stayinBtn');
+        const daytourBtn = document.getElementById('daytourBtn');
+        let reservationType = 'stayin';
+        let checkInDate = null;
+        let checkOutDate = null;
+        let fullyBookedDates = new Set();
 
-    // Declare check-in and check-out dates globally
-    let checkInDate = null;
-    let checkOutDate = null;
-    let fullyBookedDates = new Set(); // Store fully booked dates
-
-    // Group events by date
-    let eventsByDate = {};
-
-    allEvents.forEach(event => {
-        let eventDate = event.start;
-        
-        if (!eventsByDate[eventDate]) {
-            eventsByDate[eventDate] = [];
-        }
-        eventsByDate[eventDate].push(event);
-    });
-
-    // Process events: Remove "Reserved" if "Fully Booked" exists on the same date
-    let filteredEvents = [];
-
-    Object.keys(eventsByDate).forEach(date => {
-        let events = eventsByDate[date];
-
-        // Check if there's a Fully Booked event
-        let isFullyBooked = events.some(event => event.title === "Fully Booked");
-
-        if (isFullyBooked) {
-            // Store fully booked date to prevent selection
-            fullyBookedDates.add(date);
-
-            // Keep only "Fully Booked" events, remove "Reserved" ones
-            let onlyFullyBooked = events.filter(event => event.title === "Fully Booked");
-            filteredEvents.push(...onlyFullyBooked);
-        } else {
-            // If no Fully Booked, keep all events for that date
-            filteredEvents.push(...events);
-        }
-    });
-
-    const calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        headerToolbar: {
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth'
-        },
-        events: filteredEvents.map(event => ({
-            title: event.title,
-            start: event.start,
-            allDay: true,
-            color: event?.extendedProps?.is_owner ? '#97a97c' : '#4a4a4a',
-            textColor: 'white',
-        })),
-        dateClick: function (info) {
-            let selectedDate = info.dateStr;
-
-            // Prevent selection of past dates
-            if (selectedDate < today) {
-                Swal.fire("Invalid Selection", "You cannot select past dates.", "warning");
-                return;
-            }
-
-            // Prevent selection of Fully Booked dates
-            if (fullyBookedDates.has(selectedDate)) {
-                Swal.fire("Fully Booked", "This date is fully booked and cannot be selected.", "error");
-                return;
-            }
-
-            if (!checkInDate) {
-                checkInDate = selectedDate;
-                Swal.fire("Check-in Date Selected", `Check-in: ${checkInDate}`, "success");
-            } else if (!checkOutDate && selectedDate > checkInDate) {
-                checkOutDate = selectedDate;
-                Swal.fire("Check-out Date Selected", `Check-in: ${checkInDate}\nCheck-out: ${checkOutDate}`, "success")
-                    .then(() => {
-                        Swal.fire({
-                            title: "Select Reservation Type",
-                            text: "Choose your preferred reservation type.",
-                            icon: "question",
-                            showDenyButton: true,
-                            confirmButtonText: "Fixed Package",
-                            denyButtonText: "Custom Selection",
-                        }).then((result) => {
-                            let route = result.isConfirmed ? "{{ route('selectPackage') }}" : "{{ route('selectPackageCustom') }}";
-                            window.location.href = `${route}?checkIn=${checkInDate}&checkOut=${checkOutDate}`;
-                        });
-                    });
-            } else if (selectedDate <= checkInDate) {
-                Swal.fire("Invalid Selection", "Check-out must be after check-in.", "error");
-            } else {
-                checkInDate = selectedDate;
-                checkOutDate = null;
-                Swal.fire("New Check-in Date Selected", `Check-in: ${checkInDate}`, "success");
-            }
-
+        // Button toggle functionality
+        stayinBtn.addEventListener('click', () => {
+            reservationType = 'stayin';
+            stayinBtn.classList.add('active');
+            daytourBtn.classList.remove('active');
+            checkInDate = null;
+            checkOutDate = null;
             highlightSelectedDates();
-        },
+        });
 
-        dayCellDidMount: function (info) {
-            let cellDate = info.date.toISOString().split('T')[0];
+        daytourBtn.addEventListener('click', () => {
+            reservationType = 'daytour';
+            daytourBtn.classList.add('active');
+            stayinBtn.classList.remove('active');
+            checkInDate = null;
+            checkOutDate = null;
+            highlightSelectedDates();
+        });
 
-            // Highlight past dates
-            if (cellDate < today) {
-                info.el.style.opacity = "0.5";
-                info.el.style.position = "relative";
-
-                let xMark = document.createElement("div");
-                xMark.innerHTML = "❌";
-                xMark.style.position = "absolute";
-                xMark.style.top = "50%";
-                xMark.style.left = "50%";
-                xMark.style.transform = "translate(-50%, -50%)";
-                xMark.style.fontSize = "1.5rem";
-                xMark.style.color = "red";
-                xMark.style.fontWeight = "bold";
-                info.el.appendChild(xMark);
+        // Process events data
+        let eventsByDate = {};
+        allEvents.forEach(event => {
+            let eventDate = event.start;
+            if (!eventsByDate[eventDate]) {
+                eventsByDate[eventDate] = [];
             }
+            eventsByDate[eventDate].push(event);
+        });
 
-           
-        }
-    });
-
-    calendar.render();
-
-    function highlightSelectedDates() {
-        document.querySelectorAll('.fc-daygrid-day').forEach(cell => {
-            let cellDate = cell.getAttribute('data-date');
-
-            if (cellDate < today || fullyBookedDates.has(cellDate)) {
-                return; // Skip past and fully booked dates
-            }
-
-            cell.style.backgroundColor = "";
-            cell.style.color = "black";
-
-            if (cellDate === checkInDate) {
-                cell.style.backgroundColor = "#28a745"; // Green for check-in
-                cell.style.color = "white";
-            } else if (cellDate === checkOutDate) {
-                cell.style.backgroundColor = "#dc3545"; // Red for check-out
-                cell.style.color = "white";
-            } else if (checkInDate && checkOutDate && cellDate > checkInDate && cellDate < checkOutDate) {
-                cell.style.backgroundColor = "#ffc107"; // Yellow for selected range
+        let filteredEvents = [];
+        Object.keys(eventsByDate).forEach(date => {
+            let events = eventsByDate[date];
+            let isFullyBooked = events.some(event => event.title === "Fully Booked");
+            if (isFullyBooked) {
+                fullyBookedDates.add(date);
+                let onlyFullyBooked = events.filter(event => event.title === "Fully Booked");
+                filteredEvents.push(...onlyFullyBooked);
+            } else {
+                filteredEvents.push(...events);
             }
         });
-    }
-});
 
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth'
+            },
+            events: filteredEvents.map(event => ({
+                title: event.title,
+                start: event.start,
+                allDay: true,
+                color: event?.extendedProps?.is_owner ? '#97a97c' : '#4a4a4a',
+                textColor: 'white',
+            })),
+            dateClick: function (info) {
+                let selectedDate = info.dateStr;
+
+                if (selectedDate < today) {
+                    Swal.fire("Invalid Selection", "You cannot select past dates.", "warning");
+                    return;
+                }
+
+                if (fullyBookedDates.has(selectedDate)) {
+                    Swal.fire("Fully Booked", "This date is fully booked and cannot be selected.", "error");
+                    return;
+                }
+
+                if (reservationType === 'daytour') {
+                    checkInDate = selectedDate;
+                    checkOutDate = selectedDate;
+                    Swal.fire("Day Tour Selected", `Date: ${checkInDate}`, "success").then(() => {
+                        let route = "{{ route('selectPackageCustom') }}";
+                        window.location.href = `${route}?checkIn=${checkInDate}&checkOut=${checkOutDate}&type=daytour`;
+                    });
+                } else {
+                    if (!checkInDate) {
+                        checkInDate = selectedDate;
+                        Swal.fire("Check-in Selected", `Date: ${checkInDate}`, "success");
+                    } else if (!checkOutDate && selectedDate > checkInDate) {
+                        checkOutDate = selectedDate;
+                        Swal.fire("Dates Selected", `Check-in: ${checkInDate}\nCheck-out: ${checkOutDate}`, "success").then(() => {
+                            let route = "{{ route('selectPackageCustom') }}";
+                            window.location.href = `${route}?checkIn=${checkInDate}&checkOut=${checkOutDate}`;
+                        });
+                    } else if (selectedDate <= checkInDate) {
+                        Swal.fire("Invalid Selection", "Check-out must be after check-in.", "error");
+                    } else {
+                        checkInDate = selectedDate;
+                        checkOutDate = null;
+                        Swal.fire("New Check-in Selected", `Date: ${checkInDate}`, "success");
+                    }
+                }
+
+                highlightSelectedDates();
+            },
+            dayCellDidMount: function (info) {
+                let cellDate = info.date.toISOString().split('T')[0];
+                if (cellDate < today) {
+                    info.el.style.opacity = "0.5";
+                    info.el.style.position = "relative";
+                    let xMark = document.createElement("div");
+                    xMark.innerHTML = "❌";
+                    xMark.style.position = "absolute";
+                    xMark.style.top = "50%";
+                    xMark.style.left = "50%";
+                    xMark.style.transform = "translate(-50%, -50%)";
+                    xMark.style.fontSize = "1.5rem";
+                    xMark.style.color = "red";
+                    xMark.style.fontWeight = "bold";
+                    info.el.appendChild(xMark);
+                }
+            }
+        });
+
+        calendar.render();
+
+        function highlightSelectedDates() {
+            document.querySelectorAll('.fc-daygrid-day').forEach(cell => {
+                let cellDate = cell.getAttribute('data-date');
+                if (cellDate < today || fullyBookedDates.has(cellDate)) return;
+
+                cell.style.backgroundColor = "";
+                cell.style.color = "black";
+
+                if (cellDate === checkInDate) {
+                    cell.style.backgroundColor = "#28a745";
+                    cell.style.color = "white";
+                } else if (cellDate === checkOutDate) {
+                    cell.style.backgroundColor = "#dc3545";
+                    cell.style.color = "white";
+                } else if (checkInDate && checkOutDate && cellDate > checkInDate && cellDate < checkOutDate) {
+                    cell.style.backgroundColor = "#ffc107";
+                }
+            });
+        }
+    });
     </script>
-
-
 </body>
 </html>

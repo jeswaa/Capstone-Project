@@ -14,6 +14,7 @@ use App\Http\Controllers\HomePageController;
 use App\Http\Controllers\SignUpController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\StaffController;
+use App\Http\Controllers\Admin\RoomController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,7 +26,7 @@ use App\Http\Controllers\StaffController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-
+Route::get('/admin/update-rooms', [RoomController::class, 'updateRoomAvailability'])->name('admin.update.rooms');
 
 /* LOGIN */
 Route::get('/login', [LoginController::class, 'login'])->name('login');
@@ -55,6 +56,7 @@ Route::get('/get-available-accommodations', [ReservationController::class, 'getA
 Route::get('/reservation', [ReservationController::class, 'reservation'])->name('reservation');
 Route::get('/reservation/fetch-accomodation-data', [ReservationController::class, 'fetchAccomodationData'])->name('selectPackage');
 Route::get('/reservation/select-package-custom', [ReservationController::class, 'selectPackageCustom'])->name('selectPackageCustom');
+Route::get('/reservation/fetch-addons', [ReservationController::class, 'fetchAddons'])->name('fetchAddons');
 Route::get('/reservation/payment-process', [ReservationController::class, 'paymentProcess'])->name('paymentProcess');
 Route::get('/reservation/display-summary', [ReservationController::class, 'displayReservationSummary'])->name('summary');
 
@@ -104,6 +106,9 @@ Route::get('/admin/dashboard', [AdminSideController::class, 'DashboardView'])->n
 Route::get('/reservations', [AdminSideController::class, 'reservations'])->name('reservations');
 Route::get('/get-bookings', [AdminSideController::class, 'DashboardView']);
 Route::get('/room-availability', [AdminSideController::class, 'roomAvailability'])->name('roomAvailability');
+Route::get('/addons', [AdminSideController::class, 'addons'])->name('addOns');
+Route::post('/store-addons', [AdminSideController::class, 'storeAddOns'])->name('storeAddOns');
+Route::put('/edit-addons/{id}', [AdminSideController::class, 'editAddOn'])->name('editAddOn');
 Route::post('add-room', [AdminSideController::class, 'addRoom'])->name('addRoom');
 Route::put('/rooms/update/{id}', [AdminSideController::class, 'updateRoom'])->name('updateRoom');
 Route::delete('/rooms/delete/{id}', [AdminSideController::class, 'deleteRoom'])->name('deleteRoom');
