@@ -21,11 +21,18 @@ class ReservationController extends Controller
     {
         return view('Reservation.reservation');
     }
+    public function fetchAddons()
+    {
+        $addons = DB::table('addons')->get();
+        return view('Reservation.addons', ['addons' => $addons]);
+    }
+
     public function selectPackageCustom()
     {
         $accomodations = DB::table('accomodations')->get();
         $activities = DB::table('activitiestbl')->get();
-        return view('Reservation.selectPackageCustom', ['accomodations' => $accomodations, 'activities' => $activities]);
+        $addons = DB::table('addons')->get();
+        return view('Reservation.selectPackageCustom', ['accomodations' => $accomodations, 'activities' => $activities, 'addons' => $addons]);
     }
     public function paymentProcess()
     {

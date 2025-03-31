@@ -49,6 +49,9 @@ class AdminSideController extends Controller
         return view('AdminSide.reservation', compact('reservations', 'users', 'noReservationMessage'));
     }
 
+    
+
+
     public function roomAvailability(){
         return view('AdminSide.roomAvailability');
     }
@@ -607,6 +610,86 @@ public function packages()
         ]);
 
         return redirect()->route('addActivities')->with('success', 'Activity updated successfully!');
+    }
+
+    public function addOns()
+    {
+        $addons = DB::table('addons')->get();
+        return view('AdminSide.addOns', ['addons' => $addons]);
+    }
+
+    public function storeAddOns(Request $request)
+    {
+        // Validate the request
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric',
+            'stock' => 'required|numeric',
+            'description' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+        ]);
+
+        // Attempt to store the image
+        $imagePath = $request->file('image')->store('add_ons', 'public');
+
+        // Check if the image was successfully saved
+        if (!$imagePath) {
+            return redirect()->back()->with('error', 'Failed to upload image. Please try again.');
+        }
+
+        // Use the DB facade to create a new add on
+        DB::table('addons')->insert([
+            'name' => $request->name,
+            'price' => $request->price,
+            'stock' => $request->stock,
+            'description' => $request->description,
+            'image' => $imagePath,
+        ]);
+
+        return redirect()->route('addOns')->with('success', 'Add on added successfully!');
+    }
+
+    public function editAddOn(Request $request, $id)
+    {
+        // Validate the request
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric',
+            'stock' => 'required|numeric',
+            'description' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+        ]);
+
+        // Find the add-on record
+        $addon = DB::table('addons')->where('id', $id)->first();
+        if (!$addon) {
+            return redirect()->route('addOns')->with('error', 'Add-on not found.');
+        }
+
+        // Handle image upload if a new image is provided
+        if ($request->hasFile('image')) {
+            // Delete the old image if it exists
+            if ($addon->image) {
+                Storage::delete('public/' . $addon->image);
+            }
+
+            // Store the new image
+            $imagePath = $request->file('image')->store('add_ons', 'public');
+        } else {
+            // Keep the existing image
+            $imagePath = $addon->image;
+        }
+
+        // Update the add-on details
+        DB::table('addons')->where('id', $id)->update([
+            'name' => $request->name,
+            'price' => $request->price,
+            'stock' => $request->stock,
+            'description' => $request->description,
+            'image' => $imagePath,
+        ]);
+
+        return redirect()->route('addOns')->with('success', 'Add-on updated successfully!');
     }
 
 
