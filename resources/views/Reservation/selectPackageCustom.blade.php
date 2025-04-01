@@ -162,6 +162,24 @@
                 <h1 class="text-color-1 font-paragraph fs-6 fw-semibold mb-4 ms-2 mt-3">Add Ons</h1>
                 <div class="row">
                     <!-- add ons  -->
+                @foreach($addons as $addon)
+                <div class="col-md-4">
+                    <div class="card mb-3">
+                        <img src="{{ asset('storage/' . $addon->image) }}" class="card-img-top" alt="{{ $addon->name }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ $addon->name }}</h5>
+                            <p class="card-text">{{ $addon->description }}</p>
+                            <p class="card-text text-end"><strong>Price: </strong>{{ $addon->price }}</p>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="addons[]" value="{{ $addon->id }}" id="addon{{ $addon->id }}">
+                                <label class="form-check-label" for="addon{{ $addon->id }}">
+                                    Select
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endforeach
                 </div>
             </div>
 

@@ -19,35 +19,75 @@ class AdminSideController extends Controller
     }
 
     public function reservations(Request $request) 
-    {
-        // Kunin lahat ng users para sa dropdown
-        $users = DB::table('users')->get();
+{
+    // Kunin lahat ng users para sa dropdown
+    $users = DB::table('users')->get();
 
-        $packages = DB::table('packagestbl')->get();
-    
-        // Simulan ang query para sa reservations
-        $query = DB::table('reservation_details')->orderByDesc('created_at');
-    
-        // Variable para sa message kapag walang reservation ang user
-        $noReservationMessage = null;
-        
-        // Check if a user is selected
-        if ($request->has('user_id') && !empty($request->user_id)) {
-            $filteredReservations = clone $query;
-            $filteredReservations = $filteredReservations->where('reservation_details.user_id', $request->user_id);
+    // Simulan ang query para sa reservations
+    $query = DB::table('reservation_details')
+        ->leftJoin('packagestbl', 'reservation_details.package_id', '=', 'packagestbl.id')  // Join the packages table
+        ->orderByDesc('reservation_details.created_at');
 
-            if ($filteredReservations->count() > 0) {
-                $query = $filteredReservations;
-            } else {
-                // Show all reservations if the user has no reservations
-                $noReservationMessage = "No reservation for this user. Displaying all reservations.";
-            }
+    // Variable para sa message kapag walang reservation ang user
+    $noReservationMessage = null;
+    
+    // Check if a user is selected
+    if ($request->has('user_id') && !empty($request->user_id)) {
+        $filteredReservations = clone $query;
+        $filteredReservations = $filteredReservations->where('reservation_details.user_id', $request->user_id);
+
+        if ($filteredReservations->count() > 0) {
+            $query = $filteredReservations;
+        } else {
+            // Show all reservations if the user has no reservations
+            $noReservationMessage = "No reservation for this user. Displaying all reservations.";
         }
-
-        $reservations = $query->paginate(10);
-
-        return view('AdminSide.reservation', compact('reservations', 'users', 'noReservationMessage'));
     }
+
+    // Paginate the results
+    $reservations = $query->select('reservation_details.*', 'packagestbl.package_room_type')  // Select room type from packages
+        ->paginate(10);
+
+    // Decode the JSON room type IDs and fetch room names
+    foreach ($reservations as $reservation) {
+        if (!empty($reservation->package_room_type)) { // ✅ Ensure it's not empty
+            $roomTypeIds = json_decode($reservation->package_room_type, true);
+
+            if (is_array($roomTypeIds) && count($roomTypeIds) > 0) { // ✅ Ensure it's a valid array
+                // Fetch accommodation names based on IDs
+                $roomNames = DB::table('accomodations')
+                    ->whereIn('accomodation_id', $roomTypeIds)
+                    ->pluck('accomodation_name')
+                    ->toArray();
+
+                // Store room names in the reservation object
+                if (!empty($roomNames)) {
+                    $reservation->room_types = implode(', ', $roomNames);
+                }
+            }
+        } else {
+            $reservation->room_types = "N/A"; // ✅ Default value if empty
+        }
+    }
+
+    // Fetch calendar data
+    $events = [];
+    foreach ($reservations as $reservation) {
+        $events[] = [
+            'title' => 'Reservation',
+            'start' => $reservation->reservation_check_in_date,
+            'end' => $reservation->reservation_check_out_date,
+            'description' => 'Reserved Room: ' . $reservation->room_types,
+        ];
+    }
+
+    // Return view with data
+    return view('AdminSide.reservation', compact('reservations', 'users', 'noReservationMessage', 'events'));
+}
+
+    
+
+
 
     public function roomAvailability(){
         return view('AdminSide.roomAvailability');
@@ -384,18 +424,12 @@ public function packages()
     return view('AdminSide.packages', compact('packages', 'accomodations'));
 }
 
-
-
-
-
-
     public function addRoom(Request $request)
     {
-        
         $request->validate([
             'accomodation_image' => 'required|image|mimes:jpeg,png,jpg,gif',
             'accomodation_name' => 'required|string|max:255',
-            'accomodation_type' => 'required|in:room,cottage',  
+            'accomodation_type' => 'required|in:room,cottage,cabin',
             'accomodation_capacity' => 'required|numeric|min:1',
             'accomodation_price' => 'required|numeric|min:0',
             'accomodation_status' => 'required|in:available,unavailable',
@@ -411,9 +445,18 @@ public function packages()
             return redirect()->back()->with('error', 'Failed to upload image. Please try again.');
         }
 
+        // Ensure the accomodation_type value is a valid string
+        $accomodationType = in_array($request->accomodation_type, ['room', 'cottage', 'cabin']) 
+                            ? $request->accomodation_type 
+                            : null;
+
+        if (!$accomodationType) {
+            return redirect()->back()->with('error', 'Invalid accommodation type. Please select a valid type.');
+        }
+
         // Save the data into the database
         $inserted = DB::table('accomodations')->insert([
-            'accomodation_image' => $imagePath, 
+            'accomodation_image' => $imagePath,
             'accomodation_name' => $request->accomodation_name,
             'accomodation_type' => $request->accomodation_type,
             'accomodation_capacity' => $request->accomodation_capacity,
@@ -608,6 +651,86 @@ public function packages()
         ]);
 
         return redirect()->route('addActivities')->with('success', 'Activity updated successfully!');
+    }
+
+    public function addOns()
+    {
+        $addons = DB::table('addons')->get();
+        return view('AdminSide.addOns', ['addons' => $addons]);
+    }
+
+    public function storeAddOns(Request $request)
+    {
+        // Validate the request
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric',
+            'stock' => 'required|numeric',
+            'description' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+        ]);
+
+        // Attempt to store the image
+        $imagePath = $request->file('image')->store('add_ons', 'public');
+
+        // Check if the image was successfully saved
+        if (!$imagePath) {
+            return redirect()->back()->with('error', 'Failed to upload image. Please try again.');
+        }
+
+        // Use the DB facade to create a new add on
+        DB::table('addons')->insert([
+            'name' => $request->name,
+            'price' => $request->price,
+            'stock' => $request->stock,
+            'description' => $request->description,
+            'image' => $imagePath,
+        ]);
+
+        return redirect()->route('addOns')->with('success', 'Add on added successfully!');
+    }
+
+    public function editAddOn(Request $request, $id)
+    {
+        // Validate the request
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric',
+            'stock' => 'required|numeric',
+            'description' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+        ]);
+
+        // Find the add-on record
+        $addon = DB::table('addons')->where('id', $id)->first();
+        if (!$addon) {
+            return redirect()->route('addOns')->with('error', 'Add-on not found.');
+        }
+
+        // Handle image upload if a new image is provided
+        if ($request->hasFile('image')) {
+            // Delete the old image if it exists
+            if ($addon->image) {
+                Storage::delete('public/' . $addon->image);
+            }
+
+            // Store the new image
+            $imagePath = $request->file('image')->store('add_ons', 'public');
+        } else {
+            // Keep the existing image
+            $imagePath = $addon->image;
+        }
+
+        // Update the add-on details
+        DB::table('addons')->where('id', $id)->update([
+            'name' => $request->name,
+            'price' => $request->price,
+            'stock' => $request->stock,
+            'description' => $request->description,
+            'image' => $imagePath,
+        ]);
+
+        return redirect()->route('addOns')->with('success', 'Add-on updated successfully!');
     }
 
 
