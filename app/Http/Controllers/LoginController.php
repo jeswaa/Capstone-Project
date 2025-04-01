@@ -19,7 +19,7 @@ class LoginController extends Controller
 {
     public function login()
     {
-        return view('Frontend.Loginpage');
+        return view('FrontEnd.Loginpage');
     }
 
     public function authenticate(Request $request)
