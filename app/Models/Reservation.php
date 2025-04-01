@@ -4,10 +4,28 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Reservation extends Model
 {
     use HasFactory;
+    use SoftDeletes;
+
+    protected $dates = ['deleted_at'];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::updating(function ($reservation) {
+            // Check if payment_status is "paid" and reservation_status is "checked_out"
+            if ($reservation->isDirty(['payment_status', 'reservation_status'])) {
+                if ($reservation->payment_status === 'paid' && $reservation->reservation_status === 'checked_out') {
+                    $reservation->delete(); // Soft delete (Archive)
+                }
+            }
+        });
+    }
 
     protected $table = 'reservation_details';
 

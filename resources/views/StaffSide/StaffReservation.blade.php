@@ -94,7 +94,11 @@
                                 <option value="cancelled">Cancelled</option>
                             </select>
                         </div>
-
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#archivedReservationsModal">
+                                <i class="fa-solid fa-archive"></i> View Archived Reservations
+                            </button>
+                        </div>
                         <table class="table table-hover table-striped">
                             <thead>
                             <tr>
@@ -249,6 +253,44 @@
             </div>
         </div>
     </div>
+    <!-- Archived Reservations Modal -->
+    <div class="modal fade" id="archivedReservationsModal" tabindex="-1" aria-labelledby="archivedReservationsLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="archivedReservationsLabel">Archived Reservations</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Guest Name</th>
+                                <th>Email</th>
+                                <th>Check In Date</th>
+                                <th>Payment Status</th>
+                                <th>Archived At</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($archivedReservations as $reservation)
+                            <tr>
+                                <td>{{ $reservation->name }}</td>
+                                <td>{{ $reservation->email }}</td>
+                                <td>{{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('Y-m-d') }}</td>
+                                <td class="text-{{ $reservation->payment_status == 'paid' ? 'success' : 'danger' }}">
+                                    {{ ucfirst($reservation->payment_status) }}
+                                </td>
+                                <td>{{ \Carbon\Carbon::parse($reservation->created_at)->format('Y-m-d h:i A') }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         function openModal(id) {
             document.getElementById('id').value = id;

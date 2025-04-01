@@ -295,7 +295,7 @@
                         
                         <div class="d-flex justify-content-between align-items-center">
                             <h5 class="fw-bold text-success">Total Amount to Pay</h5>
-                            <input type="text" class="form-control text-center bg-secondary-subtle border-0 fw-bold fs-5" 
+                            <input type="text" class="form-control text-center bg-secondary-subtle border-0 fw-bold fs-5" name="amount" 
                                    style="max-width: 150px;" value="₱ {{ number_format($amount, 2) }}" readonly>
                         </div>
                         
@@ -380,6 +380,30 @@
         
         // Ensure GCash is selected by default
         document.getElementById('gcash').checked = true;
+    });
+    
+    document.addEventListener('DOMContentLoaded', function () {
+        let packageSelect = document.getElementById('package_id');
+        let accomodationSelect = document.getElementById('accomodation_id');
+        let amountField = document.getElementById('amount');
+
+        if (packageSelect && accomodationSelect && amountField) {
+            function computeTotal() {
+                let selectedPackage = packageSelect.selectedOptions[0] || {};
+                let selectedAccommodation = accomodationSelect.selectedOptions[0] || {};
+
+                let entranceFee = parseFloat(selectedPackage.dataset.entranceFee) || 0;
+                let totalGuest = parseInt(selectedPackage.dataset.totalGuest) || 0;
+                let accomodationPrice = parseFloat(selectedAccommodation.dataset.accomodationPrice) || 0;
+
+                let totalAmount = (entranceFee * totalGuest) + accomodationPrice;
+                amountField.value = '₱ ' + totalAmount.toFixed(2);
+            }
+
+            packageSelect.addEventListener('change', computeTotal);
+            accomodationSelect.addEventListener('change', computeTotal);
+            computeTotal(); // Compute on page load
+        }
     });
     </script>
 </body>

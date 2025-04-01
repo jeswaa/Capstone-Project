@@ -139,7 +139,6 @@
                                 <th scope="col" style="font-size: 0.7rem">Check-out</th>
                                 <th scope="col" style="font-size: 0.7rem">Status</th>
                                 <th scope="col" style="font-size: 0.7rem">Total Amount</th>
-                                <th scope="col" style="font-size: 0.7rem">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="reservationTable">
@@ -171,15 +170,6 @@
                                         </span>
                                     </td>
                                     <td>{{ $reservation->amount}}</td>
-                                    <td>
-                                        <a href="#" class="text-success"><i class="fa-solid fa-eye"></i></a>
-                                        <a href="#" class="text-warning mx-2"><i class="fa-solid fa-pen-to-square"></i></a>
-                                        <form action="#" method="POST" style="display:inline;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-danger border-0 bg-transparent"><i class="fa-solid fa-trash-can"></i></button>
-                                        </form>
-                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
