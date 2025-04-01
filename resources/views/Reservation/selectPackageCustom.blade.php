@@ -27,6 +27,13 @@
         transform: translateY(-5px);
     }
 
+    .stay-duration {
+        background-color: #f8f9fa;
+        padding: 10px;
+        border-radius: 5px;
+        margin-top: 10px;
+        font-weight: bold;
+    }
 </style>
 @if ($errors->any())
     <div class="alert alert-danger mt-3">
@@ -82,12 +89,9 @@
                                     </p>
                                     <p class="card-text font-paragraph">Capacity: {{ $accomodation->accomodation_capacity }} pax</p>
                                     <p class="card-text font-paragraph">Price: ₱ {{ $accomodation->accomodation_price }}</p>
-
-                                    <!-- Hidden input to store selected value (added dynamically by JS) -->
                                 </div>
                             </div>
                         </div>
-
                         @endforeach
                         </div>
                     </div>
@@ -118,21 +122,15 @@
 
             <div class="row">
                 <div class="col-md-6">
-                    <label for="roomPreference" class="text-color-1 font-paragraph fw-semibold mb-3 ms-2">Number of Visitors</label>
                     <div class="form-group">
-                        <label for="number_of_adults">Adults (Ages 18 and above):</label>
-                        <input type="number" name="number_of_adults" id="number_of_adults" class="form-control p-2" min="0" oninput="calculateTotalGuest()">
+                        <label for="number_of_adults">Number of Adults (18+):</label>
+                        <input type="number" name="number_of_adults" id="number_of_adults" class="form-control p-2" min="0" value="1">
                     </div>
                     <div class="form-group">
-                        <label for="number_of_children">Children (Ages 3-12):</label>
-                        <input type="number" name="number_of_children" id="number_of_children" class="form-control p-2" min="0" oninput="calculateTotalGuest()">
-                    </div>
-                    <div class="form-group">
-                        <label for="total_guests">Total Number of Guests: </label>
-                        <input type="number" name="total_guest" id="total_guests" class="form-control p-2" readonly>
+                        <label for="number_of_children">Number of Children (3-12):</label>
+                        <input type="number" name="number_of_children" id="number_of_children" class="form-control p-2" min="0" value="0">
                     </div>
                 </div>
-            <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
                         <h1 for="time" class="text-color-1 font-paragraph fs-6 fw-semibold mb-4 ms-2 mt-3">Time</h1>
@@ -142,48 +140,54 @@
                         <input type="time" id="check_out" name="reservation_check_out" class="form-control mb-4" value="12:00">
                     </div>
                 </div>
+            </div>
+
+            <div class="row">
                 @php
-                    $selectedDate = request()->query('date', ''); // Kunin ang date sa URL
+                    $selectedDate = request()->query('date', '');
                 @endphp
                 <div class="col-md-6">
-                <div class="row mt-4 d-flex align-items-center justify-content-between mx-auto">
-                    <div class="col-md-5 col-12 mb-3 mb-md-0">
-                        <label for="reservation_date">Check-in Date:</label>
-                        <input type="date" id="reservation_date" name="reservation_check_in_date" class="form-control" required>
+                    <div class="row mt-4 d-flex align-items-center justify-content-between mx-auto">
+                        <div class="col-md-5 col-12 mb-3 mb-md-0">
+                            <label for="reservation_date">Check-in Date:</label>
+                            <input type="date" id="reservation_date" name="reservation_check_in_date" class="form-control" required>
 
-                        <label for="check_out_date" class="form-label fw-bold mt-3">Check-out Date</label>
-                        <input type="date" id="check_out_date" name="reservation_check_out_date" class="form-control">
+                            <label for="check_out_date" class="form-label fw-bold mt-3">Check-out Date</label>
+                            <input type="date" id="check_out_date" name="reservation_check_out_date" class="form-control">
+                            
+                            <div class="stay-duration">
+                                Stay Duration: <span id="duration_days">0</span> days
+                                <input type="hidden" name="stay_duration" id="stay_duration">
+                            </div>
+                        </div>
                     </div>
-                </div>
                 </div>
             </div>
 
             <div class="col-12 mt-4">
                 <h1 class="text-color-1 font-paragraph fs-6 fw-semibold mb-4 ms-2 mt-3">Add Ons</h1>
                 <div class="row">
-                    <!-- add ons  -->
-                @foreach($addons as $addon)
-                <div class="col-md-4">
-                    <div class="card mb-3">
-                        <img src="{{ asset('storage/' . $addon->image) }}" class="card-img-top" alt="{{ $addon->name }}">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ $addon->name }}</h5>
-                            <p class="card-text">{{ $addon->description }}</p>
-                            <p class="card-text text-end"><strong>Price: </strong>{{ $addon->price }}</p>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="addons[]" value="{{ $addon->id }}" id="addon{{ $addon->id }}">
-                                <label class="form-check-label" for="addon{{ $addon->id }}">
-                                    Select
-                                </label>
+                    @foreach($addons as $addon)
+                    <div class="col-md-4">
+                        <div class="card mb-3">
+                            <img src="{{ asset('storage/' . $addon->image) }}" class="card-img-top" alt="{{ $addon->name }}">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ $addon->name }}</h5>
+                                <p class="card-text">{{ $addon->description }}</p>
+                                <p class="card-text text-end"><strong>Price: </strong>{{ $addon->price }}</p>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="addons[]" value="{{ $addon->id }}" id="addon{{ $addon->id }}">
+                                    <label class="form-check-label" for="addon{{ $addon->id }}">
+                                        Select
+                                    </label>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                @endforeach
+                    @endforeach
                 </div>
             </div>
 
-            </div>
             <div class="col-12">
                 <div class="form-group">
                     <label for="specialRequest" class="form-label">Special Request</label>
@@ -209,57 +213,54 @@
             item.classList.remove("disabled");
             item.classList.add("available");
 
-            // I-update ang status text at background color
             let statusSpan = item.querySelector(".card-text");
             if (statusSpan) {
                 statusSpan.textContent = "Available";
-                statusSpan.style.backgroundColor = "#C6F7D0"; // Green background for available
+                statusSpan.style.backgroundColor = "#C6F7D0";
             }
         });
     }
 
-    document.addEventListener("DOMContentLoaded", function () {
-        const checkInDateInput = document.getElementById("reservation_date");
-
-        checkInDateInput.addEventListener("change", function () {
-            resetFrontendAccommodations(); // I-reset ang frontend kapag nagbago ang check-in date
-        });
-    });
-</script>
-
-<script>
-    // Move function outside DOMContentLoaded to prevent "ReferenceError"
-    function calculateTotalGuest() {
-        let adults = parseInt(document.getElementById("number_of_adults").value) || 0;
-        let children = parseInt(document.getElementById("number_of_children").value) || 0;
-        let totalGuests = adults + children;
-
-        document.getElementById("total_guests").value = totalGuests;
-        calculateTotalAmount(); // Ensure total amount updates correctly
+    function calculateStayDuration() {
+        const checkInDate = document.getElementById("reservation_date").value;
+        const checkOutDate = document.getElementById("check_out_date").value;
+        
+        if (!checkInDate || !checkOutDate) return;
+        
+        const date1 = new Date(checkInDate);
+        const date2 = new Date(checkOutDate);
+        
+        // Calculate difference in milliseconds
+        const diffTime = Math.abs(date2 - date1);
+        
+        // Convert to days
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+        
+        document.getElementById("duration_days").textContent = diffDays;
+        document.getElementById("stay_duration").value = diffDays;
+        
+        calculateTotalAmount(); // Update total amount based on stay duration
     }
 
     function calculateTotalAmount() {
-        let adultEntranceFee = 100;
-        let childEntranceFee = 50;
-        let numAdults = parseInt(document.getElementById("number_of_adults").value) || 0;
-        let numChildren = parseInt(document.getElementById("number_of_children").value) || 0;
-
-        let entranceTotal = (numAdults * adultEntranceFee) + (numChildren * childEntranceFee);
         let accommodationTotal = 0;
+        const durationDays = parseInt(document.getElementById("stay_duration").value) || 1;
 
         document.querySelectorAll('.select-accommodation.selected').forEach(card => {
             let price = parseFloat(card.getAttribute("data-price")) || 0;
-            accommodationTotal += price;
+            accommodationTotal += price * durationDays; // Multiply by number of days
         });
 
-        let totalAmount = entranceTotal + accommodationTotal;
-        document.getElementById("total_amount").value = totalAmount.toFixed(2);
+        document.getElementById("total_amount").value = accommodationTotal.toFixed(2);
     }
 
     document.addEventListener("DOMContentLoaded", function () {
         const accommodationCards = document.querySelectorAll(".select-accommodation");
-        const totalAmountInput = document.getElementById("total_amount");
         const form = document.querySelector("form");
+
+        // Calculate stay duration when dates change
+        document.getElementById("reservation_date").addEventListener("change", calculateStayDuration);
+        document.getElementById("check_out_date").addEventListener("change", calculateStayDuration);
 
         accommodationCards.forEach(card => {
             card.addEventListener("click", function () {
@@ -284,70 +285,17 @@
             });
         });
 
-        form.addEventListener("submit", function () {
-            document.querySelectorAll("input[name='accomodation_id[]']").forEach(input => {
-                let accommodationId = input.value;
-                let card = document.querySelector(`.select-accommodation[data-id="${accommodationId}"]`);
-                if (!card.classList.contains("selected")) {
-                    input.remove();
-                }
-            });
-        });
+        // Set initial dates from URL if available
+        const urlParams = new URLSearchParams(window.location.search);
+        const checkIn = urlParams.get("checkIn") || "";
+        const checkOut = urlParams.get("checkOut") || "";
 
-        document.getElementById("number_of_adults").addEventListener("input", calculateTotalGuest);
-        document.getElementById("number_of_children").addEventListener("input", calculateTotalGuest);
+        if (checkIn) document.getElementById("reservation_date").value = checkIn;
+        if (checkOut) document.getElementById("check_out_date").value = checkOut;
+        
+        // Calculate initial duration if dates are set
+        if (checkIn && checkOut) calculateStayDuration();
     });
 </script>
-<script>
-        document.addEventListener("DOMContentLoaded", function () {
-            // Get check-in and check-out dates from URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const checkIn = urlParams.get("checkIn") || "";
-            const checkOut = urlParams.get("checkOut") || "";
-
-            // Set values in the date inputs
-            document.getElementById("reservation_date").value = checkIn;
-            document.getElementById("check_out_date").value = checkOut;
-        });
-</script>
-<script>
-        document.addEventListener("DOMContentLoaded", function () {
-    const checkInDateInput = document.getElementById("reservation_date");
-    const accommodationList = document.getElementById("accommodationList");
-    const accommodationMessage = document.getElementById("accommodationMessage");
-
-    checkInDateInput.addEventListener("change", function () {
-        let checkInDate = this.value;
-        if (!checkInDate) return;
-
-        fetch(`/get-available-accommodations?date=${checkInDate}`)
-            .then(response => response.json())
-            .then(data => {
-                accommodationList.innerHTML = ""; // Clear list
-                if (data.length === 0) {
-                    accommodationMessage.innerHTML = "No accommodations available for this date.";
-                    return;
-                }
-
-                data.forEach(accommodation => {
-                    let div = document.createElement("div");
-                    div.classList.add("accommodation-item", "p-3", "mb-2", "border", "rounded");
-                    div.innerHTML = `
-                        <h5>${accommodation.name}</h5>
-                        <p>Type: ${accommodation.type}</p>
-                        <p>Capacity: ${accommodation.capacity} pax</p>
-                        <p>Price: ₱${accommodation.price}</p>
-                        <span class="badge bg-${accommodation.available ? 'success' : 'danger'}">
-                            ${accommodation.available ? "Available" : "Fully Booked"}
-                        </span>
-                    `;
-                    accommodationList.appendChild(div);
-                });
-            })
-            .catch(error => console.error("Error fetching accommodations:", error));
-    });
-});
-</script>
-
 </body>
 </html>
