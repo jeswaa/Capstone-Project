@@ -54,7 +54,7 @@
     @endif
 
     <div class="d-flex mt-5 mb-5 me-5">
-        <a href="{{ route('selectPackageCustom') }}" class="text-decoration-none text-color-1 p-3 color-background5 rounded-3 text-paragraph fw-semibold text-hover-1" style="margin-left: auto;">Custom Package</a>
+    
     </div>
 
     <form method="POST" action="{{ route('fixPackagesSelection') }}">
@@ -67,7 +67,7 @@
             <form method="POST" action="{{ route('fixPackagesSelection') }}">
                 @csrf
                 <input type="hidden" name="package_type" value="predefined">
-                <h1 class="font-paragraph fw-bold text-color-1 ms-3">Packages</h1>
+                <h1 class="font-paragraph fw-bold text-color-1 ms-3">Cottages</h1>
                 @php
                     use Illuminate\Support\Facades\DB;
                     $packages = DB::table('packagestbl')->get();
@@ -93,15 +93,16 @@
                                     </div>
                                     <div class="card-body color-background5">
                                         <h5 class="fs-3 fw-bold text-capitalize color-3 font-paragraph">{{ $package->package_name }}</h5>
-                                        <p class="card-text mb-1 font-paragraph fs-6 text-color-1">{{ $package->package_description }}</p>
-                                        <p class="mb-1 font-paragraph fs-6 text-color-1"><strong>Duration:</strong> {{ $package->package_duration }}</p>
-                                        <p class="mb-1 font-paragraph fs-6 text-color-1"><strong>Room:</strong>
+                                       
                                         @php
                                             $roomTypeIds = json_decode($package->package_room_type, true);
-                                            $roomNames = DB::table('accomodations')
-                                                ->whereIn('accomodation_id', $roomTypeIds)
-                                                ->pluck('accomodation_name')
-                                                ->toArray();
+                                            $roomNames = [];
+                                            if (is_array($roomTypeIds)) {
+                                                $roomNames = DB::table('accomodations')
+                                                    ->whereIn('accomodation_id', $roomTypeIds)
+                                                    ->pluck('accomodation_name')
+                                                    ->toArray();
+                                            }
                                         @endphp
                                         {{ implode(', ', $roomNames) }}
                                         <p class="mb-1 font-paragraph fs-6 text-color-1"><strong>Max Guests:</strong> <span class="max-guests">{{ $package->package_max_guests }}</span></p>
@@ -122,7 +123,32 @@
             @php
                 $selectedDate = request()->query('date', ''); // Kunin ang date sa URL
             @endphp
-            <div class="row mt-4 d-flex align-items-center justify-content-between mx-auto date-time-selection" style="margin-top: -20px;">
+                        <div class="row">
+                <div class="col-md-6">
+                    <label for="roomPreference" class="text-color-1 font-paragraph fw-semibold mb-3 ms-2">Number of Visitors</label>
+                    <div class="form-group">
+                        <label for="number_of_adults">Adults (Ages 18 and above):</label>
+                        <input type="number" name="number_of_adults" id="number_of_adults" class="form-control p-2" min="0" oninput="calculateTotalGuest()">
+                    </div>
+                    <div class="form-group">
+                        <label for="number_of_children">Children (Ages 3-12):</label>
+                        <input type="number" name="number_of_children" id="number_of_children" class="form-control p-2" min="0" oninput="calculateTotalGuest()">
+                    </div>
+                </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <h1 for="time" class="text-color-1 font-paragraph fs-6 fw-semibold mb-4 ms-2 mt-3">Time</h1>
+                        <label for="check_in">Check-in Time</label>
+                        <input type="time" id="check_in" name="reservation_check_in" class="form-control" value="08:00">
+                        <label for="check_out">Check-out Time</label>
+                        <input type="time" id="check_out" name="reservation_check_out" class="form-control mb-4" value="12:00">
+                    </div>
+                </div>
+                @php
+                    $selectedDate = request()->query('date', ''); // Kunin ang date sa URL
+                @endphp
+                <div class="col-md-6">
                 <div class="row mt-4 d-flex align-items-center justify-content-between mx-auto">
                     <div class="col-md-5 col-12 mb-3 mb-md-0">
                         <label for="reservation_date">Check-in Date:</label>
@@ -132,24 +158,9 @@
                         <input type="date" id="check_out_date" name="reservation_check_out_date" class="form-control">
                     </div>
                 </div>
-                    
-                <!-- Check-in and Check-out Time -->
-                <div class="col-md-5 col-12">
-                    <label for="check_in" class="form-label fw-bold">Check-in Time</label>
-                    <input type="time" id="check_in" name="reservation_check_in" class="form-control p-3" value="08:00">
-                    
-                    <label for="check_out" class="form-label fw-bold mt-3">Check-out Time</label>
-                    <input type="time" id="check_out" name="reservation_check_out" class="form-control p-3" value="12:00">
                 </div>
             </div>
 
-            <!-- Special Request Section -->
-            <div class="container mt-5">
-                <div class="mb-3">
-                    <label for="special_requests" class="form-label fw-bold font-paragraph">Special Requests</label>
-                    <textarea class="form-control" id="special_requests" name="special_requests" rows="4" placeholder="E.g., vegetarian meal, room decoration, accessibility needs" style="resize: none;"></textarea>
-                </div>
-            </div>
         <!-- Submit Button -->
         <input type="hidden" id="amount" name="amount">
         <div class="d-flex mt-5 mb-5"  style="text-align: right;">
@@ -158,20 +169,29 @@
     </form>
 
     <script>
-       document.addEventListener("DOMContentLoaded", function () {
+   document.addEventListener("DOMContentLoaded", function () {
     function computeTotal() {
         let selectedPackages = document.querySelectorAll('input[name="selected_packages[]"]:checked');
         let amountField = document.getElementById('amount');
 
-        let entranceFee = 100;
         let totalAmount = 0;
 
+        // Sum up package prices
         selectedPackages.forEach(packageCheckbox => {
             let packagePrice = parseFloat(packageCheckbox.getAttribute('data-price')) || 0;
-            let maxGuests = parseInt(packageCheckbox.getAttribute('data-max-guests')) || 0;
-
-            totalAmount += (maxGuests * entranceFee) + packagePrice;
+            totalAmount += packagePrice;
         });
+
+        // Get the number of adults and children
+        let numberOfAdults = parseInt(document.getElementById("number_of_adults").value) || 0;
+        let numberOfChildren = parseInt(document.getElementById("number_of_children").value) || 0;
+
+        // Entrance Fees
+        let adultFee = numberOfAdults * 100;  // ₱100 per adult
+        let childFee = numberOfChildren * 50; // ₱50 per child
+
+        // Final total calculation
+        totalAmount += adultFee + childFee;
 
         amountField.value = totalAmount.toFixed(2);
     }
@@ -194,6 +214,10 @@
         });
     }
 
+    // Attach event listeners for visitors count change
+    document.getElementById("number_of_adults").addEventListener("input", computeTotal);
+    document.getElementById("number_of_children").addEventListener("input", computeTotal);
+
     // 🔥 Ensure the amount is computed before submitting the form
     document.querySelector("form").addEventListener("submit", function (event) {
         computeTotal(); // Ensure amount field is set
@@ -207,6 +231,8 @@
     updateSelectionUI();
     computeTotal(); // Compute total initially
 });
+
+
         </script>
 <script>
     console.log("Selected Date:", "{{ $selectedDate }}");

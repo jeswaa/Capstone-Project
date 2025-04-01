@@ -169,7 +169,7 @@ input[type="file"] {
                     
                     <div class="mb-3">
                         <label for="mobileNo" class="form-label fw-bold fs-5">Mobile Number:</label>
-                        <input type="text" class="form-control fs-5" name="mobileNo" id="mobileNo" value="{{ auth()->user()->mobileNo }}" required style="height: 55px;">
+                        <input type="text" class="form-control fs-5" name="mobileNo" id="mobileNo" value="{{ auth()->user() ? auth()->user()->mobileNo : '' }}" required style="height: 55px;">
                     </div>
                     @php
                         $amount = is_array($reservationDetails) ? ($reservationDetails['amount'] ?? 0.00) : ($reservationDetails->amount ?? 0.00);

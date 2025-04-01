@@ -39,7 +39,7 @@
 @endif
 <body class="color-background4">
     <div class="d-flex align-items-center ms-5 mt-5">
-        <a href="{{ route('selectPackage') }}"><i class="color-3 fa-2x fa-circle-left fa-solid icon icon-hover ms-4"></i></a><h1 class="text-color-1 text-uppercase font-heading ms-3">Reservation</h1>
+        <a href="{{ route('calendar') }}"><i class="color-3 fa-2x fa-circle-left fa-solid icon icon-hover ms-4"></i></a><h1 class="text-color-1 text-uppercase font-heading ms-3">Reservation</h1>
     </div>
     
     <div class="container">
