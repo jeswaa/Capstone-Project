@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use App\Mail\ReservationStatusUpdated;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Carbon\Carbon;
 
 class StaffController extends Controller
 {
@@ -53,43 +54,125 @@ class StaffController extends Controller
     }
 
     public function dashboard()
-    {
-        if (session()->has('StaffLogin')) {
-            $staffCredentials = Staff::where('id', session()->get('StaffLogin'))->first();
+{
+    if (session()->has('StaffLogin')) {
+        $staffCredentials = Staff::where('id', session()->get('StaffLogin'))->first();
 
-            $users = DB::table('users')->get();
-            $totalUsers = $users->count();
-            $totalGuests = DB::table('users')->count();
-            $totalReservations = DB::table('reservation_details')->count();
+        $users = DB::table('users')->get();
+        $totalUsers = $users->count();
+        $totalGuests = DB::table('users')->count();
+        $totalReservations = DB::table('reservation_details')->count();
 
-            $reservationData = DB::table('reservation_details')
-                ->select(DB::raw("COUNT(*) as count"), DB::raw("MONTHNAME(created_at) as month"))
-                ->groupBy('month')
-                ->get();
+        $reservationData = DB::table('reservation_details')
+            ->select(DB::raw("COUNT(*) as count"), DB::raw("MONTHNAME(created_at) as month"))
+            ->groupBy('month')
+            ->get();
 
-            $totalTransactions = DB::table('reservation_details')
-                ->where('payment_status', 'Paid') // Filter only completed payments
-                ->count();
+        $totalPendingTransactions = DB::table('reservation_details')
+            ->where('payment_status', 'pending') // Filter only pending payments
+            ->count();
 
+        $totalCheckedInGuests = DB::table('reservation_details')
+            ->where('reservation_status', 'checked-in')
+            ->count();
 
-            $totalPaidTransactions = DB::table('reservation_details')
-                ->where('payment_status', 'Paid') // Filter only completed payments
-                ->count();
+        $vacantRooms = DB::table('accomodations')->where('accomodation_status', 'available')->count();
+        
+        $pendingBookings = DB::table('reservation_details')
+            ->where('payment_status', 'pending') // Filter only pending bookings
+            ->get();
+        
+        $today = Carbon::today();
 
-            return view('StaffSide.StaffDashboard', [
-                'staffCredentials' => $staffCredentials,
-                'totalUsers' => $totalUsers,
-                'totalGuests' => $totalGuests,
-                'totalReservations' => $totalReservations,
-                'users' => $users,
-                'reservationData' => $reservationData,
-                'totalTransactions' => $totalTransactions,
-                'totalPaidTransactions' => $totalPaidTransactions,
-            ]);
-        } else {
-            return redirect()->route('staff.login');
-        }
+        // Total revenue for today
+        $totalTodayRevenue = DB::table('reservation_details')
+            ->where('payment_status', 'Paid')
+            ->whereDate('reservation_check_in_date', $today)
+            ->selectRaw("
+                SUM(
+                    CAST(
+                        REPLACE(
+                            REPLACE(amount, '₱', ''), 
+                            ',', 
+                            ''
+                        ) AS DECIMAL(10, 2)
+                    )
+                ) as total_revenue
+            ")
+            ->first();
+        
+        $totalRevenue = $totalTodayRevenue ? $totalTodayRevenue->total_revenue : 0;
+        
+        // Format the total revenue as currency
+        $formattedRevenue = '₱ ' . number_format($totalRevenue, 2);
+
+        // Total revenue for the current week
+        $totalWeeklyRevenue = DB::table('reservation_details')
+            ->whereBetween('created_at', [
+                Carbon::now()->startOfWeek(),
+                Carbon::now()->endOfWeek()
+            ])
+            ->selectRaw("
+                SUM(
+                    CAST(
+                        REPLACE(
+                            REPLACE(amount, '₱', ''), 
+                            ',', 
+                            ''
+                        ) AS DECIMAL(10, 2)
+                    )
+                ) as total_revenue
+            ")
+            ->first();
+
+        // Total revenue for the current month
+        $totalMonthlyRevenue = DB::table('reservation_details')
+            ->where('payment_status', 'paid')
+            ->orWhere('payment_status', 'booked')
+            ->whereYear('reservation_check_in_date', Carbon::now()->year)  // Filter by current year
+                ->whereMonth('reservation_check_in_date', Carbon::now()->month)
+            ->selectRaw("
+                SUM(
+                    CAST(
+                        REPLACE(
+                            REPLACE(amount, '₱', ''), 
+                            ',', 
+                            ''
+                        ) AS DECIMAL(10, 2)
+                    )
+                ) as total_revenue
+            ")
+            ->first();
+
+        $weeklyRevenue = $totalWeeklyRevenue ? $totalWeeklyRevenue->total_revenue : 0;
+        $monthlyRevenue = $totalMonthlyRevenue ? $totalMonthlyRevenue->total_revenue : 0;
+
+        $totalPaidTransactions = DB::table('reservation_details')
+            ->where('payment_status', 'Paid') // Filter only completed payments
+            ->count();
+
+        return view('StaffSide.StaffDashboard', [
+            'staffCredentials' => $staffCredentials,
+            'totalUsers' => $totalUsers,
+            'totalGuests' => $totalGuests,
+            'formattedRevenue' => $formattedRevenue,              
+            'totalRevenue' => $totalRevenue, // Pass totalRevenue for today
+            'weeklyRevenue' => $weeklyRevenue, // Pass weekly revenue
+            'monthlyRevenue' => $monthlyRevenue, // Pass monthly revenue
+            'totalReservations' => $totalReservations,
+            'pendingBookings' => $pendingBookings,
+            'totalCheckedInGuests' => $totalCheckedInGuests,
+            'vacantRooms' => $vacantRooms,
+            'users' => $users,
+            'totalPendingTransactions' => $totalPendingTransactions,
+            'reservationData' => $reservationData,
+            'totalPaidTransactions' => $totalPaidTransactions,
+        ]);
+    } else {
+        return redirect()->route('staff.login');
     }
+}
+
     public function reservations()
     {
         $reservations = DB::table('reservation_details')
@@ -104,7 +187,8 @@ class StaffController extends Controller
             )
             ->orderByDesc('reservation_details.created_at')
             ->paginate(10); // Get all reservations
-
+        
+        $archivedReservations = DB::table('archived_reservations')->latest()->get();
         // Process each reservation
         foreach ($reservations as $reservation) {
             // --- Handle Activities ---
@@ -143,7 +227,7 @@ class StaffController extends Controller
         // Debugging: Log the fetched details
         \Log::info('All Reservations:', ['reservations' => $reservations]);
 
-        return view('StaffSide.StaffReservation', compact('reservations'));
+        return view('StaffSide.StaffReservation', compact('reservations', 'archivedReservations'));
     }
 
 
@@ -277,7 +361,7 @@ class StaffController extends Controller
         return redirect()->back()->with('error', 'Reservation not found.');
     }
 
-    // Extract accommodation IDs (custom or fixed package)
+    // Extract accommodation IDs
     $accommodationIds = json_decode($reservation->accomodation_id, true) ?? [];
 
     if (empty($accommodationIds) && !empty($reservation->package_id)) {
@@ -289,25 +373,54 @@ class StaffController extends Controller
         $accommodationIds = json_decode($packageRooms, true) ?? [];
     }
 
+    // Determine new payment status based on reservation status
+    $newPaymentStatus = $request->payment_status;
+    if ($request->reservation_status === 'Checked-out') {
+        $newPaymentStatus = 'checked-out';
+    } elseif ($request->reservation_status === 'Cancelled') {
+        $newPaymentStatus = 'cancelled';
+    }
+
     // Update payment and reservation status
     DB::table('reservation_details')->where('id', $id)->update([
-        'payment_status' => $request->payment_status,
+        'payment_status' => $newPaymentStatus,
         'reservation_status' => $request->reservation_status,
         'custom_message' => $request->custom_message ?? null,
     ]);
 
-    // If status is 'booked' or 'paid', set accommodation as unavailable
-    if (in_array($request->payment_status, ['booked', 'paid'])) {
+    // Set accommodation availability
+    if (in_array($newPaymentStatus, ['booked', 'paid'])) {
         DB::table('accomodations')
             ->whereIn('accomodation_id', $accommodationIds)
             ->update(['accomodation_status' => 'unavailable']);
-    }
-
-    // If status is 'pending' or 'cancelled', set accommodation as available
-    if (in_array($request->payment_status, ['pending', 'cancelled', 'checked-out'])) {
+    } elseif (in_array($newPaymentStatus, ['pending', 'cancelled', 'checked-out', 'refunded'])) {
         DB::table('accomodations')
             ->whereIn('accomodation_id', $accommodationIds)
             ->update(['accomodation_status' => 'available']);
+    }
+
+    // **AUTO-ARCHIVE RESERVATION IF CHECKED-OUT OR CANCELLED**
+    if (
+        in_array($request->reservation_status, ['Checked-out', 'Cancelled']) &&
+        in_array($newPaymentStatus, ['checked-out', 'cancelled'])
+    ) {
+        // Move to archive table
+        DB::table('archived_reservations')->insert([
+            'name' => $reservation->name,
+            'email' => $reservation->email,
+            'phone' => $reservation->mobileNo,
+            'package' => $reservation->package_id,
+            'reservation_check_in_date' => $reservation->reservation_check_in_date,
+            'reservation_check_in' => $reservation->reservation_check_in,
+            'reservation_check_out' => $reservation->reservation_check_out,
+            'amount' => $reservation->amount,
+            'payment_status' => $newPaymentStatus,
+            'created_at' => $reservation->created_at,
+            'updated_at' => now(),
+        ]);
+
+        // Delete from active reservations
+        DB::table('reservation_details')->where('id', $id)->delete();
     }
 
     // Send email notification
@@ -315,6 +428,7 @@ class StaffController extends Controller
 
     return redirect()->route('staff.reservation')->with('success', 'Payment and reservation status updated successfully!');
 }
+
 
 
     

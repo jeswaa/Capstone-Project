@@ -109,6 +109,7 @@ Route::get('/room-availability', [AdminSideController::class, 'roomAvailability'
 Route::get('/addons', [AdminSideController::class, 'addons'])->name('addOns');
 Route::post('/store-addons', [AdminSideController::class, 'storeAddOns'])->name('storeAddOns');
 Route::put('/edit-addons/{id}', [AdminSideController::class, 'editAddOn'])->name('editAddOn');
+Route::delete('/addons/delete/{id}', [AdminSideController::class, 'deleteAddOn'])->name('deleteAddOn');
 Route::post('add-room', [AdminSideController::class, 'addRoom'])->name('addRoom');
 Route::put('/rooms/update/{id}', [AdminSideController::class, 'updateRoom'])->name('updateRoom');
 Route::delete('/rooms/delete/{id}', [AdminSideController::class, 'deleteRoom'])->name('deleteRoom');
@@ -121,9 +122,11 @@ Route::get('/add-activities', [AdminSideController::class, 'Activities'])->name(
 Route::post('/store-activities', [AdminSideController::class, 'storeActivity'])->name('storeActivity');
 Route::put('/activities/update/{id}', [AdminSideController::class, 'updateActivity'])->name('updateActivity');
 Route::get('/guests', [AdminSideController::class, 'guests'])->name('guests');
-Route::get('/transactions/edit-entrance-fee', [AdminSideController::class, 'editPrice'])->name('transactions');
+Route::get('/transactions', [AdminSideController::class, 'editPrice'])->name('transactions');
 Route::post('/transactions/update-entrance-fee', [AdminSideController::class, 'updatePrice'])->name('updatePrice');
 Route::get('reports', [AdminSideController::class, 'reports'])->name('reports');
+Route::get('/admin/settings', [SettingsController::class, 'showForm'])->name('admin.settings');
+Route::post('/admin/settings/update', [SettingsController::class, 'updateEmail'])->name('admin.settings.update');
 Route::get('/logout', [AdminSideController::class, 'logout'])->name('logout');
 
 //Staff Routes
