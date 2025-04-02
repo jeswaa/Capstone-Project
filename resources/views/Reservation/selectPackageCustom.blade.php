@@ -6,10 +6,12 @@
     <title>Custom Package</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <style>
-    .select-accommodation {
+      .select-accommodation {
         cursor: pointer;
         transition: transform 0.3s, box-shadow 0.3s;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.05);
@@ -27,7 +29,6 @@
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 16px 32px rgba(0, 0, 0, 0.1);
         transform: translateY(-5px);
     }
-
 </style>
 @if ($errors->any())
     <div class="alert alert-danger mt-3">
@@ -38,23 +39,19 @@
         </ul>
     </div>
 @endif
-<body class="bg-light font-paragraph" style="background: url('{{ asset('images/logosheesh.png') }}') no-repeat center center fixed; background-size: cover;">
-<div class="container mt-5 px-3">
-        <div class="d-flex justify-content-between align-items-center">
-            <a href="{{ route('profile') }}" title="Your Profile" class="text-decoration-none">
-                <div class="rounded-circle bg-success d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                    <i class="fa-solid fa-arrow-left text-white" style="font-size: 30px;"></i>
-                </div>
-            </a>
-            <h1 class="me-auto ms-4 font-paragraph fw-bold" style="color: #e9ffcc; font-size: 2.5rem;">SELECT & CUSTOMIZE YOUR PACKAGE</h1>
-            <a href="{{ url('/') }}" title="Home" class="text-decoration-none">
-                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
-                    <img src="{{ asset('images/appicon.png') }}" alt="App Logo" class="img-fluid" style="max-width: 100%; height: auto;">
-                </div>
-            </a>
-        </div>
+<body class="bg-light font-paragraph" style="background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('{{ asset('images/packagebg.jpg') }}') no-repeat center center fixed; background-size: cover;">
+    <div class="d-flex align-items-center ms-5 mt-5">
+        <a href="{{ route('selectPackage') }}"><i class="color-3 fa-2x fa-circle-left fa-solid icon icon-hover ms-4"></i></a><h1 class="text-white text-uppercase font-heading ms-3">Reservation</h1>
+    </div>
     
+    <div class="position-absolute top-0 end-0 mt-3 me-5">
+        <a href="{{ url('/') }}" class="text-decoration-none">
+            <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="120" class="rounded-pill">
+        </a>
+    </div>
+
     <div class="container">
+    <h1 class="text-white font-heading fs-2 mt-3">Select and Customize your Package</h1>
         <form method="POST" action="{{ route('savePackageSelection') }}">
             @csrf
             <input type="hidden" name="package_type" value="custom">
@@ -63,159 +60,304 @@
                 <div class="form-group">
                     <label for="roomPreference" class="text-white font-paragraph fw-semibold mb-3 ms-2" style="font-size: 1.5rem;">SELECT YOUR ROOM</label>
                     <div class="container">
-                        <div class="row">
-                        @foreach($accomodations as $accomodation)
-                        <div class="col-md-3 d-flex mb-3">
-                            <div class="rounded-4 w-100 color-background5 select-accommodation 
-                                        {{ $accomodation->accomodation_slot == 0 ? 'disabled' : '' }}" 
-                                data-id="{{ $accomodation->accomodation_id }}" 
-                                data-price="{{ $accomodation->accomodation_price }}">
-
-                                <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" 
-                                    class="card-img-top rounded-4" 
-                                    alt="accommodation image" 
-                                    style="max-width: 100%; height: 250px; object-fit: cover;">
-
-                                <div class="card-body p-3 position-relative">
-                                    <h5 class="color-3 text-capitalize font-heading fs-4 fw-bold">
-                                        {{ $accomodation->accomodation_name }}
-                                    </h5>
-                                    <span class="card-text font-paragraph" style="background-color: {{ $accomodation->accomodation_status === 'available' ? '#C6F7D0' : '#F4C2C7' }};">
+                        <div class="row g-4">
+                        @foreach($accomodations->sortByDesc('accomodation_id') as $accomodation)
+                        @if($accomodation->accomodation_type == 'room')
+                        <div class="col-md-4">
+                            <div class="card select-accommodation {{ $accomodation->accomodation_slot == 0 ? 'disabled' : '' }}" data-id="{{ $accomodation->accomodation_id }}">
+                                <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" class="card-img-top" alt="accommodation image" style="max-width: 100%; height: 250px; object-fit: cover;">
+                                <div class="card-body p-3 position-relative" style="background-color: white;">
+                                    <h5 class="text-success text-capitalize font-heading fs-4 fw-bold">{{ $accomodation->accomodation_name }}</h5>
+                                    <span class="card-text text-success font-paragraph" style="background-color: {{ $accomodation->accomodation_status === 'available' ? '#C6F7D0' : '#F4C2C7' }};">
                                         {{ ucfirst($accomodation->accomodation_status) }}
                                     </span>
-
-                                    <p class="text-color-1 font-paragraph" style="font-size: smaller;">Description:
-                                        {{ $accomodation->accomodation_description }}
-                                    </p>
-
-                                    <p class="card-text text-capitalize font-paragraph fs-6">
-                                        Type: {{ $accomodation->accomodation_type }}
-                                    </p>
-                                    <p class="card-text font-paragraph">Capacity: {{ $accomodation->accomodation_capacity }} pax</p>
-                                    <p class="card-text font-paragraph">Price: ₱ {{ $accomodation->accomodation_price }}</p>
-
-                                    <!-- Hidden input to store selected value (added dynamically by JS) -->
+                                    <p class="card-text text-success font-paragraph fs-6">Type: {{ $accomodation->accomodation_type }}</p>
+                                    <p class="card-text text-success font-paragraph">Capacity: {{ $accomodation->accomodation_capacity }} pax</p>
+                                    <p class="card-text font-paragraph fw-bold text-success" style="text-align: right;">Price: <span style="background-color: #0b573d; color: white; padding: 2px 5px;">₱{{ $accomodation->accomodation_price }}</span></p>
+                                    <input type="hidden" name="accomodation_id[]" value="{{ $accomodation->accomodation_id }}" class="hidden-input" @if($accomodation->accomodation_slot == 0) disabled @endif>
                                 </div>
                             </div>
                         </div>
-
+                        @endif
                         @endforeach
                         </div>
                     </div>
                 </div>
             </div>
-        </form>
-    </div>
 
-    <div class="container">
-    <form method="POST" action="{{ route('savePackageSelection') }}">
-        @csrf
-        <input type="hidden" name="package_type" value="custom">
-        
-        <div class="mb-4">
-            <label for="roomPreference" class="text-white font-paragraph fw-semibold fs-4">SELECT YOUR CABIN</label>
-            <div class="row g-4">
-                @foreach($accomodations->sortByDesc('accomodation_id') as $accomodation)
-                <div class="col-md-4">
-                    <div class="card select-accommodation {{ $accomodation->accomodation_slot == 0 ? 'disabled' : '' }}" data-id="{{ $accomodation->accomodation_id }}">
-                        <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" class="card-img-top" alt="accommodation image" style="max-width: 100%; height: 250px; object-fit: cover;">
-                        <div class="card-body bg-white p-3 position-relative">
-                            <h5 class="text-success text-capitalize fw-bold fs-4">{{ $accomodation->accomodation_name }}</h5>
-                            <span class="badge" style="background-color: {{ $accomodation->accomodation_status === 'available' ? '#C6F7D0' : '#F4C2C7' }};">
-                                {{ ucfirst($accomodation->accomodation_status) }}
-                            </span>
-                            <p class="text-success fs-6">Type: {{ $accomodation->accomodation_type }}</p>
-                            <p class="text-success">Capacity: {{ $accomodation->accomodation_capacity }} pax</p>
-                            <p class="text-end text-success fw-bold">Price: <span class="bg-success text-white px-2 py-1">₱{{ $accomodation->accomodation_price }}</span></p>
-                            <input type="hidden" name="accomodation_id[]" value="{{ $accomodation->accomodation_id }}" class="hidden-input" @if($accomodation->accomodation_slot == 0) disabled @endif>
+          <div><hr class="w-100 background-color" style="height: 5px;"></div>
+
+
+            <div class="col-md-12 d-flex flex-column mt-5">
+                <div class="form-group">
+                    <h1 class="text-white font-paragraph fw-semibold mb-3 ms-2" style="font-size: 1.5rem;">SELECT YOUR CABIN</h1>
+                    <div class="container">
+                        <div class="row g-4">
+                            @foreach($accomodations as $accomodation)
+                            @if($accomodation->accomodation_type == 'cabin')
+                                <div class="col-md-4">
+                                    <div class="card select-accommodation {{ $accomodation->accomodation_slot == 0 ? 'disabled' : '' }}" 
+                                        data-id="{{ $accomodation->accomodation_id }}" 
+                                        data-price="{{ $accomodation->accomodation_price }}"
+                                         data-capacity="{{ $accomodation->accomodation_capacity }}"
+                                        style="border: 2px solid #0b573d; border-radius: 10px; overflow: hidden; box-shadow: 2px 2px 10px rgba(0,0,0,0.1);">
+                                        
+                                        <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" 
+                                            class="card-img-top" 
+                                            alt="accommodation image" 
+                                            style="max-width: 100%; height: 250px; object-fit: cover; border-bottom: 2px solid #0b573d;">
+                                        
+                                        <div class="card-body p-3 position-relative" style="background-color: white;">
+                                            <h5 class="text-success text-capitalize font-heading fs-4 fw-bold" 
+                                                style="color: #0b573d; font-family: Arial, sans-serif; margin-bottom: 10px;">
+                                                {{ $accomodation->accomodation_name }}
+                                            </h5>
+                        
+                                            <span class="card-text text-success font-paragraph" 
+                                                style="display: inline-block; padding: 5px 10px; border-radius: 5px; background-color: {{ $accomodation->accomodation_status === 'available' ? '#C6F7D0' : '#F4C2C7' }}; color: #0b573d; font-weight: bold;">
+                                                {{ ucfirst($accomodation->accomodation_status) }}
+                                            </span>
+                        
+                                            <p class="card-text text-success font-paragraph" 
+                                                style="margin: 5px 0; color: #0b573d;">
+                                                Type: {{ $accomodation->accomodation_type }}
+                                            </p>
+                        
+                                            <p class="card-text text-success font-paragraph">
+                                                Capacity: {{ $accomodation->accomodation_capacity }} pax
+                                            </p>
+                        
+                                            <p class="card-text font-paragraph fw-bold text-success" 
+                                                style="text-align: right; margin-top: 10px;">
+                                                Price: <span style="background-color: #0b573d; color: white; padding: 5px 10px; border-radius: 5px;">
+                                                    ₱{{ $accomodation->accomodation_price }}
+                                                </span>
+                                            </p>
+                        
+                                            <input type="hidden" name="accomodation_id[]" value="{{ $accomodation->accomodation_id }}" 
+                                                class="hidden-input" @if($accomodation->accomodation_slot == 0) disabled @endif>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                        @endforeach
+                        
                         </div>
                     </div>
                 </div>
-                @endforeach
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-6">
-                <label class="text-white font-paragraph fw-semibold">Number of Visitors</label>
-                <div class="form-group">
-                    <label for="number_of_adults" class="text-white">Adults (18+):</label>
-                    <input type="number" name="number_of_adults" id="number_of_adults" class="form-control p-2" min="0" oninput="calculateTotalGuest()">
-                </div>
-                <div class="form-group">
-                    <label for="number_of_children" class="text-white">Children (3-12):</label>
-                    <input type="number" name="number_of_children" id="number_of_children" class="form-control p-2" min="0" oninput="calculateTotalGuest()">
-                </div>
-                <div class="form-group">
-                    <label for="total_guests" class="text-white">Total Guests:</label>
-                    <input type="number" name="total_guest" id="total_guests" class="form-control p-2" readonly>
-                </div>
             </div>
 
-            <div class="col-md-6">
-                <h5 class="text-white font-paragraph fw-semibold">Time</h5>
-                <div class="form-group">
-                    <label for="check_in" class="text-white">Check-in Time</label>
-                    <input type="time" id="check_in" name="reservation_check_in" class="form-control" value="08:00">
-                </div>
-                <div class="form-group">
-                    <label for="check_out" class="text-white">Check-out Time</label>
-                    <input type="time" id="check_out" name="reservation_check_out" class="form-control" value="12:00">
-                </div>
-                </div>
-            </div>
+            <div><hr class="w-100 background-color" style="height: 5px;"></div>
 
-            <div class="col-12 mt-4">
-                <h1 class="text-color-1 font-paragraph fs-6 fw-semibold mb-4 ms-2 mt-3">Add Ons</h1>
-                <div class="row">
-                    <!-- add ons  -->
-                @foreach($addons as $addon)
-                <div class="col-md-4">
-                    <div class="card mb-3">
-                        <img src="{{ asset('storage/' . $addon->image) }}" class="card-img-top" alt="{{ $addon->name }}">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ $addon->name }}</h5>
-                            <p class="card-text">{{ $addon->description }}</p>
-                            <p class="card-text text-end"><strong>Price: </strong>{{ $addon->price }}</p>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="addons[]" value="{{ $addon->id }}" id="addon{{ $addon->id }}">
-                                <label class="form-check-label" for="addon{{ $addon->id }}">
-                                    Select
-                                </label>
+            <div>
+                <label for="activities" class="text-color-1 font-paragraph fw-semibold ms-2 mt-3">Activities</label>
+                <div class="container">
+                    <div class="row">
+                        @foreach($activities as $activity)
+                            <div class="col-md-3 mb-3 mt-3">
+                                <div class="color-background5 rounded-3 w-100">
+                                    <img src="{{ asset('storage/' . $activity->activity_image) }}" class="rounded img-fluid mb-2" style="width: 100%; height: 200px; object-fit: cover;" alt="{{ $activity->activity_name }}">
+                                        <div class="d-flex align-items-center ms-3">
+                                            <p class="color-3 text-capitalize font-paragraph fs-5 fw-semibold mb-2">{{ $activity->activity_name }}</p>
+                                        </div>
+                                    <div class="d-none form-check">
+                                        <input class="form-check-input" type="checkbox" id="activity{{ $activity->id }}" name="activity_id[]" value="{{ $activity->id }}" {{ old('activity_id') && in_array($activity->id, old('activity_id')) ? 'checked' : 'checked' }}>
+                                        <label class="form-check-label" for="activity{{ $activity->id }}"></label>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        @endforeach
                     </div>
                 </div>
-                @endforeach
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-md-12 text-center">
+                  <button type="button" class="btn btn-primary w-100" id="proceedToPayment">Proceed to Payment</button>
                 </div>
-            </div>
+              </div>
+              
 
-        <div class="row mt-4">
-            <div class="col-md-6">
-                <label for="reservation_date" class="text-white">Check-in Date:</label>
+            <!-- Reservation Modal -->
+<div class="modal fade" id="reservationModal" tabindex="-1" aria-labelledby="reservationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="reservationModalLabel">Booking Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Ilalagay dito ang iyong form -->
+          <form method="POST" action="{{ route('savePackageSelection') }}">
+            @csrf
+            <input type="hidden" name="package_type" value="custom">
+  
+            <!-- Form content (kinuha mula sa iyong existing code) -->
+            <div class="row">
+              <div class="col-md-6">
+                <label for="roomPreference" class="fw-semibold mb-3">Number of Visitors</label>
+                <div class="form-group">
+                  <label for="number_of_adults">Adults (Ages 18 and above):</label>
+                  <input type="number" name="number_of_adults" id="number_of_adults" class="form-control p-2" min="0" oninput="calculateTotalGuest()">
+                </div>
+                <div class="form-group">
+                  <label for="number_of_children">Children (Ages 3-12):</label>
+                  <input type="number" name="number_of_children" id="number_of_children" class="form-control p-2" min="0" oninput="calculateTotalGuest()">
+                </div>
+                <div class="form-group">
+                  <label for="total_guests">Total Number of Guests: </label>
+                  <input type="number" name="total_guest" id="total_guests" class="form-control p-2" readonly>
+                  <div id="guestError" class="text-danger mt-2" style="display: none;">
+                    ⚠ Total guests exceed the selected room's capacity!
+                </div>
+                </div>
+              
+              <div class="col-md-6">
+                <h5 class="fw-semibold mt-3">Time</h5>
+                <label for="check_in">Check-in Time</label>
+                <input type="time" id="check_in" name="reservation_check_in" class="form-control" value="08:00">
+                <label for="check_out">Check-out Time</label>
+                <input type="time" id="check_out" name="reservation_check_out" class="form-control mb-4" value="12:00">
+              </div>
+              
+              <div class="col-md-6">
+                <label for="reservation_date">Check-in Date:</label>
                 <input type="date" id="reservation_date" name="reservation_check_in_date" class="form-control" required>
-                
-                <label for="check_out_date" class="form-label fw-bold mt-3 text-white">Check-out Date:</label>
+                <label for="check_out_date" class="form-label fw-bold mt-3">Check-out Date</label>
                 <input type="date" id="check_out_date" name="reservation_check_out_date" class="form-control">
+              </div>
             </div>
-        </div>
-
-        <div class="col-12 mt-4">
-            <div class="form-group">
-                <label for="specialRequest" class="form-label text-white">Special Request</label>
+  
+            <div class="col-12">
+              <div class="form-group">
+                <label for="specialRequest" class="form-label">Special Request</label>
                 <textarea id="specialRequest" name="special_request" class="form-control" rows="5" placeholder="Enter any special requests"></textarea>
+              </div>
             </div>
-        </div>
-
-        <input type="hidden" name="total_amount" id="total_amount">
-        
-        <div class="row mt-4">
-            <div class="col-md-12">
-                <button type="submit" class="btn btn-success w-100 fw-bold py-2">Save and Continue</button>
+  
+            <input type="hidden" name="total_amount" id="total_amount">
+            <div class="row">
+              <div class="col-md-12">
+                <button type="submit" class="btn btn-success w-100">Save and Continue</button>
+              </div>
             </div>
+          </form>
         </div>
-    </form>
+      </div>
+    </div>
+  </div>
 </div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const numberOfAdults = document.getElementById("number_of_adults");
+    const numberOfChildren = document.getElementById("number_of_children");
+    const totalGuests = document.getElementById("total_guests");
+    const guestError = document.getElementById("guestError");
+    const totalAmountInput = document.getElementById("total_amount");
+    const form = document.querySelector("form");
+    const accommodationCards = document.querySelectorAll(".select-accommodation");
+
+    let selectedRoomIds = new Set(); // To track selected rooms
+    let totalRoomCapacity = 0; // To store total capacity of selected rooms
+
+    // ✅ Function to calculate total guests
+    function calculateTotalGuest() {
+        let adults = parseInt(numberOfAdults.value) || 0;
+        let children = parseInt(numberOfChildren.value) || 0;
+        let total = adults + children;
+        totalGuests.value = total;
+
+        // ✅ Validate guest capacity
+        if (total > totalRoomCapacity) {
+            guestError.style.display = "block"; // Show error
+            totalGuests.classList.add("is-invalid");
+        } else {
+            guestError.style.display = "none"; // Hide error
+            totalGuests.classList.remove("is-invalid");
+        }
+
+        calculateTotalAmount(); // Update total amount
+    }
+
+    // ✅ Function to calculate total amount
+    function calculateTotalAmount() {
+        let adultEntranceFee = 100;
+        let childEntranceFee = 50;
+        let numAdults = parseInt(numberOfAdults.value) || 0;
+        let numChildren = parseInt(numberOfChildren.value) || 0;
+
+        let entranceTotal = (numAdults * adultEntranceFee) + (numChildren * childEntranceFee);
+        let accommodationTotal = 0;
+
+        document.querySelectorAll('.select-accommodation.selected').forEach(card => {
+            let price = parseFloat(card.getAttribute("data-price")) || 0;
+            accommodationTotal += price;
+        });
+
+        let totalAmount = entranceTotal + accommodationTotal;
+        totalAmountInput.value = totalAmount.toFixed(2);
+    }
+
+    // ✅ Function to handle room selection
+    accommodationCards.forEach(card => {
+        card.addEventListener("click", function () {
+            let roomId = this.getAttribute("data-id");
+            let roomCapacity = parseInt(this.getAttribute("data-capacity")) || 0;
+
+            if (selectedRoomIds.has(roomId)) {
+                // If already selected, remove it
+                selectedRoomIds.delete(roomId);
+                totalRoomCapacity -= roomCapacity;
+                this.classList.remove("selected");
+
+                // Remove hidden input field from the form
+                document.querySelector(`input[name="accomodation_id[]"][value="${roomId}"]`)?.remove();
+            } else {
+                // If not selected, add it
+                selectedRoomIds.add(roomId);
+                totalRoomCapacity += roomCapacity;
+                this.classList.add("selected");
+
+                // Create hidden input for form submission
+                let input = document.createElement("input");
+                input.type = "hidden";
+                input.name = "accomodation_id[]";
+                input.value = roomId;
+                form.appendChild(input);
+            }
+
+            console.log("Total Room Capacity:", totalRoomCapacity); // Debugging log
+
+            calculateTotalGuest(); // Update validation
+        });
+    });
+
+    // ✅ Prevent submission if guest count exceeds room capacity
+    form.addEventListener("submit", function (event) {
+        if (parseInt(totalGuests.value) > totalRoomCapacity) {
+            alert("⚠ Total guests exceed the selected room's capacity. Please adjust the numbers.");
+            event.preventDefault(); // Stop form submission
+        }
+    });
+
+    // ✅ Attach event listeners to input fields
+    numberOfAdults.addEventListener("input", calculateTotalGuest);
+    numberOfChildren.addEventListener("input", calculateTotalGuest);
+});
+
+</script>
+
+    
+    
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("proceedToPayment").addEventListener("click", function () {
+            let modal = new bootstrap.Modal(document.getElementById("reservationModal"));
+            modal.show();
+        });
+    });
+  </script>
+  
     <script>
     function resetFrontendAccommodations() {
         console.log("Resetting accommodations to available...");
@@ -240,9 +382,9 @@
             resetFrontendAccommodations(); // I-reset ang frontend kapag nagbago ang check-in date
         });
     });
-</script>
+    </script>
 
-<script>
+    <script>
     // Move function outside DOMContentLoaded to prevent "ReferenceError"
     function calculateTotalGuest() {
         let adults = parseInt(document.getElementById("number_of_adults").value) || 0;
@@ -253,11 +395,11 @@
         calculateTotalAmount(); // Ensure total amount updates correctly
     }
 
-        function calculateTotalAmount() {
-            let adultEntranceFee = 100;
-            let childEntranceFee = 50;
-            let numAdults = parseInt(document.getElementById("number_of_adults").value) || 0;
-            let numChildren = parseInt(document.getElementById("number_of_children").value) || 0;
+    function calculateTotalAmount() {
+        let adultEntranceFee = 100;
+        let childEntranceFee = 50;
+        let numAdults = parseInt(document.getElementById("number_of_adults").value) || 0;
+        let numChildren = parseInt(document.getElementById("number_of_children").value) || 0;
 
         let entranceTotal = (numAdults * adultEntranceFee) + (numChildren * childEntranceFee);
         let accommodationTotal = 0;
@@ -363,6 +505,5 @@
     });
 });
 </script>
-
 </body>
 </html>
