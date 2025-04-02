@@ -9,6 +9,190 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <style>
+            /* Header spacing styles */
+            .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            margin-bottom: 20px;
+        }
+        
+        .header-title {
+            flex-grow: 1;
+            text-align: center;
+            margin: 0 20px; /* Added horizontal spacing */
+            color: #e9ffcc;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        
+        .nav-icon {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #0B5D3B;
+            border-radius: 50%;
+            color: white;
+            flex-shrink: 0;
+        }
+        
+        .logo-img {
+            max-width: 80px;
+            height: auto;
+            transition: transform 0.3s ease;
+            flex-shrink: 0;
+        }
+        
+        .logo-img:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Rest of your existing styles... */
+        .submit-button {
+            background-color: #0B5D3B; 
+            color: white;
+            font-weight: bold;
+            font-size: 0.8rem;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 50px; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 150px; 
+            cursor: pointer;
+            margin: 0 auto;
+        }
+    .nav-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 5px;
+        }
+
+        .logo-img {
+            max-width: 80px;
+            height: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .logo-img:hover {
+            transform: scale(1.05);
+        }
+
+
+
+@media (max-width: 767px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header-container {
+                flex-direction: column !important;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .header-title {
+                font-size: 1.8rem !important;
+                line-height: 1.2;
+                margin: 10px 0;
+            }
+
+            .nav-icon {
+                width: 40px !important;
+                height: 40px !important;
+            }
+
+            .nav-icon img {
+                max-width: 60px !important;
+            }
+
+            .payment-card {
+                flex-direction: column !important;
+                width: 100% !important;
+                margin: 15px auto !important;
+            }
+
+            .qr-container {
+                width: 100% !important;
+                height: auto !important;
+                padding: 15px !important;
+            }
+
+            .qr-image-container {
+                width: 100% !important;
+                height: auto !important;
+                aspect-ratio: 1/1;
+            }
+
+            .payment-details {
+                width: 100% !important;
+                padding: 15px !important;
+            }
+
+            .form-control {
+                font-size: 14px !important;
+                padding: 10px !important;
+            }
+
+            .submit-button {
+                width: 100% !important;
+                font-size: 1rem !important;
+                padding: 12px !important;
+            }
+
+            .duration-display,
+            .payment-details-section {
+                margin: 10px 0;
+                padding: 10px;
+            }
+
+            .stars {
+                gap: 20px !important;
+                padding-left: 0 !important;
+                justify-content: center;
+                font-size: 32px !important;
+            }
+
+
+            .feedback-text {
+                height: 100px;
+                font-size: 14px;
+            }
+
+            .d-flex.justify-content-between {
+                flex-direction: column !important;
+                gap: 10px;
+                align-items: flex-start !important;
+            }
+
+            .list-unstyled {
+                text-align: right;
+                width: 100%;
+            }
+        }
+
+        /* Additional responsive adjustments */
+        @media (max-width: 575px) {
+            .header-title {
+                font-size: 1.5rem !important;
+            }
+
+            .form-control {
+                font-size: 13px !important;
+            }
+
+            .submit-button .arrow {
+                width: 22px;
+                height: 22px;
+                font-size: 0.8rem;
+            }
+        }
+
     .submit-button {
         background-color: #0B5D3B; 
         color: white;
@@ -198,20 +382,20 @@
         font-size: 1.1rem;
     }
 </style>
-
 <body class="bg-light font-paragraph">
-    <div class="container mt-5 px-3">
-        <div class="d-flex justify-content-between align-items-center">
-            <a href="{{ route('selectPackage') }}" title="Go Back to Reservation Package" class="text-decoration-none">
-                <div class="rounded-circle bg-success d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                    <i class="fa-solid fa-arrow-left text-white" style="font-size: 30px;"></i>
+    <!-- Modified Header Section -->
+    <div class="container mt-3 mt-md-5 px-2">
+    <div class="header-container d-flex justify-content-center align-items-center">
+            <a href="{{ route('selectPackage') }}" class="text-decoration-none">
+                <div class="nav-icon bg-success rounded-circle">
+                    <i class="fa-solid fa-arrow-left text-white"></i>
                 </div>
             </a>
-            <h1 class="text-center fw-bold" style="color: #e9ffcc; font-size: 2.5rem;">RESERVATION PAYMENT</h1>
-            <a href="{{ url('/') }}" title="Home" class="text-decoration-none">
-                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
-                    <img src="{{ asset('images/appicon.png') }}" alt="App Logo" class="img-fluid" style="max-width: 100%; height: auto;">
-                </div>
+            <h1 class="header-title text-center fw-bold" style="color: #e9ffcc;">
+                RESERVATION PAYMENT
+            </h1>
+            <a href="{{ url('/') }}" class="text-decoration-none">
+                <img src="{{ asset('images/appicon.png') }}" alt="App Logo" class="logo-img">
             </a>
         </div>
 
@@ -220,21 +404,18 @@
             <input type="hidden" name="stay_duration" id="stay_duration" value="1">
             
             <div class="bg-white p-3 shadow rounded-1 mx-auto d-flex flex-column flex-md-row g-0 mt-4" style="width: 90%;">
-                <div class="w-100 w-md-50 bg-light p-3 text-white">
-                    <h5 class="text-center text-md-center text-success">Payment Method</h5>
-                    <hr class="bg-light my-2">
-                    <div class="d-flex justify-content-center">
-                        <input class="form-check-input d-none" type="checkbox" name="payment_method" id="gcash" value="gcash" checked>
-                        <div class="bg-secondary p-1 d-flex align-items-center justify-content-center rounded-2" style="width: 400px; height: 400px; background-image: url('{{ asset('images/logosheesh.png') }}'); background-size: cover; background-position: center;">
-                            <img src="{{ asset('images/qrcode.jpg') }}" alt="QR Code" style="max-width: 80%; height: auto;">
-                        </div>
+            <div class="qr-container bg-light p-2">
+                    <h5 class="text-center text-success mb-2">Payment Method</h5>
+                    <div class="qr-image-container bg-secondary rounded-2">
+                        <img src="{{ asset('images/qrcode.jpg') }}" 
+                             alt="QR Code" 
+                             class="img-fluid p-2">
                     </div>
                 </div>
 
-                <div class="w-100 w-md-50 bg-white p-3 rounded text-dark border">
-                    <h5 class="text-center text-md-center fw-bold text-success">Payment Details</h5>
-                    <hr class="border-success my-2">
-                    <div class="d-flex flex-column gap-2">
+                <div class="payment-details bg-white p-2">
+                    <h5 class="text-center fw-bold text-success mb-2">Payment Details</h5>
+                    <div class="d-flex flex-column gap-1">
                         <div class="duration-display">
                             <p id="duration-text">Stay Duration: 1 day</p>
                         </div>
@@ -426,6 +607,6 @@
         const downpayment = totalAmount * 0.15;
         document.querySelector('input[name="downpayment"]').value = `₱${downpayment.toFixed(2)}`;
     });
-    </script>
+    </script>   
 </body>
 </html>
