@@ -351,7 +351,7 @@ class StaffController extends Controller
     $request->validate([
         'payment_status' => 'required|string',
         'custom_message' => 'nullable|max:255',
-        'reservation_status' => 'required|in:Upcoming,Checked-in,Checked-out,Cancelled',
+        'reservation_status' => 'required|in:Reserved,Checked-in,Checked-out,Cancelled',
     ]);
 
     // Fetch reservation details
@@ -368,7 +368,7 @@ class StaffController extends Controller
         $packageRooms = DB::table('packagestbl')
             ->where('id', $reservation->package_id)
             ->value('package_room_type');
-        
+
         $accommodationIds = json_decode($packageRooms, true) ?? [];
     }
 
@@ -385,7 +385,11 @@ class StaffController extends Controller
         'payment_status' => $newPaymentStatus,
         'reservation_status' => $request->reservation_status,
         'custom_message' => $request->custom_message ?? null,
+        'updated_at' => now(),
     ]);
+
+    // Refresh reservation data after update
+    $updatedReservation = DB::table('reservation_details')->where('id', $id)->first();
 
     // Set accommodation availability
     if (in_array($newPaymentStatus, ['booked', 'paid'])) {
@@ -422,24 +426,17 @@ class StaffController extends Controller
         DB::table('reservation_details')->where('id', $id)->delete();
     }
 
-    // Send email notification
-    Mail::to($reservation->email)->send(new ReservationStatusUpdated($reservation, $request->custom_message, $reservation));
+    // Send email notification with updated reservation data
+    Mail::to($updatedReservation->email)->send(new ReservationStatusUpdated(
+        $updatedReservation,
+        $request->custom_message,
+        $updatedReservation
+    ));
 
     return redirect()->route('staff.reservation')->with('success', 'Payment and reservation status updated successfully!');
 }
 
-
-
-    
-
-    public function checkNewReservations()
-    {
-        $newReservations = Reservation::whereBetween('created_at', [now()->subMinutes(5), now()])->count();
-
-        return response()->json([
-            'new_reservations' => $newReservations
-        ]);
-    }    
+ 
     public function sendEmail(Request $request)
     {
         $request->validate([

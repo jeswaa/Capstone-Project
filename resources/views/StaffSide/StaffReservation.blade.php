@@ -218,9 +218,10 @@
                                                                     <label for="reservation_status" class="form-label">Reservation Status</label>
                                                                     <select class="form-select" name="reservation_status" id="reservation_status" aria-label="Reservation Status">
                                                                         <option value="" disabled selected hidden>Choose reservation status</option>
-                                                                        <option value="Upcoming" {{ $reservation->status == 'upcoming' ? 'selected' : '' }}>Upcoming</option>
+                                                                        <option value="Reserved" {{ $reservation->status == 'reserved' ? 'selected' : '' }}>Reserved</option>
                                                                         <option value="Checked-in" {{ $reservation->status == 'checked-in' ? 'selected' : '' }}>Checked-In</option>
                                                                         <option value="Checked-out" {{ $reservation->status == 'checked-out' ? 'selected' : '' }}>Checked-Out</option>
+                                                                        <option value="Cancelled" {{ $reservation->status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
                                                                     </select>
                                                                 </div>
                                                                 </select>

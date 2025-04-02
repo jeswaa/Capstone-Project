@@ -201,8 +201,7 @@ class ReservationController extends Controller
     
         public function StayInPackages(Request $request)
     {
-        
-        
+
         // Validate input data
         $request->validate([
             'reservation_check_in_date' => 'required|date|after_or_equal:today',
@@ -309,6 +308,7 @@ class ReservationController extends Controller
     $reservation->user_id = Auth::id();
     $reservation->name = Auth::user()->name;
     $reservation->email = Auth::user()->email;
+    $reservation->address = Auth::user()->address;
     $reservation->package_id = $reservationDetails['package_id'] ?? null;
     $reservation->total_guest = $reservationDetails['total_guest'] ?? 0;
     $reservation->number_of_adults = $reservationDetails['number_of_adults'] ?? 0;

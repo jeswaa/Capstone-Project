@@ -50,44 +50,92 @@
 
             <div class="col-md-12 d-flex flex-column">
                 <div class="form-group">
-                    <label for="roomPreference" class="text-color-1 font-paragraph fw-semibold mb-3 ms-2">Room Preference</label>
+                    <label for="roomPreference" class="text-color-1 font-paragraph fw-semibold mb-3 ms-2">Room</label>
                     <div class="container">
                         <div class="row">
                         @foreach($accomodations as $accomodation)
-                        <div class="col-md-3 d-flex mb-3">
-                            <div class="rounded-4 w-100 color-background5 select-accommodation 
-                                        {{ $accomodation->accomodation_slot == 0 ? 'disabled' : '' }}" 
-                                data-id="{{ $accomodation->accomodation_id }}" 
-                                data-price="{{ $accomodation->accomodation_price }}">
+                            @if($accomodation->accomodation_type == 'room')
+                            <div class="col-md-3 d-flex mb-3">
+                                <div class="rounded-4 w-100 color-background5 select-accommodation 
+                                            {{ $accomodation->accomodation_slot == 0 ? 'disabled' : '' }}" 
+                                    data-id="{{ $accomodation->accomodation_id }}" 
+                                    data-price="{{ $accomodation->accomodation_price }}">
 
-                                <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" 
-                                    class="card-img-top rounded-4" 
-                                    alt="accommodation image" 
-                                    style="max-width: 100%; height: 250px; object-fit: cover;">
+                                    <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" 
+                                        class="card-img-top rounded-4" 
+                                        alt="accommodation image" 
+                                        style="max-width: 100%; height: 250px; object-fit: cover;">
 
-                                <div class="card-body p-3 position-relative">
-                                    <h5 class="color-3 text-capitalize font-heading fs-4 fw-bold">
-                                        {{ $accomodation->accomodation_name }}
-                                    </h5>
-                                    <span class="card-text font-paragraph" style="background-color: {{ $accomodation->accomodation_status === 'available' ? '#C6F7D0' : '#F4C2C7' }};">
-                                        {{ ucfirst($accomodation->accomodation_status) }}
-                                    </span>
+                                    <div class="card-body p-3 position-relative">
+                                        <h5 class="color-3 text-capitalize font-heading fs-4 fw-bold">
+                                            {{ $accomodation->accomodation_name }}
+                                        </h5>
+                                        <span class="card-text font-paragraph" style="background-color: {{ $accomodation->accomodation_status === 'available' ? '#C6F7D0' : '#F4C2C7' }};">
+                                            {{ ucfirst($accomodation->accomodation_status) }}
+                                        </span>
 
-                                    <p class="text-color-1 font-paragraph" style="font-size: smaller;">Description:
-                                        {{ $accomodation->accomodation_description }}
-                                    </p>
+                                        <p class="text-color-1 font-paragraph" style="font-size: smaller;">Description:
+                                            {{ $accomodation->accomodation_description }}
+                                        </p>
 
-                                    <p class="card-text text-capitalize font-paragraph fs-6">
-                                        Type: {{ $accomodation->accomodation_type }}
-                                    </p>
-                                    <p class="card-text font-paragraph">Capacity: {{ $accomodation->accomodation_capacity }} pax</p>
-                                    <p class="card-text font-paragraph">Price: ₱ {{ $accomodation->accomodation_price }}</p>
+                                        <p class="card-text text-capitalize font-paragraph fs-6">
+                                            Type: {{ $accomodation->accomodation_type }}
+                                        </p>
+                                        <p class="card-text font-paragraph">Capacity: {{ $accomodation->accomodation_capacity }} pax</p>
+                                        <p class="card-text font-paragraph">Price: ₱ {{ $accomodation->accomodation_price }}</p>
 
-                                    <!-- Hidden input to store selected value (added dynamically by JS) -->
+                                        <!-- Hidden input to store selected value (added dynamically by JS) -->
+                                    </div>
                                 </div>
                             </div>
+                            @endif
+                        @endforeach
                         </div>
+                    </div>
+                </div>
+            </div>
 
+            <div class="col-md-12 d-flex flex-column">
+                <div class="form-group">
+                    <label for="roomPreference" class="text-color-1 font-paragraph fw-semibold mb-3 ms-2">Cabin</label>
+                    <div class="container">
+                        <div class="row">
+                        @foreach($accomodations as $accomodation)
+                            @if($accomodation->accomodation_type == 'cabin')
+                            <div class="col-md-3 d-flex mb-3">
+                                <div class="rounded-4 w-100 color-background5 select-accommodation 
+                                            {{ $accomodation->accomodation_slot == 0 ? 'disabled' : '' }}" 
+                                    data-id="{{ $accomodation->accomodation_id }}" 
+                                    data-price="{{ $accomodation->accomodation_price }}">
+
+                                    <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" 
+                                        class="card-img-top rounded-4" 
+                                        alt="accommodation image" 
+                                        style="max-width: 100%; height: 250px; object-fit: cover;">
+
+                                    <div class="card-body p-3 position-relative">
+                                        <h5 class="color-3 text-capitalize font-heading fs-4 fw-bold">
+                                            {{ $accomodation->accomodation_name }}
+                                        </h5>
+                                        <span class="card-text font-paragraph" style="background-color: {{ $accomodation->accomodation_status === 'available' ? '#C6F7D0' : '#F4C2C7' }};">
+                                            {{ ucfirst($accomodation->accomodation_status) }}
+                                        </span>
+
+                                        <p class="text-color-1 font-paragraph" style="font-size: smaller;">Description:
+                                            {{ $accomodation->accomodation_description }}
+                                        </p>
+
+                                        <p class="card-text text-capitalize font-paragraph fs-6">
+                                            Type: {{ $accomodation->accomodation_type }}
+                                        </p>
+                                        <p class="card-text font-paragraph">Capacity: {{ $accomodation->accomodation_capacity }} pax</p>
+                                        <p class="card-text font-paragraph">Price: ₱ {{ $accomodation->accomodation_price }}</p>
+
+                                        <!-- Hidden input to store selected value (added dynamically by JS) -->
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
                         @endforeach
                         </div>
                     </div>
