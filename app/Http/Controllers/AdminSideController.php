@@ -15,7 +15,7 @@ use App\Models\Activities;
 class AdminSideController extends Controller
 {
     public function dashboard(){
-        return view('AdminSide.dashboard');
+        return view('AdminSide.Dashboard');
     }
 
     public function reservations(Request $request) 
@@ -80,7 +80,7 @@ class AdminSideController extends Controller
         }
     
         // Return view with data
-        return view('AdminSide.reservation', compact('reservations', 'users', 'noReservationMessage', 'events'));
+        return view('AdminSide.Reservation', compact('reservations', 'users', 'noReservationMessage', 'events'));
     }
     
 
@@ -104,7 +104,7 @@ class AdminSideController extends Controller
         $reservations = DB::table('reservation_details')->get();
         $totalGuests = DB::table('users')->count();
         $totalReservations = DB::table('reservation_details')->count();
-        return view('AdminSide.guest', ['users' => $users, 'reservations' => $reservations, 'totalGuests' => $totalGuests, 'totalReservations' => $totalReservations, 'upcomingReservations' => $upcomingReservations]);
+        return view('AdminSide.Guest', ['users' => $users, 'reservations' => $reservations, 'totalGuests' => $totalGuests, 'totalReservations' => $totalReservations, 'upcomingReservations' => $upcomingReservations]);
     }
 
     public function transactions(){
@@ -143,7 +143,7 @@ class AdminSideController extends Controller
             ->orderByDesc('count')
             ->first();
 
-        return view('AdminSide.reports', compact(
+        return view('AdminSide.Reports', compact(
             'totalReservations', 'totalCancelled', 'totalConfirmed', 'totalPending',
             'dailyReservations', 'weeklyReservations', 'monthlyReservations', 'yearlyReservations',
             'mostBooked'
@@ -293,7 +293,7 @@ class AdminSideController extends Controller
             }
         }
     
-        return view('Adminside.dashboard', [
+        return view('AdminSide.Dashboard', [
             'adminCredentials' => $adminCredentials,
             'revenueData' => $revenueData,
             'totalRevenue' => $totalRevenue, 

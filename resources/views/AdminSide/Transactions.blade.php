@@ -76,7 +76,7 @@
                                             <div class="card-body">
                                                 <h5 class="card-title">{{ $user->name }}</h5>
                                                 <p class="card-text">{{ $user->email }}</p>
-                                                <p class="card-text"><small class="text-muted">{{ $user->created_at->format('F j, Y, g:i a') }}</small></p>
+                                                <p class="card-text"><small class="text-muted">{{ \Carbon\Carbon::parse($user->created_at)->format('F j, Y, g:i a') }}</small></p>
                                             </div>
                                         </div>
                                     </div>

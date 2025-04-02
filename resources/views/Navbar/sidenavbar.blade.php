@@ -37,8 +37,6 @@
             </a>
             <ul class="dropdown-menu rounded-md w-100 border" aria-labelledby="reports-link">
                 <li><a class="dropdown-item" href="{{ route('reports') }}">Summary Report</a></li>
-                <li><a class="dropdown-item" href="#">Transaction Report</a></li>
-                <li><a class="dropdown-item" href="#">Reservation Report</a></li>
                 <li><a class="dropdown-item" href="#">Activity Logs</a></li>
             </ul>
         </div>
