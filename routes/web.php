@@ -63,8 +63,8 @@ Route::get('/reservation/display-summary', [ReservationController::class, 'displ
 // Display the credentials of the login user
 Route::post('/reservation-personal', [ReservationController::class, 'fetchUserData'])->name('fetchUserData');
 Route::post('/reservation/personal-details', [ReservationController::class, 'saveReservationDetails'])->name('saveReservationDetails');
-Route::post('/reservation/select-package-details', [ReservationController::class, 'savePackageSelection'])->name('savePackageSelection');
-Route::post('/reservation/select-fix-package-details', [ReservationController::class, 'fixPackagesSelection'])->name('fixPackagesSelection');
+Route::post('/reservation/select-package-details', [ReservationController::class, 'StayInPackages'])->name('savePackageSelection');
+Route::post('/reservation/select-fix-package-details', [ReservationController::class, 'OnedayStay'])->name('fixPackagesSelection');
 Route::post('/reservation/save-payment-process', [ReservationController::class, 'savePaymentProcess'])->name('savePaymentProcess');
 Route::get('/reservation/display-packages', [ReservationController::class, 'displayPackageSelection'])->name('authenticatedPackages');
 // Route for testing file access
@@ -109,6 +109,7 @@ Route::get('/room-availability', [AdminSideController::class, 'roomAvailability'
 Route::get('/addons', [AdminSideController::class, 'addons'])->name('addOns');
 Route::post('/store-addons', [AdminSideController::class, 'storeAddOns'])->name('storeAddOns');
 Route::put('/edit-addons/{id}', [AdminSideController::class, 'editAddOn'])->name('editAddOn');
+Route::delete('/addons/delete/{id}', [AdminSideController::class, 'deleteAddOn'])->name('deleteAddOn');
 Route::post('add-room', [AdminSideController::class, 'addRoom'])->name('addRoom');
 Route::put('/rooms/update/{id}', [AdminSideController::class, 'updateRoom'])->name('updateRoom');
 Route::delete('/rooms/delete/{id}', [AdminSideController::class, 'deleteRoom'])->name('deleteRoom');
@@ -121,9 +122,11 @@ Route::get('/add-activities', [AdminSideController::class, 'Activities'])->name(
 Route::post('/store-activities', [AdminSideController::class, 'storeActivity'])->name('storeActivity');
 Route::put('/activities/update/{id}', [AdminSideController::class, 'updateActivity'])->name('updateActivity');
 Route::get('/guests', [AdminSideController::class, 'guests'])->name('guests');
-Route::get('/transactions/edit-entrance-fee', [AdminSideController::class, 'editPrice'])->name('transactions');
+Route::get('/transactions', [AdminSideController::class, 'editPrice'])->name('transactions');
 Route::post('/transactions/update-entrance-fee', [AdminSideController::class, 'updatePrice'])->name('updatePrice');
 Route::get('reports', [AdminSideController::class, 'reports'])->name('reports');
+Route::get('/admin/settings', [SettingsController::class, 'showForm'])->name('admin.settings');
+Route::post('/admin/settings/update', [SettingsController::class, 'updateEmail'])->name('admin.settings.update');
 Route::get('/logout', [AdminSideController::class, 'logout'])->name('logout');
 
 //Staff Routes

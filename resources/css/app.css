@@ -1,5 +1,6 @@
 .background-color {
     background-color: #fff;
+    background-color: #fff;
 }
 .text-color-1 {
     color: #4a4a4a;
@@ -33,6 +34,12 @@
 }
 .color-background6 {
     background-color: #718355;
+}
+.color-background7 {
+    background-color: black;
+}
+.color-background8 {
+    background-color: #0b573d;
 }
 .font-paragraph {
     font-family: "Montserrat", serif !important;
@@ -101,6 +108,9 @@
     height: 450px;
     object-fit: cover;
     border-radius: 10px;
+    height: 450px;
+    object-fit: cover;
+    border-radius: 10px;
 }
 .testimonial-img {
     width: 100%;
@@ -108,8 +118,14 @@
     height: 450px;
     object-fit: cover;
     border-radius: 10px;
+    width: 100%;
+    max-width: auto;
+    height: 450px;
+    object-fit: cover;
+    border-radius: 10px;
 }
 .custom-gap {
+    gap: 200px;
     gap: 200px;
 }
 .custom-move {
@@ -120,8 +136,63 @@
 .custom-move-b {
     position: absolute;
     left: 44%;
+    left: 44%;
 }
 .custom-mt-5 {
+    margin-top: 230px !important;
+}
+.login-container {
+    background-color: #718355;
+    padding: 2rem;
+    border-radius: 10px;
+    width: auto;
+    text-align: center;
+}
+.login-container h1 {
+    color: #4a4a4a;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+}
+.form-control {
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+}
+.btn-primary {
+    background-color: #97a97c;
+    border: none;
+    padding: 0.75rem;
+    border-radius: 5px;
+    width: 100%;
+    font-weight: 500;
+}
+.btn-primary:hover {
+    background-color: #718355;
+}
+.btn-google {
+    background-color: #97a97c;
+    color: white;
+    border: none;
+    padding: 0.75rem;
+    border-radius: 5px;
+    width: 100%;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+.btn-google:hover {
+    background-color: #97a97c;
+}
+.signup-link {
+    color: #97a97c;
+    text-decoration: none;
+    font-weight: 500;
+}
+.signup-link:hover {
+    text-decoration: underline;
     margin-top: 230px !important;
 }
 .login-container {

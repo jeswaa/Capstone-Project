@@ -39,6 +39,7 @@
                 <li><a class="dropdown-item" href="{{ route('reports') }}">Summary Report</a></li>
                 <li><a class="dropdown-item" href="#">Transaction Report</a></li>
                 <li><a class="dropdown-item" href="#">Reservation Report</a></li>
+                <li><a class="dropdown-item" href="#">Activity Logs</a></li>
             </ul>
         </div>
         <a href="{{ route('logout') }}" class="fw-semibold p-4 mt-2 color-3 hover:color-background1 font-paragraph rounded-md text-hover text-decoration-none d-flex align-items-center" id="logout-link">

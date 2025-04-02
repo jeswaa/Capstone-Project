@@ -152,7 +152,7 @@
                         </button>
                         <button type="button" class="btn btn-success border border-2 border-dark rounded-5" 
                                 id="daytourBtn" style="box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);">
-                            DAY TOUR
+                            DAY PASS
                         </button>
                     </div>
                 </div>
@@ -188,7 +188,7 @@
         </div>
     </div>
 
-    <script>
+<script>
     document.addEventListener('DOMContentLoaded', function () {
         const calendarEl = document.getElementById('calendar');
         const allEvents = @json($events);
@@ -270,29 +270,9 @@
                 }
 
                 if (reservationType === 'daytour') {
-                    checkInDate = selectedDate;
-                    checkOutDate = selectedDate;
-                    Swal.fire("Day Tour Selected", `Date: ${checkInDate}`, "success").then(() => {
-                        let route = "{{ route('selectPackageCustom') }}";
-                        window.location.href = `${route}?checkIn=${checkInDate}&checkOut=${checkOutDate}&type=daytour`;
-                    });
+                    handleDayTourSelection(selectedDate);
                 } else {
-                    if (!checkInDate) {
-                        checkInDate = selectedDate;
-                        Swal.fire("Check-in Selected", `Date: ${checkInDate}`, "success");
-                    } else if (!checkOutDate && selectedDate > checkInDate) {
-                        checkOutDate = selectedDate;
-                        Swal.fire("Dates Selected", `Check-in: ${checkInDate}\nCheck-out: ${checkOutDate}`, "success").then(() => {
-                            let route = "{{ route('selectPackageCustom') }}";
-                            window.location.href = `${route}?checkIn=${checkInDate}&checkOut=${checkOutDate}`;
-                        });
-                    } else if (selectedDate <= checkInDate) {
-                        Swal.fire("Invalid Selection", "Check-out must be after check-in.", "error");
-                    } else {
-                        checkInDate = selectedDate;
-                        checkOutDate = null;
-                        Swal.fire("New Check-in Selected", `Date: ${checkInDate}`, "success");
-                    }
+                    handleStayInSelection(selectedDate);
                 }
 
                 highlightSelectedDates();
@@ -318,6 +298,36 @@
 
         calendar.render();
 
+        // Function for handling Day Tour selection (NEW ROUTE: selectPackageDayTour)
+        function handleDayTourSelection(selectedDate) {
+            checkInDate = selectedDate;
+            checkOutDate = selectedDate;
+            Swal.fire("Day Tour Selected", `Date: ${checkInDate}`, "success").then(() => {
+                let route = "{{ route('selectPackage') }}"; // Changed to Day Tour Route
+                window.location.href = `${route}?checkIn=${checkInDate}&checkOut=${checkOutDate}&type=daytour`;
+            });
+        }
+
+        // Function for handling Stay-in selection (STILL fetches from selectPackageCustom)
+        function handleStayInSelection(selectedDate) {
+            if (!checkInDate) {
+                checkInDate = selectedDate;
+                Swal.fire("Check-in Selected", `Date: ${checkInDate}`, "success");
+            } else if (!checkOutDate && selectedDate > checkInDate) {
+                checkOutDate = selectedDate;
+                Swal.fire("Dates Selected", `Check-in: ${checkInDate}\nCheck-out: ${checkOutDate}`, "success").then(() => {
+                    let route = "{{ route('selectPackageCustom') }}";
+                    window.location.href = `${route}?checkIn=${checkInDate}&checkOut=${checkOutDate}`;
+                });
+            } else if (selectedDate <= checkInDate) {
+                Swal.fire("Invalid Selection", "Check-out must be after check-in.", "error");
+            } else {
+                checkInDate = selectedDate;
+                checkOutDate = null;
+                Swal.fire("New Check-in Selected", `Date: ${checkInDate}`, "success");
+            }
+        }
+
         function highlightSelectedDates() {
             document.querySelectorAll('.fc-daygrid-day').forEach(cell => {
                 let cellDate = cell.getAttribute('data-date');
@@ -326,18 +336,26 @@
                 cell.style.backgroundColor = "";
                 cell.style.color = "black";
 
-                if (cellDate === checkInDate) {
-                    cell.style.backgroundColor = "#28a745";
-                    cell.style.color = "white";
-                } else if (cellDate === checkOutDate) {
-                    cell.style.backgroundColor = "#dc3545";
-                    cell.style.color = "white";
-                } else if (checkInDate && checkOutDate && cellDate > checkInDate && cellDate < checkOutDate) {
-                    cell.style.backgroundColor = "#ffc107";
+                if (reservationType === 'daytour') {
+                    if (cellDate === checkInDate) {
+                        cell.style.backgroundColor = "#28a745";
+                        cell.style.color = "white";
+                    }
+                } else {
+                    if (cellDate === checkInDate) {
+                        cell.style.backgroundColor = "#28a745";
+                        cell.style.color = "white";
+                    } else if (cellDate === checkOutDate) {
+                        cell.style.backgroundColor = "#dc3545";
+                        cell.style.color = "white";
+                    } else if (checkInDate && checkOutDate && cellDate > checkInDate && cellDate < checkOutDate) {
+                        cell.style.backgroundColor = "#ffc107";
+                    }
                 }
             });
         }
     });
-    </script>
+</script>
+
 </body>
 </html>
