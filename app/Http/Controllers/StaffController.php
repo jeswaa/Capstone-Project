@@ -79,15 +79,16 @@ class StaffController extends Controller
         $vacantRooms = DB::table('accomodations')->where('accomodation_status', 'available')->count();
         
         $pendingBookings = DB::table('reservation_details')
-            ->where('payment_status', 'pending') // Filter only pending bookings
-            ->get();
+        ->where('payment_status', 'pending') // Filter only pending bookings
+        ->where('reservation_check_in_date', '>=', Carbon::today()) // Only show upcoming bookings
+        ->orderBy('reservation_check_in_date', 'desc') // Get the latest reservation
+        ->first(); // Retrieve only one record
         
         $today = Carbon::today();
 
         // Total revenue for today
         $totalTodayRevenue = DB::table('reservation_details')
-            ->where('payment_status', 'Paid')
-            ->whereDate('reservation_check_in_date', $today)
+            ->whereDate('created_at', $today)
             ->selectRaw("
                 SUM(
                     CAST(
@@ -127,8 +128,6 @@ class StaffController extends Controller
 
         // Total revenue for the current month
         $totalMonthlyRevenue = DB::table('reservation_details')
-            ->where('payment_status', 'paid')
-            ->orWhere('payment_status', 'booked')
             ->whereYear('reservation_check_in_date', Carbon::now()->year)  // Filter by current year
                 ->whereMonth('reservation_check_in_date', Carbon::now()->month)
             ->selectRaw("

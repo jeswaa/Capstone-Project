@@ -237,58 +237,56 @@
                     <div class="d-flex flex-column gap-2">
                         <div class="duration-display">
                         @php
-                        use Carbon\Carbon;
+                            use Carbon\Carbon;
 
-                        // Get check-in and check-out dates from reservation details
-                        $checkInDate = isset($reservationDetails['reservation_check_in_date']) ? Carbon::parse($reservationDetails['reservation_check_in_date']) : null;
-                        $checkOutDate = isset($reservationDetails['reservation_check_out_date']) ? Carbon::parse($reservationDetails['reservation_check_out_date']) : null;
+                            // Get check-in and check-out dates from reservation details
+                            $checkInDate = isset($reservationDetails['reservation_check_in_date']) ? Carbon::parse($reservationDetails['reservation_check_in_date']) : null;
+                            $checkOutDate = isset($reservationDetails['reservation_check_out_date']) ? Carbon::parse($reservationDetails['reservation_check_out_date']) : null;
 
-                        // Compute stay duration (minimum 1 day)
-                        $stayDuration = ($checkInDate && $checkOutDate) ? $checkInDate->diffInDays($checkOutDate) : 1;
-                    @endphp
+                            // Compute stay duration (minimum 1 day)
+                            $stayDuration = ($checkInDate && $checkOutDate) ? $checkInDate->diffInDays($checkOutDate) : 1;
+                        @endphp
 
-                    <p>Stay Duration: {{ $stayDuration }} {{ $stayDuration > 1 ? 'days' : 'day' }}</p>
+                        <p>Stay Duration: {{ $stayDuration }} {{ $stayDuration > 1 ? 'days' : 'day' }}</p>
                         </div>
 
-                        @if (!isset($reservationDetails->package_id) && count($accomodations) > 0)
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="fst-italic">Accommodations:</span>
-                                <ul class="list-unstyled text-end">
-                                @php
-                                    // Compute Stay Duration (defaults to 1 if no check-out date is provided)
-                                    $checkInDate = isset($reservationDetails['reservation_check_in_date']) ? \Carbon\Carbon::parse($reservationDetails['reservation_check_in_date']) : null;
-                                    $checkOutDate = isset($reservationDetails['reservation_check_out_date']) ? \Carbon\Carbon::parse($reservationDetails['reservation_check_out_date']) : null;
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fst-italic">Accommodations:</span>
+                            <ul class="list-unstyled text-end">
+                            @php
+                                // Compute Stay Duration (defaults to 1 if no check-out date is provided)
+                                $checkInDate = isset($reservationDetails['reservation_check_in_date']) ? \Carbon\Carbon::parse($reservationDetails['reservation_check_in_date']) : null;
+                                $checkOutDate = isset($reservationDetails['reservation_check_out_date']) ? \Carbon\Carbon::parse($reservationDetails['reservation_check_out_date']) : null;
 
-                                    $stayDuration = ($checkInDate && $checkOutDate) ? $checkInDate->diffInDays($checkOutDate) : 1;
-                                @endphp
+                                $stayDuration = ($checkInDate && $checkOutDate) ? $checkInDate->diffInDays($checkOutDate) : 1;
+                            @endphp
 
-                                @foreach ($accomodations as $accomodation)
-                                    <li>
-                                        {{ $accomodation->accomodation_name }} - ₱{{ number_format($accomodation->accomodation_price * $stayDuration, 2) }} 
-                                        ({{ $stayDuration }} {{ $stayDuration > 1 ? 'days' : 'day' }})
-                                    </li>
-                                @endforeach
+                            @foreach ($accomodations as $accomodation)
+                                <li>
+                                    {{ $accomodation->accomodation_name }} - ₱{{ number_format($accomodation->accomodation_price * $stayDuration, 2) }} 
+                                    ({{ $stayDuration }} {{ $stayDuration > 1 ? 'days' : 'day' }})
+                                </li>
+                            @endforeach
 
-                                </ul>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="fst-italic">Total Accommodation Price</span>
-                                <input type="text" class="form-control text-end bg-secondary-subtle border-0" 
-                                       value="₱{{ number_format($accomodation->accomodation_price * $stayDuration, 2) }} " readonly>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="fst-italic">Entrance Fee per Person</span>
-                                <input type="text" class="form-control text-end bg-secondary-subtle border-0" value="₱{{ number_format($entranceFee, 2) }}" readonly>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="fst-italic">Total Guests</span>
-                                <input type="text" class="form-control text-end bg-secondary-subtle border-0" value="{{ $reservationDetails['total_guest'] ?? 0 }}" readonly>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="fst-italic">Total Entrance Fee</span>
-                                <input type="text" class="form-control text-end bg-secondary-subtle border-0" value="₱{{ number_format($totalEntranceFee, 2) }}" readonly>
-                            </div>
-                        @endif
+                            </ul>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fst-italic">Total Accommodation Price</span>
+                            <input type="text" class="form-control text-end bg-secondary-subtle border-0" 
+                                   value="₱{{ number_format($accomodation->accomodation_price * $stayDuration, 2) }} " readonly>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fst-italic">Entrance Fee per Person</span>
+                            <input type="text" class="form-control text-end bg-secondary-subtle border-0" value="₱{{ number_format($entranceFee, 2) }}" readonly>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fst-italic">Total Guests</span>
+                            <input type="text" class="form-control text-end bg-secondary-subtle border-0" value="{{ $reservationDetails['total_guest'] ?? 0 }}" readonly>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fst-italic">Total Entrance Fee</span>
+                            <input type="text" class="form-control text-end bg-secondary-subtle border-0" value="₱{{ number_format($totalEntranceFee, 2) }}" readonly>
+                        </div>
 
                         @if (isset($reservationDetails->package_id))
                             @php

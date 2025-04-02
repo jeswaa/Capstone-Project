@@ -156,27 +156,25 @@
                                 <h2 class="text-color-2 font-heading fw-bold mb-3">Pending Bookings</h2>
 
                                 <div class="list-group">
-                                    @if(count($pendingBookings) > 0)
-                                        @foreach($pendingBookings as $booking)
-                                            <div class="list-group-item d-flex justify-content-between align-items-center">
-                                                <span>{{ $booking->name }} - {{ \Carbon\Carbon::parse($booking->reservation_check_in_date)->format('M d, Y') }}</span>
-                                                <a href="{{ route('staff.reservation', ['id' => $booking->id]) }}" class="btn btn-primary btn-sm w-25">View</a>
-                                            </div>
-                                        @endforeach
-                                    @else
-                                        <div class="list-group-item text-center">
-                                            No pending reservations
-                                        </div>
-                                    @endif
+                                @if($pendingBookings)
+                                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>{{ $pendingBookings->name }} - {{ \Carbon\Carbon::parse($pendingBookings->reservation_check_in_date)->format('M d, Y') }}</span>
+                                        <a href="{{ route('staff.reservation', ['id' => $pendingBookings->id]) }}" class="btn btn-primary btn-sm w-25">View</a>
+                                    </div>
+                                @else
+                                    <div class="list-group-item text-center">
+                                        No pending reservations
+                                    </div>
+                                @endif
+
                                 </div>
                             </div>
                         </div>
 
                         <!-- Charts and Graphs -->
-                        <div class="p-3"> 
                         <div class="p-3">
                             <div class="color-background1 p-4 mt-1 rounded-5 overflow-hidden">
-                                <h1 class="font-heading fw-bold text-color-1 fs-3">Reservations</h1>
+                                <h1 class="font-heading fw-bold text-color-1 fs-3">Revenue</h1>
                                 
                                 <!-- Display Today's Total Revenue -->
                                 <div class="text-center mb-3">

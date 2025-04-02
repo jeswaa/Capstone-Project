@@ -138,42 +138,44 @@ class ReservationController extends Controller
     
     
 
-    public function fixPackagesSelection(Request $request)
-    {
-        
-
-        // Validate input data
-        $request->validate([
-            'selected_packages' => 'required|array|min:1',
-            'selected_packages.*' => 'exists:packagestbl,id',
-            'reservation_check_in_date' => 'required|date|after_or_equal:today',
-            'reservation_check_out_date' => 'required|date|after_or_equal:reservation_check_in_date',
-            'reservation_check_in' => 'required|string',
-            'reservation_check_out' => 'required|string',
-            'amount' => 'required|numeric',
-        ]);
-
-        // Convert selected packages for session storage
-        $packageValue = count($request->selected_packages) == 1
-            ? $request->selected_packages[0]
-            : json_encode($request->selected_packages);
-
-        // Store reservation details in session
-        session(['reservation_details' => [
-            'user_id' => Auth::id(),
-            'package_id' => $packageValue,
-            'reservation_check_in_date' => $request->reservation_check_in_date,
-            'reservation_check_out_date' => $request->reservation_check_out_date,
-            'reservation_check_in' => $request->reservation_check_in,
-            'reservation_check_out' => $request->reservation_check_out,
-            'amount' => $request->amount,
-        ]]);
-
-        return redirect()->route('paymentProcess')->with('success', 'Package selection saved. Proceed to enter personal information.');
-    }
+    public function OnedayStay(Request $request)
+{
+    
+    // Validate input data
+    $request->validate([
+        'reservation_check_in_date' => 'required|date|after_or_equal:today',
+        'reservation_check_out_date' => 'required|date|after_or_equal:reservation_check_in_date',
+        'reservation_check_in' => 'required|string',
+        'reservation_check_out' => 'required|string',
+        'accommodation_id' => 'required|exists:accomodations,accomodation_id', // Updated to a single accommodation_id
+        'number_of_adults' => 'required|integer|min:1',
+        'number_of_children' => 'required|integer|min:0',
+        'total_guest' => 'required|integer|min:1|gte:number_of_adults',
+        'amount' => 'required|numeric|min:0',
+    ]);
 
     
-        public function savePackageSelection(Request $request)
+   
+
+    // Store reservation details in session
+    session(['reservation_details' => [
+        'user_id' => Auth::id(),
+        'accommodation_id' => $request->accommodation_id, // Store the single accommodation_id
+        'reservation_check_in_date' => $request->reservation_check_in_date,
+        'reservation_check_out_date' => $request->reservation_check_out_date,
+        'reservation_check_in' => $request->reservation_check_in,
+        'reservation_check_out' => $request->reservation_check_out,
+        'number_of_adults' => $request->number_of_adults,
+        'number_of_children' => $request->number_of_children,
+        'total_guest' => $request->total_guest,
+        'amount' => $request->amount,
+    ]]);
+
+    return redirect()->route('paymentProcess')->with('success', 'Reservation details saved. Proceed to enter personal information.');
+}
+
+    
+        public function StayInPackages(Request $request)
     {
         
         
