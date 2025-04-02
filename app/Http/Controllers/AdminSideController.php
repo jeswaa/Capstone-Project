@@ -19,71 +19,70 @@ class AdminSideController extends Controller
     }
 
     public function reservations(Request $request) 
-{
-    // Kunin lahat ng users para sa dropdown
-    $users = DB::table('users')->get();
-
-    // Simulan ang query para sa reservations
-    $query = DB::table('reservation_details')
-        ->leftJoin('packagestbl', 'reservation_details.package_id', '=', 'packagestbl.id')  // Join the packages table
-        ->orderByDesc('reservation_details.created_at');
-
-    // Variable para sa message kapag walang reservation ang user
-    $noReservationMessage = null;
+    {
+        // Kunin lahat ng users para sa dropdown
+        $users = DB::table('users')->get();
     
-    // Check if a user is selected
-    if ($request->has('user_id') && !empty($request->user_id)) {
-        $filteredReservations = clone $query;
-        $filteredReservations = $filteredReservations->where('reservation_details.user_id', $request->user_id);
-
-        if ($filteredReservations->count() > 0) {
-            $query = $filteredReservations;
-        } else {
-            // Show all reservations if the user has no reservations
-            $noReservationMessage = "No reservation for this user. Displaying all reservations.";
-        }
-    }
-
-    // Paginate the results
-    $reservations = $query->select('reservation_details.*', 'packagestbl.package_room_type')  // Select room type from packages
-        ->paginate(10);
-
-    // Decode the JSON room type IDs and fetch room names
-    foreach ($reservations as $reservation) {
-        if (!empty($reservation->package_room_type)) { // ✅ Ensure it's not empty
-            $roomTypeIds = json_decode($reservation->package_room_type, true);
-
-            if (is_array($roomTypeIds) && count($roomTypeIds) > 0) { // ✅ Ensure it's a valid array
-                // Fetch accommodation names based on IDs
-                $roomNames = DB::table('accomodations')
-                    ->whereIn('accomodation_id', $roomTypeIds)
-                    ->pluck('accomodation_name')
-                    ->toArray();
-
-                // Store room names in the reservation object
-                if (!empty($roomNames)) {
-                    $reservation->room_types = implode(', ', $roomNames);
-                }
+        // Simulan ang query para sa reservations
+        $query = DB::table('reservation_details')
+            ->leftJoin('users', 'reservation_details.user_id', '=', 'users.id')  // Join users
+            ->select(
+                'reservation_details.*',
+                'users.name as user_name'
+            )
+            ->orderByDesc('reservation_details.created_at');
+    
+        // Variable para sa message kapag walang reservation ang user
+        $noReservationMessage = null;
+        
+        // Check if a user is selected
+        if ($request->has('user_id') && !empty($request->user_id)) {
+            $filteredReservations = clone $query;
+            $filteredReservations = $filteredReservations->where('reservation_details.user_id', $request->user_id);
+    
+            if ($filteredReservations->count() > 0) {
+                $query = $filteredReservations;
+            } else {
+                // Show all reservations if the user has no reservations
+                $noReservationMessage = "No reservation for this user. Displaying all reservations.";
             }
-        } else {
-            $reservation->room_types = "N/A"; // ✅ Default value if empty
         }
-    }
+    
+        // Paginate the results
+        $reservations = $query->paginate(10);
 
-    // Fetch calendar data
-    $events = [];
-    foreach ($reservations as $reservation) {
-        $events[] = [
-            'title' => 'Reservation',
-            'start' => $reservation->reservation_check_in_date,
-            'end' => $reservation->reservation_check_out_date,
-            'description' => 'Reserved Room: ' . $reservation->room_types,
-        ];
+    
+        // Fetch accommodation names for each reservation
+        foreach ($reservations as $reservation) {
+            // Convert JSON or comma-separated IDs into an array
+            $accomodationIds = json_decode($reservation->accomodation_id, true);
+            
+            if (!is_array($accomodationIds)) {
+                $accomodationIds = explode(',', $reservation->accomodation_id); // If stored as comma-separated
+            }
+    
+            // Fetch the names from the accommodations table
+            $reservation->accomodation_names = DB::table('accomodations')
+                ->whereIn('accomodation_id', $accomodationIds)
+                ->pluck('accomodation_name')
+                ->toArray();
+        }
+    
+        // Fetch calendar data
+        $events = [];
+        foreach ($reservations as $reservation) {
+            $events[] = [
+                'title' => 'Reservation',
+                'start' => $reservation->reservation_check_in_date,
+                'end' => $reservation->reservation_check_out_date,
+                'description' => 'Reserved Room: ' . implode(', ', $reservation->accomodation_names),
+            ];
+        }
+    
+        // Return view with data
+        return view('AdminSide.reservation', compact('reservations', 'users', 'noReservationMessage', 'events'));
     }
-
-    // Return view with data
-    return view('AdminSide.reservation', compact('reservations', 'users', 'noReservationMessage', 'events'));
-}
+    
 
     
 

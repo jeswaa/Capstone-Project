@@ -217,7 +217,7 @@
 
         <form id="paymentForm" action="{{ route('savePaymentProcess') }}" method="POST" enctype="multipart/form-data">
             @csrf
-            <input type="hidden" name="stay_duration" value="{{ $reservationDetails['stay_duration'] ?? 1 }}">
+            <input type="hidden" name="stay_duration" id="stay_duration" value="1">
             
             <div class="bg-white p-3 shadow rounded-1 mx-auto d-flex flex-column flex-md-row g-0 mt-4" style="width: 90%;">
                 <div class="w-100 w-md-50 bg-light p-3 text-white">
@@ -236,49 +236,48 @@
                     <hr class="border-success my-2">
                     <div class="d-flex flex-column gap-2">
                         <div class="duration-display">
-                            Stay Duration: {{ $reservationDetails['stay_duration'] ?? 1 }} days
+                            <p id="duration-text">Stay Duration: 1 day</p>
                         </div>
 
-                        @if (!isset($reservationDetails->package_id) && count($accomodations) > 0)
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="fst-italic">Accommodations:</span>
-                                <ul class="list-unstyled text-end">
-                                    @foreach ($accomodations as $accomodation)
-                                        <li>{{ $accomodation->accomodation_name }} - ₱{{ number_format($accomodation->accomodation_price * ($reservationDetails['stay_duration'] ?? 1), 2) }} 
-                                        ({{ $reservationDetails['stay_duration'] ?? 1 }} days)</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="fst-italic">Total Accommodation Price</span>
-                                <input type="text" class="form-control text-end bg-secondary-subtle border-0" 
-                                       value="₱{{ number_format($totalAccomodationPrice * ($reservationDetails['stay_duration'] ?? 1), 2) }}" readonly>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="fst-italic">Entrance Fee per Person</span>
-                                <input type="text" class="form-control text-end bg-secondary-subtle border-0" value="₱{{ number_format($entranceFee, 2) }}" readonly>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="fst-italic">Total Guests</span>
-                                <input type="text" class="form-control text-end bg-secondary-subtle border-0" value="{{ $reservationDetails['total_guest'] ?? 0 }}" readonly>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="fst-italic">Total Entrance Fee</span>
-                                <input type="text" class="form-control text-end bg-secondary-subtle border-0" value="₱{{ number_format($totalEntranceFee, 2) }}" readonly>
-                            </div>
-                        @endif
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fst-italic">Accommodations:</span>
+                            <ul class="list-unstyled text-end" id="accommodation-list">
+                                @foreach ($accomodations as $accomodation)
+                                <li data-price="{{ $accomodation->accomodation_price }}">
+                                    {{ $accomodation->accomodation_name }} - ₱{{ number_format($accomodation->accomodation_price, 2) }} (1 day)
+                                </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fst-italic">Total Accommodation Price</span>
+                            <input type="text" class="form-control text-end bg-secondary-subtle border-0" id="total-accommodation" 
+                                   value="₱{{ number_format($accomodations->sum('accomodation_price'), 2) }}" readonly>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fst-italic">Entrance Fee per Person</span>
+                            <input type="text" class="form-control text-end bg-secondary-subtle border-0" value="₱{{ number_format($entranceFee, 2) }}" readonly>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fst-italic">Total Guests</span>
+                            <input type="text" class="form-control text-end bg-secondary-subtle border-0" value="{{ $reservationDetails['total_guest'] ?? 0 }}" readonly>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fst-italic">Total Entrance Fee</span>
+                            <input type="text" class="form-control text-end bg-secondary-subtle border-0" value="₱{{ number_format($totalEntranceFee, 2) }}" readonly>
+                        </div>
 
                         @if (isset($reservationDetails->package_id))
                             @php
                                 $selectedPackage = $packages->where('id', $reservationDetails->package_id)->first();
                                 $packagePrice = $selectedPackage->package_price ?? 0;
                                 $packageEntranceFee = ($selectedPackage->package_max_guests ?? 0) * 100;
-                                $totalPackageCost = ($packagePrice * ($reservationDetails['stay_duration'] ?? 1)) + $packageEntranceFee;
+                                $totalPackageCost = ($packagePrice * 1) + $packageEntranceFee;
                             @endphp
                             <div class="d-flex justify-content-between align-items-center">
-                                <span class="fst-italic">Package Price ({{ $reservationDetails['stay_duration'] ?? 1 }} days)</span>
+                                <span class="fst-italic">Package Price (1 day)</span>
                                 <input type="text" class="form-control text-end bg-secondary-subtle border-0" 
-                                       value="₱ {{ number_format($packagePrice * ($reservationDetails['stay_duration'] ?? 1), 2) }}" readonly>
+                                       value="₱ {{ number_format($packagePrice, 2) }}" readonly>
                             </div>
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="fst-italic">Package Entrance Fee</span>
@@ -289,10 +288,18 @@
                         <hr class="border-success my-2">
                         
                         @php
-                            $amount = is_array($reservationDetails) ? ($reservationDetails['amount'] ?? 0.00) : ($reservationDetails->amount ?? 0.00);
+                            $totalAccommodationPrice = isset($reservationDetails->package_id) 
+                                ? ($selectedPackage->package_price ?? 0)
+                                : $accomodations->sum('accomodation_price');
+                            
+                            $entranceFee = isset($reservationDetails->package_id)
+                                ? ($selectedPackage->package_max_guests ?? 0) * 100
+                                : ($reservationDetails['total_guest'] ?? 0) * 100;
+                            
+                            $amount = $totalAccommodationPrice + $entranceFee;
                             $downpayment = $amount * 0.15;
                         @endphp
-                        
+
                         <div class="d-flex justify-content-between align-items-center">
                             <h5 class="fw-bold text-success">Total Amount to Pay</h5>
                             <input type="text" class="form-control text-center bg-secondary-subtle border-0 fw-bold fs-5" 
@@ -307,7 +314,7 @@
                         
                         <div class="mt-3">
                             <label class="fw-bold">Upload Proof of Payment</label>
-                            <input type="file" class="form-control bg-secondary-subtle border-0" name="upload_payment" id="upload_payment">
+                            <input type="file" class="form-control bg-secondary-subtle border-0" name="upload_payment" id="upload_payment" required>
                         </div>
                         
                         <div class="mt-3">
@@ -380,6 +387,44 @@
         
         // Ensure GCash is selected by default
         document.getElementById('gcash').checked = true;
+
+        // Calculate proper stay duration
+        const checkInDate = "{{ $reservationDetails['reservation_check_in_date'] ?? '' }}";
+        const checkOutDate = "{{ $reservationDetails['reservation_check_out_date'] ?? '' }}";
+        
+        let stayDuration = 1;
+        if(checkInDate && checkOutDate) {
+            const start = new Date(checkInDate);
+            const end = new Date(checkOutDate);
+            stayDuration = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) || 1;
+        }
+
+        // Update duration display
+        document.getElementById('duration-text').textContent = `Stay Duration: ${stayDuration} ${stayDuration > 1 ? 'days' : 'day'}`;
+        document.getElementById('stay_duration').value = stayDuration;
+
+        // Update accommodation prices
+        const accommodationItems = document.querySelectorAll('#accommodation-list li');
+        let totalAccommodation = 0;
+        
+        accommodationItems.forEach(item => {
+            const price = parseFloat(item.dataset.price);
+            const total = price * stayDuration;
+            totalAccommodation += total;
+            item.textContent = `${item.textContent.split(' - ')[0]} - ₱${total.toFixed(2)} (${stayDuration} ${stayDuration > 1 ? 'days' : 'day'})`;
+        });
+
+        // Update total accommodation price
+        document.getElementById('total-accommodation').value = `₱${totalAccommodation.toFixed(2)}`;
+
+        // Update total amount (if needed)
+        const entranceFee = parseFloat("{{ $totalEntranceFee ?? 0 }}");
+        const totalAmount = totalAccommodation + entranceFee;
+        document.querySelector('input[name="amount"]').value = `₱ ${totalAmount.toFixed(2)}`;
+        
+        // Update downpayment (15% of total)
+        const downpayment = totalAmount * 0.15;
+        document.querySelector('input[name="downpayment"]').value = `₱${downpayment.toFixed(2)}`;
     });
     </script>
 </body>

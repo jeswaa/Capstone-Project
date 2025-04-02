@@ -3,11 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Select Package</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&family=Poppins:wght@100..900&display=swap" rel="stylesheet">
+    <title>Custom Package</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 <style> 
 .package-label {
@@ -31,99 +29,115 @@
 
 </style>
 </head>
+<style>
+    .select-accommodation {
+        cursor: pointer;
+        transition: transform 0.3s, box-shadow 0.3s;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.05);
+    }
+
+    .select-accommodation.selected {
+        background-color: #718355 !important;  
+        border: 2px solid #414141 !important;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        transform: scale(1.05);
+    }
+
+    .select-accommodation:hover {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 16px 32px rgba(0, 0, 0, 0.1);
+        transform: translateY(-5px);
+    }
+
+</style>
+@if ($errors->any())
+    <div class="alert alert-danger mt-3">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
 <body class="color-background4">
-    
-    <div class="d-flex align-items-center mt-5 ms-5">
-        <a href="{{ route('calendar') }}"><i class="fa-solid fa-circle-left fa-2x color-3 icon me-3"></i></a>
-        <h1 class="me-3 font-paragraph fs-1 fw-bold">Reservation</h1>
+    <div class="d-flex align-items-center ms-5 mt-5">
+        <a href="{{ route('selectPackage') }}"><i class="color-3 fa-2x fa-circle-left fa-solid icon icon-hover ms-4"></i></a><h1 class="text-color-1 text-uppercase font-heading ms-3">Reservation</h1>
     </div>
-
-    @if(session('error'))
-        <div class="alert alert-danger">
-            {{ session('error') }}
-        </div>
-    @endif
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
-    <div class="d-flex mt-5 mb-5 me-5">
     
-    </div>
+    <div class="container">
+    <h1 class="text-color-1 font-heading fs-2 mt-3">Select your Cottage</h1>
+        <form method="POST" action="{{ route('savePackageSelection') }}">
+            @csrf
+            <input type="hidden" name="package_type" value="custom">
 
-    <form method="POST" action="{{ route('fixPackagesSelection') }}">
-        @csrf
-        <input type="hidden" name="package_type" value="predefined">
-        
-        <!-- Package Selection -->
-        <div class="container d-flex justify-content-start" style="margin-top: -50px;">
-            <div class="row w-100 mt-2">
-            <form method="POST" action="{{ route('fixPackagesSelection') }}">
-                @csrf
-                <input type="hidden" name="package_type" value="predefined">
-                <h1 class="font-paragraph fw-bold text-color-1 ms-3">Cottages</h1>
-                @php
-                    use Illuminate\Support\Facades\DB;
-                    $packages = DB::table('packagestbl')->get();
-                @endphp
-                <div class="row">
-                    @foreach($packages as $package)
-                    <div class="col-lg-4 col-md-6 col-12 mb-3 package-card">
-                        <div class="form-check">
-                            <input type="checkbox" id="package{{ $package->id }}" 
-                                name="selected_packages[]" 
-                                value="{{ $package->id }}" 
-                                data-price="{{ $package->package_price }}" 
-                                data-max-guests="{{ $package->package_max_guests }}" 
-                                class="position-absolute opacity-0 package-checkbox">
-                            
-                            <label class="form-check-label w-100 rounded-3 package-label" for="package{{ $package->id }}">
-                                <div class="card border-0 shadow-sm h-100">
-                                    <div class="position-relative">
-                                        <img src="{{ asset('storage/' . $package->image_package) }}" 
-                                            alt="Package Image" 
-                                            class="card-img-top img-fluid object-fit-cover"
-                                            style="height: 200px;">
-                                    </div>
-                                    <div class="card-body color-background5">
-                                        <h5 class="fs-3 fw-bold text-capitalize color-3 font-paragraph">{{ $package->package_name }}</h5>
-                                       
-                                        @php
-                                            $roomTypeIds = json_decode($package->package_room_type, true);
-                                            $roomNames = [];
-                                            if (is_array($roomTypeIds)) {
-                                                $roomNames = DB::table('accomodations')
-                                                    ->whereIn('accomodation_id', $roomTypeIds)
-                                                    ->pluck('accomodation_name')
-                                                    ->toArray();
-                                            }
-                                        @endphp
-                                        {{ implode(', ', $roomNames) }}
-                                        <p class="mb-1 font-paragraph fs-6 text-color-1"><strong>Max Guests:</strong> <span class="max-guests">{{ $package->package_max_guests }}</span></p>
-                                        <p class="mb-1 font-paragraph fs-6 text-color-1"><strong>Activities:</strong> {{ $package->package_activities }}</p>
-                                        <p class="fw-bold mb-0 font-paragraph fs-6 text-color-1">Price: ₱ <span class="package-price">{{ $package->package_price }}</span></p>
-                                    </div>
+            <div class="col-md-12 d-flex flex-column">
+                <div class="form-group">
+                    <label for="roomPreference" class="text-color-1 font-paragraph fw-semibold mb-3 ms-2"></label>
+                    <div class="container">
+                        <div class="row">
+                        @foreach($accomodations->where('accomodation_type', 'cottage') as $accomodation)
+                        <div class="col-md-3 d-flex mb-3">
+                            <div class="rounded-4 w-100 color-background5 select-accommodation 
+                                        {{ $accomodation->accomodation_slot == 0 ? 'disabled' : '' }}" 
+                                data-id="{{ $accomodation->accomodation_id }}" 
+                                data-price="{{ $accomodation->accomodation_price }}">
+
+                                <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" 
+                                    class="card-img-top rounded-4" 
+                                    alt="accommodation image" 
+                                    style="max-width: 100%; height: 250px; object-fit: cover;">
+
+                                <div class="card-body p-3 position-relative">
+                                    <h5 class="color-3 text-capitalize font-heading fs-4 fw-bold">
+                                        {{ $accomodation->accomodation_name }}
+                                    </h5>
+                                    <span class="card-text font-paragraph" style="background-color: {{ $accomodation->accomodation_status === 'available' ? '#C6F7D0' : '#F4C2C7' }};">
+                                        {{ ucfirst($accomodation->accomodation_status) }}
+                                    </span>
+
+                                    <p class="text-color-1 font-paragraph" style="font-size: smaller;">Description:
+                                        {{ $accomodation->accomodation_description }}
+                                    </p>
+
+                                    <p class="card-text text-capitalize font-paragraph fs-6">
+                                        Type: {{ $accomodation->accomodation_type }}
+                                    </p>
+                                    <p class="card-text font-paragraph">Capacity: {{ $accomodation->accomodation_capacity }} pax</p>
+                                    <p class="card-text font-paragraph">Price: ₱ {{ $accomodation->accomodation_price }}</p>
+
+                                    <!-- Hidden input to store selected value (added dynamically by JS) -->
                                 </div>
                             </label>
                         </div>
+
+                        @endforeach
+                        </div>
                     </div>
-
-                    @endforeach
                 </div>
+            </div>
 
+            <div>
+                <label for="activities" class="text-color-1 font-paragraph fw-semibold ms-2 mt-3">Activities</label>
+                <div class="container">
+                    <div class="row">
+                        @foreach($activities as $activity)
+                            <div class="col-md-3 mb-3 mt-3">
+                                <div class="color-background5 rounded-3 w-100">
+                                    <img src="{{ asset('storage/' . $activity->activity_image) }}" class="rounded img-fluid mb-2" style="width: 100%; height: 200px; object-fit: cover;" alt="{{ $activity->activity_name }}">
+                                        <div class="d-flex align-items-center ms-3">
+                                            <p class="color-3 text-capitalize font-paragraph fs-5 fw-semibold mb-2">{{ $activity->activity_name }}</p>
+                                        </div>
+                                    <div class="d-none form-check">
+                                        <input class="form-check-input" type="checkbox" id="activity{{ $activity->id }}" name="activity_id[]" value="{{ $activity->id }}" {{ old('activity_id') && in_array($activity->id, old('activity_id')) ? 'checked' : 'checked' }}>
+                                        <label class="form-check-label" for="activity{{ $activity->id }}"></label>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
 
-     
-            <!-- Date and Time Selection -->
-            @php
-                $selectedDate = request()->query('date', ''); // Kunin ang date sa URL
-            @endphp
-                        <div class="row">
+            <div class="row">
                 <div class="col-md-6">
                     <label for="roomPreference" class="text-color-1 font-paragraph fw-semibold mb-3 ms-2">Number of Visitors</label>
                     <div class="form-group">
@@ -133,6 +147,10 @@
                     <div class="form-group">
                         <label for="number_of_children">Children (Ages 3-12):</label>
                         <input type="number" name="number_of_children" id="number_of_children" class="form-control p-2" min="0" oninput="calculateTotalGuest()">
+                    </div>
+                    <div class="form-group">
+                        <label for="total_guests">Total Number of Guests: </label>
+                        <input type="number" name="total_guest" id="total_guests" class="form-control p-2" readonly>
                     </div>
                 </div>
             <div class="row">
@@ -161,81 +179,121 @@
                 </div>
             </div>
 
-        <!-- Submit Button -->
-        <input type="hidden" id="amount" name="amount">
-        <div class="d-flex mt-5 mb-5"  style="text-align: right;">
-            <button type="submit" class="color-background5 text-hover-1 fw-semibold font-paragraph p-3 w-25 rounded-3 border-0 " style="margin-left: auto;">Next</button>
-        </div>
-    </form>
+
+            </div>
+            <div class="col-12">
+                <div class="form-group">
+                    <label for="specialRequest" class="form-label">Special Request</label>
+                    <textarea id="specialRequest" name="special_request" class="form-control" rows="5" placeholder="Enter any special requests"></textarea>
+                </div>
+            </div>
+            <input type="hidden" name="total_amount" id="total_amount">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <button type="submit" class="color-background5 border-0 p-2 rounded-3 text-color-1 text-hover-1 w-100 font-paragraph fw-bold mb-5 mt-2">Save and Continue</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
 
     <script>
-   document.addEventListener("DOMContentLoaded", function () {
-    function computeTotal() {
-        let selectedPackages = document.querySelectorAll('input[name="selected_packages[]"]:checked');
-        let amountField = document.getElementById('amount');
+    function resetFrontendAccommodations() {
+        console.log("Resetting accommodations to available...");
 
-        let totalAmount = 0;
+        document.querySelectorAll(".select-accommodation").forEach(item => {
+            item.classList.remove("disabled");
+            item.classList.add("available");
 
-        // Sum up package prices
-        selectedPackages.forEach(packageCheckbox => {
-            let packagePrice = parseFloat(packageCheckbox.getAttribute('data-price')) || 0;
-            totalAmount += packagePrice;
+            // I-update ang status text at background color
+            let statusSpan = item.querySelector(".card-text");
+            if (statusSpan) {
+                statusSpan.textContent = "Available";
+                statusSpan.style.backgroundColor = "#C6F7D0"; // Green background for available
+            }
         });
-
-        // Get the number of adults and children
-        let numberOfAdults = parseInt(document.getElementById("number_of_adults").value) || 0;
-        let numberOfChildren = parseInt(document.getElementById("number_of_children").value) || 0;
-
-        // Entrance Fees
-        let adultFee = numberOfAdults * 100;  // ₱100 per adult
-        let childFee = numberOfChildren * 50; // ₱50 per child
-
-        // Final total calculation
-        totalAmount += adultFee + childFee;
-
-        amountField.value = totalAmount.toFixed(2);
     }
 
-    function updateSelectionUI() {
-        let packageCheckboxes = document.querySelectorAll('input[name="selected_packages[]"]');
+    document.addEventListener("DOMContentLoaded", function () {
+        const checkInDateInput = document.getElementById("reservation_date");
 
-        packageCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener("change", function () {
-                let label = this.closest(".form-check").querySelector(".package-label");
+        checkInDateInput.addEventListener("change", function () {
+            resetFrontendAccommodations(); // I-reset ang frontend kapag nagbago ang check-in date
+        });
+    });
+</script>
 
-                if (this.checked) {
-                    label.classList.add("selected"); // Add highlight class
+<script>
+    // Move function outside DOMContentLoaded to prevent "ReferenceError"
+    function calculateTotalGuest() {
+        let adults = parseInt(document.getElementById("number_of_adults").value) || 0;
+        let children = parseInt(document.getElementById("number_of_children").value) || 0;
+        let totalGuests = adults + children;
+
+        document.getElementById("total_guests").value = totalGuests;
+        calculateTotalAmount(); // Ensure total amount updates correctly
+    }
+
+    function calculateTotalAmount() {
+        let adultEntranceFee = 100;
+        let childEntranceFee = 50;
+        let numAdults = parseInt(document.getElementById("number_of_adults").value) || 0;
+        let numChildren = parseInt(document.getElementById("number_of_children").value) || 0;
+
+        let entranceTotal = (numAdults * adultEntranceFee) + (numChildren * childEntranceFee);
+        let accommodationTotal = 0;
+
+        document.querySelectorAll('.select-accommodation.selected').forEach(card => {
+            let price = parseFloat(card.getAttribute("data-price")) || 0;
+            accommodationTotal += price;
+        });
+
+        let totalAmount = entranceTotal + accommodationTotal;
+        document.getElementById("total_amount").value = totalAmount.toFixed(2);
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const accommodationCards = document.querySelectorAll(".select-accommodation");
+        const totalAmountInput = document.getElementById("total_amount");
+        const form = document.querySelector("form");
+
+        accommodationCards.forEach(card => {
+            card.addEventListener("click", function () {
+                this.classList.toggle("selected");
+
+                let accommodationId = this.getAttribute("data-id");
+                let existingInput = document.querySelector(`input[name="accomodation_id[]"][value="${accommodationId}"]`);
+
+                if (this.classList.contains("selected")) {
+                    if (!existingInput) {
+                        let input = document.createElement("input");
+                        input.type = "hidden";
+                        input.name = "accomodation_id[]";
+                        input.value = accommodationId;
+                        form.appendChild(input);
+                    }
                 } else {
-                    label.classList.remove("selected"); // Remove highlight class
+                    if (existingInput) existingInput.remove();
                 }
 
-                computeTotal(); // Update amount immediately
+                calculateTotalAmount();
             });
         });
-    }
 
-    // Attach event listeners for visitors count change
-    document.getElementById("number_of_adults").addEventListener("input", computeTotal);
-    document.getElementById("number_of_children").addEventListener("input", computeTotal);
+        form.addEventListener("submit", function () {
+            document.querySelectorAll("input[name='accomodation_id[]']").forEach(input => {
+                let accommodationId = input.value;
+                let card = document.querySelector(`.select-accommodation[data-id="${accommodationId}"]`);
+                if (!card.classList.contains("selected")) {
+                    input.remove();
+                }
+            });
+        });
 
-    // 🔥 Ensure the amount is computed before submitting the form
-    document.querySelector("form").addEventListener("submit", function (event) {
-        computeTotal(); // Ensure amount field is set
-        let amountValue = document.getElementById('amount').value;
-        if (!amountValue || amountValue === "0.00") {
-            event.preventDefault(); // Stop form submission if no package is selected
-            alert("Please select at least one package before proceeding.");
-        }
+        document.getElementById("number_of_adults").addEventListener("input", calculateTotalGuest);
+        document.getElementById("number_of_children").addEventListener("input", calculateTotalGuest);
     });
-
-    updateSelectionUI();
-    computeTotal(); // Compute total initially
-});
-
-
-        </script>
-<script>
-    console.log("Selected Date:", "{{ $selectedDate }}");
 </script>
 <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -247,11 +305,41 @@
             // Set values in the date inputs
             document.getElementById("reservation_date").value = checkIn;
             document.getElementById("check_out_date").value = checkOut;
-
-            // Set hidden inputs for form submission
-            document.getElementById("hidden_checkin").value = checkIn;
-            document.getElementById("hidden_checkout").value = checkOut;
         });
-    </script>
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+    const checkInDateInput = document.getElementById("reservation_date");
+    const checkOutDateInput = document.getElementById("check_out_date");
+
+    function fetchAvailableAccommodations() {
+        const checkInDate = checkInDateInput.value;
+        const checkOutDate = checkOutDateInput.value;
+        if (!checkInDate || !checkOutDate) return;
+
+        fetch(`/get-available-accommodations?checkIn=${checkInDate}&checkOut=${checkOutDate}`)
+            .then(response => response.json())
+            .then(data => {
+                // Update accommodations based on data
+                resetFrontendAccommodations();
+                data.forEach(accomodation => {
+                    const card = document.querySelector(`.select-accommodation[data-id="${accomodation.id}"]`);
+                    if (card) {
+                        if (accomodation.available_slots === 0) {
+                            card.classList.add("disabled");
+                            card.querySelector(".card-text").textContent = "Fully Booked";
+                            card.querySelector(".card-text").style.backgroundColor = "#F4C2C7";
+                        }
+                    }
+                });
+            })
+            .catch(error => console.error("Error:", error));
+    }
+
+    checkInDateInput.addEventListener("change", fetchAvailableAccommodations);
+    checkOutDateInput.addEventListener("change", fetchAvailableAccommodations);
+});
+</script>
+
 </body>
 </html>

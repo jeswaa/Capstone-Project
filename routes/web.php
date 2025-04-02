@@ -63,8 +63,8 @@ Route::get('/reservation/display-summary', [ReservationController::class, 'displ
 // Display the credentials of the login user
 Route::post('/reservation-personal', [ReservationController::class, 'fetchUserData'])->name('fetchUserData');
 Route::post('/reservation/personal-details', [ReservationController::class, 'saveReservationDetails'])->name('saveReservationDetails');
-Route::post('/reservation/select-package-details', [ReservationController::class, 'savePackageSelection'])->name('savePackageSelection');
-Route::post('/reservation/select-fix-package-details', [ReservationController::class, 'fixPackagesSelection'])->name('fixPackagesSelection');
+Route::post('/reservation/select-package-details', [ReservationController::class, 'StayInPackages'])->name('savePackageSelection');
+Route::post('/reservation/select-fix-package-details', [ReservationController::class, 'OnedayStay'])->name('fixPackagesSelection');
 Route::post('/reservation/save-payment-process', [ReservationController::class, 'savePaymentProcess'])->name('savePaymentProcess');
 Route::get('/reservation/display-packages', [ReservationController::class, 'displayPackageSelection'])->name('authenticatedPackages');
 // Route for testing file access
