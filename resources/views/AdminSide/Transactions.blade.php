@@ -68,7 +68,7 @@
                     </div>
                     <div class="row g-3 mt-5">
                         <div class="col-12">
-                            <h3 class="font-heading mb-4 text-center">Pending Payments</h3>
+                            <h3 class="font-heading mb-4">Pending Payments</h3>
                             <div class="row row-cols-1 row-cols-md-2 g-4">
                                 @foreach ($totalPendingPayment as $user)
                                     <div class="col">
@@ -84,6 +84,77 @@
                             </div>
                         </div>
                     </div>
+
+                    <hr class="mt-4">
+                    <!-- Display here the Filterazation of the Transactions -->
+
+                    <form method="GET" action="{{ route('transactions') }}" class="mb-4">
+                        <div class="row g-2">
+                            <!-- Date Filter -->
+                            <div class="col-md-4">
+                                <label for="dateFilter" class="form-label">Filter by Date:</label>
+                                <input type="date" class="form-control" id="dateFilter" name="date" value="{{ request('date') }}">
+                            </div>
+
+                            <!-- Payment Status Filter -->
+                            <div class="col-md-4">
+                                <label for="paymentStatus" class="form-label">Payment Status:</label>
+                                <select class="form-select" id="paymentStatus" name="payment_status">
+                                    <option value="">All</option>
+                                    <option value="pending" {{ request('payment_status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                                    <option value="paid" {{ request('payment_status') == 'paid' ? 'selected' : '' }}>Paid</option>
+                                    <option value="canceled" {{ request('payment_status') == 'canceled' ? 'selected' : '' }}>Canceled</option>
+                                </select>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="col-12 text-end mt-3">
+                                <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill shadow-sm">
+                                    <i class="fa-solid fa-filter me-1"></i> Filter
+                                </button>
+                                <a href="{{ route('transactions') }}" class="btn btn-light border px-4 py-2 rounded-pill shadow-sm mt-3">
+                                    Reset <i class="fa-solid fa-arrow-rotate-left ms-1"></i>
+                                </a>
+                            </div>
+
+                        </div>
+                    </form>
+
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Guest Name</th>
+                                    <th>Check-in Date</th>
+                                    <th>Amount</th>
+                                    <th>Payment Status</th>
+                                    <th>Reservation Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($filteredTransactions as $transaction)
+                                    <tr>
+                                        <td>{{ $transaction->name }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($transaction->reservation_check_in_date)->format('F j, Y') }}</td>
+                                        <td>{{($transaction->amount) }}</td>
+                                        <td class="{{ $transaction->payment_status == 'paid' ? 'text-success' : ($transaction->payment_status == 'pending' ? 'text-warning' : 'text-danger') }}">
+                                            {{ ucfirst($transaction->payment_status) }}
+                                        </td>
+                                        <td class="{{ $transaction->reservation_status == 'checked_out' ? 'text-primary' : ($transaction->reservation_status == 'reserved' ? 'text-secondary' : 'text-danger') }}">
+                                            {{ ucfirst(str_replace('_', ' ', $transaction->reservation_status)) }}
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+
+                        <!-- Pagination -->
+                        <div class="d-flex justify-content-center">
+                            {{ $filteredTransactions->links() }}
+                        </div>
+                    </div>
+
+
                 </div>
             </div>
         </div>

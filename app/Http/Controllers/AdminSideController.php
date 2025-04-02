@@ -316,54 +316,64 @@ class AdminSideController extends Controller
         ]);
     }
     
-    public function editPrice()
-    {
-        // Get the entrance fee
-        $entranceFee = Transaction::first()->entrance_fee;
+    public function editPrice(Request $request)
+{
+    // Get entrance fee
+    $entranceFee = Transaction::first()->entrance_fee;
 
-        // Get today's date
-        $today = Carbon::today();
+    // Query reservation details with filters
+    $query = DB::table('reservation_details');
 
-        // Calculate today's total revenue
-        $totalTodayRevenue = DB::table('reservation_details')
-            ->where('payment_status', 'Paid')
-            ->whereDate('reservation_check_in_date', $today)
-            ->selectRaw("SUM(CAST(REPLACE(REPLACE(amount, '₱', ''), ',', '') AS DECIMAL(10, 2))) as total_revenue")
-            ->first();
-        $dailyRevenue = $totalTodayRevenue ? $totalTodayRevenue->total_revenue : 0;
-
-        // Calculate this week's total revenue
-        $startOfWeek = Carbon::now()->startOfWeek();
-        $endOfWeek = Carbon::now()->endOfWeek();
-        $totalWeeklyRevenue = DB::table('reservation_details')
-            ->whereBetween('reservation_check_in_date', [$startOfWeek, $endOfWeek])
-            ->selectRaw("SUM(CAST(REPLACE(REPLACE(amount, '₱', ''), ',', '') AS DECIMAL(10, 2))) as total_revenue")
-            ->first();
-        $weeklyRevenue = $totalWeeklyRevenue ? $totalWeeklyRevenue->total_revenue : 0;
-
-        // Calculate this month's total revenue
-        $startOfMonth = Carbon::now()->startOfMonth();
-        $endOfMonth = Carbon::now()->endOfMonth();
-        $totalMonthlyRevenue = DB::table('reservation_details')
-            ->whereBetween('reservation_check_in_date', [$startOfMonth, $endOfMonth])
-            ->selectRaw("SUM(CAST(REPLACE(REPLACE(amount, '₱', ''), ',', '') AS DECIMAL(10, 2))) as total_revenue")
-            ->first();
-        $monthlyRevenue = $totalMonthlyRevenue ? $totalMonthlyRevenue->total_revenue : 0;
-
-        // Get all pending payments
-        $totalPendingPayment = DB::table('reservation_details')
-            ->where('payment_status', 'pending')
-            ->get();
-          
-        // Pass the data to the view
-        return view('AdminSide.Transactions', [
-            'entranceFee' => number_format($entranceFee, 2),
-            'dailyRevenue' => $dailyRevenue,
-            'weeklyRevenue' => $weeklyRevenue,
-            'monthlyRevenue' => $monthlyRevenue,
-            'totalPendingPayment' => $totalPendingPayment,
-        ]);
+    if ($request->filled('date')) {
+        $query->whereDate('reservation_check_in_date', $request->date);
     }
+
+    if ($request->filled('payment_status')) {
+        $query->where('payment_status', $request->payment_status);
+    }
+
+    if ($request->filled('reservation_status')) {
+        $query->where('reservation_status', $request->reservation_status);
+    }
+
+    // Fetch filtered transactions
+    $filteredTransactions = $query->paginate(10);
+
+    // Calculate total revenue (Daily, Weekly, Monthly)
+    $today = Carbon::today();
+    $dailyRevenue = DB::table('reservation_details')
+        ->where('payment_status', 'Paid')
+        ->whereDate('reservation_check_in_date', $today)
+        ->sum(DB::raw("CAST(REPLACE(REPLACE(amount, '₱', ''), ',', '') AS DECIMAL(10, 2))"));
+
+    $startOfWeek = Carbon::now()->startOfWeek();
+    $endOfWeek = Carbon::now()->endOfWeek();
+    $weeklyRevenue = DB::table('reservation_details')
+        ->whereBetween('reservation_check_in_date', [$startOfWeek, $endOfWeek])
+        ->sum(DB::raw("CAST(REPLACE(REPLACE(amount, '₱', ''), ',', '') AS DECIMAL(10, 2))"));
+
+    $startOfMonth = Carbon::now()->startOfMonth();
+    $endOfMonth = Carbon::now()->endOfMonth();
+    $monthlyRevenue = DB::table('reservation_details')
+        ->whereBetween('reservation_check_in_date', [$startOfMonth, $endOfMonth])
+        ->sum(DB::raw("CAST(REPLACE(REPLACE(amount, '₱', ''), ',', '') AS DECIMAL(10, 2))"));
+
+    // Get pending payments
+    $totalPendingPayment = DB::table('reservation_details')
+        ->where('payment_status', 'pending')
+        ->get();
+
+    return view('AdminSide.Transactions', [
+        'entranceFee' => number_format($entranceFee, 2),
+        'filteredTransactions' => $filteredTransactions,
+        'dailyRevenue' => $dailyRevenue,
+        'weeklyRevenue' => $weeklyRevenue,
+        'monthlyRevenue' => $monthlyRevenue,
+        'totalPendingPayment' => $totalPendingPayment,
+    ]);
+}
+
+
 
     public function updatePrice(Request $request)
     {
