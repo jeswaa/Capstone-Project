@@ -35,18 +35,19 @@
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase text-underline-left-to-right me-4" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#Home">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase text-underline-left-to-right me-4" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#About">About</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase text-underline-left-to-right me-4" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#ContactUs">Contact Us</a>
-                    </li>
-                </ul>
+           <div class="collapse navbar-collapse" id="navbarSupportedContent">
+               <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                   <li class="nav-item">
+                       <a class="nav-link fw-semibold text-uppercase text-underline-left-to-right me-4" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#home-link">Home</a>
+                   </li>
+                   <li class="nav-item">
+                       <a class="nav-link fw-semibold text-uppercase text-underline-left-to-right me-4" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#about-link">About</a>
+                   </li>
+                  <li class="nav-item">
+                      <a class="nav-link fw-semibold text-uppercase text-underline-left-to-right me-4" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#contact-link">Contact Us</a>
+                  </li>
+                   </li>
+               </ul>
                 <a href="{{ route('login') }}" class="me-3 text-color-2 fs-5 p-2 text-decoration-none fw-semibold text-uppercase text-underline-left-to-right" style="font-family: 'Josefin Sans', sans-serif;">Login</a>
                 <a class="navbar-brand d-none d-md-block" href="#">
                     <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort" id="logo" height="150" width="130">
@@ -55,7 +56,7 @@
         </div>
     </nav>
     <!-- First Page -->
-    <section>
+    <section  id="home-link">
         <div class="smoke"></div>
         <!-- Hero Section with Background -->
         <div class="hero vh-100 d-flex flex-column justify-content-center align-items-center text-center text-light position-relative"
@@ -96,7 +97,7 @@
 
 
     <!-- Second Page -->
-    <section class="d-flex flex-column justify-content-center align-items-center py-5" style="background-color: white;">
+    <section id="about-link" class="d-flex flex-column justify-content-center align-items-center py-5" style="background-color: white; id: 'about';">
         <div class="container">
             <div class="row align-items-center text-center">
                 <!-- Left Image (Hidden on small screens) -->
@@ -243,7 +244,7 @@
 
 
 
-    <footer style="background-color: #0b573d; height: auto; padding: 20px;">
+    <footer id="contact-link" style="background-color: #0b573d; height: auto; padding: 20px;">
         <div class="container">
             <div class="row">
                 <!-- Right Side -->
