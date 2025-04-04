@@ -6,6 +6,7 @@
     <title>Login - Lelo's Resort</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&family=Poppins:wght@100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <script src="https://www.google.com/recaptcha/api.js?render=reCAPTCHA_site_key"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         body {
@@ -93,6 +94,12 @@
             margin-left: 5px;
             font-size: .7rem;
         }
+        .flip-horizontal {
+        display: inline-block;
+        transform: scaleX(-1);
+        filter: FlipH;
+        -ms-filter: "FlipH";
+    }
         @keyframes fadeOut {
             from {
                 opacity: 1;
@@ -116,18 +123,21 @@
             </div>
         @endif
     </div>
-    @if (session('error'))
-        <div class="position-absolute top-0 end-0 mt-3 me-5" style="z-index: 11; animation: fadeOut 5s forwards;">
+    @if ($errors->any())
+        <div class="position-absolute top-0 end-0 mt-3 me-5" style="z-index: 9999; animation: fadeOut 5s forwards;">
             <div class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
                 <div class="d-flex">
                     <div class="toast-body">
-                        {{ session('error') }}
+                     @foreach ($errors->all() as $error)
+                        {{ $error }}<br>
+                     @endforeach
                     </div>
                 </div>
             </div>
         </div>
     @endif
 
+    
 <div class="position-absolute top-0 start-0 mt-5 ms-5">
     <a href="{{ url('/') }}" class="d-flex align-items-center justify-content-center rounded-circle shadow text-decoration-none">
        <i class="fa-solid fa-circle-left fa-2x color-3 icon-hover"></i>
@@ -159,19 +169,68 @@
                         @enderror
                     </div>
 
-                    <div class="mb-4">
-                        <input type="password" class="form-control @error('password') is-invalid @enderror p-3" 
-                               name="password" placeholder="Password..." required>
+                    <div class="mb-4 position-relative">
+                        <input type="password" 
+                            class="form-control @error('password') is-invalid @enderror p-3" 
+                            name="password" 
+                            id="passwordField"
+                            placeholder="Password..." 
+                            required>
+                            
+                        <!-- Show/Hide Password Toggle -->
+                        <span class="position-absolute end-0 top-50 translate-middle-y me-3 @error('password') is-invalid @enderror p-3" 
+                            style="cursor: pointer;"
+                            onclick="togglePasswordVisibility()">
+                            <i class="fas fa-eye" id="toggleIcon"></i>
+                        </span>
+                        
                         @error('password')
-                            <div class="invalid-feedback"><strong>{{ $message }}</strong></div>
+                            <div class="invalid-feedback">
+                                <strong>{{ str_replace('!', '', $message) }}</strong>
+                            </div>
                         @enderror
                     </div>
+
+                    <script>
+                    function togglePasswordVisibility() {
+                        const passwordField = document.getElementById('passwordField');
+                        const toggleIcon = document.getElementById('toggleIcon');
+                        
+                        if (passwordField.type === 'password') {
+                            passwordField.type = 'text';
+                            toggleIcon.classList.remove('fa-eye');
+                            toggleIcon.classList.add('fa-eye-slash');
+                        } else {
+                            passwordField.type = 'password';
+                            toggleIcon.classList.remove('fa-eye-slash');
+                            toggleIcon.classList.add('fa-eye');
+                        }
+                    }
+                    </script>
 
                     <div class="text-end">
                         <a data-bs-toggle="modal" data-bs-target="#forgotPasswordModal" 
                            class="text-decoration-none text-color-1 font-paragraph text-underline-left-to-right"
                            style="cursor: pointer; font-size: 0.85rem;">Forgot Password?</a>
                     </div>
+
+                    @if ($errors->has('g-recaptcha-response'))
+                        <div class="invalid-feedback d-flex justify-content-end">
+                            <strong class="flip-horizontal">{{ $errors->first('g-recaptcha-response') }}</strong>
+                        </div>
+                    @endif
+
+                    
+                    <div class="container">
+                    <div class="row justify-content-start">
+                        <div class="col-md-6 col-lg-4"> <!-- Adjust column sizes as needed -->
+                        <div class="g-recaptcha-wrapper" style="transform:scale(0.85);transform-origin:0 0">
+                            <div class="g-recaptcha" data-sitekey="6LeAQAgrAAAAAEIzUoydZx4MiA3sE6v0eE22Yr0l"></div>
+                        </div>
+                        </div>
+                    </div>
+                    </div>
+
 
                     <button type="submit" class="login-button d-flex align-items-center justify-content-center">
                         LOG IN 
@@ -228,10 +287,41 @@
     </div>
 </div>
 
+<!-- OTP Modal (Bootstrap 5) -->
+<div class="modal fade" id="otpModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">OTP Verification</h5>
+      </div>
+      <div class="modal-body">
+        <p>Enter the 6-digit OTP sent to <strong>{{ session('otp_email') }}</strong></p>
+        <form id="otpForm" action="{{ route('verifyOTP') }}" method="POST">
+          @csrf
+          <input type="hidden" name="user_id" value="{{ session('otp_user_id') }}">
+          <div class="mb-3">
+            <input type="text" name="otp" class="form-control" placeholder="123456" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Verify</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+@if(session('show_otp_modal'))
+  <script>
+    // Auto-show modal kapag may OTP requirement
+    document.addEventListener('DOMContentLoaded', function() {
+      const modal = new bootstrap.Modal(document.getElementById('otpModal'));
+      modal.show();
+    });
+  </script>
+@endif
 
 
     <!-- Forgot Password Modal -->
-<div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
+    <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="background-color: #97a97c;">
             <div class="modal-header">
@@ -244,7 +334,7 @@
                         {{ session('success') }}
                     </div>
                 @endif
-                <form action="{{ route('forgot.reset') }}" method="POST" class="p-3">
+                <form action="{{ route('forgot.reset') }}" method="POST" class="p-3" id="passwordResetForm">
                     @csrf
                     <meta name="csrf-token" content="{{ csrf_token() }}">
                     <div class="mb-3">
@@ -262,15 +352,22 @@
 
                     <div class="mb-3">
                         <label for="password" class="form-label font-paragraph text-color-1">New Password</label>
-                        <input type="password" class="form-control font-paragraph" name="password" placeholder="Enter new password" required>
+                        <input type="password" class="form-control font-paragraph" name="password" id="newPassword" placeholder="Enter new password" required>
+                        <div class="password-strength mt-1">
+                            <div class="progress" style="height: 5px;">
+                                <div id="passwordStrength" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                            </div>
+                            <small id="passwordHelp" class="form-text text-muted"></small>
+                        </div>
                     </div>
 
                     <div class="mb-3">
                         <label for="password_confirmation" class="form-label font-paragraph text-color-1">Confirm Password</label>
-                        <input type="password" class="form-control font-paragraph" name="password_confirmation" placeholder="Confirm your password" required>
+                        <input type="password" class="form-control font-paragraph" name="password_confirmation" id="confirmPassword" placeholder="Confirm your password" required>
+                        <div id="passwordMatch" class="mt-1"></div>
                     </div>
 
-                    <button type="submit" class="color-background6 p-2 border-0 text-hover-1 font-paragraph color-3 rounded-2 w-100">
+                    <button type="submit" class="color-background6 p-2 border-0 text-hover-1 font-paragraph color-3 rounded-2 w-100" id="submitBtn" disabled>
                         Reset Password
                     </button>
                 </form>
@@ -278,6 +375,66 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const newPassword = document.getElementById('newPassword');
+    const confirmPassword = document.getElementById('confirmPassword');
+    const passwordMatch = document.getElementById('passwordMatch');
+    const submitBtn = document.getElementById('submitBtn');
+    const passwordStrength = document.getElementById('passwordStrength');
+    const passwordHelp = document.getElementById('passwordHelp');
+
+    // Real-time password matching check
+    confirmPassword.addEventListener('input', checkPasswordMatch);
+    newPassword.addEventListener('input', checkPasswordMatch);
+    newPassword.addEventListener('input', checkPasswordStrength);
+
+    function checkPasswordMatch() {
+        if (newPassword.value && confirmPassword.value) {
+            if (newPassword.value === confirmPassword.value) {
+                passwordMatch.innerHTML = '<small class="text-success">Passwords match!</small>';
+                submitBtn.disabled = false;
+            } else {
+                passwordMatch.innerHTML = '<small class="text-danger">Passwords do not match!</small>';
+                submitBtn.disabled = true;
+            }
+        } else {
+            passwordMatch.innerHTML = '';
+            submitBtn.disabled = true;
+        }
+    }
+
+    function checkPasswordStrength() {
+        const strength = calculatePasswordStrength(newPassword.value);
+        passwordStrength.style.width = strength.percentage + '%';
+        
+        if (strength.percentage < 40) {
+            passwordStrength.className = 'progress-bar bg-danger';
+            passwordHelp.textContent = 'Weak password';
+        } else if (strength.percentage < 70) {
+            passwordStrength.className = 'progress-bar bg-warning';
+            passwordHelp.textContent = 'Moderate password';
+        } else {
+            passwordStrength.className = 'progress-bar bg-success';
+            passwordHelp.textContent = 'Strong password';
+        }
+    }
+
+    function calculatePasswordStrength(password) {
+        let strength = 0;
+        if (password.length >= 8) strength += 30;
+        if (/[A-Z]/.test(password)) strength += 20;
+        if (/[a-z]/.test(password)) strength += 20;
+        if (/[0-9]/.test(password)) strength += 20;
+        if (/[^A-Za-z0-9]/.test(password)) strength += 10;
+        
+        return {
+            percentage: Math.min(strength, 100)
+        };
+    }
+});
+</script>
 
 <!-- Bootstrap JS (Add before your custom scripts) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -373,6 +530,46 @@
             resetPasswordBtn.textContent = "Reset Password";
         });
     }
+    // Google login success callback
+    function handleGoogleLogin(response) {
+    fetch('/auth/google/callback', {
+        method: 'GET',
+        headers: {
+        'Accept': 'application/json',
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.otp_required) {
+        // Ipakita ang modal
+        const modal = new bootstrap.Modal(document.getElementById('otpModal'));
+        document.getElementById('userEmail').textContent = data.email;
+        document.getElementById('userId').value = data.user_id;
+        modal.show();
+        } else {
+        window.location.href = '/calendar'; // Redirect kung walang OTP
+        }
+    });
+    }
+
+    // OTP verification
+    function verifyOTP() {
+    const formData = new FormData(document.getElementById('otpForm'));
+    
+    fetch('/verify-otp', {
+        method: 'POST',
+        body: formData,
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+        window.location.href = '/calendar'; // Redirect pag successful
+        } else {
+        alert('Invalid OTP!'); // I-show ang error
+        }
+    });
+    }
 </script>
+
 </body>
 </html>

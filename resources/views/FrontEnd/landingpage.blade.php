@@ -38,13 +38,13 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase text-underline-left-to-right me-4" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#Home">Home</a>
+                        <a class="nav-link fw-semibold text-uppercase text-underline-left-to-right me-4" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#home">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase text-underline-left-to-right me-4" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#About">About</a>
+                        <a class="nav-link fw-semibold text-uppercase text-underline-left-to-right me-4" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#about">About</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase text-underline-left-to-right me-4" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#ContactUs">Contact Us</a>
+                        <a class="nav-link fw-semibold text-uppercase text-underline-left-to-right me-4" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#reviews">Review</a>
                     </li>
                 </ul>
                 <a href="{{ route('login') }}" class="me-3 text-color-2 fs-5 p-2 text-decoration-none fw-semibold text-uppercase text-underline-left-to-right" style="font-family: 'Josefin Sans', sans-serif;">Login</a>
@@ -55,7 +55,7 @@
         </div>
     </nav>
     <!-- First Page -->
-    <section>
+    <section id="home">
         <div class="smoke"></div>
         <!-- Hero Section with Background -->
         <div class="hero vh-100 d-flex flex-column justify-content-center align-items-center text-center text-light position-relative"
@@ -68,9 +68,9 @@
                     <!-- Responsive Text Content -->
                     <div class="col-lg-6 col-md-10 col-sm-12 text-lg-end text-center ms-auto">
                         <div class="d-flex justify-content-center align-items-center">
-                            <h1 class="fw-bold text-white" style="font-size: 3vw; text-align: center;">WELCOME TO YOUR</h1>
+                            <h1 class="fw-bold text-white" style="font-size: 3vw; text-align: center;">WELCOME TO LELO'S</h1>
                         </div>
-                        <p class="fw-bold" style="color:#e9ffcc; font-size: 10vw; font-weight: 900; line-height: .8; text-align: center;">RESORTS</p>
+                        <p class="fw-bold" style="color:#e9ffcc; font-size: 10vw; font-weight: 900; line-height: .8; text-align: center;">RESORT</p>
                         <h1 class="fw-bold text-white" style="font-size: 2vw; text-align: center;">DIGITAL BOOKING COMPANION</h1>
 
                         <!-- Responsive Button -->
@@ -96,7 +96,7 @@
 
 
     <!-- Second Page -->
-    <section class="d-flex flex-column justify-content-center align-items-center py-5" style="background-color: white;">
+    <section id="about" class="d-flex flex-column justify-content-center align-items-center py-5" style="background-color: white;">
         <div class="container">
             <div class="row align-items-center text-center">
                 <!-- Left Image (Hidden on small screens) -->
@@ -188,7 +188,7 @@
     </section>
 
     <!-- Fourth Page -->
-    <section id="Reviews" class="d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+    <section id="reviews" class="d-flex justify-content-center align-items-center" style="min-height: 100vh;">
     <div class="container">
         <div class="row">
             <!-- Rotated Title (Large Screens) -->

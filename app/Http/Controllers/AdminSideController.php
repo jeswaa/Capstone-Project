@@ -161,21 +161,26 @@ class AdminSideController extends Controller
         return view('AdminSide.adminLogin');
     }
 
-    public function login(Request $request){
-        $username = $request->input('username');
-        $password = $request->input('password');
-
-        $admin = \App\Models\Admin::where('username', $username)->first();
-
-        if ($admin && $admin->password == $password) {
-            session()->put('AdminLogin', $admin->id);
+    public function login(Request $request) {
+        $credentials = $request->only('username', 'password');
+        
+        $admin = DB::table('admintbl')->where('username', $credentials['username'])->first();
+        
+        // Case 1: Passwords are plaintext (NOT recommended)
+        if ($admin && $credentials['password'] === $admin->password) {
+            session(['AdminLogin' => $admin->id]);
             return redirect()->route('dashboard');
         }
-
-        return back()->withErrors([
-            'username' => 'The provided credentials do not match our records.',
-        ]);
+    
+        // Case 2: Passwords use another algorithm (e.g., MD5)
+        if ($admin && md5($credentials['password']) === $admin->password) {
+            session(['AdminLogin' => $admin->id]);
+            return redirect()->route('dashboard');
+        }
+        
+        return back()->with('error', 'Invalid credentials');
     }
+    
 
     public function DashboardView() {
         $adminCredentials = DB::table('admintbl')->first();

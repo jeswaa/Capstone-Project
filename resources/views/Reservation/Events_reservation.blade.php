@@ -191,6 +191,29 @@
 </head>
 
 <body class="font-paragraph">
+
+    <div class="position-absolute top-0 end-0 mt-3 me-5">
+        @if (session('success'))
+            <div class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true" style="animation: fadeOut 5s forwards;">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        {{ session('success') }}
+                    </div>
+                </div>
+            </div>
+        @endif
+    </div>
+    @if (session('error'))
+        <div class="position-absolute top-0 end-0 mt-3 me-5" style="z-index: 11; animation: fadeOut 5s forwards;">
+            <div class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        {{ session('error') }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
     <!-- Navigation -->
     <div class="container d-flex justify-content-between mt-3 mt-md-5 px-4">
         <a href="{{ route('profile') }}" class="text-decoration-none">
