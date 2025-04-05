@@ -81,10 +81,10 @@ class HomePageController extends Controller
         // dd($request->all());
     
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'mobileNo' => 'required|string|max:15',
-            'address' => 'required|string|max:255',
+            'name' => 'string|max:255',
+            'email' => 'email|max:255',
+            'mobileNo' => 'string|max:15',
+            'address' => 'string|max:255',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
         ]);
     
