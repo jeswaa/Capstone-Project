@@ -169,45 +169,44 @@ body::after {
                     <!-- Reservation List -->
                    <section id="reservation-list-section">
                        <h5 class="mb-3 fw-bold">YOUR CURRENT RESERVATION</h5>
-                       @if ($latestReservation)
+                       @if ($latestReservation && $latestReservation->payment_status !== 'cancelled')
                            <div class="row">
-                            <div class="col-md-8">
-                                <div class="card mb-4 shadow-sm ">
-                                    <div class="card-body fw-bold">
-                                        <p>
-                                            <strong class="me-5">Room Type:</strong> 
-                                            <span class="d-inline-block ms-4">
-                                                {{ $reservationDetails->package_room_type ?? 'N/A' }}  
-                                                @foreach($accommodations as $accommodation) {{ $accommodation }} @endforeach
-                                            </span>
-                                        </p>
-                                        <p>
-                                            <strong class="me-5">Check-in:</strong> 
-                                            <span class="d-inline-block ms-4">
-                                                {{ $latestReservation->reservation_check_in }} - {{ $latestReservation->reservation_check_out }}
-                                            </span>
-                                        </p>
-                                        <p>
-                                            <strong class="me-2">Check-in Date:</strong> 
-                                            <span class="d-inline-block ms-4">
-                                                {{ \Carbon\Carbon::parse($latestReservation->reservation_check_in_date)->format('F j, Y') }}
-                                            </span>
-                                        </p>
-                                        <p>
-                                            <strong class="me-1">Special Request:</strong> 
-                                            <span class="d-inline-block ms-4">
-                                                {{ $latestReservation->special_request ?? 'None' }}
-                                            </span>
-                                        </p>
-                                        <p>
-                                            <strong class="me-5">Amount:</strong> 
-                                            <span class="d-inline-block ms-4">
-                                                {{ $latestReservation->amount }}
-                                            </span>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
+                               <div class="col-md-8">
+                                   <div class="card mb-4 shadow-sm">
+                                       <div class="card-body fw-bold">
+                                           <p>
+                                               <strong class="me-5">Room Type:</strong> 
+                                               <span class="d-inline-block ms-4">
+                                                   @foreach($accommodations as $accommodation) {{ $accommodation }} @endforeach
+                                               </span>
+                                           </p>
+                                           <p>
+                                               <strong class="me-5">Check-in:</strong> 
+                                               <span class="d-inline-block ms-4">
+                                                   {{ $latestReservation->reservation_check_in }} - {{ $latestReservation->reservation_check_out }}
+                                               </span>
+                                           </p>
+                                           <p>
+                                               <strong class="me-2">Check-in Date:</strong> 
+                                               <span class="d-inline-block ms-4">
+                                                   {{ \Carbon\Carbon::parse($latestReservation->reservation_check_in_date)->format('F j, Y') }}
+                                               </span>
+                                           </p>
+                                           <p>
+                                               <strong class="me-1">Special Request:</strong> 
+                                               <span class="d-inline-block ms-4">
+                                                   {{ $latestReservation->special_request ?? 'None' }}
+                                               </span>
+                                           </p>
+                                           <p>
+                                               <strong class="me-5">Amount:</strong> 
+                                               <span class="d-inline-block ms-4">
+                                                   {{ $latestReservation->amount }}
+                                               </span>
+                                           </p>
+                                       </div>
+                                   </div>
+                               </div>
                                <div class="col-md-4 d-flex justify-content-between align-items-center">
                                    <p><strong>Status:</strong> 
                                    <span class="badge mb-5
@@ -261,6 +260,51 @@ body::after {
             </div>
         </div>
     </div>
+
+<!-- Cancel Reservation Modal -->
+<div class="modal fade" id="cancelReservationModal" tabindex="-1" aria-labelledby="cancelReservationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cancelReservationModalLabel">Cancel Reservation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to cancel this reservation?</p>
+                <form method="POST" action="{{ route('guestcancelReservation', ['id' => $latestReservation->id]) }}">
+                    @csrf
+                    <div class="form-group">
+                        <label for="cancel_reason">Reason for cancellation:</label>
+                        <textarea class="form-control" id="cancel_reason" name="cancel_reason" required></textarea>
+                    </div>
+               
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-danger">Confirm Cancel</button>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openCancelModal(reservationId) {
+        // Store the reservation ID if needed for the cancellation process
+        document.getElementById("cancelReservationModal").setAttribute("data-reservation-id", reservationId);
+        let modal = new bootstrap.Modal(document.getElementById("cancelReservationModal"));
+        modal.show();
+    }
+
+    function confirmCancel() {
+        // Retrieve the reservation ID
+        let reservationId = document.getElementById("cancelReservationModal").getAttribute("data-reservation-id");
+        // Implement the cancellation logic here, potentially an AJAX request to cancel the reservation
+        console.log("Reservation ID to cancel:", reservationId);
+        // Close the modal after cancellation
+        let modal = bootstrap.Modal.getInstance(document.getElementById("cancelReservationModal"));
+        modal.hide();
+    }
+</script>
 
     <script>
         function toggleHistory(event, sectionToShow) {

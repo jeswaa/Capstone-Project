@@ -93,7 +93,6 @@
                 <div class="d-flex">
                         <a href="{{ route('reservations') }}" class="text-color-1 text-decoration-none me-5 text-underline-left-to-right"><h1 class="fs-5 font-heading">Reservation</h1></a>
                         <a href="{{ route('rooms') }}" class="text-color-1 me-5 text-decoration-none text-underline-left-to-right"><h1 class="fs-5 font-heading">Room</h1></a>
-                        <a href="{{ route('packages') }}" class="text-color-1 me-5 text-decoration-none text-underline-left-to-right"><h1 class="fs-5 font-heading">Packages</h1></a>
                         <a href="{{ route('addOns') }}" class="text-color-1 me-5 text-decoration-none text-underline-left-to-right"><h1 class="fs-5 font-heading">Add Ons & Services</h1></a>
                         <a href="{{ route('addActivities') }}" class="text-color-1 text-decoration-none text-underline-left-to-right"><h1 class="fs-5 font-heading">Activities</h1></a>
                     </div>
@@ -127,6 +126,54 @@
                             {{ $noReservationMessage }}
                         </div>
                     @endif
+
+                    <!-- Search Bar -->
+                    <form class="d-flex align-items-center w-100 mb-3 mt-5 " role="search" id="filterForm">
+                        <div class="input-group">
+                            <input type="text" class="form-control mb-0 rounded-start-5 bg-light border border-secondary" placeholder="Search Guest Name" aria-label="Search" id="guestNameFilter">
+                            <button class="btn btn-outline-success rounded-end-5" type="button" onclick="filterGuests()">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </button>
+                        </div>
+                    </form>
+
+                    <script>
+                        document.getElementById('guestNameFilter').addEventListener('input', function() {
+                            const filterValue = this.value.toLowerCase();
+                            const rows = document.querySelectorAll('#reservationTable tr');
+                            let hasMatch = false;
+
+                            rows.forEach(row => {
+                                const guestNameCell = row.cells[0]; // Assuming Guest Name is in the first column
+                                if (guestNameCell) {
+                                    const guestName = guestNameCell.textContent.toLowerCase();
+                                    if (guestName.includes(filterValue)) {
+                                        row.style.display = '';
+                                        hasMatch = true;
+                                    } else {
+                                        row.style.display = 'none';
+                                    }
+                                }
+                            });
+
+                            // Show message if no reservations match
+                            const noResultsRow = document.getElementById('noResultsRow');
+                            if (!hasMatch) {
+                                if (!noResultsRow) {
+                                    const noResults = document.createElement('tr');
+                                    noResults.id = 'noResultsRow';
+                                    noResults.innerHTML = `<td colspan="8" class="text-center">No reservations for that guest</td>`;
+                                    document.getElementById('reservationTable').appendChild(noResults);
+                                }
+                            } else {
+                                if (noResultsRow) {
+                                    noResultsRow.remove();
+                                }
+                            }
+                        });
+                    </script>
+
+
                     
                     <table class="table table-striped mt-5">
                         <thead>
@@ -139,7 +186,6 @@
                                 <th scope="col" style="font-size: 0.7rem">Check-out</th>
                                 <th scope="col" style="font-size: 0.7rem">Status</th>
                                 <th scope="col" style="font-size: 0.7rem">Total Amount</th>
-                                <th scope="col" style="font-size: 0.7rem">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="reservationTable">
@@ -149,15 +195,12 @@
                                     <td>{{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('F j, Y') }}</td>
                                     <td>{{ \Carbon\Carbon::parse($reservation->reservation_check_out_date)->format('F j, Y') }}</td>
                                     <td>
-                                        @php
-                                            $roomTypeIds = json_decode($reservation->package_room_type, true);
-                                            $roomNames = $roomTypeIds ? DB::table('accomodations')
-                                                ->whereIn('accomodation_id', $roomTypeIds)
-                                                ->pluck('accomodation_name')
-                                                ->toArray() : [];
-                                        @endphp
-                                        {{ implode(', ', $roomNames) }}
-                                    </td>
+                                        @if(!empty($reservation->accomodation_names))
+                                            {{ implode(', ', $reservation->accomodation_names) }} 
+                                        @else
+                                            No Accommodation
+                                        @endif
+                                    </td> 
                                     <td>{{ $reservation->reservation_check_in }}</td>
                                     <td>{{ $reservation->reservation_check_out }}</td>
                                     <td>
@@ -171,15 +214,6 @@
                                         </span>
                                     </td>
                                     <td>{{ $reservation->amount}}</td>
-                                    <td>
-                                        <a href="#" class="text-success"><i class="fa-solid fa-eye"></i></a>
-                                        <a href="#" class="text-warning mx-2"><i class="fa-solid fa-pen-to-square"></i></a>
-                                        <form action="#" method="POST" style="display:inline;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-danger border-0 bg-transparent"><i class="fa-solid fa-trash-can"></i></button>
-                                        </form>
-                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>

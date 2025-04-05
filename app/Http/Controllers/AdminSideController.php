@@ -15,75 +15,74 @@ use App\Models\Activities;
 class AdminSideController extends Controller
 {
     public function dashboard(){
-        return view('AdminSide.dashboard');
+        return view('AdminSide.Dashboard');
     }
 
     public function reservations(Request $request) 
-{
-    // Kunin lahat ng users para sa dropdown
-    $users = DB::table('users')->get();
-
-    // Simulan ang query para sa reservations
-    $query = DB::table('reservation_details')
-        ->leftJoin('packagestbl', 'reservation_details.package_id', '=', 'packagestbl.id')  // Join the packages table
-        ->orderByDesc('reservation_details.created_at');
-
-    // Variable para sa message kapag walang reservation ang user
-    $noReservationMessage = null;
+    {
+        // Kunin lahat ng users para sa dropdown
+        $users = DB::table('users')->get();
     
-    // Check if a user is selected
-    if ($request->has('user_id') && !empty($request->user_id)) {
-        $filteredReservations = clone $query;
-        $filteredReservations = $filteredReservations->where('reservation_details.user_id', $request->user_id);
-
-        if ($filteredReservations->count() > 0) {
-            $query = $filteredReservations;
-        } else {
-            // Show all reservations if the user has no reservations
-            $noReservationMessage = "No reservation for this user. Displaying all reservations.";
-        }
-    }
-
-    // Paginate the results
-    $reservations = $query->select('reservation_details.*', 'packagestbl.package_room_type')  // Select room type from packages
-        ->paginate(10);
-
-    // Decode the JSON room type IDs and fetch room names
-    foreach ($reservations as $reservation) {
-        if (!empty($reservation->package_room_type)) { // ✅ Ensure it's not empty
-            $roomTypeIds = json_decode($reservation->package_room_type, true);
-
-            if (is_array($roomTypeIds) && count($roomTypeIds) > 0) { // ✅ Ensure it's a valid array
-                // Fetch accommodation names based on IDs
-                $roomNames = DB::table('accomodations')
-                    ->whereIn('accomodation_id', $roomTypeIds)
-                    ->pluck('accomodation_name')
-                    ->toArray();
-
-                // Store room names in the reservation object
-                if (!empty($roomNames)) {
-                    $reservation->room_types = implode(', ', $roomNames);
-                }
+        // Simulan ang query para sa reservations
+        $query = DB::table('reservation_details')
+            ->leftJoin('users', 'reservation_details.user_id', '=', 'users.id')  // Join users
+            ->select(
+                'reservation_details.*',
+                'users.name as user_name'
+            )
+            ->orderByDesc('reservation_details.created_at');
+    
+        // Variable para sa message kapag walang reservation ang user
+        $noReservationMessage = null;
+        
+        // Check if a user is selected
+        if ($request->has('user_id') && !empty($request->user_id)) {
+            $filteredReservations = clone $query;
+            $filteredReservations = $filteredReservations->where('reservation_details.user_id', $request->user_id);
+    
+            if ($filteredReservations->count() > 0) {
+                $query = $filteredReservations;
+            } else {
+                // Show all reservations if the user has no reservations
+                $noReservationMessage = "No reservation for this user. Displaying all reservations.";
             }
-        } else {
-            $reservation->room_types = "N/A"; // ✅ Default value if empty
         }
-    }
+    
+        // Paginate the results
+        $reservations = $query->paginate(10);
 
-    // Fetch calendar data
-    $events = [];
-    foreach ($reservations as $reservation) {
-        $events[] = [
-            'title' => 'Reservation',
-            'start' => $reservation->reservation_check_in_date,
-            'end' => $reservation->reservation_check_out_date,
-            'description' => 'Reserved Room: ' . $reservation->room_types,
-        ];
+    
+        // Fetch accommodation names for each reservation
+        foreach ($reservations as $reservation) {
+            // Convert JSON or comma-separated IDs into an array
+            $accomodationIds = json_decode($reservation->accomodation_id, true);
+            
+            if (!is_array($accomodationIds)) {
+                $accomodationIds = explode(',', $reservation->accomodation_id); // If stored as comma-separated
+            }
+    
+            // Fetch the names from the accommodations table
+            $reservation->accomodation_names = DB::table('accomodations')
+                ->whereIn('accomodation_id', $accomodationIds)
+                ->pluck('accomodation_name')
+                ->toArray();
+        }
+    
+        // Fetch calendar data
+        $events = [];
+        foreach ($reservations as $reservation) {
+            $events[] = [
+                'title' => 'Reservation',
+                'start' => $reservation->reservation_check_in_date,
+                'end' => $reservation->reservation_check_out_date,
+                'description' => 'Reserved Room: ' . implode(', ', $reservation->accomodation_names),
+            ];
+        }
+    
+        // Return view with data
+        return view('AdminSide.Reservation', compact('reservations', 'users', 'noReservationMessage', 'events'));
     }
-
-    // Return view with data
-    return view('AdminSide.reservation', compact('reservations', 'users', 'noReservationMessage', 'events'));
-}
+    
 
     
 
@@ -105,7 +104,7 @@ class AdminSideController extends Controller
         $reservations = DB::table('reservation_details')->get();
         $totalGuests = DB::table('users')->count();
         $totalReservations = DB::table('reservation_details')->count();
-        return view('AdminSide.guest', ['users' => $users, 'reservations' => $reservations, 'totalGuests' => $totalGuests, 'totalReservations' => $totalReservations, 'upcomingReservations' => $upcomingReservations]);
+        return view('AdminSide.Guest', ['users' => $users, 'reservations' => $reservations, 'totalGuests' => $totalGuests, 'totalReservations' => $totalReservations, 'upcomingReservations' => $upcomingReservations]);
     }
 
     public function transactions(){
@@ -144,7 +143,7 @@ class AdminSideController extends Controller
             ->orderByDesc('count')
             ->first();
 
-        return view('AdminSide.reports', compact(
+        return view('AdminSide.Reports', compact(
             'totalReservations', 'totalCancelled', 'totalConfirmed', 'totalPending',
             'dailyReservations', 'weeklyReservations', 'monthlyReservations', 'yearlyReservations',
             'mostBooked'
@@ -162,21 +161,26 @@ class AdminSideController extends Controller
         return view('AdminSide.adminLogin');
     }
 
-    public function login(Request $request){
-        $username = $request->input('username');
-        $password = $request->input('password');
-
-        $admin = \App\Models\Admin::where('username', $username)->first();
-
-        if ($admin && $admin->password == $password) {
-            session()->put('AdminLogin', $admin->id);
+    public function login(Request $request) {
+        $credentials = $request->only('username', 'password');
+        
+        $admin = DB::table('admintbl')->where('username', $credentials['username'])->first();
+        
+        // Case 1: Passwords are plaintext (NOT recommended)
+        if ($admin && $credentials['password'] === $admin->password) {
+            session(['AdminLogin' => $admin->id]);
             return redirect()->route('dashboard');
         }
-
-        return back()->withErrors([
-            'username' => 'The provided credentials do not match our records.',
-        ]);
+    
+        // Case 2: Passwords use another algorithm (e.g., MD5)
+        if ($admin && md5($credentials['password']) === $admin->password) {
+            session(['AdminLogin' => $admin->id]);
+            return redirect()->route('dashboard');
+        }
+        
+        return back()->with('error', 'Invalid credentials');
     }
+    
 
     public function DashboardView() {
         $adminCredentials = DB::table('admintbl')->first();
@@ -191,7 +195,7 @@ class AdminSideController extends Controller
         $totalUsers = DB::table('users')->count();
         $latestUser = DB::table('users')->latest()->first();
         $totalReservations = DB::table('reservation_details')->count();
-        
+    
         $today = Carbon::today();
     
         // Booking statistics
@@ -202,9 +206,9 @@ class AdminSideController extends Controller
     
         // Monthly bookings with grouping
         $monthlyBookingsData = DB::table('reservation_details')
-            ->selectRaw('count(*) as count, MONTHNAME(reservation_check_in_date) as month')
-            ->whereYear('reservation_check_in_date', $selectedYear) // Make sure this uses the variable
-            ->groupBy('month')
+            ->selectRaw('count(*) as count, MONTH(reservation_check_in_date) as month_number, MONTHNAME(reservation_check_in_date) as month_name')
+            ->whereYear('reservation_check_in_date', $selectedYear)
+            ->groupBy('month_number', 'month_name')
             ->orderByRaw('MONTH(reservation_check_in_date)')
             ->get();
     
@@ -226,48 +230,78 @@ class AdminSideController extends Controller
                 SUM(payment_status = 'cancelled') as cancelledReservations
             ")
             ->first();
+    
         // Total Revenue (Paid Reservations)
         $totalRevenue = DB::table('reservation_details')
         ->where('payment_status', 'Paid')
         ->sum('amount');
-
+    
         // Monthly Revenue Data
         $monthlyRevenueData = DB::table('reservation_details')
-    ->selectRaw('COALESCE(SUM(amount), 0) as revenue, MONTH(created_at) as month_number')
-    ->whereYear('created_at', $selectedYear) // Use 'created_at' for consistency
-    ->whereIn('payment_status', ['Paid', 'booked', 'pending', 'cancelled'])
-    ->groupBy('month_number')
-    ->orderBy('month_number')
-    ->get();
-
-// Ensure all 12 months exist in the result
-$allMonths = collect(range(1, 12))->map(function ($month) use ($monthlyRevenueData) {
-    return [
-        'month_number' => $month,
-        'revenue' => $monthlyRevenueData->firstWhere('month_number', $month)->revenue ?? 0
-    ];
-});
-
-        // Latest Reservations with Joins
+        ->whereIn('payment_status', ['Paid', 'booked'])
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->selectRaw('MONTH(reservation_check_in_date) as month_number, MONTHNAME(reservation_check_in_date) as month_name, SUM(CAST(REPLACE(REPLACE(SUBSTRING(amount, 3), \',\', \'\'), \'₱\', \'\') AS DECIMAL(10, 2))) as total_revenue')
+        ->groupBy('month_number', 'month_name')
+        ->orderByRaw('CAST(month_number AS UNSIGNED)')
+        ->get();
+    
+        // Create an array of months
+        $allMonths = [
+            'January', 'February', 'March', 'April', 'May', 'June', 
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+    
+        // Fill missing months with 0 revenue
+        $revenueData = array_map(function($month) use ($monthlyRevenueData) {
+            $data = $monthlyRevenueData->firstWhere('month_name', $month);
+            return [
+                'month_name' => $month,
+                'total_revenue' => $data ? $data->total_revenue : 0
+            ];
+        }, $allMonths);
+    
+        // Fetch latest reservations with package details
         $latestReservations = DB::table('reservation_details')
             ->join('packagestbl', 'reservation_details.package_id', '=', 'packagestbl.id')
             ->leftJoin('accomodations', 'reservation_details.accomodation_id', '=', 'accomodations.accomodation_id')
             ->leftJoin('activitiestbl', 'reservation_details.activity_id', '=', 'activitiestbl.id')
             ->orderByDesc('reservation_details.created_at')
-            ->limit(1)
+            ->limit(1) // Fetch more than 1 for better testing
             ->select([
                 'reservation_details.*',
-                'packagestbl.package_room_type',
+                'packagestbl.package_room_type', // Fetch raw JSON of room IDs
                 'packagestbl.package_max_guests',
-                'accomodations.accomodation_name',
+                'accomodations.accomodation_name as individual_accomodation',
                 'activitiestbl.activity_name'
             ])
             ->get();
     
-        return view('Adminside.dashboard', [
+        // Process and decode room types (from package_room_type)
+        foreach ($latestReservations as $reservation) {
+            if (!empty($reservation->package_room_type)) {
+                $roomTypeIds = json_decode($reservation->package_room_type, true); // Decode JSON array
+        
+                if (is_array($roomTypeIds) && count($roomTypeIds) > 0) { // Ensure valid array
+                    // Fetch accommodation names from IDs
+                    $roomNames = DB::table('accomodations')
+                        ->whereIn('accomodation_id', $roomTypeIds)
+                        ->pluck('accomodation_name')
+                        ->toArray();
+        
+                    // Store formatted names in the reservation object
+                    $reservation->room_types = !empty($roomNames) ? implode(', ', $roomNames) : "N/A";
+                } else {
+                    $reservation->room_types = "N/A";
+                }
+            } else {
+                $reservation->room_types = "N/A";
+            }
+        }
+    
+        return view('AdminSide.Dashboard', [
             'adminCredentials' => $adminCredentials,
-            'totalRevenue' => $totalRevenue,
-            'monthlyRevenueData' => $monthlyRevenueData,
+            'revenueData' => $revenueData,
+            'totalRevenue' => $totalRevenue, 
             'totalUsers' => $totalUsers,
             'latestUser' => $latestUser,
             'totalReservations' => $totalReservations,
@@ -277,7 +311,7 @@ $allMonths = collect(range(1, 12))->map(function ($month) use ($monthlyRevenueDa
             'monthlyBookingsData' => $monthlyBookingsData,
             'yearlyBookings' => $yearlyBookings,
             'availableYears' => $availableYears,
-            'selectedYear' => $selectedYear, // This is correctly passed
+            'selectedYear' => $selectedYear,
             'latestUserDaysAgo' => $latestUserDaysAgo,
             'totalTransactions' => $reservationStats->totalTransactions ?? 0,
             'bookedReservations' => $reservationStats->bookedReservations ?? 0,
@@ -287,13 +321,64 @@ $allMonths = collect(range(1, 12))->map(function ($month) use ($monthlyRevenueDa
         ]);
     }
     
-    
-    public function editPrice()
-    {
-        $entranceFee = Transaction::first()->entrance_fee;
-       
-        return view('AdminSide.transactions', ['entranceFee' => number_format($entranceFee, 2)]);
+    public function editPrice(Request $request)
+{
+    // Get entrance fee
+    $entranceFee = Transaction::first()->entrance_fee;
+
+    // Query reservation details with filters
+    $query = DB::table('reservation_details');
+
+    if ($request->filled('date')) {
+        $query->whereDate('reservation_check_in_date', $request->date);
     }
+
+    if ($request->filled('payment_status')) {
+        $query->where('payment_status', $request->payment_status);
+    }
+
+    if ($request->filled('reservation_status')) {
+        $query->where('reservation_status', $request->reservation_status);
+    }
+
+    // Fetch filtered transactions
+    $filteredTransactions = $query->paginate(10);
+
+    // Calculate total revenue (Daily, Weekly, Monthly)
+    $today = Carbon::today();
+    $dailyRevenue = DB::table('reservation_details')
+        ->where('payment_status', 'Paid')
+        ->whereDate('reservation_check_in_date', $today)
+        ->sum(DB::raw("CAST(REPLACE(REPLACE(amount, '₱', ''), ',', '') AS DECIMAL(10, 2))"));
+
+    $startOfWeek = Carbon::now()->startOfWeek();
+    $endOfWeek = Carbon::now()->endOfWeek();
+    $weeklyRevenue = DB::table('reservation_details')
+        ->whereBetween('reservation_check_in_date', [$startOfWeek, $endOfWeek])
+        ->sum(DB::raw("CAST(REPLACE(REPLACE(amount, '₱', ''), ',', '') AS DECIMAL(10, 2))"));
+
+    $startOfMonth = Carbon::now()->startOfMonth();
+    $endOfMonth = Carbon::now()->endOfMonth();
+    $monthlyRevenue = DB::table('reservation_details')
+        ->whereBetween('reservation_check_in_date', [$startOfMonth, $endOfMonth])
+        ->sum(DB::raw("CAST(REPLACE(REPLACE(amount, '₱', ''), ',', '') AS DECIMAL(10, 2))"));
+
+    // Get pending payments
+    $totalPendingPayment = DB::table('reservation_details')
+        ->where('payment_status', 'pending')
+        ->get();
+
+    return view('AdminSide.Transactions', [
+        'entranceFee' => number_format($entranceFee, 2),
+        'filteredTransactions' => $filteredTransactions,
+        'dailyRevenue' => $dailyRevenue,
+        'weeklyRevenue' => $weeklyRevenue,
+        'monthlyRevenue' => $monthlyRevenue,
+        'totalPendingPayment' => $totalPendingPayment,
+    ]);
+}
+
+
 
     public function updatePrice(Request $request)
     {
@@ -566,7 +651,7 @@ public function packages()
         // Get total available slots (only for accommodations marked as 'available')
         $countAvailableRoom = DB::table('accomodations')
             ->where('accomodation_status', 'available')
-            ->sum('accomodation_slot');
+            ->count();
 
         $countReservedRoom = DB::table('reservation_details')
         ->where('payment_status', 'booked') // ✅ Get only booked reservations
@@ -576,8 +661,7 @@ public function packages()
 
         // Merge accommodations with available slots calculation
         foreach ($accomodations as $accomodation) {
-            $reservedCount = $countReservedRoom[$accomodation->accomodation_id] ?? 0;
-            $accomodation->available_slots = max($accomodation->accomodation_slot - $reservedCount, 0);
+            $accomodation->available_rooms = $accomodation->accomodation_status == 'available' ? 1 : 0;
         }
 
         return view('AdminSide.addRoom', [
@@ -730,6 +814,26 @@ public function packages()
         ]);
 
         return redirect()->route('addOns')->with('success', 'Add-on updated successfully!');
+    }
+
+    
+    public function deleteAddOn($id)
+    {
+        // Find the add-on record
+        $addon = DB::table('addons')->where('id', $id)->first();
+        if (!$addon) {
+            return redirect()->route('addOns')->with('error', 'Add-on not found.');
+        }
+
+        // Delete the image if it exists
+        if ($addon->image) {
+            Storage::delete('public/' . $addon->image);
+        }
+
+        // Delete the add-on record
+        DB::table('addons')->where('id', $id)->delete();
+
+        return redirect()->route('addOns')->with('success', 'Add-on deleted successfully!');
     }
 
 

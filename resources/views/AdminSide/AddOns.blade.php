@@ -19,6 +19,11 @@
         </ul>
     </div>
     @endif
+    @if (session('success'))
+        <div class="alert alert-success mt-3">
+            {{ session('success') }}
+        </div>
+    @endif
     <div class="container-fluid">
         <div class="row h-100">
             <div class="col-md-9 col-12 main-content color-background3 rounded-start-50 ps-0 pe-0 h-100 mt-4 d-flex flex-column align-items-end ms-auto">
@@ -41,11 +46,10 @@
 
                 <div class="overflow-y-auto h-100 p-5 w-100">
                     <div class="d-flex">
-                        <a href="{{ route('reservations') }}" class="text-color-1 text-decoration-none me-5"><h1 class="fs-5 font-heading">Reservation</h1></a>
-                        <a href="{{ route('rooms') }}" class="text-color-1 me-5 text-decoration-none"><h1 class="fs-5 font-heading">Room</h1></a>
-                        <a href="{{ route('packages') }}" class="text-color-1 me-5 text-decoration-none"><h1 class="fs-5 font-heading">Packages</h1></a>
-                        <a href="{{ route('addOns') }}" class="text-color-1 me-5 text-decoration-none"><h1 class="fs-5 font-heading">Add Ons</h1></a>
-                        <a href="{{ route('addActivities') }}" class="text-color-1 text-decoration-none"><h1 class="fs-5 font-heading">Activities</h1></a>
+                    <a href="{{ route('reservations') }}" class="text-color-1 text-decoration-none me-5 text-underline-left-to-right"><h1 class="fs-5 font-heading">Reservation</h1></a>
+                        <a href="{{ route('rooms') }}" class="text-color-1 me-5 text-decoration-none text-underline-left-to-right"><h1 class="fs-5 font-heading">Room</h1></a>
+                        <a href="{{ route('addOns') }}" class="text-color-1 me-5 text-decoration-none text-underline-left-to-right"><h1 class="fs-5 font-heading">Add Ons</h1></a>
+                        <a href="{{ route('addActivities') }}" class="text-color-1 text-decoration-none text-underline-left-to-right"><h1 class="fs-5 font-heading">Activities</h1></a>
                     </div>
 
                     <h1 class="text-color-1 mt-5 font-paragraph">Add Ons & Services</h1>
@@ -78,7 +82,13 @@
                                         <a href="#" class="text-primary mx-2" data-bs-toggle="modal" data-bs-target="#editAddOnModal{{ $addon->id }}">
                                             <i class="fa-solid fa-pen-to-square"></i>
                                         </a>
-                                        <a href="#" class="text-danger"><i class="fa-solid fa-trash-can"></i></a>
+                                        <a href="{{ route('deleteAddOn', ['id' => $addon->id]) }}" class="text-danger" onclick="event.preventDefault(); if(confirm('Are you sure you want to delete this add on?')) { document.getElementById('delete-form-{{ $addon->id }}').submit(); }">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </a>
+                                        <form id="delete-form-{{ $addon->id }}" action="{{ route('deleteAddOn', ['id' => $addon->id]) }}" method="POST" style="display: none;">
+                                            @csrf
+                                            @method('DELETE')
+                                        </form>
                                     </td>
                                 </tr>
 

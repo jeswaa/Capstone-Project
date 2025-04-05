@@ -9,156 +9,148 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&family=Poppins:wght@100;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
-
-    <style>
-        body {
-            background-color: #c3d6a4;
-        }
-        .container {
-            margin-top: 20px;
-        }
-        .summary-card {
-            background-color: #a0b482;
-            padding: 10px;
-            border-radius: 10px;
-        }
-        .status-section {
-            text-align: right;
-            margin-top: 20px;
-        }
-        .status-text {
-            font-weight: bold;
-            font-size: 18px;
-        }
-        .generate-btn {
-            background-color: #555;
-            color: white;
-            padding: 15px 25px;
-            border: 2px solid #333;
-            border-radius: 20px;
-            font-size: 16px;
-            width: 100%;
-        }
-        #qr-code {
-            display: block;
-            padding: 50px;
-        }
-
-    </style>
 </head>
-<body class="color-background4">
-    <div class="d-flex align-items-center ms-5">
-        <a href="{{ route('calendar') }}" data-bs-toggle="tooltip" data-bs-placement="top" title="To Calendar"><i class="fa-solid fa-circle-left fa-2x icon me-3 mt-5 icon-hover text-color-1"></i></a>
-        <h1 class="text-center font-paragraph mt-5 ms-3">Reservation Summary</h1>
-    </div>
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-            </div>
-            <div class="row">
-                <div class="col-md-8">
-                    <div class="summary-card p-4 mb-3">
-                        @if(session('error'))
-                            <div class="alert alert-danger">
-                                {{ session('error') }}
-                            </div>
-                        @endif
-                        @if(isset($reservationDetails))
-                            <p><strong>Name:</strong> {{ $reservationDetails->name }}</p>
-                            <p><strong>Email:</strong> {{ $reservationDetails->email }}</p>
-                            <p><strong>Mobile No:</strong> {{ $reservationDetails->mobileNo }}</p>
-                            <p><strong>Number of Guests:</strong> 
-                                @if(!empty($reservationDetails->total_guest))
-                                    {{ $reservationDetails->total_guest }}
-                                @endif
-                                @if(!empty($reservationDetails->package_max_guests))
-                                    {{ $reservationDetails->package_max_guests }}
-                                @endif
-                            </p>
-                            <p><strong>Package:</strong> 
-                                @if(!empty($reservationDetails->package_name))
-                                    {{ $reservationDetails->package_name }}
-                                @else
-                                    No package
-                                @endif
-                            </p>
-                            
-                            <p><strong>Room:</strong>
-                                @if(!empty($reservationDetails->package_room_type))
-                                    @php
-                                        $roomTypeIds = json_decode($reservationDetails->package_room_type, true);
-                                        $roomNames = DB::table('accomodations')
-                                            ->whereIn('accomodation_id', $roomTypeIds)
-                                            ->pluck('accomodation_name')
-                                            ->toArray();
-                                    @endphp
-                                    {{ implode(', ', $roomNames) }}
-                                @else
-                                    {{ implode(', ', $accommodations) }}
-                                @endif
-                            </p>
-
-                            <p><strong>Activities:</strong> 
-                                @if(!empty($reservationDetails->package_activities))
-                                    {{ $reservationDetails->package_activities }}
-                                @endif
-                                @foreach($activities as $activity)
-                                    {{ $activity }}
-                                @endforeach
-                            </p>
-                            <p><strong>Reservation Date:</strong> {{ $reservationDetails->reservation_check_in_date }}</p>
-                            <p><strong>Check-in Time:</strong> {{ $reservationDetails->reservation_check_in }}</p>
-                            <p><strong>Check-out Time:</strong> {{ $reservationDetails->reservation_check_out }}</p>
-                            <p><strong>Special Request:</strong> {{ $reservationDetails->special_request ?? 'No special request' }}</p>
-                            <p><strong>Payment Method:</strong> {{ $reservationDetails->payment_method }}</p>
-                            <p><strong>Amount:</strong> {{ $reservationDetails->amount }}</p>
-                            <p><strong>Reference Number:</strong> {{ $reservationDetails->reference_num }}</p>
-                            @if (!empty($reservationDetails->upload_payment))
-                                <p><strong>Payment Proof:</strong> 
-                                    <a class="text-decoration-none text-color-1 font-paragraph text-underline-left-to-right" href="{{ route('payment.proof', ['filename' => basename($reservationDetails->upload_payment)]) }}" target="_blank">
-                                        View Proof
-                                    </a>
-                                </p>
-                            @endif
-                        @else
-                            <div class="alert alert-warning">
-                                No reservations found.
-                            </div>
-                        @endif
-                    </div>
+<body class="bg-light font-paragraph" style="background: url('{{ asset('images/newbg.png') }}') no-repeat center center fixed; background-size: cover;">
+    <div class="container mt-5 px-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <a href="{{ route('calendar') }}" class="text-decoration-none">
+                <div class="rounded-circle bg-success d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                    <i class="fa-solid fa-home text-white fs-4"></i>
                 </div>
-                <div class="col-md-4 ms-0">
-                <div class="d-flex">
-        <!-- Status Container -->
-            <div class="d-flex justify-content-between align-items-center p-2 w-100 ms-4">
-                <p class="mb-0">
-                    <strong class="font-paragraph">Status:</strong> 
-                    <span class="badge 
-                        @if($reservationDetails->payment_status == 'paid') bg-success 
-                        @elseif($reservationDetails->payment_status == 'pending') bg-warning
-                        @elseif($reservationDetails->payment_status == 'booked') bg-primary
-                        @else bg-danger 
-                        @endif">
-                        {{ ucfirst($reservationDetails->payment_status) }}
-                    </span>
-                </p>
-                <!-- Icon Container -->
-                <div class="ms-auto">
-                    <a href="{{ route ('profile') }}"><i class="fa-solid fa-circle-user fs-1 text-color-1 icon-hover"></i></a>
+            </a>
+            <h1 class="me-auto ms-3 font-paragraph fw-bold" style="color: #e9ffcc; font-size: 2.5rem;">RESERVATION SUMMARY</h1>
+            <a href="#">
+                <img src="{{ asset('images/appicon.png') }}" alt="Logo" style="width: 80px; height: 80px;" class="rounded-circle">
+            </a>
+        </div>
+    </div>
+
+    <div class="container-sm mt-4 p-4 bg-white rounded shadow-lg">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="flex-grow-1 text-center">
+                <h2 class="text-success">RESERVATION DETAILS</h2>
+            </div>
+            <a href="{{ route('profile') }}" class="text-decoration-none ms-3">
+                <div class="rounded-circle bg-success d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                    <i class="fa-solid fa-user text-white fs-4"></i>
+                </div>
+            </a>
+        </div>
+        <hr class="mx-auto mb-4" style="border-top: 3px solid green; width: 75%;">
+
+        <div class="row g-4">
+            <!-- Left Column -->
+            <div class="col-md-8">
+    <div class="p-4 border rounded">
+        @if(isset($reservationDetails))
+        <div class="mb-3">
+            <!-- Each row for label-value pair -->
+            <div class="row mb-2">
+                <div class="col-4 fw-bold text-success">Name:</div>
+                <div class="col-8">{{ $reservationDetails->name }}</div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-4 fw-bold text-success">Email:</div>
+                <div class="col-8">{{ $reservationDetails->email }}</div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-4 fw-bold text-success">Mobile No:</div>
+                <div class="col-8">{{ $reservationDetails->mobileNo }}</div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-4 fw-bold text-success">Guests:</div>
+                <div class="col-8">{{ $reservationDetails->total_guest ?? $reservationDetails->package_max_guests }}</div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-4 fw-bold text-success">Room:</div>
+                <div class="col-8">
+                    @if(!empty($reservationDetails->package_room_type))
+                        {{ implode(', ', $roomNames) }}
+                    @else
+                        {{ implode(', ', $accommodations) }}
+                    @endif
                 </div>
             </div>
-
-        
-    </div>
-    <!-- QR Code Section -->
-    <div class="text-center mt-3 ms-4">
-        <button class="generate-btn btn btn-dark" onclick="generateQRCode()">GENERATE QR</button>
-        <canvas id="qr-code"></canvas>
-        <button id="download-qr" class="btn btn-dark mb-5" style="display: none;" onclick="downloadQRCode()">
-            DOWNLOAD QR
-        </button>
+            <div class="row mb-2">
+                <div class="col-4 fw-bold text-success">Activities:</div>
+                <div class="col-8">{{ $reservationDetails->package_activities ?? implode(', ', $activities) }}</div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-4 fw-bold text-success">Date:</div>
+                <div class="col-8">{{ \Carbon\Carbon::parse($reservationDetails->reservation_check_in_date)->format('l, F jS, Y') }}</div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-4 fw-bold text-success">Check-in:</div>
+                <div class="col-8">{{ $reservationDetails->reservation_check_in }}</div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-4 fw-bold text-success">Check-out:</div>
+                <div class="col-8">{{ $reservationDetails->reservation_check_out }}</div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-4 fw-bold text-success">Special Request:</div>
+                <div class="col-8">{{ $reservationDetails->special_request ?? 'None' }}</div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-4 fw-bold text-success">Payment Method:</div>
+                <div class="col-8">{{ $reservationDetails->payment_method }}</div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-4 fw-bold text-success">Amount:</div>
+                <div class="col-8">{{ $reservationDetails->amount }}</div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-4 fw-bold text-success">Reference No:</div>
+                <div class="col-8">{{ $reservationDetails->reference_num }}</div>
+            </div>
+            @if (!empty($reservationDetails->upload_payment))
+            <div class="row mb-2">
+                <div class="col-4 fw-bold text-success">Payment Proof:</div>
+                <div class="col-8">
+                    <a href="{{ route('payment.proof', ['filename' => basename($reservationDetails->upload_payment)]) }}" 
+                       target="_blank" 
+                       class="text-decoration-none text-success">
+                        View Proof
+                    </a>
+                </div>
+            </div>
+            @endif
+        </div>
+        @else
+        <div class="alert alert-warning">No reservations found</div>
+        @endif
     </div>
 </div>
+
+            <!-- Right Column -->
+            <div class="col-md-4">
+                <div class="p-4 border rounded">
+                    <div class="d-flex align-items-center mb-4">
+                        <h5 class="mb-0">Status:</h5>
+                        <span class="badge 
+                            @if($reservationDetails->payment_status == 'paid') bg-success 
+                            @elseif($reservationDetails->payment_status == 'pending') bg-warning
+                            @elseif($reservationDetails->payment_status == 'booked') bg-primary
+                            @else bg-danger 
+                            @endif text-white">
+                            {{ ucfirst($reservationDetails->payment_status) }}
+                        </span>
+                    </div>
+
+                    <div class="text-center">
+                        <button class="btn btn-dark w-100 mb-3" onclick="generateQRCode()">
+                            <i class="fa-solid fa-qrcode me-2"></i>GENERATE QR
+                        </button>
+                        <canvas id="qr-code" class="mb-3"></canvas>
+                        <button id="download-qr" class="btn btn-success w-100" style="display: none;" onclick="downloadQRCode()">
+                            <i class="fa-solid fa-download me-2"></i>DOWNLOAD QR
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="pb-5"></div> <!-- Add padding at the bottom -->
 
 <script>
     function generateQRCode() {
@@ -227,4 +219,3 @@
 
 </body>
 </html>
-

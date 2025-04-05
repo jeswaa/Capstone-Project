@@ -8,52 +8,78 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<!-- Styles -->
 <style>
-input[type="file"] {
-    width: 500px;
-    height: 40px; /* Adjust based on your design */
-    line-height: 40px;
-    padding: 8px;
-}
+    .submit-button {
+        background-color: #0B5D3B; 
+        color: white;
+        font-weight: bold;
+        font-size: 0.8rem;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 50px; 
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 150px; 
+        cursor: pointer;
+        margin: 0 auto;
+    }
 
-.custom-modal {
-    background-color: #6B7546;
-    border-radius: 10px;
-    padding: 20px;
-}
+    .submit-button .arrow {
+        background-color: white;
+        color: #0B5D3B;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 5px;
+        font-size: .7rem;
+    }
+    
+    .custom-modal {
+        background-color: #6B7546;
+        border-radius: 10px;
+        padding: 20px;
+    }
+    
     .modal-header h5 {
-    color: #4A4A4A;
-    font-size: 20px;
-    font-weight: bolder;
-    text-align: center;
-    width: 100%;
-}
-.rating-section {
-    display: flex;
-    flex-direction: column; /* Stack elements vertically */
-    align-items: flex-start; /* Align text and stars to the left */
-    padding-top:15px;
-}
+        color: #4A4A4A;
+        font-size: 20px;
+        font-weight: bolder;
+        text-align: center;
+        width: 100%;
+    }
+    
+    .rating-section {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding-top:15px;
+    }
+    
     .stars {
-    font-size: 40px; /* Increase the font size */
-    display: flex;
-    gap: 60px;
-    padding-left: 70px;
-}
-
-.stars i {
-    font-size: 40px; /* Ensure individual stars are also bigger */
-    cursor: pointer;
-    color: #444;
-}
-
-.stars i.active {
-    color: #FFD700; /* Highlighted stars */
-}
+        font-size: 40px;
+        display: flex;
+        gap: 60px;
+        padding-left: 70px;
+    }
+    
+    .stars i {
+        font-size: 40px;
+        cursor: pointer;
+        color: #444;
+    }
+    
+    .stars i.active {
+        color: #FFD700;
+    }
+    
     .feedback-label {
         margin-top: 15px;
     }
+    
     .feedback-text {
         background-color: #819160;
         border: none;
@@ -62,162 +88,264 @@ input[type="file"] {
         color: #fff;
         font-size: 1rem;
     }
+    
     .submit-btn {
-    width: 100%;
-    background-color: #4A5E30; /* Darker green for better visibility */
-    color: white;
-    font-size: 1.2rem;
-    font-weight: bold;
-    padding: 12px; /* Slightly bigger padding */
-    border-radius: 15px;
-    border: 2px solid #364220; /* Add a border for contrast */
-    text-transform: uppercase; /* Make text more noticeable */
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); /* Add shadow for depth */
-    transition: 0.3s ease-in-out;
-}
-
-.submit-btn:hover {
-    background-color: #3A4F25; /* Darker on hover */
-    box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.5); /* Enhance shadow on hover */
-    cursor: pointer;
-}
-
+        width: 100%;
+        background-color: #4A5E30;
+        color: white;
+        font-size: 1.2rem;
+        font-weight: bold;
+        padding: 12px;
+        border-radius: 15px;
+        border: 2px solid #364220;
+        text-transform: uppercase;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        transition: 0.3s ease-in-out;
+    }
+    
+    .submit-btn:hover {
+        background-color: #3A4F25;
+        box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.5);
+        cursor: pointer;
+    }
+    
     .open-modal-btn {
         background-color: #718355;
         font-size: 1.5rem;
         font-weight: bold;
         padding: 10px 20px;
     }
-
+    
     .feedback-text {
-    background-color: #819160; /* Set background color */
-    color: white; /* Text color */
-    height: 80px; /* Set height */
-    border-radius: 10px; /* Rounded corners */
-    border: none; /* Remove default border */
-    padding: 8px; /* Add padding */
-    font-size: 1rem; /* Adjust font size */
-    resize: none; /* Disable resizing */
-}
+        background-color: #819160;
+        color: white;
+        height: 80px;
+        border-radius: 10px;
+        border: none;
+        padding: 8px;
+        font-size: 1rem;
+        resize: none;
+    }
+    
+    /* New integrated styles */
+    body {
+        background: url('{{ asset('images/newbg.png') }}') no-repeat center center fixed;
+        background-size: cover;
+        font-family: 'Poppins', sans-serif;
+    }
+    
+    .payment-container {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin-top: 20px;
+    }
+    
+    .payment-header {
+        color: #e9ffcc;
+        font-size: 2.5rem;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    
+    .payment-method-section {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    
+    .payment-details-section {
+        background-color: white;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+    }
+    
+    .form-control {
+        background-color: #f8f9fa;
+        border: 1px solid #ced4da;
+    }
+    
+    .form-control:focus {
+        background-color: #e9ffcc;
+        border-color: #0B5D3B;
+    }
+    
+    .qr-code-container {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .total-amount {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #0B5D3B;
+    }
+    
+    .duration-display {
+        background-color: #f8f9fa;
+        padding: 10px;
+        border-radius: 5px;
+        margin: 10px 0;
+        font-weight: bold;
+        text-align: center;
+        font-size: 1.1rem;
+    }
 </style>
 
-<body style="background-color: #97a97c;">
-<div class="container mt-5">
-    <a href="javascript:history.back()" class="text-black text-decoration-none d-flex align-items-center mb-3">
-        <i class="fa-solid fa-circle-left fa-2x color-3 icon"></i>
-        <span class="ms-4 fw-bold fs-1 font-weight-bold">RESERVATION</span>
-    </a>
-
-    <form id="paymentForm" action="{{ route('savePaymentProcess') }}" method="POST" enctype="multipart/form-data">
-        @csrf
-        <div class="mb-3">
-            <label for="payment_method" class="form-label fw-bold fs-3" style="margin-left: 65px;">Payment Method</label>
-            <div class="d-flex mt-4" style="margin-left: 65px;">
-                <input class="form-check-input d-none" type="checkbox" name="payment_method" id="gcash" value="gcash">
-                <button type="button" class="d-flex justify-content-center align-items-center px-4 py-1" 
-                    style="width: 170px; height: 55px; background-color: #718355; border-radius: 10px; overflow: hidden;">
-                <img src="{{ asset('images/cashg.png') }}" alt="GCash Logo" style="width: 140px; height: 55px; object-fit: contain; flex-shrink: 0;">
-                </button>
-                <script>
-                    document.addEventListener('DOMContentLoaded', () => {
-                        document.getElementById('gcash').checked = true;
-                    });
-                </script>
-            </div>
-        </div>
-        
-        <div class="container-fluid">
-            <div class="row mt-5">
-                <div class="col-md-6 d-flex justify-content-center align-items-center mt-3">
-                    <img src="{{ asset('images/qrcode.jpg') }}" alt="QR Code" style="width:550px; height:550px;">
+<body class="bg-light font-paragraph">
+    <div class="container mt-5 px-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <a href="{{ route('selectPackage') }}" title="Go Back to Reservation Package" class="text-decoration-none">
+                <div class="rounded-circle bg-success d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                    <i class="fa-solid fa-arrow-left text-white" style="font-size: 30px;"></i>
                 </div>
-                <div class="col-md-6">
-                <h3>Payment</h3>
-                @if (!isset($reservationDetails->package_id) && count($accomodations) > 0)
-                    <ul>
-                        @foreach ($accomodations as $accomodation)
-                            <li>{{ $accomodation->accomodation_name }} - ₱{{ number_format($accomodation->accomodation_price, 2) }}</li>
-                        @endforeach
-                    </ul>
-                    <p><strong>Total Accommodation Price:</strong> ₱{{ number_format($totalAccomodationPrice, 2) }}</p>
-                    <p><strong>Entrance Fee per Person:</strong> ₱{{ number_format($entranceFee, 2) }}</p>
-                    <p><strong>Total Guests:</strong> {{ $reservationDetails['total_guest'] ?? 0 }}</p>
-                    <p><strong>Total Entrance Fee:</strong> ₱{{ number_format($totalEntranceFee, 2) }}</p>
-                @endif
+            </a>
+            <h1 class="text-center fw-bold" style="color: #e9ffcc; font-size: 2.5rem;">RESERVATION PAYMENT</h1>
+            <a href="{{ url('/') }}" title="Home" class="text-decoration-none">
+                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
+                    <img src="{{ asset('images/appicon.png') }}" alt="App Logo" class="img-fluid" style="max-width: 100%; height: auto;">
+                </div>
+            </a>
+        </div>
 
-
-
-                    @php
-                        // Ensure $reservationDetails is always treated as an object
-                        $reservationDetails = is_array($reservationDetails) ? (object) $reservationDetails : $reservationDetails;
-                    @endphp
-
-                    @if (isset($reservationDetails->package_id))
-                    @php
-                        $selectedPackage = $packages->where('id', $reservationDetails->package_id)->first();
-                        $packagePrice = $selectedPackage->package_price ?? 0;
-                        $packageEntranceFee = ($selectedPackage->package_max_guests ?? 0) * 100;
-                        $totalPackageCost = $packagePrice + $packageEntranceFee;
-                    @endphp
-
-                    <p class="text-color-1 font-paragraph fw-semibold">
-                        Total Package Cost: ₱ {{ number_format($totalPackageCost, 2) }}
-                    </p>
-                @endif
-                                                    
-                    <hr class="mt-3 mb-5">
-                    
-                    <div class="mb-3">
-                        <label for="mobileNo" class="form-label fw-bold fs-5">Mobile Number:</label>
-                        <input type="text" class="form-control fs-5" name="mobileNo" id="mobileNo" value="{{ auth()->user()->mobileNo }}" required style="height: 55px;">
-                    </div>
-                    @php
-                        $amount = is_array($reservationDetails) ? ($reservationDetails['amount'] ?? 0.00) : ($reservationDetails->amount ?? 0.00);
-                        $downpayment = $amount * 0.15; // Compute 15% of the amount
-                    @endphp
-                    <div class="">
-                        <div class="d-flex">
-                            <div class="me-2">
-                                <label for="amount" class="form-label fw-bold fs-6">Amount:</label>
-                                <input type="text" class="form-control" id="amount" name="amount" 
-                                value="₱ {{ number_format($amount, 2) }}" 
-                                    required style="height: 55px;" readonly>
-                            </div>
-                            
-                            <div>
-                                <label for="discount_amount" class="form-label fw-bold fs-6">Downpayment:</label>
-                                <input type="text" class="form-control w-75" id="discount_amount" name="discount_amount" 
-                                    value="₱{{ number_format($downpayment, 2) }}" 
-                                    required style="height: 55px;" readonly>
-                            </div>
-                            <div>
-                                <label for="upload_payment" class="form-label fw-bold fs-6">Upload Payment:</label>
-                                <input class="form-control h-50 w-100" type="file" name="upload_payment" id="upload_payment" >
-                            </div>
+        <form id="paymentForm" action="{{ route('savePaymentProcess') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <input type="hidden" name="stay_duration" id="stay_duration" value="1">
+            
+            <div class="bg-white p-3 shadow rounded-1 mx-auto d-flex flex-column flex-md-row g-0 mt-4" style="width: 90%;">
+                <div class="w-100 w-md-50 bg-light p-3 text-white">
+                    <h5 class="text-center text-md-center text-success">Payment Method</h5>
+                    <hr class="bg-light my-2">
+                    <div class="d-flex justify-content-center">
+                        <input class="form-check-input d-none" type="checkbox" name="payment_method" id="gcash" value="gcash" checked>
+                        <div class="bg-secondary p-1 d-flex align-items-center justify-content-center rounded-2" style="width: 400px; height: 400px; background-image: url('{{ asset('images/logosheesh.png') }}'); background-size: cover; background-position: center;">
+                            <img src="{{ asset('images/qrcode.jpg') }}" alt="QR Code" style="max-width: 80%; height: auto;">
                         </div>
                     </div>
+                </div>
 
-                    <div class="mb-3">
-                        <label for="reference_num" class="form-label fw-bold fs-6">Reference Number:</label>
-                        <input type="text" class="form-control fs-5" name="reference_num" id="reference_num" required style="height: 55px;">
+                <div class="w-100 w-md-50 bg-white p-3 rounded text-dark border">
+                    <h5 class="text-center text-md-center fw-bold text-success">Payment Details</h5>
+                    <hr class="border-success my-2">
+                    <div class="d-flex flex-column gap-2">
+                        <div class="duration-display">
+                            <p id="duration-text">Stay Duration: 1 day</p>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fst-italic">Accommodations:</span>
+                            <ul class="list-unstyled text-end" id="accommodation-list">
+                                @foreach ($accomodations as $accomodation)
+                                <li data-price="{{ $accomodation->accomodation_price }}">
+                                    {{ $accomodation->accomodation_name }} - ₱{{ number_format($accomodation->accomodation_price, 2) }} (1 day)
+                                </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fst-italic">Total Accommodation Price</span>
+                            <input type="text" class="form-control text-end bg-secondary-subtle border-0" id="total-accommodation" 
+                                   value="₱{{ number_format($accomodations->sum('accomodation_price'), 2) }}" readonly>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fst-italic">Entrance Fee per Person</span>
+                            <input type="text" class="form-control text-end bg-secondary-subtle border-0" value="₱{{ number_format($entranceFee, 2) }}" readonly>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fst-italic">Total Guests</span>
+                            <input type="text" class="form-control text-end bg-secondary-subtle border-0" value="{{ $reservationDetails['total_guest'] ?? 0 }}" readonly>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fst-italic">Total Entrance Fee</span>
+                            <input type="text" class="form-control text-end bg-secondary-subtle border-0" value="₱{{ number_format($totalEntranceFee, 2) }}" readonly>
+                        </div>
+
+                        @if (isset($reservationDetails->package_id))
+                            @php
+                                $selectedPackage = $packages->where('id', $reservationDetails->package_id)->first();
+                                $packagePrice = $selectedPackage->package_price ?? 0;
+                                $packageEntranceFee = ($selectedPackage->package_max_guests ?? 0) * 100;
+                                $totalPackageCost = ($packagePrice * 1) + $packageEntranceFee;
+                            @endphp
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fst-italic">Package Price (1 day)</span>
+                                <input type="text" class="form-control text-end bg-secondary-subtle border-0" 
+                                       value="₱ {{ number_format($packagePrice, 2) }}" readonly>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fst-italic">Package Entrance Fee</span>
+                                <input type="text" class="form-control text-end bg-secondary-subtle border-0" value="₱ {{ number_format($packageEntranceFee, 2) }}" readonly>
+                            </div>
+                        @endif
+
+                        <hr class="border-success my-2">
+                        
+                        @php
+                            $totalAccommodationPrice = isset($reservationDetails->package_id) 
+                                ? ($selectedPackage->package_price ?? 0)
+                                : $accomodations->sum('accomodation_price');
+                            
+                            $entranceFee = isset($reservationDetails->package_id)
+                                ? ($selectedPackage->package_max_guests ?? 0) * 100
+                                : ($reservationDetails['total_guest'] ?? 0) * 100;
+                            
+                            $amount = $totalAccommodationPrice + $entranceFee;
+                            $downpayment = $amount * 0.15;
+                        @endphp
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="fw-bold text-success">Total Amount to Pay</h5>
+                            <input type="text" class="form-control text-center bg-secondary-subtle border-0 fw-bold fs-5" name="amount" 
+                                   style="max-width: 150px;" value="₱ {{ number_format($amount, 2) }}" readonly>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span class="fst-italic">Required 15% Downpayment</span>
+                            <input type="text" class="form-control text-end bg-secondary-subtle border-0" 
+                                   style="max-width: 150px;" value="₱{{ number_format($downpayment, 2) }}" readonly>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <label class="fw-bold">Upload Proof of Payment</label>
+                            <input type="file" class="form-control bg-secondary-subtle border-0" name="upload_payment" id="upload_payment" required>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <label class="fw-bold">Sender's Number</label>
+                            <input type="text" class="form-control bg-secondary-subtle border-0" name="mobileNo" id="mobileNo" 
+                                   value="{{ auth()->user() ? auth()->user()->mobileNo : '' }}" placeholder="ex: 09xxxxxxxxx" required>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <label class="fw-bold">Reference Number</label>
+                            <input type="text" class="form-control bg-secondary-subtle border-0" name="reference_num" id="reference_num" 
+                                   placeholder="ex: 1100xx-xxx-xxx" required>
+                        </div>
+                        
+                        <div class="d-grid gap-2 mt-3">
+                            <button class="submit-button" type="submit" data-bs-toggle="modal" data-bs-target="#feedbackModal">
+                                Submit
+                                <span class="arrow">&rsaquo;</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </form>
+    </div>
 
-        <!-- Finish Button (Triggers Modal) -->
-        <div class="d-flex justify-content-end me-2 mb-3 mt-3">
-            <button type="submit" class="color-background6 p-2 w-25 rounded-3 font-paragraph fs-5 fw-semibold color-3 border-0 text-hover-1" data-bs-toggle="modal" data-bs-target="#feedbackModal">
-                Finish
-            </button>
-        </div>
-    </form>
-</div>
-
-
-<!-- JavaScript to Compute Total Amount -->
-<script>
-document.addEventListener("DOMContentLoaded", function () {
+    
+    <!-- JavaScript -->
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Star rating functionality
         document.querySelectorAll(".stars").forEach(starContainer => {
             for (let i = 1; i <= 5; i++) {
                 let star = document.createElement("i");
@@ -233,31 +361,48 @@ document.addEventListener("DOMContentLoaded", function () {
                 starContainer.appendChild(star);
             }
         });
-    });
-document.addEventListener('DOMContentLoaded', function () {
-    let packageSelect = document.getElementById('package_id');
-    let accomodationSelect = document.getElementById('accomodation_id');
-    let amountField = document.getElementById('amount');
+        
+        // Ensure GCash is selected by default
+        document.getElementById('gcash').checked = true;
 
-    if (packageSelect && accomodationSelect && amountField) {
-        function computeTotal() {
-            let selectedPackage = packageSelect.selectedOptions[0] || {};
-            let selectedAccommodation = accomodationSelect.selectedOptions[0] || {};
-
-            let entranceFee = parseFloat(selectedPackage.dataset.entranceFee) || 0;
-            let totalGuest = parseInt(selectedPackage.dataset.totalGuest) || 0;
-            let accomodationPrice = parseFloat(selectedAccommodation.dataset.accomodationPrice) || 0;
-
-            let totalAmount = (entranceFee * totalGuest) + accomodationPrice;
-            amountField.value = '₱ ' + totalAmount.toFixed(2);
+        // Calculate proper stay duration
+        const checkInDate = "{{ $reservationDetails['reservation_check_in_date'] ?? '' }}";
+        const checkOutDate = "{{ $reservationDetails['reservation_check_out_date'] ?? '' }}";
+        
+        let stayDuration = 1;
+        if(checkInDate && checkOutDate) {
+            const start = new Date(checkInDate);
+            const end = new Date(checkOutDate);
+            stayDuration = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) || 1;
         }
 
-        packageSelect.addEventListener('change', computeTotal);
-        accomodationSelect.addEventListener('change', computeTotal);
-        computeTotal(); // Compute on page load
-    }
-});
-</script>
+        // Update duration display
+        document.getElementById('duration-text').textContent = `Stay Duration: ${stayDuration} ${stayDuration > 1 ? 'days' : 'day'}`;
+        document.getElementById('stay_duration').value = stayDuration;
 
+        // Update accommodation prices
+        const accommodationItems = document.querySelectorAll('#accommodation-list li');
+        let totalAccommodation = 0;
+        
+        accommodationItems.forEach(item => {
+            const price = parseFloat(item.dataset.price);
+            const total = price * stayDuration;
+            totalAccommodation += total;
+            item.textContent = `${item.textContent.split(' - ')[0]} - ₱${total.toFixed(2)} (${stayDuration} ${stayDuration > 1 ? 'days' : 'day'})`;
+        });
+
+        // Update total accommodation price
+        document.getElementById('total-accommodation').value = `₱${totalAccommodation.toFixed(2)}`;
+
+        // Update total amount (if needed)
+        const entranceFee = parseFloat("{{ $totalEntranceFee ?? 0 }}");
+        const totalAmount = totalAccommodation + entranceFee;
+        document.querySelector('input[name="amount"]').value = `₱ ${totalAmount.toFixed(2)}`;
+        
+        // Update downpayment (15% of total)
+        const downpayment = totalAmount * 0.15;
+        document.querySelector('input[name="downpayment"]').value = `₱${downpayment.toFixed(2)}`;
+    });
+    </script>
 </body>
 </html>

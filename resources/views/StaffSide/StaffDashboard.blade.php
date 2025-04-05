@@ -44,7 +44,7 @@
             @include('Navbar.sidenavbarStaff')
 
             <!-- MAIN CONTENT -->
-            <div class="col-md-9 col-12 main-content color-background3 rounded-start-50 ps-0 pe-0 h-100 mt-4 d-flex flex-column align-items-end ms-auto" id="main-content">
+            <div class="col-md-9 col-12 main-content color-background3 rounded-start-50 ps-0 pe-0 mt-4 flex-column align-items-end ms-auto" id="main-content">
                 <!-- TOP SECTION -->
                 <div class="color-background4 w-100 p-3 rounded-topright-50 " id="main-content">
                         <div class="d-flex justify-content-end" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Admin's Profile">
@@ -106,10 +106,10 @@
                         </div>
                     </div>
 
-                    <div class="ps-5 pe-5 pt-2">
+                    <div class="ps-5 pe-5 pt-2 mb-5 d-flex justify-content-center">
                         <div class="color-background1 p-4 mt-1 rounded-5 overflow-hidden">
                             <div class="slider-container position-relative">
-                                <div class="slider d-flex gap-4">
+                                <div class="slider d-flex gap-4 justify-content-start">
                                     <!-- TOTAL BOOKINGS -->
                                     <div class="color-background4 p-4 w-auto h-auto d-flex align-items-center gap-3 rounded-4">
                                         <i class="fas fa-calendar-check fs-1"></i>
@@ -121,32 +121,66 @@
 
                                     <!-- TOTAL GUESTS -->
                                     <div class="color-background4 p-4 w-auto h-auto d-flex align-items-center gap-3 rounded-4">
-                                        <i class="fa-solid fa-users fs-1"></i>
+                                        <i class="fa-solid fa-clock fs-1"></i>
                                         <div>
-                                            <h1 class="text-color-1 font-heading fw-bold fs-5">Total Guests</h1>
-                                            <p class="text-color-1 font-paragraph mt-1">{{ $totalGuests }}</p>
+                                            <h1 class="text-color-1 font-heading fw-bold fs-5">Pending Payments</h1>
+                                            <p class="text-color-1 font-paragraph mt-1">{{ $totalPendingTransactions }}</p>
                                         </div>
                                     </div>
 
                                     <div class="color-background4 p-4 w-auto h-auto d-flex align-items-center gap-3 rounded-4">
-                                        <i class="fa-solid fa-users fs-1"></i>
+                                        <i class="fa-solid fa-user-check fs-1"></i>
                                         <div>
-                                            <h1 class="text-color-1 font-heading fw-bold fs-5">Total Transactions</h1>
-                                            <p class="text-color-1 font-paragraph mt-1">{{ $totalPaidTransactions }}</p>
+                                            <h1 class="text-color-1 font-heading fw-bold fs-5">Checked-in Guests</h1>
+                                            <p class="text-color-1 font-paragraph mt-1">{{ $totalCheckedInGuests }}</p>
                                         </div>
                                     </div>
-
+                                    <div class="color-background4 p-4 w-auto h-auto d-flex align-items-center gap-3 rounded-4">
+                                        <i class="fa-solid fa-bed fs-1"></i>
+                                        <div>
+                                            <h1 class="text-color-1 font-heading fw-bold fs-5">Available Accommodations</h1>
+                                            <p class="text-color-1 font-paragraph mt-1">{{ $vacantRooms }}</p>
+                                        </div>
                                     </div>
+                                    
+                                    </div>
+                                    
                                 </div>
                             </div>
                         </div>
-                    </div>
+                        
+                        <!-- Pending Bookings -->
+                        <div class="ps-5 pe-5">
+                            <!-- Pending Bookings Section -->
+                            <div class="color-background1 p-4 mt-2 rounded-5">
+                                <h2 class="text-color-2 font-heading fw-bold mb-3">Pending Bookings</h2>
 
-                    <!-- Charts and Graphs -->
-                     <div class="p-3"> 
-                        <div class="p-3 mt-3">
+                                <div class="list-group">
+                                @if($pendingBookings)
+                                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>{{ $pendingBookings->name }} - {{ \Carbon\Carbon::parse($pendingBookings->reservation_check_in_date)->format('M d, Y') }}</span>
+                                        <a href="{{ route('staff.reservation', ['id' => $pendingBookings->id]) }}" class="btn btn-primary btn-sm w-25">View</a>
+                                    </div>
+                                @else
+                                    <div class="list-group-item text-center">
+                                        No pending reservations
+                                    </div>
+                                @endif
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Charts and Graphs -->
+                        <div class="p-3">
                             <div class="color-background1 p-4 mt-1 rounded-5 overflow-hidden">
-                                <h1 class="font-heading fw-bold text-color-1 fs-3">Reservations</h1>
+                                <h1 class="font-heading fw-bold text-color-1 fs-3">Revenue</h1>
+                                
+                                <!-- Display Today's Total Revenue -->
+                                <div class="text-center mb-3">
+                                    <h4 class="text-color-1">Today's Total Revenue: {{ $formattedRevenue }}</h4>
+                                </div>
+                                
                                 <div class="chart-container">
                                     <canvas id="reservationChart"></canvas>
                                     <script>
@@ -155,15 +189,24 @@
                                             const reservationChart = new Chart(ctx, {
                                                 type: 'bar',
                                                 data: {
-                                                    labels: [
-                                                        'January', 'February', 'March', 'April', 'May', 'June', 
-                                                        'July', 'August', 'September', 'October', 'November', 'December'
-                                                    ],
+                                                    labels: ['Today', 'This Week', 'This Month'],  // Labels for each data point
                                                     datasets: [{
-                                                        label: 'Reservations',
-                                                        data: @json($reservationData->pluck('count')->toArray()),
-                                                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                                                        borderColor: 'rgba(54, 162, 235, 1)',
+                                                        label: 'Total Revenue',
+                                                        data: [
+                                                            @json([$totalRevenue]), // Revenue for today
+                                                            @json([$weeklyRevenue]), // Revenue for this week
+                                                            @json([$monthlyRevenue]) // Revenue for this month
+                                                        ],
+                                                        backgroundColor: [
+                                                            'rgba(54, 162, 235, 0.6)',  // Color for Today
+                                                            'rgba(75, 192, 192, 0.6)',  // Color for Week
+                                                            'rgba(153, 102, 255, 0.6)'  // Color for Month
+                                                        ],
+                                                        borderColor: [
+                                                            'rgba(54, 162, 235, 1)',  // Border color for Today
+                                                            'rgba(75, 192, 192, 1)',  // Border color for Week
+                                                            'rgba(153, 102, 255, 1)'  // Border color for Month
+                                                        ],
                                                         borderWidth: 1
                                                     }]
                                                 },
@@ -172,7 +215,12 @@
                                                     maintainAspectRatio: false,
                                                     scales: {
                                                         y: {
-                                                            beginAtZero: true
+                                                            beginAtZero: true,
+                                                            ticks: {
+                                                                callback: function(value) {
+                                                                    return '₱ ' + value.toLocaleString(); // Format the Y-axis to show currency
+                                                                }
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -182,43 +230,29 @@
                                 </div>
                             </div>
                         </div>
-                     </div>
+                    </div> 
                 </div>
             </div>
         </div>
     </div>
 
     <!-- SCRIPTS -->
+
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const slider = document.querySelector('.slider-container');
-            let isDown = false;
-            let startX;
-            let scrollLeft;
+document.addEventListener("DOMContentLoaded", function () {
+    const sliderContainer = document.querySelector(".slider-container");
+    const prevBtn = document.querySelector(".prev-btn");
+    const nextBtn = document.querySelector(".next-btn");
 
-            slider.addEventListener('mousedown', (e) => {
-                isDown = true;
-                startX = e.pageX - slider.offsetLeft;
-                scrollLeft = slider.scrollLeft;
-            });
+    prevBtn.addEventListener("click", function () {
+        sliderContainer.scrollBy({ left: -300, behavior: "smooth" });
+    });
 
-            slider.addEventListener('mouseleave', () => {
-                isDown = false;
-            });
-
-            slider.addEventListener('mouseup', () => {
-                isDown = false;
-            });
-
-            slider.addEventListener('mousemove', (e) => {
-                if (!isDown) return;
-                e.preventDefault();
-                const x = e.pageX - slider.offsetLeft;
-                const walk = (x - startX) * 2;
-                slider.scrollLeft = scrollLeft - walk;
-            });
-        });
-    </script>
+    nextBtn.addEventListener("click", function () {
+        sliderContainer.scrollBy({ left: 300, behavior: "smooth" });
+    });
+});
+</script>
 </body>
 </html>
 
