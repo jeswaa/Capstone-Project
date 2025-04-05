@@ -191,7 +191,7 @@
 </head>
 
 <body class="font-paragraph">
-
+    @include('Alert.loginSuccessUser')
     <div class="position-absolute top-0 end-0 mt-3 me-5">
         @if (session('success'))
             <div class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true" style="animation: fadeOut 5s forwards;">
