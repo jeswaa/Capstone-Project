@@ -48,11 +48,11 @@ body::after {
 
     <!-- Background Banner -->
     <div class="container-fluid position-relative p-0 mb-n5">
-            <div class="d-flex justify-content-start align-items-start">
-                <a href="{{ route('calendar') }}" class="m-3 mt-5">
-                    <i class="text-color-1 fa-2x fa-circle-left fa-solid icon icon-hover color-3"></i>
-                </a>
-            </div>
+        <div class="d-flex justify-content-start align-items-start">
+            <a href="{{ route('calendar') }}" class="m-3 mt-5">
+                <i class="text-color-1 fa-2x fa-circle-left fa-solid icon icon-hover color-3"></i>
+            </a>
+        </div>
 
     <!-- Flash Messages -->
     <div class="position-fixed top-0 end-0 p-3" style="z-index: 9999;">

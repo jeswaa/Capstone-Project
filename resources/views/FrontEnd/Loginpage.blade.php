@@ -380,6 +380,62 @@
     </div>
 </div>
 
+<!-- Hidden Modal for Staff/Admin (Bootstrap Version) -->
+<div id="staffAdminModal" class="modal fade" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Staff/Admin Login</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="{{ route('authenticate') }}" method="POST">
+            @csrf
+          <div class="mb-3">
+            <label for="role" class="form-label">Role</label>
+            <select class="form-select" name="role" required>
+              <option value="">-- Select Role --</option>
+              <option value="staff">Staff</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" class="form-control" name="username" placeholder="Username" required>
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" name="password" placeholder="Password" required>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Login</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    // Ctrl + Shift + A to trigger modal
+document.addEventListener('keydown', function(e) {
+  if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+    e.preventDefault();
+    const modal = new bootstrap.Modal(document.getElementById('staffAdminModal'));
+    modal.show();
+  }
+});
+// Prevent right-click, F12, Ctrl+Shift+I, etc.
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('keydown', e => {
+  if (e.key === 'F12' || 
+      (e.ctrlKey && e.shiftKey && e.key === 'I') || 
+      (e.ctrlKey && e.shiftKey && e.key === 'J') ||
+      (e.ctrlKey && e.key === 'U')) {
+    e.preventDefault();
+  }
+});
+</script>
+
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const newPassword = document.getElementById('newPassword');
