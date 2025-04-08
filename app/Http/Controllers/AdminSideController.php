@@ -173,117 +173,125 @@ class AdminSideController extends Controller
     }
     
 
-    public function DashboardView() {
-        $adminCredentials = DB::table('admintbl')->first();
-        if (!$adminCredentials) {
-            abort(404, 'Admin credentials not found');
-        }
-    
-        // Total Bookings
-        $totalBookings = DB::table('reservation_details')->count();
-    
-        // Total Guests
-        $totalGuests = DB::table('users')->count();
-    
-        // Total Reservations - Daily (Last 7 Days)
-        $dailyReservations = DB::table('reservation_details')
-            ->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as total'))
-            ->where('created_at', '>=', Carbon::now()->subDays(7))
-            ->groupBy('date')
-            ->orderBy('date', 'asc')
-            ->get();
-    
-        // Weekly Reservations - Last 4 Weeks
-        $weeklyReservations = DB::table('reservation_details')
-            ->select(DB::raw('YEARWEEK(created_at, 1) as week'), DB::raw('count(*) as total'))
-            ->where('created_at', '>=', Carbon::now()->subWeeks(4))
-            ->groupBy('week')
-            ->orderBy('week', 'asc')
-            ->get();
-    
-        // Monthly Reservations - Last 6 Months
-        $monthlyReservations = DB::table('reservation_details')
-        ->select(
-            DB::raw('DATE_FORMAT(reservation_check_in_date, "%b %Y") as month'), 
-            DB::raw('count(*) as total')
-        )
-        ->whereYear('reservation_check_in_date', date('Y')) // Only current year
-        ->groupBy('month')
-        ->orderBy(DB::raw('MIN(reservation_check_in_date)'), 'asc')
-        ->get();
+    public function DashboardView()
+{
+    $adminCredentials = DB::table('admintbl')->first();
+    if (!$adminCredentials) {
+        abort(404, 'Admin credentials not found');
+    }
 
-        $availableYears = DB::table('reservation_details')
+    // Total Bookings
+    $totalBookings = DB::table('reservation_details')->count();
+
+    // Total Guests
+    $totalGuests = DB::table('users')->count();
+
+    // Get available years
+    $availableYears = DB::table('reservation_details')
         ->select(DB::raw('YEAR(reservation_check_in_date) as year'))
         ->distinct()
         ->orderBy('year', 'desc')
         ->pluck('year');
 
-        // Booking Trends - Line graph showing the trend of bookings over time
-        $bookingTrends = DB::table('reservation_details')
-            ->select(DB::raw("CONCAT(MONTHNAME(reservation_check_in_date), '-', YEAR(reservation_check_in_date)) as date"), DB::raw('count(*) as total'))
-            ->where('created_at', '>=', Carbon::now()->subMonths(12)) // Show data for the last 12 months
-            ->groupBy('date')
-            ->orderBy('date', 'asc')
-            ->get();
+    // Get selected year from request or use current year
+    $selectedYear = request()->input('year', date('Y'));
     
-        // Reservation Status Breakdown
-        $reservationStatusCounts = DB::table('reservation_details')
-            ->select('payment_status', DB::raw('count(*) as total'))
-            ->groupBy('payment_status')
-            ->pluck('total', 'payment_status'); // returns: ['pending' => 5, 'confirmed' => 12, etc.]
-    
-        // Paid Reservations
-        $paidReservations = DB::table('reservation_details')
-            ->select(DB::raw('payment_status'), DB::raw('count(*) as total'))
-            ->where('payment_status', 'paid')
-            ->groupBy('payment_status')
-            ->first();
-    
-        // Pending Reservations
-        $pendingReservations =  DB::table('reservation_details')
-            ->select(DB::raw('payment_status'), DB::raw('count(*) as total'))
-            ->where('payment_status', 'pending')
-            ->groupBy('payment_status')
-            ->first();
-    
-        // Cancelled Reservations
-        $cancelledReservations = DB::table('reservation_details')
-            ->select(DB::raw('payment_status'), DB::raw('count(*) as total'))
-            ->where('payment_status', 'cancelled')
-            ->groupBy('payment_status')
-            ->first();
-    
-        // Book Reservations
-        $bookReservations = DB::table('reservation_details')
-            ->select(DB::raw('payment_status'), DB::raw('count(*) as total'))
-            ->where('payment_status', 'booked')
-            ->groupBy('payment_status')
-            ->first();
-    
-        // Latest Reservation
-        $latestReservations = DB::table('reservation_details')
-            ->select('name', 'reservation_check_in_date', 'reservation_check_out_date', 'accomodation_id')
-            ->orderBy('reservation_check_in_date', 'desc')
-            ->limit(4)
-            ->get();
-    
-        return view('AdminSide.Dashboard', [
-            'adminCredentials' => $adminCredentials,
-            'totalBookings' => $totalBookings,
-            'totalGuests' => $totalGuests,
-            'dailyReservations' => $dailyReservations,
-            'weeklyReservations' => $weeklyReservations,
-            'monthlyReservations' => $monthlyReservations,
-            'availableYears' => $availableYears,
-            'bookingTrends' => $bookingTrends,
-            'reservationStatusCounts' => $reservationStatusCounts,
-            'paidReservations' => $paidReservations,
-            'pendingReservations' => $pendingReservations,
-            'cancelledReservations' => $cancelledReservations,
-            'bookReservations' => $bookReservations,
-            'latestReservations' => $latestReservations,
-        ]);
-    }
+    // Total Reservations - Daily (for selected year)
+    $dailyReservations = DB::table('reservation_details')
+        ->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as total'))
+        ->whereYear('created_at', $selectedYear)
+        ->groupBy('date')
+        ->orderBy('date', 'asc')
+        ->get();
+
+    // Weekly Reservations (for selected year)
+    $weeklyReservations = DB::table('reservation_details')
+        ->select(DB::raw('YEARWEEK(created_at, 1) as week'), DB::raw('count(*) as total'))
+        ->whereYear('created_at', $selectedYear)
+        ->groupBy('week')
+        ->orderBy('week', 'asc')
+        ->get();
+
+    // Monthly Reservations (for selected year)
+    $monthlyReservations = DB::table('reservation_details')
+        ->select(
+            DB::raw('DATE_FORMAT(reservation_check_in_date, "%b %Y") as month'), 
+            DB::raw('count(*) as total')
+        )
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->groupBy('month')
+        ->orderBy(DB::raw('MIN(reservation_check_in_date)'), 'asc')
+        ->get();
+
+    // Booking Trends - Last 12 months (regardless of year selection)
+    $bookingTrends = DB::table('reservation_details')
+        ->select(DB::raw("CONCAT(MONTHNAME(reservation_check_in_date), '-', YEAR(reservation_check_in_date)) as date"), DB::raw('count(*) as total'))
+        ->where('created_at', '>=', Carbon::now()->subMonths(12))
+        ->groupBy('date')
+        ->orderBy('date', 'asc')
+        ->get();
+
+    // Reservation Status Breakdown
+    $reservationStatusCounts = DB::table('reservation_details')
+        ->select('payment_status', DB::raw('count(*) as total'))
+        ->groupBy('payment_status')
+        ->pluck('total', 'payment_status');
+
+    // Paid Reservations
+    $paidReservations = DB::table('reservation_details')
+        ->select(DB::raw('payment_status'), DB::raw('count(*) as total'))
+        ->where('payment_status', 'paid')
+        ->groupBy('payment_status')
+        ->first();
+
+    // Pending Reservations
+    $pendingReservations = DB::table('reservation_details')
+        ->select(DB::raw('payment_status'), DB::raw('count(*) as total'))
+        ->where('payment_status', 'pending')
+        ->groupBy('payment_status')
+        ->first();
+
+    // Cancelled Reservations
+    $cancelledReservations = DB::table('reservation_details')
+        ->select(DB::raw('payment_status'), DB::raw('count(*) as total'))
+        ->where('payment_status', 'cancelled')
+        ->groupBy('payment_status')
+        ->first();
+
+    // Book Reservations
+    $bookReservations = DB::table('reservation_details')
+        ->select(DB::raw('payment_status'), DB::raw('count(*) as total'))
+        ->where('payment_status', 'booked')
+        ->groupBy('payment_status')
+        ->first();
+
+    // Latest Reservation
+    $latestReservations = DB::table('reservation_details')
+        ->select('name', 'reservation_check_in_date', 'reservation_check_out_date', 'accomodation_id')
+        ->orderBy('reservation_check_in_date', 'desc')
+        ->limit(4)
+        ->get();
+
+    // Pass the data to the view
+    return view('AdminSide.Dashboard', [
+        'adminCredentials' => $adminCredentials,
+        'totalBookings' => $totalBookings,
+        'totalGuests' => $totalGuests,
+        'dailyReservations' => $dailyReservations,
+        'weeklyReservations' => $weeklyReservations,
+        'monthlyReservations' => $monthlyReservations,
+        'availableYears' => $availableYears,
+        'selectedYear' => $selectedYear,
+        'bookingTrends' => $bookingTrends,
+        'reservationStatusCounts' => $reservationStatusCounts,
+        'paidReservations' => $paidReservations,
+        'pendingReservations' => $pendingReservations,
+        'cancelledReservations' => $cancelledReservations,
+        'bookReservations' => $bookReservations,
+        'latestReservations' => $latestReservations,
+    ]);
+}
+
     
     
     public function editPrice(Request $request)

@@ -16,7 +16,7 @@
                 <!-- Sidebar -->
                 <div class="col-md-3 col-lg-2 color-background8 text-white py-5 position-sticky" style="top: 0; height: 100vh;">
                     <div class="d-flex flex-column align-items-center">
-                        <img src="{{ asset('images/default-profile.jpg') }}" alt="Profile Picture" class="rounded-circle w-50 mb-3">
+                        <img src="{{ asset('images/default-profile.jpg') }}" alt="Profile Picture" class="rounded-circle w-50 mb-3 border border-5 border-white">
                         <p class="font-heading sidebar-text" data-bs-toggle="modal" data-bs-target="#editProfileModal" style="cursor: pointer;">Edit Profile</p>
                     </div>
 
@@ -83,7 +83,7 @@
                                     <div class="color-background8 text-white rounded-4 p-3 d-flex justify-content-between align-items-center">
                                         <div>
                                             <h3 class="fw-bold mb-0">{{$totalBookings ?? 0 }}</h3>
-                                            <small class="font-paragraph">Total Bookings</small>
+                                            <small class="font-paragraph fs-5 fw-semibold">Total Bookings</small>
                                         </div>
                                         <i class="fas fa-calendar-alt fs-4"></i>
                                     </div>
@@ -93,7 +93,7 @@
                                     <div class="color-background8 text-white rounded-4 p-3 d-flex justify-content-between align-items-center">
                                         <div>
                                             <h3 class="fw-bold mb-0">{{$totalGuests ?? 0 }}</h3>
-                                            <small class="font-paragraph">Total Guests</small>
+                                            <small class="font-paragraph fs-5 fw-semibold">Total Guests</small>
                                         </div>
                                         <i class="fas fa-users fs-4"></i>
                                     </div>
@@ -103,7 +103,7 @@
                                     <div class="color-background8 text-white rounded-4 p-3 d-flex justify-content-between align-items-center">
                                         <div>
                                             <h3 class="fw-bold mb-0">{{ $paidReservations->total ?? 0 }}</h3>
-                                            <small class="font-paragraph">Paid Reservations</small>
+                                            <small class="font-paragraph fs-5 fw-semibold">Paid Reservations</small>
                                         </div>
                                         <i class="fas fa-cash-register fs-4"></i>
                                     </div>
@@ -113,7 +113,7 @@
                                     <div class="color-background8 text-white rounded-4 p-3 d-flex justify-content-between align-items-center">
                                         <div>
                                             <h3 class="fw-bold mb-0">{{ $pendingReservations->total ?? 0 }}</h3>
-                                            <small class="font-paragraph">Pending Reservations</small>
+                                            <small class="font-paragraph fs-5 fw-semibold">Pending Reservations</small>
                                         </div>
                                         <i class="fas fa-file-invoice fs-4"></i>
                                     </div>
@@ -123,7 +123,7 @@
                                     <div class="color-background8 text-white rounded-4 p-3 d-flex justify-content-between align-items-center">
                                         <div>
                                             <h3 class="fw-bold mb-0">{{ $bookReservations->total ?? 0 }}</h3>
-                                            <small class="font-paragraph">Book Reservations</small>
+                                            <small class="font-paragraph fs-5 fw-semibold">Book Reservations</small>
                                         </div>
                                         <i class="fas fa-book fs-4"></i>
                                     </div>
@@ -133,7 +133,7 @@
                                     <div class="color-background8 text-white rounded-4 p-3 d-flex justify-content-between align-items-center">
                                         <div>
                                             <h3 class="fw-bold mb-0">{{$cancelledReservations->total ?? 0}}</h3>
-                                            <small class="font-paragraph">Cancelled Reservations</small>
+                                            <small class="font-paragraph fs-5 fw-semibold">Cancelled Reservations</small>
                                         </div>
                                         <i class="fas fa-times-circle fs-4"></i>
                                     </div>
@@ -182,9 +182,9 @@
                                     <div class="d-flex align-items-center">
                                         <label for="yearFilter" class="form-label mb-0 me-2 font-paragraph fw-semibold">Year:</label>
                                         <select id="yearFilter" class="form-control" style="min-width: 150px; height: 50px;">
-                                            @foreach($availableYears as $year)
-                                                <option value="{{ $year }}" {{ $year == date('Y') ? 'selected' : '' }}>{{ $year }}</option>
-                                            @endforeach
+                                        @foreach($availableYears as $year)
+                                            <option value="{{ $year }}" {{ $year == $selectedYear ? 'selected' : '' }}>{{ $year }}</option>
+                                        @endforeach
                                         </select>
                                     </div>
                                 </div>
@@ -229,125 +229,215 @@
 
     <!-- SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
- <script>
-    const dailyData = @json($dailyReservations);
-    const weeklyData = @json($weeklyReservations);
-    const monthlyData = @json($monthlyReservations);
+    <script>
+const dailyData = @json($dailyReservations);
+const weeklyData = @json($weeklyReservations);
+const monthlyData = @json($monthlyReservations);
 
-    const ctx = document.getElementById('reservationChart').getContext('2d');
-    let chart;
+const ctx = document.getElementById('reservationChart').getContext('2d');
+let chart;
 
-    // Log the data to check if it is passed correctly
-    console.log("Daily Data:", dailyData);
-    console.log("Weekly Data:", weeklyData);
-    console.log("Monthly Data:", monthlyData); // Check if this is logged correctly
+console.log("Initial Data Loaded:", {
+    dailyData: dailyData,
+    weeklyData: weeklyData,
+    monthlyData: monthlyData
+});
 
-    // Function to build the chart
-    function buildChart(data, label, labelKey) {
-        if (chart) chart.destroy();
+// Function to build the chart
+function buildChart(data, label, labelKey) {
+    if (chart) chart.destroy();
 
-        chart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: data.labels, // Ensure labels are passed properly
-                datasets: [{
-                    label: label,
-                    data: data.data,  // Ensure data array is passed properly
-                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1
-                }]
+    // If no data, show empty chart with a message
+    if (data.labels.length === 0) {
+        data = {
+            labels: ['No Data Available'],
+            data: [0]
+        };
+    }
+
+    console.log("Building Chart with:", {
+        labels: data.labels,
+        data: data.data,
+        label: label
+    });
+
+    chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: data.labels,
+            datasets: [{
+                label: label,
+                data: data.data,
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Reservations'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: labelKey === 'date' ? 'Date' : labelKey === 'week' ? 'Week' : 'Month'
+                    }
+                }
             },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Number of Reservations'
-                        }
-                    },
-                    x: {
-                        title: {
-                            display: true,
-                            text: labelKey === 'date' ? 'Date' : labelKey === 'week' ? 'Week # (YearWeek)' : 'Month'
+            plugins: {
+                legend: {
+                    display: true
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            if (context.label === 'No Data Available') {
+                                return 'No reservations for selected period';
+                            }
+                            return `${context.dataset.label}: ${context.raw}`;
                         }
                     }
                 }
             }
-        });
-    }
+        }
+    });
+}
 
-    // Function to generate all months for the x-axis (including zero reservations)
-    function generateAllMonthsData(monthlyData) {
-        const allMonths = [];
-        const allMonthLabels = [];
-        const currentDate = new Date();
-        const currentYear = currentDate.getFullYear();
+// Function to generate all months for the x-axis (including zero reservations)
+function generateAllMonthsData(selectedYear) {
+    const allMonths = [];
+    const allMonthLabels = [];
+    
+    console.log("Generating months data for year:", selectedYear);
+
+    // Generate all months of selected year in order
+    for (let month = 0; month < 12; month++) {
+        const monthDate = new Date(selectedYear, month, 1);
+        const monthLabel = monthDate.toLocaleString('default', { month: 'short' });
+        allMonthLabels.push(monthLabel);
         
-        // Generate all months of current year in order
-        for (let month = 0; month < 12; month++) {
-            const monthDate = new Date(currentYear, month, 1);
-            const monthLabel = monthDate.toLocaleString('default', { month: 'short', year: 'numeric' });
-            allMonthLabels.push(monthLabel);
-            
-            // Find matching month in the data
-            const foundMonth = monthlyData.find(item => {
-                const dataDate = new Date(item.month + '-01'); // Convert "Jan 2023" to date
-                return dataDate.getFullYear() === currentYear && 
-                    dataDate.getMonth() === month;
-            });
-            
-            allMonths.push(foundMonth ? foundMonth.total : 0);
-        }
-
-        return {
-            labels: allMonthLabels,
-            data: allMonths
-        };
+        // Find matching month in the data
+        const foundMonth = monthlyData.find(item => {
+            try {
+                const dataDate = new Date(item.month + '-01');
+                return dataDate.getFullYear() === parseInt(selectedYear) && 
+                       dataDate.getMonth() === month;
+            } catch (e) {
+                console.error("Error parsing month:", item.month, e);
+                return false;
+            }
+        });
+        
+        allMonths.push(foundMonth ? foundMonth.total : 0);
     }
 
-    // Handle the filter change for time
-    document.getElementById('timeFilter').addEventListener('change', function () {
-        const selected = this.value;
-        const selectedYear = document.getElementById('yearFilter').value; // Get the selected year
-
-        if (selected === 'daily') {
-            buildChart({ labels: dailyData.map(item => item.date), data: dailyData.map(item => item.total) }, 'Daily Reservations', 'date');
-        } else if (selected === 'weekly') {
-            buildChart({ labels: weeklyData.map(item => item.week), data: weeklyData.map(item => item.total) }, 'Weekly Reservations', 'week');
-        } else if (selected === 'monthly') {
-            const fullMonthlyData = generateAllMonthsData(monthlyData); // Get all months with 0 if no data
-            buildChart(fullMonthlyData, 'Monthly Reservations', 'month'); // Use the new data structure
-        }
+    console.log("Generated months data:", {
+        labels: allMonthLabels,
+        data: allMonths
     });
 
-    // Handle the filter change for year
-    document.getElementById('yearFilter').addEventListener('change', function () {
-        const selectedYear = this.value;
-        const selectedTimeFilter = document.getElementById('timeFilter').value; // Get the selected time filter
+    return {
+        labels: allMonthLabels,
+        data: allMonths
+    };
+}
 
-        if (selectedTimeFilter === 'daily') {
-            // Filter daily data by year
-            const filteredDailyData = dailyData.filter(item => new Date(item.date).getFullYear() == selectedYear);
-            buildChart({ labels: filteredDailyData.map(item => item.date), data: filteredDailyData.map(item => item.total) }, 'Daily Reservations', 'date');
-        } else if (selectedTimeFilter === 'weekly') {
-            // Filter weekly data by year
-            const filteredWeeklyData = weeklyData.filter(item => new Date(item.week).getFullYear() == selectedYear);
-            buildChart({ labels: filteredWeeklyData.map(item => item.week), data: filteredWeeklyData.map(item => item.total) }, 'Weekly Reservations', 'week');
-        } else if (selectedTimeFilter === 'monthly') {
-            // Filter monthly data by year
-            const filteredMonthlyData = generateAllMonthsData(monthlyData.filter(item => new Date(item.month).getFullYear() == selectedYear));
-            buildChart(filteredMonthlyData, 'Monthly Reservations', 'month');
-        }
-    });
+// Function to filter data by year and time period
+function filterData(selectedTimeFilter, selectedYear) {
+    console.log(`Filtering data - Time: ${selectedTimeFilter}, Year: ${selectedYear}`);
 
-    // Initial Load (Default: Daily)
-    buildChart({ labels: dailyData.map(item => item.date), data: dailyData.map(item => item.total) }, 'Daily Reservations', 'date');
-</script>
+    selectedYear = parseInt(selectedYear);
 
+    if (selectedTimeFilter === 'daily') {
+        const filteredData = dailyData.filter(item => {
+            try {
+                const itemDate = new Date(item.date);
+                return itemDate.getFullYear() === selectedYear;
+            } catch (e) {
+                console.error("Error parsing date:", item.date, e);
+                return false;
+            }
+        });
+        
+        // Sort by date
+        filteredData.sort((a, b) => new Date(a.date) - new Date(b.date));
+        
+        console.log("Filtered daily data:", filteredData);
+        
+        return {
+            labels: filteredData.map(item => new Date(item.date).toLocaleDateString()),
+            data: filteredData.map(item => item.total)
+        };
+    } 
+    else if (selectedTimeFilter === 'weekly') {
+        const filteredData = weeklyData.filter(item => {
+            try {
+                // Assuming week format is "YYYY-WW"
+                const yearFromWeek = parseInt(item.week.split('-')[0]);
+                return yearFromWeek === selectedYear;
+            } catch (e) {
+                console.error("Error parsing week:", item.week, e);
+                return false;
+            }
+        });
+        
+        // Sort by week
+        filteredData.sort((a, b) => {
+            const weekA = parseInt(a.week.split('-')[1]);
+            const weekB = parseInt(b.week.split('-')[1]);
+            return weekA - weekB;
+        });
+        
+        console.log("Filtered weekly data:", filteredData);
+        
+        return {
+            labels: filteredData.map(item => `Week ${item.week.split('-')[1]}`),
+            data: filteredData.map(item => item.total)
+        };
+    } 
+    else if (selectedTimeFilter === 'monthly') {
+        return generateAllMonthsData(selectedYear);
+    }
+}
 
+// Handle the filter change for time
+document.getElementById('timeFilter').addEventListener('change', function() {
+    const selectedTimeFilter = this.value;
+    const selectedYear = document.getElementById('yearFilter').value;
+    
+    console.log("Time filter changed to:", selectedTimeFilter);
+    
+    const chartData = filterData(selectedTimeFilter, selectedYear);
+    const label = selectedTimeFilter === 'daily' ? 'Daily Reservations' : 
+                 selectedTimeFilter === 'weekly' ? 'Weekly Reservations' : 'Monthly Reservations';
+    
+    buildChart(chartData, label, selectedTimeFilter.slice(0, -2));
+});
+
+// Handle the filter change for year and reload page
+document.getElementById('yearFilter').addEventListener('change', function() {
+    const selectedYear = this.value;
+    const selectedTimeFilter = document.getElementById('timeFilter').value;
+    
+    console.log("Year filter changed to:", selectedYear);
+
+    // Reload the page with the selected year as a query parameter
+    window.location.href = `?year=${selectedYear}&timeFilter=${selectedTimeFilter}`;
+});
+
+// Initial Load (Default: Daily and current year)
+const currentYear = new Date().getFullYear();
+console.log("Initial load with year:", currentYear);
+const initialData = filterData('daily', currentYear);
+buildChart(initialData, 'Daily Reservations', 'date');
+
+</script>   
     <script>
         const statusCounts = @json($reservationStatusCounts);
 
@@ -392,48 +482,106 @@
         });
     </script>
     <script>
-        const bookingTrendsData = @json($bookingTrends);
-        let bookingTrendsChart;
+    const bookingTrendsData = @json($bookingTrends);
+    let bookingTrendsChart;
 
-        function buildBookingTrendsChart(data) {
-            if (bookingTrendsChart) bookingTrendsChart.destroy();
+    function buildBookingTrendsChart(data) {
+        if (bookingTrendsChart) bookingTrendsChart.destroy();
 
-            const ctx = document.getElementById('bookingTrendsChart').getContext('2d');
-            bookingTrendsChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: data.map(item => item.date),
-                    datasets: [{
-                        label: 'Booking Trends',
-                        data: data.map(item => item.total),
-                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Number of Bookings'
-                            }
+        const ctx = document.getElementById('bookingTrendsChart').getContext('2d');
+
+        // Gradient for futuristic vibe
+        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+        gradient.addColorStop(0, 'rgba(138, 43, 226, 0.4)'); // Neon purple
+        gradient.addColorStop(1, 'rgba(138, 43, 226, 0)');
+
+        bookingTrendsChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.map(item => item.date),
+                datasets: [{
+                    label: 'Reservation',
+                    data: data.map(item => item.total),
+                    fill: true,
+                    backgroundColor: gradient,
+                    borderColor: 'rgba(138, 43, 226, 1)', // Electric purple
+                    borderWidth: 2,
+                    tension: 0.4,
+                    pointRadius: 3,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    pointBorderColor: 'rgba(138, 43, 226, 1)',
+                    pointBorderWidth: 2,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: '#1e1e2f',
+                        titleColor: '#fff',
+                        bodyColor: '#ddd',
+                        borderColor: 'rgba(138, 43, 226, 0.2)',
+                        borderWidth: 1,
+                        titleFont: {
+                            weight: 'bold',
+                            size: 13
                         },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Date'
+                        bodyFont: {
+                            size: 12
+                        },
+                        padding: 10,
+                        cornerRadius: 6
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: '#ccc',
+                            padding: 10
+                        },
+                        grid: {
+                            color: 'rgba(138, 43, 226, 0.05)'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Bookings',
+                            color: '#bbb',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#ccc',
+                            padding: 5
+                        },
+                        grid: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Date',
+                            color: '#bbb',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
                             }
                         }
                     }
                 }
-            });
-        }
+            }
+        });
+    }
 
-        buildBookingTrendsChart(bookingTrendsData);
-    </script>
+    buildBookingTrendsChart(bookingTrendsData);
+</script>
 
 </body>
 </html>
