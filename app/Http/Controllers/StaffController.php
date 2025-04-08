@@ -33,7 +33,7 @@ class StaffController extends Controller
     public function logout()
     {
         auth()->logout();
-        return redirect()->route('staff.login')->with('success', 'Logged out successfully!');
+        return redirect()->route('login')->with('success', 'Logged out successfully!');
     }
     public function authenticate(Request $request)
     {

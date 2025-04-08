@@ -415,23 +415,56 @@
 </div>
 
 <script>
-    // Ctrl + Shift + A to trigger modal
-document.addEventListener('keydown', function(e) {
-  if (e.ctrlKey && e.shiftKey && e.key === 'A') {
-    e.preventDefault();
-    const modal = new bootstrap.Modal(document.getElementById('staffAdminModal'));
-    modal.show();
-  }
+// Modal Trigger: Ctrl + Shift + A
+document.addEventListener('keydown', function(event) {
+    if (event.ctrlKey && event.shiftKey && event.key === 'A') {
+        event.preventDefault();
+        var myModal = new bootstrap.Modal(document.getElementById('staffAdminModal'));
+        myModal.show();
+        
+        // Set default form action based on current role selection
+        updateFormAction();
+    }
 });
-// Prevent right-click, F12, Ctrl+Shift+I, etc.
+
+// Update form action based on selected role
+function updateFormAction() {
+    let loginForm = document.querySelector('#staffAdminModal form');
+    let roleSelect = document.querySelector('select[name="role"]');
+    
+    if (roleSelect.value === 'staff') {
+        loginForm.action = "{{ route('staff.authenticate') }}";
+    } else if (roleSelect.value === 'admin') {
+        loginForm.action = "{{ route('authenticate') }}";
+    }
+}
+
+// Role switch event listener
+document.addEventListener('DOMContentLoaded', function() {
+    const roleSelect = document.querySelector('select[name="role"]');
+    if (roleSelect) {
+        roleSelect.addEventListener('change', updateFormAction);
+    }
+});
+
+// Enhanced Developer Tools Prevention
 document.addEventListener('contextmenu', e => e.preventDefault());
+
 document.addEventListener('keydown', e => {
-  if (e.key === 'F12' || 
-      (e.ctrlKey && e.shiftKey && e.key === 'I') || 
-      (e.ctrlKey && e.shiftKey && e.key === 'J') ||
-      (e.ctrlKey && e.key === 'U')) {
-    e.preventDefault();
-  }
+    // Prevent F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+U
+    if (e.key === 'F12' || 
+        (e.ctrlKey && e.shiftKey && e.key === 'I') || 
+        (e.ctrlKey && e.shiftKey && e.key === 'J') ||
+        (e.ctrlKey && e.shiftKey && e.key === 'C') ||
+        (e.ctrlKey && e.key === 'U')) {
+        e.preventDefault();
+    }
+    
+    // Additional protection against menu opening
+    if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+        alert('Developer tools are disabled for security reasons.');
+        return false;
+    }
 });
 </script>
 
