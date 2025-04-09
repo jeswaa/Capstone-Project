@@ -11,6 +11,7 @@ use App\Models\Transaction;
 use App\Models\Accomodation;
 use App\Models\Package;
 use App\Models\Activities;
+use DateTime;
 
 class AdminSideController extends Controller
 {
@@ -272,6 +273,57 @@ class AdminSideController extends Controller
         ->limit(4)
         ->get();
 
+    // Room Type Utilization
+    $roomTypeUtilization = DB::table('reservation_details')
+    ->select('accomodation_id')
+    ->get()
+    ->flatMap(function($reservation) {
+        // Convert JSON or comma-separated IDs into an array
+        $accomodationIds = json_decode($reservation->accomodation_id, true);
+        
+        if (!is_array($accomodationIds)) {
+            $accomodationIds = explode(',', $reservation->accomodation_id); // If stored as comma-separated
+        }
+
+        return $accomodationIds;
+    })
+    ->map(function($id) {
+        return DB::table('accomodations')
+            ->select('accomodation_type')
+            ->where('accomodation_id', $id)
+            ->first();
+    })
+    ->groupBy('accomodation_type')
+    ->map(function($group) {
+        return count($group);
+    });
+
+    // Room Availability
+    $roomAvailability = DB::table('reservation_details')
+        ->select('reservation_check_in_date', 'reservation_check_out_date', 'accomodation_id')
+        ->get()
+        ->groupBy(function($reservation) {
+            return (new DateTime($reservation->reservation_check_in_date))->format('Y-m-d');
+        })
+        ->map(function($reservations) {
+            return $reservations->map(function($reservation) {
+                // Decode accomodation_id
+                $accomodationIds = json_decode($reservation->accomodation_id, true);
+                if (!is_array($accomodationIds)) {
+                    $accomodationIds = explode(',', $reservation->accomodation_id); // If stored as comma-separated
+                }
+
+                return DB::table('accomodations')
+                    ->select('accomodation_type')
+                    ->whereIn('accomodation_id', $accomodationIds)
+                    ->first();
+            })
+            ->pluck('accomodation_type')
+            ->unique()
+            ->values()
+            ->toArray();
+        });
+    
     // Pass the data to the view
     return view('AdminSide.Dashboard', [
         'adminCredentials' => $adminCredentials,
@@ -289,6 +341,8 @@ class AdminSideController extends Controller
         'cancelledReservations' => $cancelledReservations,
         'bookReservations' => $bookReservations,
         'latestReservations' => $latestReservations,
+        'roomTypeUtilization' => $roomTypeUtilization,
+        'roomAvailability' => $roomAvailability,
     ]);
 }
 

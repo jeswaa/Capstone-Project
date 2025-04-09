@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Anton&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <title>Dashboard</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -161,8 +162,14 @@
                             </div>
                         </div>
 
+                        <!-- Navigation Buttons -->
+                        <div class="d-flex justify-content-between mt-3">
+                            <button id="prevChart" class="btn" style="background-color: #0b573d; color: white; transition: all 0.2s ease-in-out;" data-bs-toggle="tooltip" data-bs-placement="top" title="Previous Chart" onmouseover="this.style.backgroundColor='#0a4c33'" onmouseout="this.style.backgroundColor='#0b573d'"><i class="fas fa-chevron-left"></i></button>
+                            <button id="nextChart" class="btn" style="background-color: #0b573d; color: white; transition: all 0.2s ease-in-out;" data-bs-toggle="tooltip" data-bs-placement="top" title="Next Chart" onmouseover="this.style.backgroundColor='#0a4c33'" onmouseout="this.style.backgroundColor='#0b573d'"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+
                         <!-- Charts -->
-                        <div>
+                        <div id="chartSection1" class="chart-section">
                             <div class="d-flex justify-content-between align-items-center mt-5">
                                 <h1 class="text-color-1 font-paragraph fw-bold" style="font-size: 50px;">Reservation Overview</h1>
 
@@ -178,48 +185,61 @@
                                         </select>
                                     </div>
 
-                                    <!-- Year -->
-                                    <div class="d-flex align-items-center">
-                                        <label for="yearFilter" class="form-label mb-0 me-2 font-paragraph fw-semibold">Year:</label>
-                                        <select id="yearFilter" class="form-control" style="min-width: 150px; height: 50px;">
-                                        @foreach($availableYears as $year)
-                                            <option value="{{ $year }}" {{ $year == $selectedYear ? 'selected' : '' }}>{{ $year }}</option>
-                                        @endforeach
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Chart Container with Floating Effect and Side-by-Side Layout -->
-                            <div class="row g-0 mt-4">
-                                <!-- Status Chart -->
-                                <div class="col-md-6 p-0 w-25">
-                                    <div class="shadow-lg rounded-4 p-3 bg-white floating-effect h-100 d-flex justify-content-center align-items-center">
-                                        <canvas id="statusChart" width="350" style="max-width: 500px;"></canvas>
+                                        <!-- Year -->
+                                        <div class="d-flex align-items-center">
+                                            <label for="yearFilter" class="form-label mb-0 me-2 font-paragraph fw-semibold">Year:</label>
+                                            <select id="yearFilter" class="form-control" style="min-width: 150px; height: 50px;">
+                                            @foreach($availableYears as $year)
+                                                <option value="{{ $year }}" {{ $year == $selectedYear ? 'selected' : '' }}>{{ $year }}</option>
+                                            @endforeach
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <!-- Reservation Chart -->
-                                <div class="col-md-6 p-0 d-flex flex-column justify-content-start ms-3" style="width: 73%;">
-                                    <div class="shadow-lg rounded-4 p-3 bg-white floating-effect" style="height: 100%;">
-                                        <canvas id="reservationChart" class="w-100" height="100" style="height: 100%;"></canvas>
+                                <!-- Chart Container with Floating Effect and Side-by-Side Layout -->
+                                <div class="row g-0 mt-4">
+                                    <!-- Status Chart -->
+                                    <div class="col-md-6 p-0 w-25">
+                                        <div class="shadow-lg rounded-4 p-3 bg-white floating-effect h-100 d-flex justify-content-center align-items-center">
+                                            <canvas id="statusChart" width="350" style="max-width: 500px;"></canvas>
+                                        </div>
+                                    </div>
+
+                                    <!-- Reservation Chart -->
+                                    <div class="col-md-6 p-0 d-flex flex-column justify-content-start ms-3" style="width: 73%;">
+                                        <div class="shadow-lg rounded-4 p-3 bg-white floating-effect" style="height: 100%;">
+                                            <canvas id="reservationChart" class="w-100" height="100" style="height: 100%;"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row mt-5">
+                                    <div class="col-12">
+                                        <h1 class="text-color-1 font-paragraph fw-bold">Reservation Activity</h1>
+                                    </div>
+
+                                <div class="col-md-8 mt-4 w-100">
+                                    <div class="shadow-lg rounded-4 p-3 bg-white">
+                                        <canvas id="bookingTrendsChart" height="100"></canvas>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-
-                        <div class="row mt-5">
-                            <div class="col-12">
-                                <h1 class="text-color-1 font-paragraph fw-bold">Reservation Activity</h1>
+                        <div id="chartSection2" class="chart-section d-none">
+                            <div class="d-flex justify-content-between align-items-center mt-5">
+                                <h1 class="text-color-1 font-paragraph fw-semibold" style="font-size: 30px;">What Guests Book the Most?</h1>
                             </div>
-
+                            <!-- Most Booked Rooms -->
                             <div class="col-md-8 mt-4 w-100">
                                 <div class="shadow-lg rounded-4 p-3 bg-white">
-                                    <canvas id="bookingTrendsChart" height="100"></canvas>
+                                    <canvas id="roomTypeChart" height="100"></canvas>
                                 </div>
                             </div>
+                            <!-- Availability of Rooms -->
                         </div>
+
 
                     </div>
                 </div>
@@ -243,23 +263,16 @@ console.log("Initial Data Loaded:", {
     monthlyData: monthlyData
 });
 
-// Function to build the chart
+// Build Chart Function
 function buildChart(data, label, labelKey) {
     if (chart) chart.destroy();
 
-    // If no data, show empty chart with a message
     if (data.labels.length === 0) {
         data = {
             labels: ['No Data Available'],
             data: [0]
         };
     }
-
-    console.log("Building Chart with:", {
-        labels: data.labels,
-        data: data.data,
-        label: label
-    });
 
     chart = new Chart(ctx, {
         type: 'bar',
@@ -291,9 +304,7 @@ function buildChart(data, label, labelKey) {
                 }
             },
             plugins: {
-                legend: {
-                    display: true
-                },
+                legend: { display: true },
                 tooltip: {
                     callbacks: {
                         label: function(context) {
@@ -309,38 +320,28 @@ function buildChart(data, label, labelKey) {
     });
 }
 
-// Function to generate all months for the x-axis (including zero reservations)
+// Monthly Data Generator
 function generateAllMonthsData(selectedYear) {
     const allMonths = [];
     const allMonthLabels = [];
-    
-    console.log("Generating months data for year:", selectedYear);
 
-    // Generate all months of selected year in order
     for (let month = 0; month < 12; month++) {
         const monthDate = new Date(selectedYear, month, 1);
         const monthLabel = monthDate.toLocaleString('default', { month: 'short' });
         allMonthLabels.push(monthLabel);
-        
-        // Find matching month in the data
+
         const foundMonth = monthlyData.find(item => {
             try {
                 const dataDate = new Date(item.month + '-01');
-                return dataDate.getFullYear() === parseInt(selectedYear) && 
-                       dataDate.getMonth() === month;
+                return dataDate.getFullYear() === parseInt(selectedYear) && dataDate.getMonth() === month;
             } catch (e) {
                 console.error("Error parsing month:", item.month, e);
                 return false;
             }
         });
-        
+
         allMonths.push(foundMonth ? foundMonth.total : 0);
     }
-
-    console.log("Generated months data:", {
-        labels: allMonthLabels,
-        data: allMonths
-    });
 
     return {
         labels: allMonthLabels,
@@ -348,10 +349,51 @@ function generateAllMonthsData(selectedYear) {
     };
 }
 
-// Function to filter data by year and time period
-function filterData(selectedTimeFilter, selectedYear) {
-    console.log(`Filtering data - Time: ${selectedTimeFilter}, Year: ${selectedYear}`);
+// Weekly Data Generator
+function generateAllWeeksData(selectedYear, filteredData) {
+    const allWeeks = Array.from({ length: 52 }, (_, i) => i + 1);
+    const weekDataMap = {};
 
+    // Store totals in a map by week number
+    filteredData.forEach(item => {
+        const weekNum = parseInt(String(item.week).slice(-2));
+        weekDataMap[weekNum] = item.total;
+    });
+
+    const allWeekData = [];
+    const allWeekLabels = [];
+
+    allWeeks.forEach(week => {
+        // Get the Monday of that week in the selected year
+        const firstDayOfYear = new Date(selectedYear, 0, 1);
+        const day = firstDayOfYear.getDay(); // Sunday = 0, Monday = 1, ...
+        const diff = (day <= 4 ? day - 1 : day - 8); // Adjust for ISO weeks
+        const monday = new Date(firstDayOfYear.setDate(firstDayOfYear.getDate() - diff + (week - 1) * 7));
+
+        const label = monday.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+
+        allWeekLabels.push(label);
+        allWeekData.push(weekDataMap[week] || 0);
+    });
+
+    console.log("Generated weeks data:", {
+        labels: allWeekLabels,
+        data: allWeekData
+    });
+
+    return {
+        labels: allWeekLabels,
+        data: allWeekData
+    };
+}
+
+
+// Main Filter Function
+function filterData(selectedTimeFilter, selectedYear) {
     selectedYear = parseInt(selectedYear);
 
     if (selectedTimeFilter === 'daily') {
@@ -364,223 +406,324 @@ function filterData(selectedTimeFilter, selectedYear) {
                 return false;
             }
         });
-        
-        // Sort by date
+
         filteredData.sort((a, b) => new Date(a.date) - new Date(b.date));
-        
-        console.log("Filtered daily data:", filteredData);
-        
+
         return {
             labels: filteredData.map(item => new Date(item.date).toLocaleDateString()),
             data: filteredData.map(item => item.total)
         };
     } 
+    
     else if (selectedTimeFilter === 'weekly') {
         const filteredData = weeklyData.filter(item => {
             try {
-                // Assuming week format is "YYYY-WW"
-                const yearFromWeek = parseInt(item.week.split('-')[0]);
+                const weekStr = String(item.week);
+                let yearFromWeek;
+
+                if (weekStr.includes('-')) {
+                    yearFromWeek = parseInt(weekStr.split('-')[0]);
+                } else if (weekStr.length === 6) {
+                    yearFromWeek = parseInt(weekStr.substring(0, 4));
+                } else {
+                    console.warn("Unrecognized week format:", item.week);
+                    return false;
+                }
+
                 return yearFromWeek === selectedYear;
             } catch (e) {
                 console.error("Error parsing week:", item.week, e);
                 return false;
             }
         });
-        
-        // Sort by week
+
         filteredData.sort((a, b) => {
-            const weekA = parseInt(a.week.split('-')[1]);
-            const weekB = parseInt(b.week.split('-')[1]);
+            const weekA = parseInt(String(a.week).slice(-2));
+            const weekB = parseInt(String(b.week).slice(-2));
             return weekA - weekB;
         });
-        
-        console.log("Filtered weekly data:", filteredData);
-        
-        return {
-            labels: filteredData.map(item => `Week ${item.week.split('-')[1]}`),
-            data: filteredData.map(item => item.total)
-        };
+
+        return generateAllWeeksData(selectedYear, filteredData);
     } 
+    
     else if (selectedTimeFilter === 'monthly') {
         return generateAllMonthsData(selectedYear);
     }
 }
 
-// Handle the filter change for time
-document.getElementById('timeFilter').addEventListener('change', function() {
+// Time Filter Event
+document.getElementById('timeFilter').addEventListener('change', function () {
     const selectedTimeFilter = this.value;
     const selectedYear = document.getElementById('yearFilter').value;
-    
-    console.log("Time filter changed to:", selectedTimeFilter);
-    
+
     const chartData = filterData(selectedTimeFilter, selectedYear);
-    const label = selectedTimeFilter === 'daily' ? 'Daily Reservations' : 
-                 selectedTimeFilter === 'weekly' ? 'Weekly Reservations' : 'Monthly Reservations';
-    
+    const label = selectedTimeFilter === 'daily' ? 'Daily Reservations' :
+                  selectedTimeFilter === 'weekly' ? 'Weekly Reservations' : 'Monthly Reservations';
+
     buildChart(chartData, label, selectedTimeFilter.slice(0, -2));
 });
 
-// Handle the filter change for year and reload page
-document.getElementById('yearFilter').addEventListener('change', function() {
+// Year Filter Event
+document.getElementById('yearFilter').addEventListener('change', function () {
     const selectedYear = this.value;
     const selectedTimeFilter = document.getElementById('timeFilter').value;
-    
-    console.log("Year filter changed to:", selectedYear);
-
-    // Reload the page with the selected year as a query parameter
     window.location.href = `?year=${selectedYear}&timeFilter=${selectedTimeFilter}`;
 });
 
-// Initial Load (Default: Daily and current year)
+// Initial Load
 const currentYear = new Date().getFullYear();
-console.log("Initial load with year:", currentYear);
-const initialData = filterData('daily', currentYear);
-buildChart(initialData, 'Daily Reservations', 'date');
+const urlParams = new URLSearchParams(window.location.search);
+const yearParam = urlParams.get('year') || currentYear;
+const timeFilterParam = urlParams.get('timeFilter') || 'daily';
 
-</script>   
-    <script>
-        const statusCounts = @json($reservationStatusCounts);
+document.getElementById('yearFilter').value = yearParam;
+document.getElementById('timeFilter').value = timeFilterParam;
 
-        const statusLabels = Object.keys(statusCounts);
-        const statusTotals = Object.values(statusCounts);
+const initialData = filterData(timeFilterParam, yearParam);
+const initialLabel = timeFilterParam === 'daily' ? 'Daily Reservations' :
+                     timeFilterParam === 'weekly' ? 'Weekly Reservations' : 'Monthly Reservations';
 
-        const statusColors = [
-            'rgba(75, 192, 192, 1)',  // Blue - Boooked
-            'rgba(255, 205, 86, 1)',  // Yellow - Pending
-            'rgba(255, 99, 132, 1)',  // Red - Cancelled
-            'rgba(153, 102, 255, 1)' // Purple - Checked-out
-        ];
+buildChart(initialData, initialLabel, timeFilterParam.slice(0, -2));
+</script>
+   
+<script>
+    const statusCounts = @json($reservationStatusCounts);
 
-        const ctxStatus = document.getElementById('statusChart').getContext('2d');
-        new Chart(ctxStatus, {
-            type: 'pie', // You can change to 'bar' if preferred
-            data: {
-                labels: statusLabels,
-                datasets: [{
-                    label: 'Reservation Status',
-                    data: statusTotals,
-                    backgroundColor: statusColors,
-                    borderColor: statusColors,
-                    borderWidth: 1
-                }]
+    const statusLabels = Object.keys(statusCounts);
+    const statusTotals = Object.values(statusCounts);
+
+    const statusColors = [
+        'rgba(75, 192, 192, 1)',  // Blue - Boooked
+        'rgba(255, 205, 86, 1)',  // Yellow - Pending
+        'rgba(255, 99, 132, 1)',  // Red - Cancelled
+        'rgba(153, 102, 255, 1)' // Purple - Checked-out
+    ];
+
+    const ctxStatus = document.getElementById('statusChart').getContext('2d');
+    new Chart(ctxStatus, {
+        type: 'pie', // You can change to 'bar' if preferred
+        data: {
+            labels: statusLabels,
+            datasets: [{
+                label: 'Reservation Status',
+                data: statusTotals,
+                backgroundColor: statusColors,
+                borderColor: statusColors,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: (context) => statusColors[context.index]
+                    }
+                },
+                title: {
+                    display: true,
+                    text: 'Reservation Status Breakdown'
+                }
+            }
+        }
+    });
+</script>
+<!-- For Booking Trends -->
+<script>
+const bookingTrendsData = @json($bookingTrends);
+let bookingTrendsChart;
+
+function buildBookingTrendsChart(data) {
+    if (bookingTrendsChart) bookingTrendsChart.destroy();
+
+    const ctx = document.getElementById('bookingTrendsChart').getContext('2d');
+
+    // Gradient for futuristic vibe
+    const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+    gradient.addColorStop(0, 'rgba(138, 43, 226, 0.4)'); // Neon purple
+    gradient.addColorStop(1, 'rgba(138, 43, 226, 0)');
+
+    bookingTrendsChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: data.map(item => item.date),
+            datasets: [{
+                label: 'Reservation',
+                data: data.map(item => item.total),
+                fill: true,
+                backgroundColor: gradient,
+                borderColor: 'rgba(138, 43, 226, 1)', // Electric purple
+                borderWidth: 2,
+                tension: 0.4,
+                pointRadius: 3,
+                pointHoverRadius: 6,
+                pointBackgroundColor: 'rgba(255, 255, 255, 0.9)',
+                pointBorderColor: 'rgba(138, 43, 226, 1)',
+                pointBorderWidth: 2,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: '#1e1e2f',
+                    titleColor: '#fff',
+                    bodyColor: '#ddd',
+                    borderColor: 'rgba(138, 43, 226, 0.2)',
+                    borderWidth: 1,
+                    titleFont: {
+                        weight: 'bold',
+                        size: 13
+                    },
+                    bodyFont: {
+                        size: 12
+                    },
+                    padding: 10,
+                    cornerRadius: 6
+                }
             },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            color: (context) => statusColors[context.index]
-                        }
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: '#ccc',
+                        padding: 10
+                    },
+                    grid: {
+                        color: 'rgba(138, 43, 226, 0.05)'
                     },
                     title: {
                         display: true,
-                        text: 'Reservation Status Breakdown'
-                    }
-                }
-            }
-        });
-    </script>
-    <script>
-    const bookingTrendsData = @json($bookingTrends);
-    let bookingTrendsChart;
-
-    function buildBookingTrendsChart(data) {
-        if (bookingTrendsChart) bookingTrendsChart.destroy();
-
-        const ctx = document.getElementById('bookingTrendsChart').getContext('2d');
-
-        // Gradient for futuristic vibe
-        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-        gradient.addColorStop(0, 'rgba(138, 43, 226, 0.4)'); // Neon purple
-        gradient.addColorStop(1, 'rgba(138, 43, 226, 0)');
-
-        bookingTrendsChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: data.map(item => item.date),
-                datasets: [{
-                    label: 'Reservation',
-                    data: data.map(item => item.total),
-                    fill: true,
-                    backgroundColor: gradient,
-                    borderColor: 'rgba(138, 43, 226, 1)', // Electric purple
-                    borderWidth: 2,
-                    tension: 0.4,
-                    pointRadius: 3,
-                    pointHoverRadius: 6,
-                    pointBackgroundColor: 'rgba(255, 255, 255, 0.9)',
-                    pointBorderColor: 'rgba(138, 43, 226, 1)',
-                    pointBorderWidth: 2,
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        backgroundColor: '#1e1e2f',
-                        titleColor: '#fff',
-                        bodyColor: '#ddd',
-                        borderColor: 'rgba(138, 43, 226, 0.2)',
-                        borderWidth: 1,
-                        titleFont: {
-                            weight: 'bold',
-                            size: 13
-                        },
-                        bodyFont: {
-                            size: 12
-                        },
-                        padding: 10,
-                        cornerRadius: 6
+                        text: 'Bookings',
+                        color: '#bbb',
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        }
                     }
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            color: '#ccc',
-                            padding: 10
-                        },
-                        grid: {
-                            color: 'rgba(138, 43, 226, 0.05)'
-                        },
-                        title: {
-                            display: true,
-                            text: 'Bookings',
-                            color: '#bbb',
-                            font: {
-                                size: 14,
-                                weight: 'bold'
-                            }
-                        }
+                x: {
+                    ticks: {
+                        color: '#ccc',
+                        padding: 5
                     },
-                    x: {
-                        ticks: {
-                            color: '#ccc',
-                            padding: 5
-                        },
-                        grid: {
-                            display: false
-                        },
-                        title: {
-                            display: true,
-                            text: 'Date',
-                            color: '#bbb',
-                            font: {
-                                size: 14,
-                                weight: 'bold'
-                            }
+                    grid: {
+                        display: false
+                    },
+                    title: {
+                        display: true,
+                        text: 'Date',
+                        color: '#bbb',
+                        font: {
+                            size: 14,
+                            weight: 'bold'
                         }
                     }
                 }
             }
+        }
+    });
+}
+
+buildBookingTrendsChart(bookingTrendsData);
+</script>
+<!-- For Most Booked Rooms  -->
+<script>
+    const roomTypeLabels = @json($roomTypeUtilization->keys());
+    const roomTypeData = @json($roomTypeUtilization->values());
+
+    console.log("Room Type Labels:", roomTypeLabels);
+    console.log("Room Type Data:", roomTypeData);
+
+    const roomCtx = document.getElementById('roomTypeChart').getContext('2d');
+    new Chart(roomCtx, {
+        type: 'bar',
+        data: {
+            labels: roomTypeLabels,
+            datasets: [{
+                label: 'Number of Bookings',
+                data: roomTypeData,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.6)',
+                    'rgba(54, 162, 235, 0.6)',
+                    'rgba(255, 206, 86, 0.6)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Bookings'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Room Type'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.dataset.label}: ${context.raw}`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+<!-- Script for Showing next Chart -->
+<script>
+    let currentChartIndex = 0;
+    const chartSections = document.querySelectorAll('.chart-section');
+
+    function showChartSection(index) {
+        chartSections.forEach((section, i) => {
+            section.classList.toggle('d-none', i !== index);
         });
+
+        // Disable buttons if at ends
+        document.getElementById('prevChart').disabled = index === 0;
+        document.getElementById('nextChart').disabled = index === chartSections.length - 1;
     }
 
-    buildBookingTrendsChart(bookingTrendsData);
+    document.getElementById('prevChart').addEventListener('click', () => {
+        if (currentChartIndex > 0) {
+            currentChartIndex--;
+            showChartSection(currentChartIndex);
+        }
+    });
+
+    document.getElementById('nextChart').addEventListener('click', () => {
+        if (currentChartIndex < chartSections.length - 1) {
+            currentChartIndex++;
+            showChartSection(currentChartIndex);
+        }
+    });
+
+    // Initial display
+    showChartSection(currentChartIndex);
 </script>
 
 </body>
