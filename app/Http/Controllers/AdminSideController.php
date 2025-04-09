@@ -671,7 +671,6 @@ public function packages()
     {
         // Get all accommodations
         $accomodations = DB::table('accomodations')->orderByDesc('created_at')->get();
-
         // Get total accommodation count
         $count = count($accomodations);
 
@@ -679,9 +678,9 @@ public function packages()
         $countAvailableRoom = DB::table('accomodations')
             ->where('accomodation_status', 'available')
             ->count();
-
-        $countReservedRoom = DB::table('reservation_details')
-        ->where('payment_status', 'booked') // ✅ Get only booked reservations
+        $accomodations = Accomodation::paginate(5);
+        $countReservedRoom = DB::table('accomodations')
+        ->where('accomodation_status', 'unavailable') // ✅ Get only unavailable accommodations
         ->count();
     
             
