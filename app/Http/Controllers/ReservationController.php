@@ -479,22 +479,43 @@ class ReservationController extends Controller
 
 
 
-    public function cancelReservation(Request $request, $id)
+    public function guestcancelReservation(Request $request, $id)
     {
         $request->validate([
             'cancel_reason' => 'required|string|max:255'
         ]);
 
-        $reservation = Reservation::find($id);
+        $reservation = DB::table('reservation_details')->where('id', $id)->first();
 
         if (!$reservation) {
             return redirect()->back()->with('error', 'Reservation not found.');
         }
 
         // Update status to "cancelled" and save the reason
-        $reservation->payment_status = 'cancelled';
+        if (in_array($reservation->payment_status, ['cancelled', 'checked_out'])) {
+            // Move reservation to archived_reservations
+            DB::table('archived_reservations')->insert([
+                'name' => $reservation->name,
+                'email' => $reservation->email,
+                'phone' => $reservation->mobileNo,
+                'package' => $reservation->package_id,
+                'reservation_check_in_date' => $reservation->reservation_check_in_date,
+                'reservation_check_in' => $reservation->reservation_check_in,
+                'reservation_check_out' => $reservation->reservation_check_out,
+                'amount' => $reservation->amount,
+                'payment_status' => $newPaymentStatus,
+                'created_at' => $reservation->created_at,
+                'updated_at' => now(),
+            ]);
+
+            // Delete reservation from current table
+            $reservation->delete();
+        }
         $reservation->cancel_reason = $request->cancel_reason;
-        $reservation->save();
+        DB::table('reservation_details')->where('id', $reservation->id)->update([
+            'cancel_reason' => $request->cancel_reason,
+            'payment_status' => 'cancelled'
+        ]);
 
         return redirect()->route('profile')->with('success', 'Reservation cancelled successfully.');
     }

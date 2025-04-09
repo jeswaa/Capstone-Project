@@ -11,11 +11,12 @@ use App\Models\Transaction;
 use App\Models\Accomodation;
 use App\Models\Package;
 use App\Models\Activities;
+use DateTime;
 
 class AdminSideController extends Controller
 {
     public function dashboard(){
-        return view('AdminSide.dashboard');
+        return view('AdminSide.Dashboard');
     }
 
     public function reservations(Request $request) 
@@ -80,13 +81,8 @@ class AdminSideController extends Controller
         }
     
         // Return view with data
-        return view('AdminSide.reservation', compact('reservations', 'users', 'noReservationMessage', 'events'));
+        return view('AdminSide.Reservation', compact('reservations', 'users', 'noReservationMessage', 'events'));
     }
-    
-
-    
-
-
 
     public function roomAvailability(){
         return view('AdminSide.roomAvailability');
@@ -104,7 +100,7 @@ class AdminSideController extends Controller
         $reservations = DB::table('reservation_details')->get();
         $totalGuests = DB::table('users')->count();
         $totalReservations = DB::table('reservation_details')->count();
-        return view('AdminSide.guest', ['users' => $users, 'reservations' => $reservations, 'totalGuests' => $totalGuests, 'totalReservations' => $totalReservations, 'upcomingReservations' => $upcomingReservations]);
+        return view('AdminSide.Guest', ['users' => $users, 'reservations' => $reservations, 'totalGuests' => $totalGuests, 'totalReservations' => $totalReservations, 'upcomingReservations' => $upcomingReservations]);
     }
 
     public function transactions(){
@@ -142,8 +138,9 @@ class AdminSideController extends Controller
             ->groupBy('packagestbl.package_room_type')
             ->orderByDesc('count')
             ->first();
+        
 
-        return view('AdminSide.reports', compact(
+        return view('AdminSide.Reports', compact(
             'totalReservations', 'totalCancelled', 'totalConfirmed', 'totalPending',
             'dailyReservations', 'weeklyReservations', 'monthlyReservations', 'yearlyReservations',
             'mostBooked'
@@ -153,217 +150,262 @@ class AdminSideController extends Controller
     
     public function logout(){
         auth()->logout();
-        return redirect()->route('AdminLogin')->with('success', 'Logged out successfully!');
+        return redirect()->route('login')->with('success', 'Logged out successfully!');
     }
 
-    //Login Function
-    public function AdminLogin(){
-        return view('AdminSide.adminLogin');
-    }
-
-    public function login(Request $request){
-        $username = $request->input('username');
-        $password = $request->input('password');
-
-        $admin = \App\Models\Admin::where('username', $username)->first();
-
-        if ($admin && $admin->password == $password) {
-            session()->put('AdminLogin', $admin->id);
+    public function login(Request $request) {
+        $credentials = $request->only('username', 'password');
+        
+        $admin = DB::table('admintbl')->where('username', $credentials['username'])->first();
+        
+        // Case 1: Passwords are plaintext (NOT recommended)
+        if ($admin && $credentials['password'] === $admin->password) {
+            session(['AdminLogin' => $admin->id]);
             return redirect()->route('dashboard');
         }
+    
+        // Case 2: Passwords use another algorithm (e.g., MD5)
+        if ($admin && md5($credentials['password']) === $admin->password) {
+            session(['AdminLogin' => $admin->id]);
+            return redirect()->route('dashboard');
+        }
+        
+        return back()->with('error', 'Invalid credentials');
+    }
+    
 
-        return back()->withErrors([
-            'username' => 'The provided credentials do not match our records.',
-        ]);
+    public function DashboardView()
+{
+    $adminCredentials = DB::table('admintbl')->first();
+    if (!$adminCredentials) {
+        abort(404, 'Admin credentials not found');
     }
 
-    public function DashboardView() {
-        $adminCredentials = DB::table('admintbl')->first();
-        if (!$adminCredentials) {
-            abort(404, 'Admin credentials not found');
-        }
+    // Total Bookings
+    $totalBookings = DB::table('reservation_details')->count();
+
+    // Total Guests
+    $totalGuests = DB::table('users')->count();
+
+    // Get available years
+    $availableYears = DB::table('reservation_details')
+        ->select(DB::raw('YEAR(reservation_check_in_date) as year'))
+        ->distinct()
+        ->orderBy('year', 'desc')
+        ->pluck('year');
+
+    // Get selected year from request or use current year
+    $selectedYear = request()->input('year', date('Y'));
     
-        // Define selected year
-        $selectedYear = request()->query('year') ?? date('Y');
-    
-        // Fetch User & Reservation Counts
-        $totalUsers = DB::table('users')->count();
-        $latestUser = DB::table('users')->latest()->first();
-        $totalReservations = DB::table('reservation_details')->count();
-    
-        $today = Carbon::today();
-    
-        // Booking statistics
-        $dailyBookings = DB::table('reservation_details')->whereDate('reservation_check_in_date', Carbon::today())->pluck('reservation_check_in_date');
-        $weeklyBookings = DB::table('reservation_details')->whereBetween('reservation_check_in_date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->pluck('reservation_check_in_date');
-        $monthlyBookings = DB::table('reservation_details')->whereBetween('reservation_check_in_date', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()])->pluck('reservation_check_in_date');
-        $yearlyBookings = DB::table('reservation_details')->whereYear('reservation_check_in_date', $selectedYear)->pluck('reservation_check_in_date');
-    
-        // Monthly bookings with grouping
-        $monthlyBookingsData = DB::table('reservation_details')
-            ->selectRaw('count(*) as count, MONTH(reservation_check_in_date) as month_number, MONTHNAME(reservation_check_in_date) as month_name')
-            ->whereYear('reservation_check_in_date', $selectedYear)
-            ->groupBy('month_number', 'month_name')
-            ->orderByRaw('MONTH(reservation_check_in_date)')
-            ->get();
-    
-        $availableYears = DB::table('reservation_details')
-            ->selectRaw('distinct YEAR(created_at) as year')
-            ->orderBy('year')
-            ->pluck('year')
-            ->toArray();
-    
-        // Users Created Today
-        $latestUserDaysAgo = DB::table('users')->whereDate('created_at', Carbon::today())->count();
-    
-        // Payment-related statistics
-        $reservationStats = DB::table('reservation_details')
-            ->selectRaw("
-                SUM(payment_status = 'Paid') as totalTransactions,
-                SUM(payment_status = 'booked') as bookedReservations,
-                SUM(payment_status = 'pending') as pendingReservations,
-                SUM(payment_status = 'cancelled') as cancelledReservations
-            ")
-            ->first();
-    
-        // Total Revenue (Paid Reservations)
-        $totalRevenue = DB::table('reservation_details')
-        ->where('payment_status', 'Paid')
-        ->sum('amount');
-    
-        // Monthly Revenue Data
-        $monthlyRevenueData = DB::table('reservation_details')
-        ->whereIn('payment_status', ['Paid', 'booked'])
-        ->whereYear('reservation_check_in_date', $selectedYear)
-        ->selectRaw('MONTH(reservation_check_in_date) as month_number, MONTHNAME(reservation_check_in_date) as month_name, SUM(CAST(REPLACE(REPLACE(SUBSTRING(amount, 3), \',\', \'\'), \'₱\', \'\') AS DECIMAL(10, 2))) as total_revenue')
-        ->groupBy('month_number', 'month_name')
-        ->orderByRaw('CAST(month_number AS UNSIGNED)')
+    // Total Reservations - Daily (for selected year)
+    $dailyReservations = DB::table('reservation_details')
+        ->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as total'))
+        ->whereYear('created_at', $selectedYear)
+        ->groupBy('date')
+        ->orderBy('date', 'asc')
         ->get();
-    
-        // Create an array of months
-        $allMonths = [
-            'January', 'February', 'March', 'April', 'May', 'June', 
-            'July', 'August', 'September', 'October', 'November', 'December'
-        ];
-    
-        // Fill missing months with 0 revenue
-        $revenueData = array_map(function($month) use ($monthlyRevenueData) {
-            $data = $monthlyRevenueData->firstWhere('month_name', $month);
-            return [
-                'month_name' => $month,
-                'total_revenue' => $data ? $data->total_revenue : 0
-            ];
-        }, $allMonths);
-    
-        // Fetch latest reservations with package details
-        $latestReservations = DB::table('reservation_details')
-            ->join('packagestbl', 'reservation_details.package_id', '=', 'packagestbl.id')
-            ->leftJoin('accomodations', 'reservation_details.accomodation_id', '=', 'accomodations.accomodation_id')
-            ->leftJoin('activitiestbl', 'reservation_details.activity_id', '=', 'activitiestbl.id')
-            ->orderByDesc('reservation_details.created_at')
-            ->limit(1) // Fetch more than 1 for better testing
-            ->select([
-                'reservation_details.*',
-                'packagestbl.package_room_type', // Fetch raw JSON of room IDs
-                'packagestbl.package_max_guests',
-                'accomodations.accomodation_name as individual_accomodation',
-                'activitiestbl.activity_name'
-            ])
-            ->get();
-    
-        // Process and decode room types (from package_room_type)
-        foreach ($latestReservations as $reservation) {
-            if (!empty($reservation->package_room_type)) {
-                $roomTypeIds = json_decode($reservation->package_room_type, true); // Decode JSON array
+
+    // Weekly Reservations (for selected year)
+    $weeklyReservations = DB::table('reservation_details')
+        ->select(DB::raw('YEARWEEK(created_at, 1) as week'), DB::raw('count(*) as total'))
+        ->whereYear('created_at', $selectedYear)
+        ->groupBy('week')
+        ->orderBy('week', 'asc')
+        ->get();
+
+    // Monthly Reservations (for selected year)
+    $monthlyReservations = DB::table('reservation_details')
+        ->select(
+            DB::raw('DATE_FORMAT(reservation_check_in_date, "%b %Y") as month'), 
+            DB::raw('count(*) as total')
+        )
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->groupBy('month')
+        ->orderBy(DB::raw('MIN(reservation_check_in_date)'), 'asc')
+        ->get();
+
+    // Booking Trends - Last 12 months (regardless of year selection)
+    $bookingTrends = DB::table('reservation_details')
+        ->select(DB::raw("CONCAT(MONTHNAME(reservation_check_in_date), '-', YEAR(reservation_check_in_date)) as date"), DB::raw('count(*) as total'))
+        ->where('created_at', '>=', Carbon::now()->subMonths(12))
+        ->groupBy('date')
+        ->orderBy('date', 'asc')
+        ->get();
+
+    // Reservation Status Breakdown
+    $reservationStatusCounts = DB::table('reservation_details')
+        ->select('payment_status', DB::raw('count(*) as total'))
+        ->groupBy('payment_status')
+        ->pluck('total', 'payment_status');
+
+    // Paid Reservations
+    $paidReservations = DB::table('reservation_details')
+        ->select(DB::raw('payment_status'), DB::raw('count(*) as total'))
+        ->where('payment_status', 'paid')
+        ->groupBy('payment_status')
+        ->first();
+
+    // Pending Reservations
+    $pendingReservations = DB::table('reservation_details')
+        ->select(DB::raw('payment_status'), DB::raw('count(*) as total'))
+        ->where('payment_status', 'pending')
+        ->groupBy('payment_status')
+        ->first();
+
+    // Cancelled Reservations
+    $cancelledReservations = DB::table('reservation_details')
+        ->select(DB::raw('payment_status'), DB::raw('count(*) as total'))
+        ->where('payment_status', 'cancelled')
+        ->groupBy('payment_status')
+        ->first();
+
+    // Book Reservations
+    $bookReservations = DB::table('reservation_details')
+        ->select(DB::raw('payment_status'), DB::raw('count(*) as total'))
+        ->where('payment_status', 'booked')
+        ->groupBy('payment_status')
+        ->first();
+
+    // Latest Reservation
+    $latestReservations = DB::table('reservation_details')
+        ->select('name', 'reservation_check_in_date', 'reservation_check_out_date', 'accomodation_id')
+        ->orderBy('reservation_check_in_date', 'desc')
+        ->limit(4)
+        ->get();
+
+    // Room Type Utilization
+    $roomTypeUtilization = DB::table('reservation_details')
+    ->select('accomodation_id')
+    ->get()
+    ->flatMap(function($reservation) {
+        // Convert JSON or comma-separated IDs into an array
+        $accomodationIds = json_decode($reservation->accomodation_id, true);
         
-                if (is_array($roomTypeIds) && count($roomTypeIds) > 0) { // Ensure valid array
-                    // Fetch accommodation names from IDs
-                    $roomNames = DB::table('accomodations')
-                        ->whereIn('accomodation_id', $roomTypeIds)
-                        ->pluck('accomodation_name')
-                        ->toArray();
-        
-                    // Store formatted names in the reservation object
-                    $reservation->room_types = !empty($roomNames) ? implode(', ', $roomNames) : "N/A";
-                } else {
-                    $reservation->room_types = "N/A";
-                }
-            } else {
-                $reservation->room_types = "N/A";
-            }
+        if (!is_array($accomodationIds)) {
+            $accomodationIds = explode(',', $reservation->accomodation_id); // If stored as comma-separated
         }
+
+        return $accomodationIds;
+    })
+    ->map(function($id) {
+        return DB::table('accomodations')
+            ->select('accomodation_type')
+            ->where('accomodation_id', $id)
+            ->first();
+    })
+    ->groupBy('accomodation_type')
+    ->map(function($group) {
+        return count($group);
+    });
+
+    // Room Availability
+    $roomAvailability = DB::table('reservation_details')
+        ->select('reservation_check_in_date', 'reservation_check_out_date', 'accomodation_id')
+        ->get()
+        ->groupBy(function($reservation) {
+            return (new DateTime($reservation->reservation_check_in_date))->format('Y-m-d');
+        })
+        ->map(function($reservations) {
+            return $reservations->map(function($reservation) {
+                // Decode accomodation_id
+                $accomodationIds = json_decode($reservation->accomodation_id, true);
+                if (!is_array($accomodationIds)) {
+                    $accomodationIds = explode(',', $reservation->accomodation_id); // If stored as comma-separated
+                }
+
+                return DB::table('accomodations')
+                    ->select('accomodation_type')
+                    ->whereIn('accomodation_id', $accomodationIds)
+                    ->first();
+            })
+            ->pluck('accomodation_type')
+            ->unique()
+            ->values()
+            ->toArray();
+        });
     
-        return view('Adminside.dashboard', [
-            'adminCredentials' => $adminCredentials,
-            'revenueData' => $revenueData,
-            'totalRevenue' => $totalRevenue, 
-            'totalUsers' => $totalUsers,
-            'latestUser' => $latestUser,
-            'totalReservations' => $totalReservations,
-            'dailyBookings' => $dailyBookings,
-            'weeklyBookings' => $weeklyBookings,
-            'monthlyBookings' => $monthlyBookings,
-            'monthlyBookingsData' => $monthlyBookingsData,
-            'yearlyBookings' => $yearlyBookings,
-            'availableYears' => $availableYears,
-            'selectedYear' => $selectedYear,
-            'latestUserDaysAgo' => $latestUserDaysAgo,
-            'totalTransactions' => $reservationStats->totalTransactions ?? 0,
-            'bookedReservations' => $reservationStats->bookedReservations ?? 0,
-            'pendingReservations' => $reservationStats->pendingReservations ?? 0,
-            'cancelledReservations' => $reservationStats->cancelledReservations ?? 0,
-            'latestReservations' => $latestReservations,
-        ]);
-    }
+    // Pass the data to the view
+    return view('AdminSide.Dashboard', [
+        'adminCredentials' => $adminCredentials,
+        'totalBookings' => $totalBookings,
+        'totalGuests' => $totalGuests,
+        'dailyReservations' => $dailyReservations,
+        'weeklyReservations' => $weeklyReservations,
+        'monthlyReservations' => $monthlyReservations,
+        'availableYears' => $availableYears,
+        'selectedYear' => $selectedYear,
+        'bookingTrends' => $bookingTrends,
+        'reservationStatusCounts' => $reservationStatusCounts,
+        'paidReservations' => $paidReservations,
+        'pendingReservations' => $pendingReservations,
+        'cancelledReservations' => $cancelledReservations,
+        'bookReservations' => $bookReservations,
+        'latestReservations' => $latestReservations,
+        'roomTypeUtilization' => $roomTypeUtilization,
+        'roomAvailability' => $roomAvailability,
+    ]);
+}
+
     
-    public function editPrice()
-    {
-        // Get the entrance fee
-        $entranceFee = Transaction::first()->entrance_fee;
+    
+    public function editPrice(Request $request)
+{
+    // Get entrance fee
+    $entranceFee = Transaction::first()->entrance_fee;
 
-        // Get today's date
-        $today = Carbon::today();
+    // Query reservation details with filters
+    $query = DB::table('reservation_details');
 
-        // Calculate today's total revenue
-        $totalTodayRevenue = DB::table('reservation_details')
-            ->where('payment_status', 'Paid')
-            ->whereDate('reservation_check_in_date', $today)
-            ->selectRaw("SUM(CAST(REPLACE(REPLACE(amount, '₱', ''), ',', '') AS DECIMAL(10, 2))) as total_revenue")
-            ->first();
-        $dailyRevenue = $totalTodayRevenue ? $totalTodayRevenue->total_revenue : 0;
-
-        // Calculate this week's total revenue
-        $startOfWeek = Carbon::now()->startOfWeek();
-        $endOfWeek = Carbon::now()->endOfWeek();
-        $totalWeeklyRevenue = DB::table('reservation_details')
-            ->whereBetween('reservation_check_in_date', [$startOfWeek, $endOfWeek])
-            ->selectRaw("SUM(CAST(REPLACE(REPLACE(amount, '₱', ''), ',', '') AS DECIMAL(10, 2))) as total_revenue")
-            ->first();
-        $weeklyRevenue = $totalWeeklyRevenue ? $totalWeeklyRevenue->total_revenue : 0;
-
-        // Calculate this month's total revenue
-        $startOfMonth = Carbon::now()->startOfMonth();
-        $endOfMonth = Carbon::now()->endOfMonth();
-        $totalMonthlyRevenue = DB::table('reservation_details')
-            ->whereBetween('reservation_check_in_date', [$startOfMonth, $endOfMonth])
-            ->selectRaw("SUM(CAST(REPLACE(REPLACE(amount, '₱', ''), ',', '') AS DECIMAL(10, 2))) as total_revenue")
-            ->first();
-        $monthlyRevenue = $totalMonthlyRevenue ? $totalMonthlyRevenue->total_revenue : 0;
-
-        // Get all pending payments
-        $totalPendingPayment = DB::table('reservation_details')
-            ->where('payment_status', 'pending')
-            ->get();
-          
-        // Pass the data to the view
-        return view('AdminSide.Transactions', [
-            'entranceFee' => number_format($entranceFee, 2),
-            'dailyRevenue' => $dailyRevenue,
-            'weeklyRevenue' => $weeklyRevenue,
-            'monthlyRevenue' => $monthlyRevenue,
-            'totalPendingPayment' => $totalPendingPayment,
-        ]);
+    if ($request->filled('date')) {
+        $query->whereDate('reservation_check_in_date', $request->date);
     }
+
+    if ($request->filled('payment_status')) {
+        $query->where('payment_status', $request->payment_status);
+    }
+
+    if ($request->filled('reservation_status')) {
+        $query->where('reservation_status', $request->reservation_status);
+    }
+
+    // Fetch filtered transactions
+    $filteredTransactions = $query->paginate(10);
+
+    // Calculate total revenue (Daily, Weekly, Monthly)
+    $today = Carbon::today();
+    $dailyRevenue = DB::table('reservation_details')
+        ->where('payment_status', 'Paid')
+        ->whereDate('reservation_check_in_date', $today)
+        ->sum(DB::raw("CAST(REPLACE(REPLACE(amount, '₱', ''), ',', '') AS DECIMAL(10, 2))"));
+
+    $startOfWeek = Carbon::now()->startOfWeek();
+    $endOfWeek = Carbon::now()->endOfWeek();
+    $weeklyRevenue = DB::table('reservation_details')
+        ->whereBetween('reservation_check_in_date', [$startOfWeek, $endOfWeek])
+        ->sum(DB::raw("CAST(REPLACE(REPLACE(amount, '₱', ''), ',', '') AS DECIMAL(10, 2))"));
+
+    $startOfMonth = Carbon::now()->startOfMonth();
+    $endOfMonth = Carbon::now()->endOfMonth();
+    $monthlyRevenue = DB::table('reservation_details')
+        ->whereBetween('reservation_check_in_date', [$startOfMonth, $endOfMonth])
+        ->sum(DB::raw("CAST(REPLACE(REPLACE(amount, '₱', ''), ',', '') AS DECIMAL(10, 2))"));
+
+    // Get pending payments
+    $totalPendingPayment = DB::table('reservation_details')
+        ->where('payment_status', 'pending')
+        ->get();
+
+    return view('AdminSide.Transactions', [
+        'entranceFee' => number_format($entranceFee, 2),
+        'filteredTransactions' => $filteredTransactions,
+        'dailyRevenue' => $dailyRevenue,
+        'weeklyRevenue' => $weeklyRevenue,
+        'monthlyRevenue' => $monthlyRevenue,
+        'totalPendingPayment' => $totalPendingPayment,
+    ]);
+}
+
+
 
     public function updatePrice(Request $request)
     {

@@ -341,30 +341,7 @@
         </form>
     </div>
 
-    <!-- Feedback Modal -->
-    <div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content custom-modal">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="feedbackModalLabel">Rate Your Experience</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="rating-section">
-                        <div class="stars">
-                            <!-- Stars will be added via JavaScript -->
-                        </div>
-                        <label for="feedback" class="feedback-label">Your Feedback:</label>
-                        <textarea id="feedback" class="feedback-text" placeholder="Share your experience..."></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="submit-btn" data-bs-dismiss="modal">Submit Feedback</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    
     <!-- JavaScript -->
     <script>
     document.addEventListener("DOMContentLoaded", function () {

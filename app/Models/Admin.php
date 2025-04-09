@@ -9,10 +9,6 @@ class Admin extends Model
 {
     use HasFactory;
 
-    protected $table = 'admintbl';
-
-    protected $fillable = [
-        'username',
-        'password',
-    ];
+    protected $table = 'admintbl'; // your custom admin table
+    protected $fillable = ['username', 'role', 'password']; // customize as needed
 }

@@ -26,6 +26,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'image',
         'password',
         'google_id',
+        'otp', // MUST include this
+        'otp_expires_at',
         'email_verified_at',
     ];
 
@@ -47,6 +49,7 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'otp' => 'string'
     ];
 
 }
