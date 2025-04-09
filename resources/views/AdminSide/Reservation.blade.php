@@ -230,14 +230,57 @@
                             </tr>
                         @endforeach
                     </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="10" class="pt-4">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="text-muted">
+                                        Showing {{ $reservations->firstItem() }} to {{ $reservations->lastItem() }} of {{ $reservations->total() }} reservations
+                                    </div>
+                                    <nav aria-label="Page navigation">
+                                        <ul class="pagination mb-0">
+                                            {{-- Previous Page Link --}}
+                                            @if ($reservations->onFirstPage())
+                                                <li class="page-item disabled">
+                                                    <span class="page-link">&laquo;</span>
+                                                </li>
+                                            @else
+                                                <li class="page-item">
+                                                    <a class="page-link" href="{{ $reservations->previousPageUrl() }}" rel="prev">&laquo;</a>
+                                                </li>
+                                            @endif
+
+                                            {{-- Pagination Elements --}}
+                                            @foreach ($reservations->getUrlRange(1, $reservations->lastPage()) as $page => $url)
+                                                @if ($page == $reservations->currentPage())
+                                                    <li class="page-item active" aria-current="page">
+                                                        <span class="page-link">{{ $page }}</span>
+                                                    </li>
+                                                @else
+                                                    <li class="page-item">
+                                                        <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                                                    </li>
+                                                @endif
+                                            @endforeach
+
+                                            {{-- Next Page Link --}}
+                                            @if ($reservations->hasMorePages())
+                                                <li class="page-item">
+                                                    <a class="page-link" href="{{ $reservations->nextPageUrl() }}" rel="next">&raquo;</a>
+                                                </li>
+                                            @else
+                                                <li class="page-item disabled">
+                                                    <span class="page-link">&raquo;</span>
+                                                </li>
+                                            @endif
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </td>
+                        </tr>
+                    </tfoot>
+
                 </table>
-            </div>
-            <div class="d-flex justify-content-center mt-4 mb-3">
-                <nav aria-label="Page navigation">
-                    <ul class="pagination">
-                        {{ $reservations->links('pagination::bootstrap-4') }}
-                    </ul>
-                </nav>
             </div>
         </div>
     </div>
