@@ -252,21 +252,35 @@
                         </label>
                     </div>
 
-                    <!-- Privacy Policy Modal -->
-                    <div class="modal fade" id="privacyPolicyModal" tabindex="-1" aria-labelledby="privacyPolicyLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-lg">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title font-paragraph text-color-1" id="privacyPolicyLabel">Privacy Policy</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <p class="font-paragraph text-color-1">We collect and store your email and password securely for authentication purposes. Your data is protected and will not be shared without your consent. By using our service, you agree to our terms.</p>
-                                    <p  class="font-paragraph text-color-1">For more details, contact us at lelosresort@gmail.com</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                   
+<!-- Privacy Policy Modal -->
+<div class="modal fade" id="privacyPolicyModal" tabindex="-1" aria-labelledby="privacyPolicyLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" style="margin-top: 8vh;"> <!-- Adjust margin-top as needed -->
+    <div class="modal-content rounded-4 border-0" style="background-color: #f9f9f9;">
+
+      <!-- Header -->
+      <div class="modal-header bg-success text-white rounded-top-4 py-3">
+        <h5 class="modal-title fw-bold" id="privacyPolicyLabel">Privacy Policy</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Body -->
+      <div class="modal-body d-flex justify-content-center align-items-center px-4 py-3">
+        <div style="text-align: center;">
+          <p class="mb-3" style="font-size: 1rem; font-weight: bold;">
+            We collect and store your email and password securely for authentication purposes. Your data is protected and will not be shared without your consent. By using our service, you agree to our terms.
+          </p>
+          <p style="font-size: 1rem; font-weight: bold;">
+            For more details, contact us at 
+            <a href="mailto:lelosresort@gmail.com" class="text-decoration-none fw-bold text-success">lelosresort@gmail.com</a>.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 
                     <p class="text-center mt-2 text-color-1 font-paragraph" style="font-size: 0.85rem;">
                         Don't have an account? 
@@ -293,25 +307,40 @@
 
 <!-- OTP Modal (Bootstrap 5) -->
 <div class="modal fade" id="otpModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">OTP Verification</h5>
+  <div class="modal-dialog modal-md">
+    <div class="modal-content shadow-lg rounded-4">
+
+      <!-- HEADER -->
+      <div class="modal-header bg-success text-white py-3">
+        <h5 class="modal-title fw-bold">OTP Verification</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body">
-        <p>Enter the 6-digit OTP sent to <strong>{{ session('otp_email') }}</strong></p>
+
+      <!-- BODY -->
+      <div class="modal-body px-4">
+        <p class="mb-4">Enter the 6-digit OTP sent to <strong>{{ session('otp_email') }}</strong></p>
+
         <form id="otpForm" action="{{ route('verifyOTP') }}" method="POST">
           @csrf
           <input type="hidden" name="user_id" value="{{ session('otp_user_id') }}">
-          <div class="mb-3">
-            <input type="text" name="otp" class="form-control" placeholder="123456" required>
+
+          <div class="card p-3 shadow-sm border-0 mb-3">
+            <label for="otp" class="fw-bold text-success mb-2">OTP Code</label>
+            <input type="text" name="otp" id="otp" class="form-control p-2" placeholder="123456" required>
           </div>
-          <button type="submit" class="btn btn-primary">Verify</button>
+
+          <div class="text-center">
+            <button type="submit" class="btn btn-success fw-bold px-5 py-2 shadow-sm">
+              Verify
+            </button>
+          </div>
         </form>
       </div>
+
     </div>
   </div>
 </div>
+
 
 @if(session('show_otp_modal'))
   <script>
@@ -324,61 +353,77 @@
 @endif
 
 
-    <!-- Forgot Password Modal -->
-    <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="background-color: #97a97c;">
-            <div class="modal-header">
-                <h5 class="modal-title text-center text-color-1 font-paragraph fs-3" id="forgotPasswordModalLabel">Forgot Password</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<!-- Forgot Password Modal -->
+<div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-md">
+    <div class="modal-content rounded-4 border-0" style="background-color: #f8f9fa;">
+
+      <!-- HEADER -->
+      <div class="modal-header bg-success text-white py-3 rounded-top-4">
+        <h5 class="modal-title fw-bold" id="forgotPasswordModalLabel">Forgot Password</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- BODY -->
+      <div class="modal-body p-4">
+        @if (session('success'))
+          <div class="alert alert-success">
+            {{ session('success') }}
+          </div>
+        @endif
+
+        <form action="{{ route('forgot.reset') }}" method="POST" id="passwordResetForm">
+          @csrf
+          <meta name="csrf-token" content="{{ csrf_token() }}">
+
+          <!-- EMAIL -->
+          <div class="mb-3">
+            <label for="email" class="form-label fw-bold text-success">Email</label>
+            <input type="email" class="form-control" name="email" id="email" placeholder="Enter your email" required>
+          </div>
+
+          <!-- OTP -->
+          <div class="mb-3">
+            <label for="otp" class="form-label fw-bold text-success">OTP Code</label>
+            <div class="d-flex">
+              <input type="text" class="form-control me-2" name="otp" id="otp" placeholder="Enter OTP" required>
+              <button type="button" id="sendOTPBtn" class="btn btn-success" onclick="sendOTP()">Send OTP</button>
             </div>
-            <div class="modal-body">
-                @if (session('success'))
-                    <div class="alert alert-success">
-                        {{ session('success') }}
-                    </div>
-                @endif
-                <form action="{{ route('forgot.reset') }}" method="POST" class="p-3" id="passwordResetForm">
-                    @csrf
-                    <meta name="csrf-token" content="{{ csrf_token() }}">
-                    <div class="mb-3">
-                        <label for="email" class="form-label font-paragraph text-color-1">Email</label>
-                        <input type="email" class="form-control font-paragraph" name="email" id="email" placeholder="Enter your email" required>
-                    </div>
+          </div>
 
-                    <div class="mb-3">
-                        <label for="otp" class="form-label font-paragraph text-color-1">OTP Code</label>
-                        <div class="d-flex">
-                            <input type="text" class="form-control font-paragraph me-2" name="otp" id="otp" placeholder="Enter OTP" required>
-                            <button type="button" id="sendOTPBtn" class="btn btn-secondary" onclick="sendOTP()">Send OTP</button>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="password" class="form-label font-paragraph text-color-1">New Password</label>
-                        <input type="password" class="form-control font-paragraph" name="password" id="newPassword" placeholder="Enter new password" required>
-                        <div class="password-strength mt-1">
-                            <div class="progress" style="height: 5px;">
-                                <div id="passwordStrength" class="progress-bar" role="progressbar" style="width: 0%"></div>
-                            </div>
-                            <small id="passwordHelp" class="form-text text-muted"></small>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="password_confirmation" class="form-label font-paragraph text-color-1">Confirm Password</label>
-                        <input type="password" class="form-control font-paragraph" name="password_confirmation" id="confirmPassword" placeholder="Confirm your password" required>
-                        <div id="passwordMatch" class="mt-1"></div>
-                    </div>
-
-                    <button type="submit" class="color-background6 p-2 border-0 text-hover-1 font-paragraph color-3 rounded-2 w-100" id="submitBtn" disabled>
-                        Reset Password
-                    </button>
-                </form>
+          <!-- NEW PASSWORD -->
+          <div class="mb-3">
+            <label for="password" class="form-label fw-bold text-success">New Password</label>
+            <input type="password" class="form-control" name="password" id="newPassword" placeholder="Enter new password" required>
+            <div class="password-strength mt-2">
+              <div class="progress" style="height: 5px;">
+                <div id="passwordStrength" class="progress-bar" role="progressbar" style="width: 0%"></div>
+              </div>
+              <small id="passwordHelp" class="form-text text-muted"></small>
             </div>
-        </div>
+          </div>
+
+          <!-- CONFIRM PASSWORD -->
+          <div class="mb-3">
+            <label for="password_confirmation" class="form-label fw-bold text-success">Confirm Password</label>
+            <input type="password" class="form-control" name="password_confirmation" id="confirmPassword" placeholder="Confirm your password" required>
+            <div id="passwordMatch" class="mt-2"></div>
+          </div>
+
+          <!-- SUBMIT BUTTON -->
+          <div class="text-center mt-4">
+            <button type="submit" class="btn btn-success w-100 fw-bold py-2" id="submitBtn" disabled>
+              Reset Password
+            </button>
+          </div>
+        </form>
+      </div>
+
     </div>
+  </div>
 </div>
+
+
 
 <!-- Hidden Modal for Staff/Admin (Bootstrap Version) -->
 <div id="staffAdminModal" class="modal fade" tabindex="-1" aria-hidden="true">
