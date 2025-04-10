@@ -351,7 +351,7 @@ class StaffController extends Controller
     $request->validate([
         'payment_status' => 'required|string',
         'custom_message' => 'nullable|max:255',
-        'reservation_status' => 'required|in:Reserved,Checked-in,Checked-out,Cancelled',
+        'reservation_status' => 'required|in:reserved,checked-in,checked-out,cancelled',
     ]);
 
     // Fetch reservation details
@@ -374,9 +374,9 @@ class StaffController extends Controller
 
     // Determine new payment status based on reservation status
     $newPaymentStatus = $request->payment_status;
-    if ($request->reservation_status === 'Checked-out') {
+    if ($request->reservation_status === 'checked-out') {
         $newPaymentStatus = 'checked-out';
-    } elseif ($request->reservation_status === 'Cancelled') {
+    } elseif ($request->reservation_status === 'cancelled') {
         $newPaymentStatus = 'cancelled';
     }
 

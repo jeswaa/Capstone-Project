@@ -3,155 +3,326 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Anton&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <title>Guest</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="color-background5">
-    <div class="container-fluid">
-        <div class="row h-100">
-           
-            <!-- Main Content -->
-             <div class="col-md-9 col-12 main-content color-background3 rounded-start-50 ps-0 pe-0 mt-4 flex-column align-items-end ms-auto" >
-                 <!-- TOP SECTION -->
-                 <div class="color-background4 w-auto p-3 rounded-topright-50" id="main-content">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <form class="d-flex align-items-center w-75" role="search">
-                            <div class="input-group">
-                                <input type="search" class="form-control rounded-start-5 bg-light border border-secondary" placeholder="Search" aria-label="Search">
-                                <button class="btn btn-outline-success rounded-end-5" type="submit">
-                                    <i class="fa-solid fa-magnifying-glass"></i>
-                                </button>
-                            </div>
-                        </form>
-                        <div data-bs-toggle="tooltip" data-bs-placement="bottom" title="Admin's Profile">
-                            <a href="#"><i class="fa-regular fa-circle-user fs-1 text-decoration-none text-color-1"></i></a>
-                        </div>
-                    </div>
+<style>
+    .fancy-link {
+    text-decoration: none;
+    font-weight: 600;
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+.fancy-link::after {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 2px;
+    left: 0;
+    bottom: -2px;
+    background-color: #0b573d;
+    transition: width 0.3s ease;
+}
+
+.fancy-link:hover {
+    color: #0b573d;
+}
+
+.fancy-link:hover::after {
+    width: 100%;
+}
+.fancy-link.active::after {
+    width: 100% !important;
+}
+</style>
+<body style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
+    <div class="container-fluid min-vh-100 d-flex p-0">
+    @include('Alert.loginSuccessUser')
+        <!-- Side Navbar -->
+        <div class="col-md-3 col-lg-2 color-background8 text-white py-5 position-sticky" style="top: 0; height: 100vh;">
+            <div class="d-flex flex-column align-items-center">
+                <img src="{{ asset('images/default-profile.jpg') }}" alt="Profile Picture" class="rounded-circle w-50 mb-3 border border-5 border-white">
+                <p class="font-heading sidebar-text" data-bs-toggle="modal" data-bs-target="#editProfileModal" style="cursor: pointer;">Edit Profile</p>
+            </div>
+
+            <div class="d-flex flex-column px-4 mt-4">
+                <a href="{{ route('dashboard') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
+                    <i class="fas fa-tachometer-alt me-2 fs-5"></i> Dashboard
+                </a>
+                <a href="{{ route('reservations') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
+                    <i class="fas fa-calendar-alt me-2 fs-5"></i> Reservations
+                </a>
+                <a href="{{ route('guests') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
+                    <i class="fas fa-users me-2 fs-5"></i> Guests
+                </a>
+                <a href="{{ route('transactions') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
+                    <i class="fas fa-credit-card me-2 fs-5"></i> Transactions
+                </a>
+
+                <div class="dropdown py-2 mt-4">
+                    <a class="text-white text-decoration-none d-flex align-items-center dropdown-toggle" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-chart-line me-2 fs-5 text-underline-left-to-right"></i> Reports
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="reportsDropdown">
+                        <li><a class="dropdown-item" href="{{ route('reports') }}">Summary Report</a></li>
+                        <li><a class="dropdown-item" href="#">Activity Logs</a></li>
+                    </ul>
                 </div>
 
-                <!-- Main Content -->
-                 <div class="overflow-y-auto h-auto p-5">
-                    <div class="p-3 rounded-4 color-background4">
-                        <h1 class="fs-5 font-heading fw-bold text-color-1 mb-3">Guest Overview</h1>
-                        <div class="d-flex flex-row justify-content-between gap-1">
-                            <div class="text-color-1 font-paragraph  p-2 rounded color-background5">
-                                <h1 class="fs-6 font-heading text-color-1">Registered Guests</h1>
-                                <p class="fs-4 text-center color-3">{{ $users }}</p>
-                            </div>
-
-                            <div class="text-color-1 font-paragraph  p-2 rounded color-background5">
-                                <h1 class="fs-6 font-heading text-color-1">Checked-in</h1>
-                                <p class="fs-4 text-center color-3">#</p></div>
-
-                            <div class="text-color-1 font-paragraph  p-2 rounded color-background5">
-                                <h1 class="fs-6 font-heading text-color-1">Upcoming Reservations</h1>
-                                <p class="fs-4 text-center color-3">{{ $upcomingReservations }}</p></div>
-
-                            <div class="text-color-1 font-paragraph  p-2 rounded color-background5">
-                                <h1 class="fs-6 font-heading text-color-1">Cancellations / No-Shows: </h1>
-                                <p class="fs-4 text-center color-3">#</p></div>
-
-                            <div class="text-color-1 font-paragraph s p-2 rounded color-background5">
-                                <h1 class="fs-6 font-heading text-color-1">Guest Feedback & Complaints: </h1>
-                                <p class="fs-4 text-center color-3">#</p></div>
-                        </div>
-                    </div>
-
-                    <div class="p-3 mt-5">
-                    <h1 class="fs-5 font-heading fw-bold color-2 mb-3">Guest Information</h1>
-
-                    <!-- Search input with button -->
+                <a href="{{ route('logout') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
+                    <i class="fas fa-sign-out-alt me-2 fs-5"></i> Logout
+                </a>
+            </div>
+        </div>
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10 py-4 px-4">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h1 class="fw-semibold fs-1" style="font-family: 'Anton', sans-serif; color: #0b573d; letter-spacing: 0.2em;">GUEST</h1>
+                <form class="d-flex w-50 ms-5" role="search">
                     <div class="input-group">
-                    <div class="d-flex align-items-center w-100">
-                        <input type="search" id="search" class="form-control" placeholder="Search Guest Name" aria-label="Search">
-                        <button class="btn btn-outline-secondary ms-2 mb-3" id="search-btn">
-                            <i class="fas fa-search"></i> <!-- Search Icon -->
+                        <input type="search" class="form-control rounded-start-5 border-3 border-secondary" style="background-color: transparent; height: 40px;" placeholder="Search" aria-label="Search">
+                        <button class="btn btn-secondary h-75 rounded-end-5" style="color: #e9ffcc;" type="submit">
+                            <i class="fa-solid fa-magnifying-glass" ></i>
                         </button>
                     </div>
+                </form>
+                <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill me-3">
+            </div>
+
+            <hr class="border-5">
+
+            <div>
+                <h1 class="text-uppercase mt-5 ms-3" style="font-family: 'Anton', sans-serif; color: #0b573d; letter-spacing: 0.2em; font-size: 3rem;" >GUEST OVERVIEW</h1>
+
+                <!-- Cards -->
+                <div class="row g-4 mt-2">
+                    <!-- Registered Guests Card -->
+                    <div class="col-md-4">
+                        <div class="card border-0 rounded-4 shadow" style="background-color: #0b573d;">
+                            <div class="card-body text-white p-4">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h3 class="display-4 fw-bold">{{$totalGuests ?? 0}}</h3>
+                                        <p class="mb-0 font-paragraph">Registered Guests</p>
+                                    </div>
+                                    <i class="fas fa-user-plus fs-1"></i>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <script>
-                        document.addEventListener('DOMContentLoaded', function() {
-                            const searchInput = document.querySelector('#search');
-                            const tableBody = document.querySelector('tbody');
-                            const reservations = @json($reservations); // Pass PHP data to JavaScript
+                    <!-- Checked-in Guests Card -->
+                    <div class="col-md-4">
+                        <div class="card border-0 rounded-4 shadow" style="background-color: #0b573d;">
+                            <div class="card-body text-white p-4">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h3 class="display-4 fw-bold">{{$checkedInReservations ?? 0}}</h3>
+                                        <p class="mb-0 font-paragraph">Checked-in Guests</p>
+                                    </div>
+                                    <i class="fas fa-users fs-1"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                            // Function to filter table rows based on the search input
-                            function filterGuests(search) {
-                                // Clear the current table
-                                tableBody.innerHTML = '';
+                    <!-- Upcoming Reservations Card -->
+                    <div class="col-md-4">
+                        <div class="card border-0 rounded-4 shadow" style="background-color: #0b573d;">
+                            <div class="card-body text-white p-4">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h3 class="display-4 fw-bold">{{$reservedCount ?? 0}}</h3>
+                                        <p class="mb-0 font-paragraph">Reserved Reservations</p>
+                                    </div>
+                                    <i class="fas fa-calendar-check fs-1"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                                // Filter the reservations by guest name (case insensitive)
-                                const filteredGuests = reservations.filter(guest => {
-                                    return guest.name.toLowerCase().includes(search.toLowerCase());
-                                });
+                    <!-- Cancellations/No Shows Card -->
+                    <div class="col-md-6">
+                        <div class="card border-0 rounded-4 shadow" style="background-color: #0b573d;">
+                            <div class="card-body text-white p-4">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h3 class="display-4 fw-bold">{{$cancelledReservations ?? 0}}</h3>
+                                        <p class="mb-0 font-paragraph">Cancellations/No Shows</p>
+                                    </div>
+                                    <i class="fas fa-calendar-xmark fs-1"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                                // If no guests match the search, show a "No results found" message
-                                if (filteredGuests.length === 0) {
-                                    const row = document.createElement('tr');
-                                    row.innerHTML = `<td colspan="5" class="text-center">No results found</td>`;
-                                    tableBody.appendChild(row);
-                                } else {
-                                    // Append the filtered guests to the table
-                                    filteredGuests.forEach(guest => {
-                                        const row = document.createElement('tr');
-                                        row.innerHTML = `
-                                            <td>${guest.name}</td>
-                                            <td>${guest.email}</td>
-                                            <td>${guest.mobileNo}</td>
-                                            <td>${guest.reservation_check_in}</td>
-                                            <td>${guest.reservation_check_out}</td>
-                                        `;
-                                        tableBody.appendChild(row);
-                                    });
-                                }
-                            }
-
-                            // Search event listener (triggered when typing or clicking search button)
-                            searchInput.addEventListener('input', function() {
-                                const search = searchInput.value.trim();
-                                filterGuests(search); // Filter the guest list based on the input value
-                            });
-
-                            // Initial display of all records when the page loads
-                            filterGuests('');
-                        });
-                    </script>
-
-                    <!-- Table -->
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th scope="col">Guest Name</th>
-                                <th scope="col">Email</th>
-                                <th scope="col">Phone Number</th>
-                                <th scope="col">Check-in</th>
-                                <th scope="col">Check-out</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($reservations as $reservation)
-                            <tr>
-                                <td>{{ $reservation->name }}</td>
-                                <td>{{ $reservation->email }}</td>
-                                <td>{{ $reservation->mobileNo}}</td>
-                                <td>{{ $reservation->reservation_check_in }}</td>
-                                <td>{{ $reservation->reservation_check_out }}</td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                    <!-- Guest Feedback & Complaints Card -->
+                    <div class="col-md-6">
+                        <div class="card border-0 rounded-4 shadow" style="background-color: #0b573d;">
+                            <div class="card-body text-white p-4">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h3 class="display-4 fw-bold">1</h3>
+                                        <p class="mb-0 font-paragraph">Guest Feedback & Complaints</p>
+                                    </div>
+                                    <i class="fas fa-comments fs-1"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+            </div>
 
-                 </div>
+            <!-- Guest List -->
+             <div class="mt-5">
+                <h1 class="text-uppercase mt-5 ms-3" style="font-family: 'Anton', sans-serif; color: #0b573d; letter-spacing: 0.2em; font-size: 2.5rem;">Guest Information</h1>
+                <!-- Search input with button -->
+                <div class="input-group mb-2">
+                    <input type="search" 
+                           id="search" 
+                           class="form-control py-2 ps-4 rounded-start-pill border-2" 
+                           style="background-color: #f8f9fa; box-shadow: 0 2px 4px rgba(0,0,0,0.04); height: 45px;"
+                           placeholder="Search guest name..."
+                           aria-label="Search">
+                    <button class="btn rounded-end-pill border-2 border-start-0" 
+                            id="search-btn"
+                            style="color: #0b573d; background-color: #f8f9fa; height: 45px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                    
+                <!-- Table -->
+                    <div class="bg-white shadow-lg rounded-4 p-4 mt-1">
+                        <table class="table table-hover table-borderless mb-0">
+                            <thead>
+                                <tr class="text-white p-2" style="background-color: #0b573d;">
+                                    <th scope="col">Guest Name</th>
+                                    <th scope="col">Email</th>
+                                    <th scope="col">Phone Number</th>
+                                    <th scope="col">Check-in</th>
+                                    <th scope="col">Check-out</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($reservations as $reservation)
+                                <tr>
+                                    <td >{{ $reservation->name }}</td>
+                                    <td>{{ $reservation->email }}</td>
+                                    <td>{{ $reservation->mobileNo}}</td>
+                                    <td>{{ $reservation->reservation_check_in }}</td>
+                                    <td>{{ $reservation->reservation_check_out }}</td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="5">
+                                        <div class="">
+                                            <div>
+                                                @if($reservations->count() > 0)
+                                                    Showing {{ $reservations->firstItem() }}
+                                                    to {{ min($reservations->currentPage() * $reservations->perPage(), $reservations->total()) }} 
+                                                    of {{ $reservations->total() }} Guest
+                                                @else
+                                                    Showing 0 to 0 of 0 entries
+                                                @endif
+                                            </div>
+                                            <div>
+                                                {{ $reservations->links('pagination::bootstrap-5') }}
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
              </div>
         </div>
     </div>
-     <!-- SIDE NAV BAR -->
-     @include('Navbar.sidenavbar')
 
+    <!-- Scripts -->
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.querySelector('#search');
+        const tableBody = document.querySelector('tbody');
+        const reservationsData = @json($reservations->items()); // Get the actual array of items
+
+        // Function to filter table rows based on the search input
+        function filterGuests(search) {
+            // Clear the current table
+            tableBody.innerHTML = '';
+
+            // Convert reservationsData to array if it's not already
+            const reservationsArray = Array.isArray(reservationsData) ? reservationsData : [reservationsData];
+
+            // Filter the reservations by guest name (case insensitive)
+            const filteredGuests = reservationsArray.filter(guest => {
+                return guest && guest.name && guest.name.toLowerCase().includes(search.toLowerCase());
+            });
+
+            // If no guests match the search, show a "No results found" message
+            if (filteredGuests.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td colspan="5" class="text-center py-3 px-4">
+                        <div class="d-flex justify-content-center align-items-center">
+                            No results found
+                        </div>
+                    </td>`;
+                tableBody.appendChild(row);
+            } else {
+                // Append the filtered guests to the table
+                filteredGuests.forEach(guest => {
+                    const row = document.createElement('tr');
+                    row.className = '';
+                    row.innerHTML = `
+                        <td class="">
+                            <div>
+                                ${guest.name}
+                            </div>
+                        </td>
+                        <td >
+                            <div>
+                                ${guest.email}
+                            </div>
+                        </td>
+                        <td >
+                            <div>
+                                ${guest.mobileNo}
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                ${guest.reservation_check_in}
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                ${guest.reservation_check_out}
+                            </div>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
+        }
+
+        // Search event listener (triggered when typing or clicking search button)
+        searchInput.addEventListener('input', function() {
+            const search = searchInput.value.trim();
+            filterGuests(search); // Filter the guest list based on the input value
+        });
+
+        // Initial display of all records when the page loads
+        filterGuests('');
+    });
+</script>
 </body>
 </html>
 

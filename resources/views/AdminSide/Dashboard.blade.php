@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
     <title>Dashboard</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -84,7 +86,7 @@
                                     <div class="color-background8 text-white rounded-4 p-3 d-flex justify-content-between align-items-center">
                                         <div>
                                             <h3 class="fw-bold mb-0">{{$totalBookings ?? 0 }}</h3>
-                                            <small class="font-paragraph fs-5 fw-semibold">Total Bookings</small>
+                                            <small class="font-paragraph fs-5 fw-semibold">Total Reservation Today</small>
                                         </div>
                                         <i class="fas fa-calendar-alt fs-4"></i>
                                     </div>
@@ -103,40 +105,40 @@
                                 <div class="col-6">
                                     <div class="color-background8 text-white rounded-4 p-3 d-flex justify-content-between align-items-center">
                                         <div>
-                                            <h3 class="fw-bold mb-0">{{ $paidReservations->total ?? 0 }}</h3>
-                                            <small class="font-paragraph fs-5 fw-semibold">Paid Reservations</small>
+                                            <h3 class="fw-bold mb-0">{{ $checkInReservations->total ?? 0 }}</h3>
+                                            <small class="font-paragraph fs-5 fw-semibold">Total Check-Ins Today</small>
                                         </div>
-                                        <i class="fas fa-cash-register fs-4"></i>
+                                        <i class="fas fa-door-open fs-4"></i>
                                     </div>
                                 </div>
 
                                 <div class="col-6">
                                     <div class="color-background8 text-white rounded-4 p-3 d-flex justify-content-between align-items-center">
                                         <div>
-                                            <h3 class="fw-bold mb-0">{{ $pendingReservations->total ?? 0 }}</h3>
-                                            <small class="font-paragraph fs-5 fw-semibold">Pending Reservations</small>
+                                            <h3 class="fw-bold mb-0">{{ $checkOutReservations->total ?? 0 }}</h3>
+                                            <small class="font-paragraph fs-5 fw-semibold">Total Check-outs Today</small>
                                         </div>
-                                        <i class="fas fa-file-invoice fs-4"></i>
+                                        <i class="fas fa-luggage-cart"></i>
                                     </div>
                                 </div>
 
                                 <div class="col-6">
                                     <div class="color-background8 text-white rounded-4 p-3 d-flex justify-content-between align-items-center">
                                         <div>
-                                            <h3 class="fw-bold mb-0">{{ $bookReservations->total ?? 0 }}</h3>
-                                            <small class="font-paragraph fs-5 fw-semibold">Book Reservations</small>
+                                            <h3 class="fw-bold mb-0">{{ $guestsOnSite->total ?? 0 }}</h3>
+                                            <small class="font-paragraph fs-5 fw-semibold">Total Guests On-site</small>
                                         </div>
-                                        <i class="fas fa-book fs-4"></i>
+                                        <i class="fas fa-person-booth fs-4"></i>
                                     </div>
                                 </div>
 
                                 <div class="col-6">
                                     <div class="color-background8 text-white rounded-4 p-3 d-flex justify-content-between align-items-center">
                                         <div>
-                                            <h3 class="fw-bold mb-0">{{$cancelledReservations->total ?? 0}}</h3>
-                                            <small class="font-paragraph fs-5 fw-semibold">Cancelled Reservations</small>
+                                            <h3 class="fw-bold mb-0">₱{{ number_format($todayIncome ?? 0, 2) }}</h3>
+                                            <small class="font-paragraph fs-5 fw-semibold">Total Income Today</small>
                                         </div>
-                                        <i class="fas fa-times-circle fs-4"></i>
+                                        <i class="fas fa-money-bill fs-4"></i>
                                     </div>
                                 </div>
                             </div>
@@ -144,20 +146,27 @@
 
                         <!-- Latest Reservations Sidebar -->
                         <div class="col-lg-4 mt-3 mt-lg-0">
-                            <div class="bg-white rounded-4 shadow p-3 border border-success border-4" style="height: 100%;">
-                                <h5 class="fw-bold mb-3">📌 Latest Reservations</h5>
+                            <!-- Latest Reservations Card (with reduced height) -->
+                            <div class="bg-white rounded-4 shadow p-3 border border-success border-4">
+                                <h5 class="fw-bold">Pending Reservations</h5>
 
                                 <ul class="list-group list-group-flush">
                                     @foreach ($latestReservations as $reservation)
-                                        <li class="list-group-item d-flex justify-content-between">
+                                        <li class="list-group-item d-flex justify-content-between mt-1">
                                             <span>{{ $reservation->name }}</span>
                                             <small class="text-muted">{{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('M d') }}</small>
                                         </li>
                                     @endforeach
                                 </ul>
-
-                                <div class="text-end mt-2">
-                                    <a href="#" class="btn btn-sm btn-outline-success">View All</a>
+                            </div>
+                            <!-- New Card Above Latest Reservations -->
+                           <div class="color-background8 text-white rounded-4 p-3 mb-3 mt-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h3 class="fw-bold mb-0">{{$cancelledReservations->total ?? 0}}</h3>
+                                        <small class="font-paragraph fs-5 fw-semibold">Cancelled Reservations</small>
+                                    </div>
+                                    <i class="fas fa-times-circle fs-4"></i>
                                 </div>
                             </div>
                         </div>
@@ -170,6 +179,46 @@
 
                         <!-- Charts -->
                         <div id="chartSection1" class="chart-section">
+                            <div class="shadow-lg rounded-4 p-4 bg-white mt-4">
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <h3 class="text-color-1 font-paragraph fw-bold mb-0">Availability Calendar</h3>
+                                    
+                                    <!-- Year filter dropdown -->
+                                    <div class="d-flex align-items-center">
+                                        <label for="calendarYearFilter" class="form-label mb-0 me-2 font-paragraph fw-semibold">Year:</label>
+                                        <select id="calendarYearFilter" class="form-control" style="width: 120px;">
+                                            @foreach($availableYears as $year)
+                                                <option value="{{ $year }}" {{ $year == $selectedYear ? 'selected' : '' }}>{{ $year }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <!-- Calendar navigation is handled by FullCalendar -->
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <div class="d-flex align-items-center me-3">
+                                            <div class="bg-success rounded-circle me-2" style="width: 15px; height: 15px;"></div>
+                                            <small>Available</small>
+                                        </div>
+                                        <div class="d-flex align-items-center me-3">
+                                            <div class="bg-warning rounded-circle me-2" style="width: 15px; height: 15px;"></div>
+                                            <small>Partially Booked</small>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-danger rounded-circle me-2" style="width: 15px; height: 15px;"></div>
+                                            <small>Fully Booked</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- FullCalendar container -->
+                                <div id="calendar" style="height: 500px;"></div>
+                            </div>
+                        </div>
+                        <div id="chartSection2" class="chart-section d-none">
                             <div class="d-flex justify-content-between align-items-center mt-5">
                                 <h1 class="text-color-1 font-paragraph fw-bold" style="font-size: 50px;">Reservation Overview</h1>
 
@@ -227,7 +276,7 @@
                             </div>
                         </div>
 
-                        <div id="chartSection2" class="chart-section d-none">
+                        <div id="chartSection3" class="chart-section d-none">
                             <div class="d-flex justify-content-between align-items-center mt-5">
                                 <h1 class="text-color-1 font-paragraph fw-semibold" style="font-size: 30px;">What Guests Book the Most?</h1>
                             </div>
@@ -249,241 +298,241 @@
 
     <!-- SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-const dailyData = @json($dailyReservations);
-const weeklyData = @json($weeklyReservations);
-const monthlyData = @json($monthlyReservations);
+<script>
+    const dailyData = @json($dailyReservations);
+    const weeklyData = @json($weeklyReservations);
+    const monthlyData = @json($monthlyReservations);
 
-const ctx = document.getElementById('reservationChart').getContext('2d');
-let chart;
+    const ctx = document.getElementById('reservationChart').getContext('2d');
+    let chart;
 
-console.log("Initial Data Loaded:", {
-    dailyData: dailyData,
-    weeklyData: weeklyData,
-    monthlyData: monthlyData
-});
+    console.log("Initial Data Loaded:", {
+        dailyData: dailyData,
+        weeklyData: weeklyData,
+        monthlyData: monthlyData
+    });
 
-// Build Chart Function
-function buildChart(data, label, labelKey) {
-    if (chart) chart.destroy();
+    // Build Chart Function
+    function buildChart(data, label, labelKey) {
+        if (chart) chart.destroy();
 
-    if (data.labels.length === 0) {
-        data = {
-            labels: ['No Data Available'],
-            data: [0]
-        };
-    }
+        if (data.labels.length === 0) {
+            data = {
+                labels: ['No Data Available'],
+                data: [0]
+            };
+        }
 
-    chart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: data.labels,
-            datasets: [{
-                label: label,
-                data: data.data,
-                backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Number of Reservations'
+        chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    label: label,
+                    data: data.data,
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Reservations'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: labelKey === 'date' ? 'Date' : labelKey === 'week' ? 'Week' : 'Month'
+                        }
                     }
                 },
-                x: {
-                    title: {
-                        display: true,
-                        text: labelKey === 'date' ? 'Date' : labelKey === 'week' ? 'Week' : 'Month'
-                    }
-                }
-            },
-            plugins: {
-                legend: { display: true },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            if (context.label === 'No Data Available') {
-                                return 'No reservations for selected period';
+                plugins: {
+                    legend: { display: true },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                if (context.label === 'No Data Available') {
+                                    return 'No reservations for selected period';
+                                }
+                                return `${context.dataset.label}: ${context.raw}`;
                             }
-                            return `${context.dataset.label}: ${context.raw}`;
                         }
                     }
                 }
             }
-        }
-    });
-}
-
-// Monthly Data Generator
-function generateAllMonthsData(selectedYear) {
-    const allMonths = [];
-    const allMonthLabels = [];
-
-    for (let month = 0; month < 12; month++) {
-        const monthDate = new Date(selectedYear, month, 1);
-        const monthLabel = monthDate.toLocaleString('default', { month: 'short' });
-        allMonthLabels.push(monthLabel);
-
-        const foundMonth = monthlyData.find(item => {
-            try {
-                const dataDate = new Date(item.month + '-01');
-                return dataDate.getFullYear() === parseInt(selectedYear) && dataDate.getMonth() === month;
-            } catch (e) {
-                console.error("Error parsing month:", item.month, e);
-                return false;
-            }
         });
-
-        allMonths.push(foundMonth ? foundMonth.total : 0);
     }
 
-    return {
-        labels: allMonthLabels,
-        data: allMonths
-    };
-}
+    // Monthly Data Generator
+    function generateAllMonthsData(selectedYear) {
+        const allMonths = [];
+        const allMonthLabels = [];
 
-// Weekly Data Generator
-function generateAllWeeksData(selectedYear, filteredData) {
-    const allWeeks = Array.from({ length: 52 }, (_, i) => i + 1);
-    const weekDataMap = {};
+        for (let month = 0; month < 12; month++) {
+            const monthDate = new Date(selectedYear, month, 1);
+            const monthLabel = monthDate.toLocaleString('default', { month: 'short' });
+            allMonthLabels.push(monthLabel);
 
-    // Store totals in a map by week number
-    filteredData.forEach(item => {
-        const weekNum = parseInt(String(item.week).slice(-2));
-        weekDataMap[weekNum] = item.total;
-    });
-
-    const allWeekData = [];
-    const allWeekLabels = [];
-
-    allWeeks.forEach(week => {
-        // Get the Monday of that week in the selected year
-        const firstDayOfYear = new Date(selectedYear, 0, 1);
-        const day = firstDayOfYear.getDay(); // Sunday = 0, Monday = 1, ...
-        const diff = (day <= 4 ? day - 1 : day - 8); // Adjust for ISO weeks
-        const monday = new Date(firstDayOfYear.setDate(firstDayOfYear.getDate() - diff + (week - 1) * 7));
-
-        const label = monday.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        });
-
-        allWeekLabels.push(label);
-        allWeekData.push(weekDataMap[week] || 0);
-    });
-
-    console.log("Generated weeks data:", {
-        labels: allWeekLabels,
-        data: allWeekData
-    });
-
-    return {
-        labels: allWeekLabels,
-        data: allWeekData
-    };
-}
-
-
-// Main Filter Function
-function filterData(selectedTimeFilter, selectedYear) {
-    selectedYear = parseInt(selectedYear);
-
-    if (selectedTimeFilter === 'daily') {
-        const filteredData = dailyData.filter(item => {
-            try {
-                const itemDate = new Date(item.date);
-                return itemDate.getFullYear() === selectedYear;
-            } catch (e) {
-                console.error("Error parsing date:", item.date, e);
-                return false;
-            }
-        });
-
-        filteredData.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-        return {
-            labels: filteredData.map(item => new Date(item.date).toLocaleDateString()),
-            data: filteredData.map(item => item.total)
-        };
-    } 
-    
-    else if (selectedTimeFilter === 'weekly') {
-        const filteredData = weeklyData.filter(item => {
-            try {
-                const weekStr = String(item.week);
-                let yearFromWeek;
-
-                if (weekStr.includes('-')) {
-                    yearFromWeek = parseInt(weekStr.split('-')[0]);
-                } else if (weekStr.length === 6) {
-                    yearFromWeek = parseInt(weekStr.substring(0, 4));
-                } else {
-                    console.warn("Unrecognized week format:", item.week);
+            const foundMonth = monthlyData.find(item => {
+                try {
+                    const dataDate = new Date(item.month + '-01');
+                    return dataDate.getFullYear() === parseInt(selectedYear) && dataDate.getMonth() === month;
+                } catch (e) {
+                    console.error("Error parsing month:", item.month, e);
                     return false;
                 }
+            });
 
-                return yearFromWeek === selectedYear;
-            } catch (e) {
-                console.error("Error parsing week:", item.week, e);
-                return false;
-            }
-        });
+            allMonths.push(foundMonth ? foundMonth.total : 0);
+        }
 
-        filteredData.sort((a, b) => {
-            const weekA = parseInt(String(a.week).slice(-2));
-            const weekB = parseInt(String(b.week).slice(-2));
-            return weekA - weekB;
-        });
-
-        return generateAllWeeksData(selectedYear, filteredData);
-    } 
-    
-    else if (selectedTimeFilter === 'monthly') {
-        return generateAllMonthsData(selectedYear);
+        return {
+            labels: allMonthLabels,
+            data: allMonths
+        };
     }
-}
 
-// Time Filter Event
-document.getElementById('timeFilter').addEventListener('change', function () {
-    const selectedTimeFilter = this.value;
-    const selectedYear = document.getElementById('yearFilter').value;
+    // Weekly Data Generator
+    function generateAllWeeksData(selectedYear, filteredData) {
+        const allWeeks = Array.from({ length: 52 }, (_, i) => i + 1);
+        const weekDataMap = {};
 
-    const chartData = filterData(selectedTimeFilter, selectedYear);
-    const label = selectedTimeFilter === 'daily' ? 'Daily Reservations' :
-                  selectedTimeFilter === 'weekly' ? 'Weekly Reservations' : 'Monthly Reservations';
+        // Store totals in a map by week number
+        filteredData.forEach(item => {
+            const weekNum = parseInt(String(item.week).slice(-2));
+            weekDataMap[weekNum] = item.total;
+        });
 
-    buildChart(chartData, label, selectedTimeFilter.slice(0, -2));
-});
+        const allWeekData = [];
+        const allWeekLabels = [];
 
-// Year Filter Event
-document.getElementById('yearFilter').addEventListener('change', function () {
-    const selectedYear = this.value;
-    const selectedTimeFilter = document.getElementById('timeFilter').value;
-    window.location.href = `?year=${selectedYear}&timeFilter=${selectedTimeFilter}`;
-});
+        allWeeks.forEach(week => {
+            // Get the Monday of that week in the selected year
+            const firstDayOfYear = new Date(selectedYear, 0, 1);
+            const day = firstDayOfYear.getDay(); // Sunday = 0, Monday = 1, ...
+            const diff = (day <= 4 ? day - 1 : day - 8); // Adjust for ISO weeks
+            const monday = new Date(firstDayOfYear.setDate(firstDayOfYear.getDate() - diff + (week - 1) * 7));
 
-// Initial Load
-const currentYear = new Date().getFullYear();
-const urlParams = new URLSearchParams(window.location.search);
-const yearParam = urlParams.get('year') || currentYear;
-const timeFilterParam = urlParams.get('timeFilter') || 'daily';
+            const label = monday.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
 
-document.getElementById('yearFilter').value = yearParam;
-document.getElementById('timeFilter').value = timeFilterParam;
+            allWeekLabels.push(label);
+            allWeekData.push(weekDataMap[week] || 0);
+        });
 
-const initialData = filterData(timeFilterParam, yearParam);
-const initialLabel = timeFilterParam === 'daily' ? 'Daily Reservations' :
-                     timeFilterParam === 'weekly' ? 'Weekly Reservations' : 'Monthly Reservations';
+        console.log("Generated weeks data:", {
+            labels: allWeekLabels,
+            data: allWeekData
+        });
 
-buildChart(initialData, initialLabel, timeFilterParam.slice(0, -2));
+        return {
+            labels: allWeekLabels,
+            data: allWeekData
+        };
+    }
+
+
+    // Main Filter Function
+    function filterData(selectedTimeFilter, selectedYear) {
+        selectedYear = parseInt(selectedYear);
+
+        if (selectedTimeFilter === 'daily') {
+            const filteredData = dailyData.filter(item => {
+                try {
+                    const itemDate = new Date(item.date);
+                    return itemDate.getFullYear() === selectedYear;
+                } catch (e) {
+                    console.error("Error parsing date:", item.date, e);
+                    return false;
+                }
+            });
+
+            filteredData.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            return {
+                labels: filteredData.map(item => new Date(item.date).toLocaleDateString()),
+                data: filteredData.map(item => item.total)
+            };
+        } 
+        
+        else if (selectedTimeFilter === 'weekly') {
+            const filteredData = weeklyData.filter(item => {
+                try {
+                    const weekStr = String(item.week);
+                    let yearFromWeek;
+
+                    if (weekStr.includes('-')) {
+                        yearFromWeek = parseInt(weekStr.split('-')[0]);
+                    } else if (weekStr.length === 6) {
+                        yearFromWeek = parseInt(weekStr.substring(0, 4));
+                    } else {
+                        console.warn("Unrecognized week format:", item.week);
+                        return false;
+                    }
+
+                    return yearFromWeek === selectedYear;
+                } catch (e) {
+                    console.error("Error parsing week:", item.week, e);
+                    return false;
+                }
+            });
+
+            filteredData.sort((a, b) => {
+                const weekA = parseInt(String(a.week).slice(-2));
+                const weekB = parseInt(String(b.week).slice(-2));
+                return weekA - weekB;
+            });
+
+            return generateAllWeeksData(selectedYear, filteredData);
+        } 
+        
+        else if (selectedTimeFilter === 'monthly') {
+            return generateAllMonthsData(selectedYear);
+        }
+    }
+
+    // Time Filter Event
+    document.getElementById('timeFilter').addEventListener('change', function () {
+        const selectedTimeFilter = this.value;
+        const selectedYear = document.getElementById('yearFilter').value;
+
+        const chartData = filterData(selectedTimeFilter, selectedYear);
+        const label = selectedTimeFilter === 'daily' ? 'Daily Reservations' :
+                    selectedTimeFilter === 'weekly' ? 'Weekly Reservations' : 'Monthly Reservations';
+
+        buildChart(chartData, label, selectedTimeFilter.slice(0, -2));
+    });
+
+    // Year Filter Event
+    document.getElementById('yearFilter').addEventListener('change', function () {
+        const selectedYear = this.value;
+        const selectedTimeFilter = document.getElementById('timeFilter').value;
+        window.location.href = `?year=${selectedYear}&timeFilter=${selectedTimeFilter}`;
+    });
+
+    // Initial Load
+    const currentYear = new Date().getFullYear();
+    const urlParams = new URLSearchParams(window.location.search);
+    const yearParam = urlParams.get('year') || currentYear;
+    const timeFilterParam = urlParams.get('timeFilter') || 'daily';
+
+    document.getElementById('yearFilter').value = yearParam;
+    document.getElementById('timeFilter').value = timeFilterParam;
+
+    const initialData = filterData(timeFilterParam, yearParam);
+    const initialLabel = timeFilterParam === 'daily' ? 'Daily Reservations' :
+                        timeFilterParam === 'weekly' ? 'Weekly Reservations' : 'Monthly Reservations';
+
+    buildChart(initialData, initialLabel, timeFilterParam.slice(0, -2));
 </script>
    
 <script>
@@ -725,6 +774,186 @@ buildBookingTrendsChart(bookingTrendsData);
     // Initial display
     showChartSection(currentChartIndex);
 </script>
+<!-- Calendar Widget Script -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get calendar data from PHP
+        const calendarData = @json($calendarData);
+        console.log('Initial calendar data:', calendarData);
+        
+        // Get the selected year from the filter
+        const yearFilter = document.getElementById('calendarYearFilter');
+        let selectedYear = yearFilter.value;
+        console.log('Initial selected year:', selectedYear);
 
+        function filterEventsByYear(events, year) {
+            const filtered = events.filter(event => {
+                const eventYear = new Date(event.start).getFullYear();
+                return eventYear.toString() === year.toString();
+            });
+            console.log(`Filtered events for year ${year}:`, filtered);
+            return filtered;
+        }
+
+        // Convert calendar data to FullCalendar events
+        const allEvents = calendarData.map(data => {
+            try {
+                const eventDate = new Date(data.date);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                // Check if date is in the past
+                const isPastDate = eventDate < today;
+
+                return {
+                    title: isPastDate ? 'Past Date' : 
+                           data.status === 'available' ? 'Available' :
+                           data.status === 'booked' ? 'Fully Booked' :
+                           `${Math.round((data.booked / (data.available + data.booked)) * 100)}% Booked`,
+                    start: data.date,
+                    backgroundColor: isPastDate ? '#808080' : data.color,
+                    borderColor: isPastDate ? '#808080' : data.color,
+                    textColor: '#fff',
+                    extendedProps: {
+                        available: isPastDate ? 0 : data.available,
+                        booked: data.booked,
+                        status: isPastDate ? 'past' : data.status,
+                        isPastDate: isPastDate
+                    }
+                };
+            } catch (error) {
+                console.error('Error processing calendar data:', error);
+                return null;
+            }
+        }).filter(event => event !== null);
+
+        console.log('All events after mapping:', allEvents);
+
+        // Filter events for initial year
+        let filteredEvents = filterEventsByYear(allEvents, selectedYear);
+        
+        if (filteredEvents.length === 0) {
+            // Display message when no data is available for selected year
+            const calendarEl = document.getElementById('calendar');
+            calendarEl.innerHTML = `
+                <div class="alert alert-info text-center my-3">
+                    <i class="fas fa-info-circle me-2"></i>
+                    No reservation data available for year ${selectedYear}. 
+                    <br>
+                    This could be because:
+                    <ul class="list-unstyled mt-2">
+                        <li>- No reservations have been made for this year</li>
+                        <li>- The data hasn't been loaded properly</li>
+                        <li>- There might be an error in the data format</li>
+                    </ul>
+                </div>
+            `;
+            return;
+        }
+        
+        // Get current date for initial calendar view
+        const currentDate = new Date();
+        
+        // Initialize FullCalendar
+        const calendarEl = document.getElementById('calendar');
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            initialDate: currentDate,
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek'
+            },
+            events: filteredEvents,
+            eventClick: function(info) {
+                const props = info.event.extendedProps;
+                if (props.isPastDate) {
+                    alert(`Date: ${info.event.startStr}\nThis date has passed`);
+                } else {
+                    alert(`Date: ${info.event.startStr}\nAvailable Rooms: ${props.available}\nBooked Rooms: ${props.booked}`);
+                }
+            },
+            eventContent: function(arg) {
+                const props = arg.event.extendedProps;
+                let icon = props.isPastDate ? '⏰' :
+                          props.status === 'available' ? '✅' :
+                          props.status === 'booked' ? '❌' : '🟡';
+                          
+                return {
+                    html: `<div class="fc-event-title">${icon} ${arg.event.title}</div>`
+                };
+            },
+            dayCellDidMount: function(info) {
+                const dateStr = info.date.toISOString().split('T')[0];
+                const eventForDate = filteredEvents.find(e => e.start === dateStr);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                if (info.date < today) {
+                    info.el.style.backgroundColor = 'rgba(128, 128, 128, 0.1)';
+                } else if (!eventForDate) {
+                    info.el.style.backgroundColor = 'rgba(40, 167, 69, 0.1)';
+                }
+            },
+            validRange: function() {
+                return {
+                    start: `${selectedYear}-01-01`,
+                    end: `${selectedYear}-12-31`
+                };
+            }
+        });
+        
+        calendar.render();
+
+        // Update calendar when year changes
+        yearFilter.addEventListener('change', function() {
+            try {
+                selectedYear = this.value;
+                console.log('Year changed to:', selectedYear);
+                
+                // Get current time filter value
+                const timeFilter = document.getElementById('timeFilter').value;
+                
+                // Update URL with new year and maintain existing time filter
+                window.location.href = `/admin/dashboard?year=${selectedYear}&timeFilter=${timeFilter}`;
+                
+                filteredEvents = filterEventsByYear(allEvents, selectedYear);
+                console.log('New filtered events:', filteredEvents);
+                
+                if (filteredEvents.length === 0) {
+                    calendarEl.innerHTML = `
+                        <div class="alert alert-info text-center my-3">
+                            <i class="fas fa-info-circle me-2"></i>
+                            No reservation data available for year ${selectedYear}. 
+                            <br>
+                            This could be because:
+                            <ul class="list-unstyled mt-2">
+                                <li>- No reservations have been made for this year</li>
+                                <li>- The data hasn't been loaded properly</li>
+                                <li>- There might be an error in the data format</li>
+                            </ul>
+                        </div>
+                    `;
+                    return;
+                }
+
+                calendar.removeAllEvents();
+                calendar.addEventSource(filteredEvents);
+                
+                const currentView = calendar.view;
+                const currentMonth = currentView.currentStart.getMonth();
+                calendar.gotoDate(new Date(selectedYear, currentMonth, 1));
+            } catch (error) {
+                console.error('Error updating calendar:', error);
+                calendarEl.innerHTML = `
+                    <div class="alert alert-danger text-center my-3">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        An error occurred while updating the calendar. Please try again or contact support.
+                    </div>
+                `;
+            }
+        });
+    });
+</script>
 </body>
 </html>
