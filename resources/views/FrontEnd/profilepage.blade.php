@@ -48,32 +48,63 @@ body::after {
 
     <!-- Background Banner -->
     <div class="container-fluid position-relative p-0 mb-n5">
-            <div class="d-flex justify-content-start align-items-start">
-                <a href="{{ route('calendar') }}" class="m-3 mt-5">
-                    <i class="text-color-1 fa-2x fa-circle-left fa-solid icon icon-hover color-3"></i>
-                </a>
-            </div>
+        <div class="d-flex justify-content-start align-items-start">
+            <a href="{{ route('calendar') }}" class="m-3 mt-5">
+                <i class="text-color-1 fa-2x fa-circle-left fa-solid icon icon-hover color-3"></i>
+            </a>
+        </div>
 
     <!-- Flash Messages -->
-    <div class="container mt-3">
-        @if ($errors->any())
-            <div class="alert alert-danger">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+    <!-- Error Messages -->
+    @if ($errors->any())
+        <div class="toast show align-items-center text-white bg-danger border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Please fix these errors:</strong>
+                    <ul class="mb-0 mt-1 ps-3">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
-        @endif
-        @if (session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
+        </div>
+    @endif
+
+    <!-- Success Message -->
+    @if (session('success'))
+            <div class="toast show align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>{{ session('success') }}</strong>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
         @endif
     </div>
 
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-hide toasts after 5 seconds
+        const toasts = document.querySelectorAll('.toast');
+        toasts.forEach(toast => {
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+            
+            setTimeout(() => {
+                bsToast.hide();
+            }, 5000);
+        });
+    });
+    </script>
+
     <div class="position-absolute top-0 end-0 mt-3 me-5">
-        <a href="{{ url('/') }}" class="text-decoration-none">
             <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="120" class="rounded-pill">
-        </a>
     </div>
 
     <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
@@ -90,24 +121,24 @@ body::after {
                             <label for="image" class="form-label">Image</label>
                             <input type="file" class="form-control" name="image" id="image" accept="image/*">
                             @if ($user->image)
-                                <img src="{{ asset('storage/' . $user->image) }}" alt="Profile Image" width="150" class="img-fluid mt-2">
+                                <img src="{{ asset('storage/' . $user->image) }}" alt="Profile Image" width="150" class="img-fluid mt-2" required>
                             @endif
                         </div>
                         <div class="mb-3">
                             <label for="name" class="form-label">Name</label>
-                            <input type="text" class="form-control" id="name" name="name" value="{{ $user->name }}">
+                            <input type="text" class="form-control" id="name" name="name" value="{{ $user->name }}" required>
                         </div>
                         <div class="mb-3">
                             <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" value="{{ $user->email }}">
+                            <input type="email" class="form-control" id="email" name="email" value="{{ $user->email }}" required>
                         </div>
                         <div class="mb-3">
                             <label for="mobileNo" class="form-label">Mobile Number</label>
-                            <input type="text" class="form-control" id="mobileNo" name="mobileNo" value="{{ $user->mobileNo }}">
+                            <input type="number" class="form-control" id="mobileNo" name="mobileNo" value="{{ $user->mobileNo }}" required>
                         </div>
                         <div class="mb-3">
                             <label for="address" class="form-label">Address</label>
-                            <input type="text" class="form-control" id="address" name="address" value="{{ $user->address }}">
+                            <input type="text" class="form-control" id="address" name="address" value="{{ $user->address }}" required>
                         </div>
                         <button type="submit" class="btn btn-primary">Save changes</button>
                     </form>
@@ -271,18 +302,26 @@ body::after {
             </div>
             <div class="modal-body">
                 <p>Are you sure you want to cancel this reservation?</p>
-                <form method="POST" action="{{ route('guestcancelReservation', ['id' => $latestReservation->id]) }}">
-                    @csrf
-                    <div class="form-group">
-                        <label for="cancel_reason">Reason for cancellation:</label>
-                        <textarea class="form-control" id="cancel_reason" name="cancel_reason" required></textarea>
+                @if(isset($latestReservation) && $latestReservation)
+                    <form method="POST" action="{{ route('guestcancelReservation', ['id' => $latestReservation->id]) }}">
+                        @csrf
+                        <div class="form-group">
+                            <label for="cancel_reason">Reason for cancellation:</label>
+                            <textarea class="form-control" id="cancel_reason" name="cancel_reason" required></textarea>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-danger">Confirm Cancel</button>
+                        </div>
+                    </form>
+                @else
+                    <div class="alert alert-warning">
+                        No active reservation found to cancel.
                     </div>
-               
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                @endif
             </div>
-            <div class="modal-footer">
-                <button type="submit" class="btn btn-danger">Confirm Cancel</button>
-            </div>
-            </form>
         </div>
     </div>
 </div>
