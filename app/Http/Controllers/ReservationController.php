@@ -296,7 +296,9 @@ class ReservationController extends Controller
     $accomodationIds = is_array($accomodationIds) ? json_encode($accomodationIds) : json_encode([]);
     
     // Store payment details in session
-    $reservationDetails['amount'] = $request->input('amount');
+    $reservationDetails['amount'] = str_replace(['₱', ' ', ','], '', $request->input('amount'));
+    $reservationDetails['downpayment'] = str_replace(['₱', ' ', ','], '', $request->input('downpayment'));
+    $reservationDetails['balance'] = str_replace(['₱', ' ', ','], '', $request->input('balance'));
     $reservationDetails['payment_method'] = $request->input('payment_method', 'gcash');
     $reservationDetails['mobileNo'] = $request->input('mobileNo');
     $reservationDetails['upload_payment'] = $request->file('upload_payment')->store('public/payments');
@@ -319,7 +321,10 @@ class ReservationController extends Controller
     $reservation->reservation_check_out_date = $reservationDetails['reservation_check_out_date'] ?? null;
     $reservation->reservation_check_in = $reservationDetails['reservation_check_in'] ?? null;
     $reservation->reservation_check_out = $reservationDetails['reservation_check_out'] ?? null;
-    $reservation->amount = $reservationDetails['amount'];
+    // When saving to database
+    $reservation->amount = floatval($reservationDetails['amount']);
+    $reservation->balance = floatval($reservationDetails['balance']);
+    $reservation->downpayment = floatval($reservationDetails['downpayment']);
     $reservation->payment_method = $reservationDetails['payment_method'];
     $reservation->mobileNo = $reservationDetails['mobileNo'];
     $reservation->upload_payment = $reservationDetails['upload_payment'];

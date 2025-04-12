@@ -452,41 +452,41 @@
         </div>
     </div>
 
-<!-- Hidden Modal for Staff/Admin (Bootstrap Version) -->
-<div id="staffAdminModal" class="modal fade" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Staff/Admin Login</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form action="{{ route('authenticate') }}" method="POST">
-            @csrf
-          <div class="mb-3">
-            <label for="role" class="form-label">Role</label>
-            <select class="form-select" name="role" required>
-              <option value="">-- Select Role --</option>
-              <option value="staff">Staff</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
-          <div class="mb-3">
-            <label for="username" class="form-label">Username</label>
-            <input type="text" class="form-control" name="username" placeholder="Username" required>
-          </div>
-          <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
-            <input type="password" class="form-control" name="password" placeholder="Password" required>
-          </div>
-          <button type="submit" class="btn btn-primary w-100">Login</button>
-        </form>
-      </div>
+    <!-- Hidden Modal for Staff/Admin (Bootstrap Version) -->
+    <div id="staffAdminModal" class="modal fade" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Staff/Admin Login</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form action="{{ route('authenticate') }}" method="POST">
+                @csrf
+            <div class="mb-3">
+                <label for="role" class="form-label">Role</label>
+                <select class="form-select" name="role" required>
+                <option value="">-- Select Role --</option>
+                <option value="staff">Staff</option>
+                <option value="admin">Admin</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" class="form-control" name="username" placeholder="Username" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" name="password" placeholder="Password" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+            </form>
+        </div>
+        </div>
     </div>
-  </div>
-</div>
+    </div>
 
-<script>
+    <script>
 // Modal Trigger: Ctrl + Shift + A
 document.addEventListener('keydown', function(event) {
     if (event.ctrlKey && event.shiftKey && event.key === 'A') {
@@ -519,25 +519,25 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// // Enhanced Developer Tools Prevention
+// Enhanced Developer Tools Prevention
 document.addEventListener('contextmenu', e => e.preventDefault());
 
-    document.addEventListener('keydown', e => {
-        Prevent F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+U
-        if (e.key === 'F12' || 
-            (e.ctrlKey && e.shiftKey && e.key === 'I') || 
-            (e.ctrlKey && e.shiftKey && e.key === 'J') ||
-            (e.ctrlKey && e.shiftKey && e.key === 'C') ||
-            (e.ctrlKey && e.key === 'U')) {
-            e.preventDefault();
-        }
+document.addEventListener('keydown', e => {
+    // Prevent F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+U
+    if (e.key === 'F12' || 
+        (e.ctrlKey && e.shiftKey && e.key === 'I') || 
+        (e.ctrlKey && e.shiftKey && e.key === 'J') ||
+        (e.ctrlKey && e.shiftKey && e.key === 'C') ||
+        (e.ctrlKey && e.key === 'U')) {
+        e.preventDefault();
+    }
     
     // Additional protection against menu opening
     if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
         alert('Developer tools are disabled for security reasons.');
-    return false;
+        return false;
     }
- });
+});
 </script>
 
 

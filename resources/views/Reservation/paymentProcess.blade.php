@@ -302,16 +302,21 @@
 
                         <div class="d-flex justify-content-between align-items-center">
                             <h5 class="fw-bold text-success">Total Amount to Pay</h5>
-                            <input type="text" class="form-control text-center bg-secondary-subtle border-0 fw-bold fs-5" name="amount" 
+                            <input type="text" class="form-control text-center bg-secondary-subtle border-0 fw-bold fs-5" id="amount-display" 
                                    style="max-width: 150px;" value="₱ {{ number_format($amount, 2) }}" readonly>
+                            <!-- Hidden input for raw amount value -->
+                            <input type="hidden" name="amount" value="{{ $amount }}">
                         </div>
                         
                         <div class="d-flex justify-content-between align-items-center mt-3">
                             <span class="fst-italic">Required 15% Downpayment</span>
-                            <input type="text" class="form-control text-end bg-secondary-subtle border-0" 
-                                   style="max-width: 150px;" value="₱{{ number_format($downpayment, 2) }}" readonly>
+                            <input type="text" id="downpayment-display" class="form-control text-end bg-secondary-subtle border-0" 
+                                   style="max-width: 150px;" value="₱ {{ number_format($downpayment, 2) }}" readonly>
+                            <!-- Hidden input for raw downpayment value -->
+                            <input type="hidden" name="downpayment" value="{{ $downpayment }}">
                         </div>
-                        
+                        <!-- Hidden input for raw balance value -->
+                        <input type="hidden" name="balance" value="{{ $amount - $downpayment }}">
                         <div class="mt-3">
                             <label class="fw-bold">Upload Proof of Payment</label>
                             <input type="file" class="form-control bg-secondary-subtle border-0" name="upload_payment" id="upload_payment" required>

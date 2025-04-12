@@ -151,12 +151,18 @@
                                 <h5 class="fw-bold">Pending Reservations</h5>
 
                                 <ul class="list-group list-group-flush">
-                                    @foreach ($latestReservations as $reservation)
-                                        <li class="list-group-item d-flex justify-content-between mt-1">
-                                            <span>{{ $reservation->name }}</span>
-                                            <small class="text-muted">{{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('M d') }}</small>
+                                    @if(count($latestReservations) > 0)
+                                        @foreach ($latestReservations as $reservation)
+                                            <li class="list-group-item d-flex justify-content-between mt-1">
+                                                <span>{{ $reservation->name }}</span>
+                                                <small class="text-muted">{{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('M d') }}</small>
+                                            </li>
+                                        @endforeach
+                                    @else
+                                        <li class="list-group-item text-center">
+                                            No pending reservations
                                         </li>
-                                    @endforeach
+                                    @endif
                                 </ul>
                             </div>
                             <!-- New Card Above Latest Reservations -->
@@ -839,13 +845,6 @@ buildBookingTrendsChart(bookingTrendsData);
                 <div class="alert alert-info text-center my-3">
                     <i class="fas fa-info-circle me-2"></i>
                     No reservation data available for year ${selectedYear}. 
-                    <br>
-                    This could be because:
-                    <ul class="list-unstyled mt-2">
-                        <li>- No reservations have been made for this year</li>
-                        <li>- The data hasn't been loaded properly</li>
-                        <li>- There might be an error in the data format</li>
-                    </ul>
                 </div>
             `;
             return;

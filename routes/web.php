@@ -54,6 +54,8 @@ Route::middleware(['isAdmin'])->group(function () {
     Route::put('/activities/update/{id}', [AdminSideController::class, 'updateActivity'])->name('updateActivity');
     Route::get('/guests', [AdminSideController::class, 'guests'])->name('guests');
     Route::get('/transactions', [AdminSideController::class, 'editPrice'])->name('transactions');
+    Route::get('/export-excel', [AdminSideController::class, 'exportExcel'])->name('transactions.export.excel');
+    Route::get('/export-pdf', [AdminSideController::class, 'exportPDF'])->name('transactions.export.pdf');
     Route::post('/transactions/update-entrance-fee', [AdminSideController::class, 'updatePrice'])->name('updatePrice');
     Route::get('reports', [AdminSideController::class, 'reports'])->name('reports');
     Route::get('/admin/settings', [AdminSideController::class, 'showForm'])->name('admin.settings');

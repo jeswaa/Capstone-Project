@@ -12,6 +12,11 @@ use App\Models\Accomodation;
 use App\Models\Package;
 use App\Models\Activities;
 use DateTime;
+use App\Models\Reservation;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\TransactionsExport;
+
 
 class AdminSideController extends Controller
 {
@@ -100,12 +105,12 @@ public function guests(){
     
     // Get checked-in reservations count
     $checkedInReservations = DB::table('reservation_details')
-        ->where('payment_status', 'checked-in')
+        ->where('reservation_status', 'checked-in')
         ->count();
         
     // Get user and reservation counts
     $users = DB::table('users')->count();
-$reservations = DB::table('reservation_details')->paginate(10);
+    $reservations = DB::table('reservation_details')->paginate(10);
     $totalGuests = DB::table('users')->count();
     $totalReservations = DB::table('reservation_details')->count();
 
@@ -194,25 +199,39 @@ $reservations = DB::table('reservation_details')->paginate(10);
         return redirect()->route('login')->with('success', 'Logged out successfully!');
     }
 
-    public function login(Request $request) {
-        $credentials = $request->only('username', 'password');
-        
-        $admin = DB::table('admintbl')->where('username', $credentials['username'])->first();
-        
-        // Case 1: Passwords are plaintext (NOT recommended)
-        if ($admin && $credentials['password'] === $admin->password) {
-            session(['AdminLogin' => $admin->id]);
-            return redirect()->route('dashboard');
-        }
+public function login(Request $request) {
+    $credentials = $request->only('username', 'password');
     
-        // Case 2: Passwords use another algorithm (e.g., MD5)
-        if ($admin && md5($credentials['password']) === $admin->password) {
-            session(['AdminLogin' => $admin->id]);
-            return redirect()->route('dashboard');
-        }
-        
+    // Get admin user from database
+    $admin = DB::table('admintbl')->where('username', $credentials['username'])->first();
+    
+    if (!$admin) {
         return back()->with('error', 'Invalid credentials');
     }
+
+    // Check password - try both plaintext and MD5
+    $passwordMatches = false;
+    
+    // Check plaintext password
+    if ($credentials['password'] === $admin->password) {
+        $passwordMatches = true;
+    }
+    
+    // Check MD5 hashed password
+    if (md5($credentials['password']) === $admin->password) {
+        $passwordMatches = true; 
+    }
+
+    if ($passwordMatches) {
+        // Store admin ID in session
+        session(['AdminLogin' => $admin->id]);
+        
+        // Redirect to dashboard
+        return redirect()->route('dashboard');
+    }
+    
+    return back()->with('error', 'Invalid credentials');
+}
     
 
     public function DashboardView()
@@ -394,6 +413,7 @@ $reservations = DB::table('reservation_details')->paginate(10);
                   ->whereDate('reservation_check_out_date', '>=', $startDate);
             });
         })
+        ->whereIn('payment_status', ['booked', 'paid']) // Get reservations with booked or paid status
         ->get();
 
     // Get total number of rooms
@@ -458,9 +478,44 @@ $reservations = DB::table('reservation_details')->paginate(10);
         'calendarData' => $calendarData // Add calendar data to view
     ]);
 }
+    // Export to Excel
+    public function exportExcel(Request $request)
+    {
+        try {
+            Excel::download(new TransactionsExport($request), 'transactions.xlsx');
+            return redirect()->route('transactions')->with('success', 'Excel file exported successfully!');
+        } catch (\Exception $e) {
+            return redirect()->route('transactions')->with('error', 'Failed to export Excel file. Please try again.');
+        }
+    }
+    // Export to PDF
+    public function exportPDF(Request $request)
+    {
+        try {
+            $reservationDetails = Reservation::query()
+                ->when($request->start_date, function($query) use ($request) {
+                    return $query->where('reservation_check_in_date', '>=', $request->start_date);
+                })
+                ->when($request->end_date, function($query) use ($request) {
+                    return $query->where('reservation_check_in_date', '<=', $request->end_date);
+                })
+                ->when($request->payment_status, function($query) use ($request) {
+                    return $query->where('payment_status', $request->payment_status);
+                })
+                ->get();
 
-    
-    
+            $pdf = PDF::loadView('exports.transactions-pdf', [
+                'transactions' => $reservationDetails
+            ]);
+
+            $pdf->download('transactions.pdf');
+
+            return redirect()->route('transactions')->with('success', 'PDF exported successfully!');
+            
+        } catch (\Exception $e) {
+            return redirect()->route('transactions')->with('error', 'Failed to export PDF. Please try again.');
+        }
+    }
 public function editPrice(Request $request)
 {
     // Get available years from reservation data
@@ -839,7 +894,7 @@ public function packages()
         $countAvailableRoom = DB::table('accomodations')
             ->where('accomodation_status', 'available')
             ->count();
-        $accomodations = Accomodation::paginate(5);
+        $accomodations = Accomodation::paginate(10);
         $countReservedRoom = DB::table('accomodations')
         ->where('accomodation_status', 'unavailable') // ✅ Get only unavailable accommodations
         ->count();

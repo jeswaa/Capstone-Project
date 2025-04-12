@@ -124,31 +124,106 @@
 
                 <!-- Payment Table -->
                 <div>
+                    
                     <h1 class="fw-semibold text-uppercase ms-3 mt-5" style="font-size: 40px; color: #0b573d; font-family: 'Anton', sans-serif; letter-spacing: 0.2em;">Transactions Management</h1>
+                    <!-- Export Buttons -->
+                    <div class="d-flex justify-content-end mb-3">
+                        <div class="btn-group">
+                            <a href="{{ route('transactions.export.excel') }}" class="btn btn-success btn-sm me-2" style="font-size: 14px;">
+                                <i class="fas fa-file-excel"></i> Excel
+                            </a>
+                            <a href="{{ route('transactions.export.pdf') }}" class="btn btn-danger btn-sm me-2" style="font-size: 14px;">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </a>
+                            <button onclick="printContent()" class="btn btn-primary btn-sm" style="font-size: 14px;">
+                                <i class="fas fa-print"></i> Print
+                            </button>
 
+                            <script>
+                                function printContent() {
+                                    // Create a new window for printing
+                                    var printWindow = window.open('', '_blank');
+                                    
+                                    // Get the content to print
+                                    var contentToPrint = document.querySelector('.table-responsive').innerHTML;
+                                    
+                                    // Add some basic styling
+                                    var styles = `
+                                        <style>
+                                            table { 
+                                                width: 100%;
+                                                border-collapse: collapse;
+                                            }
+                                            th, td {
+                                                border: 1px solid #ddd;
+                                                padding: 8px;
+                                                text-align: left;
+                                            }
+                                            th {
+                                                background-color: #198754;
+                                                color: white;
+                                            }
+                                            .badge {
+                                                padding: 5px 10px;
+                                                border-radius: 20px;
+                                                color: white;
+                                            }
+                                            .bg-success { background-color: #198754; }
+                                            .bg-warning { background-color: #ffc107; }
+                                            .bg-primary { background-color: #0d6efd; }
+                                            .bg-danger { background-color: #dc3545; }
+                                            @media print {
+                                                body { print-color-adjust: exact; }
+                                            }
+                                        </style>
+                                    `;
+                                    
+                                    // Write the content to the new window
+                                    printWindow.document.write('<html><head><title>Lelo\'s Resort - Transactions</title>' + styles + '</head><body>');
+                                    printWindow.document.write('<h2 style="text-align: center; margin-bottom: 20px;">Lelo\'s Resort - Transactions Report</h2>');
+                                    printWindow.document.write(contentToPrint);
+                                    printWindow.document.write('</body></html>');
+                                    
+                                    // Wait for content to load then print
+                                    printWindow.document.close();
+                                    printWindow.onload = function() {
+                                        printWindow.focus();
+                                        printWindow.print();
+                                        printWindow.close();
+                                    };
+                                }
+                            </script>
+                        </div>
+                    </div>
                     <!-- Filter -->
                     <div class="row mb-4">
                         <div class="col-md-12">
                             <div class="card shadow-lg border-0 rounded-4 p-4 bg-white bg-opacity-90">
-                                <div class="d-flex align-items-center mb-3">
-                                    <i class="fas fa-filter me-2 text-success"></i>
-                                    <h5 class="mb-0 fw-bold text-success">Filter Transactions</h5>
+                                
+                                <div class="d-flex align-items-center mb-4">
+                                    <i class="fas fa-filter me-2 text-success fs-4"></i>
+                                    <h5 class="mb-0 fw-bold" style="color: #0b573d;">Filter Transactions</h5>
                                 </div>
-                                <form action="{{ route('transactions') }}" method="GET">
-                                    <div class="row g-3">
+
+                                <form action="{{ route('transactions') }}" method="GET" class="mt-3">
+                                    <div class="row g-4">
                                         <!-- Date Range Filter -->
-                                        <div class="col-md-2">
+                                        <div class="col-md-3">
                                             <label for="start_date" class="form-label fw-semibold">Start Date</label>
                                             <div class="input-group">
-                                                <span class="input-group-text bg-white border-end-0 rounded-start-pill" style="width: 45px; height:49px;"><i class="far fa-calendar-alt text-muted"></i></span>
-                                                <input type="date" class="form-control border-start-0 shadow-sm rounded-end-pill" id="start_date" name="start_date" value="{{ request('start_date') }}">
+                                                <span class="input-group-text bg-white border-end-0" style="height: 45px;">
+                                                    <i class="far fa-calendar-alt text-muted"></i>
+                                                </span>
+                                                <input type="date" class="form-control border-start-0" id="start_date" name="start_date" value="{{ request('start_date') }}" style="height: 45px;">
                                             </div>
                                         </div>
-                                        <div class="col-md-2">
+                                        <div class="col-md-3">
                                             <label for="end_date" class="form-label fw-semibold">End Date</label>
                                             <div class="input-group">
-                                                <span class="input-group-text bg-white border-end-0 rounded-start-pill" style="width: 45px; height:49px;"><i class="far fa-calendar-alt text-muted"></i></span>
-                                                <input type="date" class="form-control border-start-0 shadow-sm rounded-end-pill" id="end_date" name="end_date" value="{{ request('end_date') }}">
+                                                <span class="input-group-text bg-white border-end-0" style="height: 45px;">
+                                                    <i class="far fa-calendar-alt text-muted"></i>
+                                                </span>
+                                                <input type="date" class="form-control border-start-0" id="end_date" name="end_date" value="{{ request('end_date') }}" style="height: 45px;">
                                             </div>
                                         </div>
 
@@ -156,17 +231,21 @@
                                         <div class="col-md-3">
                                             <label for="guest_name" class="form-label fw-semibold">Guest Name</label>
                                             <div class="input-group">
-                                                <span class="input-group-text bg-white border-end-0 rounded-start-pill" style="width: 45px; height:49px;"><i class="far fa-user text-muted"></i></span>
-                                                <input type="text" class="form-control border-start-0 shadow-sm rounded-end-pill" id="guest_name" name="guest_name" placeholder="Enter guest name" value="{{ request('guest_name') }}">
+                                                <span class="input-group-text bg-white border-end-0" style="height: 45px;">
+                                                    <i class="far fa-user text-muted"></i>
+                                                </span>
+                                                <input type="text" class="form-control border-start-0" id="guest_name" name="guest_name" placeholder="Enter guest name" value="{{ request('guest_name') }}" style="height: 45px;">
                                             </div>
                                         </div>
 
                                         <!-- Payment Status Filter -->
-                                        <div class="col-md-2">
+                                        <div class="col-md-3">
                                             <label for="payment_status" class="form-label fw-semibold">Payment Status</label>
                                             <div class="input-group">
-                                                <span class="input-group-text bg-white border-end-0 rounded-start-pill" style="width: 45px; padding-left: 12px;"><i class="fas fa-money-check-alt text-muted"></i></span>
-                                                <select class="form-select border-start-0 shadow-sm rounded-end-pill" id="payment_status" name="payment_status">
+                                                <span class="input-group-text bg-white border-end-0" style="height: 45px;">
+                                                    <i class="fas fa-money-check-alt text-muted"></i>
+                                                </span>
+                                                <select class="form-select border-start-0" id="payment_status" name="payment_status" style="height: 45px;">
                                                     <option value="">All</option>
                                                     <option value="pending" {{ request('payment_status') == 'pending' ? 'selected' : '' }}>Pending</option>
                                                     <option value="paid" {{ request('payment_status') == 'paid' ? 'selected' : '' }}>Paid</option>
@@ -176,19 +255,15 @@
                                         </div>
 
                                         <!-- Filter Buttons -->
-                                        <div class="col-md-3">
-                                            <label class="form-label fw-semibold">&nbsp;</label>
-                                            <div class="d-flex gap-2">
-                                                <a href="{{ route('transactions') }}" class="btn btn-outline-secondary px-3 py-2 rounded-pill w-50">
-                                                    <i class="fas fa-undo-alt me-1"></i>Reset
-                                                </a>
-                                                <button type="submit" class="btn btn-success px-3 py-2 rounded-pill w-50">
-                                                    <i class="fas fa-filter me-1"></i>Apply
-                                                </button>
-                                            </div>
+                                        <div class="col-12 d-flex justify-content-end mt-4">
+                                            <a href="{{ route('transactions') }}" class="btn btn-outline-secondary px-4 py-2 me-2" style="width: 120px;">
+                                                <i class="fas fa-undo-alt me-2"></i>Reset
+                                            </a>
+                                            <button type="submit" class="btn btn-success px-4 py-2" style="width: 120px;">
+                                                <i class="fas fa-filter me-2"></i>Apply
+                                            </button>
                                         </div>
                                     </div>
-                                    <!-- Hidden Fields for Year Filter -->
                                     @if(request('year'))
                                         <input type="hidden" name="year" value="{{ request('year') }}">
                                     @endif
@@ -213,16 +288,8 @@
                                 @forelse($reservationDetails as $transaction)
                                     <tr>
                                         <td class="py-3">{{ $transaction->name }}</td>
-                                        <td class="py-3">{{ $transaction->amount }}</td>
-                                    <td class="py-3">
-                                    @php
-                                        $balance = 0;
-                                        if (is_numeric($transaction->amount)) {
-                                            $balance = number_format($transaction->amount * 0.15, 2, '.', ',');
-                                        }
-                                    @endphp
-                                    <span>₱{{ $balance }}</span>
-                                    </td>
+                                        <td class="py-3">₱{{ number_format($transaction->amount, 2) }}</td>
+                                        <td class="py-3">₱{{ in_array($transaction->payment_status, ['paid', 'cancelled', 'checked-out']) ? '0.00' : number_format($transaction->balance, 2) }}</td>
                                         <td class="py-3">{{ $transaction->payment_method }}</td>
                                         <td class="py-3">{{ \Carbon\Carbon::parse($transaction->reservation_check_in_date)->format('M d, Y') }}</td>
                                         <td class="py-3">

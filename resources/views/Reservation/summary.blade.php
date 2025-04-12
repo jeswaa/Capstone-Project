@@ -97,7 +97,7 @@
             </div>
             <div class="row mb-2">
                 <div class="col-4 fw-bold text-success">Amount:</div>
-                <div class="col-8">{{ $reservationDetails->amount }}</div>
+                <div class="col-8">₱{{ number_format($reservationDetails->amount, 2) }}</div>
             </div>
             <div class="row mb-2">
                 <div class="col-4 fw-bold text-success">Reference No:</div>
