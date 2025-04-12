@@ -140,13 +140,12 @@
         @endif
     </div>
 
-
-    
-<div class="position-absolute top-0 start-0 mt-5 ms-5">
-    <a href="{{ url('/') }}" class="d-flex align-items-center justify-content-center rounded-circle shadow text-decoration-none">
-       <i class="fa-solid fa-circle-left fa-2x color-3 icon-hover"></i>
-    </a>
-</div>
+    <div class="position-absolute top-0 start-0 mt-5 ms-5">
+        <a href="{{ url('/') }}" class="d-flex align-items-center justify-content-center rounded-circle shadow"
+        style="width: 45px; height: 45px; background-color: #0B5D3B; text-decoration: none;">
+            <i class="fa-solid fa-arrow-left text-white fs-4"></i>
+        </a>
+    </div>
 
     <div class="position-absolute top-0 end-0 mt-3 me-5">
         <a href="{{ url('/') }}" class="text-decoration-none">
@@ -166,7 +165,7 @@
                 <form action="{{ route('login.authenticate') }}" method="POST">
                     @csrf
                     <div class="mb-4">
-                        <input type="email" class="form-control @error('email') is-invalid @enderror p-3" 
+                        <input id="userEmail" type="email" class="form-control @error('email') is-invalid @enderror p-3" 
                                name="email" placeholder="Email..." required>
                         @error('email')
                             <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
@@ -236,7 +235,7 @@
                     </div>
 
 
-                    <button type="submit" class="login-button d-flex align-items-center justify-content-center">
+                    <button id="loginButton" type="submit" class="login-button d-flex align-items-center justify-content-center">
                         LOG IN 
                         <span class="arrow d-flex align-items-center justify-content-center rounded-circle" style="width: 20px; height: 20px; margin-left: 10px;">
                             &rsaquo;
@@ -254,16 +253,28 @@
 
                     <!-- Privacy Policy Modal -->
                     <div class="modal fade" id="privacyPolicyModal" tabindex="-1" aria-labelledby="privacyPolicyLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-lg">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title font-paragraph text-color-1" id="privacyPolicyLabel">Privacy Policy</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <div class="modal-dialog modal-lg" style="margin-top: 8vh;"> <!-- Adjust margin-top as needed -->
+                            <div class="modal-content rounded-4 border-0" style="background-color: #f9f9f9;">
+
+                            <!-- Header -->
+                            <div class="modal-header bg-success text-white rounded-top-4 py-3">
+                                <h5 class="modal-title fw-bold" id="privacyPolicyLabel">Privacy Policy</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+
+                            <!-- Body -->
+                            <div class="modal-body d-flex justify-content-center align-items-center px-4 py-3">
+                                <div style="text-align: center;">
+                                <p class="mb-3" style="font-size: 1rem; font-weight: bold;">
+                                    We collect and store your email and password securely for authentication purposes. Your data is protected and will not be shared without your consent. By using our service, you agree to our terms.
+                                </p>
+                                <p style="font-size: 1rem; font-weight: bold;">
+                                    For more details, contact us at 
+                                    <a href="mailto:lelosresort@gmail.com" class="text-decoration-none fw-bold text-success">lelosresort@gmail.com</a>.
+                                </p>
                                 </div>
-                                <div class="modal-body">
-                                    <p class="font-paragraph text-color-1">We collect and store your email and password securely for authentication purposes. Your data is protected and will not be shared without your consent. By using our service, you agree to our terms.</p>
-                                    <p  class="font-paragraph text-color-1">For more details, contact us at lelosresort@gmail.com</p>
-                                </div>
+                            </div>
+
                             </div>
                         </div>
                     </div>
@@ -273,8 +284,8 @@
                         <a href="{{ route('signup') }}" class="text-color-1 ms-1 text-decoration-none text-hover-effect">Sign Up</a>
                     </p>
 
-                    <a href="{{ route('google.redirect') }}" class="color-3 font-paragraph text-decoration-none fw-bold">
-                        <div class="d-flex justify-content-center align-items-center color-background6 p-3 rounded-4 google"
+                    <a href="{{ route('google.redirect') }}" class="text-white font-paragraph text-decoration-none fw-bold">
+                        <div class="d-flex justify-content-center align-items-center color-background8 p-3 rounded-4 google"
                              style="font-size: 0.9rem;">
                             <img src="{{ asset('images/google.png') }}" alt="" width="16" height="16" class="me-2"> 
                             Sign up using Google
@@ -323,62 +334,123 @@
   </script>
 @endif
 
-
-    <!-- Forgot Password Modal -->
-    <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="background-color: #97a97c;">
-            <div class="modal-header">
-                <h5 class="modal-title text-center text-color-1 font-paragraph fs-3" id="forgotPasswordModalLabel">Forgot Password</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                @if (session('success'))
-                    <div class="alert alert-success">
+    <!-- OTP Verification Modal -->
+    <div class="modal fade" id="otpVerificationModal" tabindex="-1" aria-labelledby="otpVerificationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="otpVerificationModalLabel">OTP Verification</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                @if(session('success'))
+                    <div class="alert alert-success fade show" role="alert" id="successAlert">
                         {{ session('success') }}
                     </div>
+                    <script>
+                        setTimeout(function() {
+                            document.getElementById('successAlert').style.animation = 'fadeOut 0.5s';
+                            setTimeout(function() {
+                                document.getElementById('successAlert').remove();
+                            }, 500);
+                        }, 5000);
+                    </script>
                 @endif
-                <form action="{{ route('forgot.reset') }}" method="POST" class="p-3" id="passwordResetForm">
-                    @csrf
-                    <meta name="csrf-token" content="{{ csrf_token() }}">
-                    <div class="mb-3">
-                        <label for="email" class="form-label font-paragraph text-color-1">Email</label>
-                        <input type="email" class="form-control font-paragraph" name="email" id="email" placeholder="Enter your email" required>
+                <div class="modal-body">
+                    <div class="text-center mb-4">
+                        <p>Please enter the OTP code sent to your email</p>
+                        <p class="text-muted" id="otpEmail"></p>
                     </div>
-
-                    <div class="mb-3">
-                        <label for="otp" class="form-label font-paragraph text-color-1">OTP Code</label>
-                        <div class="d-flex">
-                            <input type="text" class="form-control font-paragraph me-2" name="otp" id="otp" placeholder="Enter OTP" required>
-                            <button type="button" id="sendOTPBtn" class="btn btn-secondary" onclick="sendOTP()">Send OTP</button>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="password" class="form-label font-paragraph text-color-1">New Password</label>
-                        <input type="password" class="form-control font-paragraph" name="password" id="newPassword" placeholder="Enter new password" required>
-                        <div class="password-strength mt-1">
-                            <div class="progress" style="height: 5px;">
-                                <div id="passwordStrength" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                    
+                    <form id="otpVerificationForm" method="POST" action="{{ route('verify-login-otp') }}">
+                        @csrf
+                        <input type="hidden" name="email" id="otpEmailInput">
+                        
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-center">
+                                <input type="text" class="form-control text-center" maxlength="6" name="otp" style="width: 200px;" placeholder="Enter 6-digit OTP">
                             </div>
-                            <small id="passwordHelp" class="form-text text-muted"></small>
                         </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="password_confirmation" class="form-label font-paragraph text-color-1">Confirm Password</label>
-                        <input type="password" class="form-control font-paragraph" name="password_confirmation" id="confirmPassword" placeholder="Confirm your password" required>
-                        <div id="passwordMatch" class="mt-1"></div>
-                    </div>
-
-                    <button type="submit" class="color-background6 p-2 border-0 text-hover-1 font-paragraph color-3 rounded-2 w-100" id="submitBtn" disabled>
-                        Reset Password
-                    </button>
-                </form>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success">Verify OTP</button>
+                            <button type="button" class="btn btn-outline-secondary" id="resendOTP">
+                                Resend OTP <span id="countdown" class="d-none">(60s)</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
+
+    <!-- Forgot Password Modal -->
+    <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-md">
+            <div class="modal-content rounded-4 border-0" style="background-color: #f8f9fa;">
+
+            <!-- HEADER -->
+            <div class="modal-header bg-success text-white py-3 rounded-top-4">
+                <h5 class="modal-title fw-bold" id="forgotPasswordModalLabel">Forgot Password</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- BODY -->
+            <div class="modal-body p-4">
+                @if (session('success'))
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
+                @endif
+
+                <form action="{{ route('forgot.reset') }}" method="POST" id="passwordResetForm">
+                @csrf
+                <meta name="csrf-token" content="{{ csrf_token() }}">
+
+                <!-- EMAIL -->
+                <div class="mb-3">
+                    <label for="email" class="form-label fw-bold text-success">Email</label>
+                    <input type="email" class="form-control" name="email" id="email" placeholder="Enter your email" required>
+                </div>
+
+                <!-- OTP -->
+                <div class="mb-3">
+                    <label for="otp" class="form-label fw-bold text-success">OTP Code</label>
+                    <div class="d-flex">
+                    <input type="text" class="form-control me-2" name="otp" id="otp" placeholder="Enter OTP" required>
+                    <button type="button" id="sendOTPBtn" class="btn btn-success" onclick="sendOTP()">Send OTP</button>
+                    </div>
+                </div>
+
+                <!-- NEW PASSWORD -->
+                <div class="mb-3">
+                    <label for="password" class="form-label fw-bold text-success">New Password</label>
+                    <input type="password" class="form-control" name="password" id="newPassword" placeholder="Enter new password" required>
+                    <div class="password-strength mt-2">
+                    <div class="progress" style="height: 5px;">
+                        <div id="passwordStrength" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                    </div>
+                    <small id="passwordHelp" class="form-text text-muted"></small>
+                    </div>
+                </div>
+
+                <!-- CONFIRM PASSWORD -->
+                <div class="mb-3">
+                    <label for="password_confirmation" class="form-label fw-bold text-success">Confirm Password</label>
+                    <input type="password" class="form-control" name="password_confirmation" id="confirmPassword" placeholder="Confirm your password" required>
+                    <div id="passwordMatch" class="mt-2"></div>
+                </div>
+
+                <!-- SUBMIT BUTTON -->
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-success w-100 fw-bold py-2" id="submitBtn" disabled>
+                    Reset Password
+                    </button>
+                </div>
+                </form>
+            </div>
+
+            </div>
+        </div>
+    </div>
 
 <!-- Hidden Modal for Staff/Admin (Bootstrap Version) -->
 <div id="staffAdminModal" class="modal fade" tabindex="-1" aria-hidden="true">
@@ -447,25 +519,25 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Enhanced Developer Tools Prevention
+// // Enhanced Developer Tools Prevention
 document.addEventListener('contextmenu', e => e.preventDefault());
 
-document.addEventListener('keydown', e => {
-    // Prevent F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+U
-    if (e.key === 'F12' || 
-        (e.ctrlKey && e.shiftKey && e.key === 'I') || 
-        (e.ctrlKey && e.shiftKey && e.key === 'J') ||
-        (e.ctrlKey && e.shiftKey && e.key === 'C') ||
-        (e.ctrlKey && e.key === 'U')) {
-        e.preventDefault();
-    }
+    document.addEventListener('keydown', e => {
+        Prevent F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+U
+        if (e.key === 'F12' || 
+            (e.ctrlKey && e.shiftKey && e.key === 'I') || 
+            (e.ctrlKey && e.shiftKey && e.key === 'J') ||
+            (e.ctrlKey && e.shiftKey && e.key === 'C') ||
+            (e.ctrlKey && e.key === 'U')) {
+            e.preventDefault();
+        }
     
     // Additional protection against menu opening
     if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
         alert('Developer tools are disabled for security reasons.');
-        return false;
+    return false;
     }
-});
+ });
 </script>
 
 
@@ -663,6 +735,219 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     }
 </script>
+<!-- Verfication Modal After clicking the Login Button-->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get the login button and form
+    const loginButton = document.getElementById('loginButton');
+    const loginForm = loginButton.closest('form');
+    
+    // Add event listener to the login form
+    loginForm.addEventListener('submit', function(e) {
+        e.preventDefault(); // Prevent default form submission
+        
+        // Get email from the form
+        const email = document.getElementById('userEmail').value;
+        
+        // Show the OTP modal
+        const otpModal = new bootstrap.Modal(document.getElementById('otpVerificationModal'));
+        
+        // Set the email in the modal
+        document.getElementById('otpEmail').textContent = email;
+        document.getElementById('otpEmailInput').value = email;
+        
+        // Send OTP to the user's email
+        sendLoginOTP(email);
+        
+        // Show the modal
+        otpModal.show();
+    });
+    
+    // Function to send OTP
+        // Function to send OTP
+        function sendLoginOTP(email) {
+        // Show sending message
+        const sendingAlert = document.createElement('div');
+        sendingAlert.className = 'alert alert-info text-center';
+        sendingAlert.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sending OTP to your email...';
+        
+        // Fix: Insert the alert at the beginning of the modal body
+        const modalBody = document.querySelector('#otpVerificationModal .modal-body');
+        modalBody.insertBefore(sendingAlert, modalBody.firstChild);
 
+        fetch('{{ route("send-login-otp") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({ email: email })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Remove sending message
+            sendingAlert.remove();
+            
+            if (data.success) {
+                // Show success message
+                alert('OTP has been sent successfully to your email!');
+                // Start countdown for resend button
+                startResendCountdown();
+            } else {
+                alert(data.message || 'Failed to send OTP. Please try again.');
+            }
+        })
+        .catch(error => {
+            // Remove sending message
+            sendingAlert.remove();
+            
+            console.error('Error sending OTP:', error);
+            alert('An error occurred while sending OTP. Please try again.');
+        });
+    }
+    
+    // Resend OTP button functionality
+    const resendOTPButton = document.getElementById('resendOTP');
+    resendOTPButton.addEventListener('click', function() {
+        const email = document.getElementById('otpEmailInput').value;
+        sendLoginOTP(email);
+    });
+    
+    // Countdown timer for resend button
+    function startResendCountdown() {
+        const countdownElement = document.getElementById('countdown');
+        const resendButton = document.getElementById('resendOTP');
+        
+        resendButton.disabled = true;
+        countdownElement.classList.remove('d-none');
+        
+        let seconds = 60;
+        countdownElement.textContent = `(${seconds}s)`;
+        
+        const countdownInterval = setInterval(() => {
+            seconds--;
+            countdownElement.textContent = `(${seconds}s)`;
+            
+            if (seconds <= 0) {
+                clearInterval(countdownInterval);
+                resendButton.disabled = false;
+                countdownElement.classList.add('d-none');
+            }
+        }, 1000);
+    }
+    
+    // OTP verification form submission
+    const otpVerificationForm = document.getElementById('otpVerificationForm');
+    otpVerificationForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(otpVerificationForm);
+        const submitButton = otpVerificationForm.querySelector('button[type="submit"]');
+        
+        // Disable button and show loading state
+        submitButton.disabled = true;
+        submitButton.innerHTML = `
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            Verifying...
+        `;
+        
+        fetch('{{ route("verify-login-otp") }}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show success message
+                const successDiv = document.createElement('div');
+                successDiv.className = 'alert alert-success text-center mb-3';
+                successDiv.innerHTML = 'OTP verified successfully! Redirecting...';
+                otpVerificationForm.insertBefore(successDiv, otpVerificationForm.firstChild);
+                
+                // Redirect after short delay
+                setTimeout(() => {
+                    window.location.href = '{{ route("calendar") }}';
+                }, 1500);
+            } else {
+                // Reset button state
+                submitButton.disabled = false;
+                submitButton.innerHTML = 'Verify OTP';
+                alert(data.message || 'Invalid OTP. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Error verifying OTP:', error);
+            // Reset button state
+            submitButton.disabled = false;
+            submitButton.innerHTML = 'Verify OTP';
+            alert('An error occurred while verifying OTP. Please try again.');
+        });
+    });
+});
+// Add resend OTP functionality
+let resendTimer;
+let resendCountdown = 60;
+
+function startResendTimer() {
+    const resendButton = document.getElementById('resendOTP');
+    const countdownSpan = document.getElementById('countdown');
+    
+    resendButton.disabled = true;
+    countdownSpan.classList.remove('d-none');
+    
+    resendTimer = setInterval(() => {
+        resendCountdown--;
+        countdownSpan.textContent = `(${resendCountdown}s)`;
+        
+        if (resendCountdown <= 0) {
+            clearInterval(resendTimer);
+            resendButton.disabled = false;
+            countdownSpan.classList.add('d-none');
+            resendCountdown = 60;
+        }
+    }, 1000);
+}
+
+function resendOTP() {
+    const email = document.getElementById('otpEmailInput').value;
+    const resendButton = document.getElementById('resendOTP');
+    
+    resendButton.disabled = true;
+    
+    fetch('{{ route("resend-login-otp") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({ email: email })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('New OTP has been sent to your email!');
+            startResendTimer();
+        } else {
+            alert(data.message || 'Failed to resend OTP. Please try again.');
+            resendButton.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('Error resending OTP:', error);
+        alert('An error occurred while resending OTP. Please try again.');
+        resendButton.disabled = false;
+    });
+}
+
+// Add event listener for resend button
+document.getElementById('resendOTP').addEventListener('click', resendOTP);
+
+// Start initial timer when OTP is first sent
+startResendTimer();
+
+</script>
 </body>
 </html>

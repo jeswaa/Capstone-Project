@@ -499,7 +499,54 @@ public function editPrice(Request $request)
     $totalRevenue = array_sum($chartValues);
 
     // Get entrance fee from transactions table
-    $entranceFee = Transaction::first()->entrance_fee ?? 0;
+    $transactions = Transaction::first();
+    $entranceFee = $transactions ? $transactions->entrance_fee : 0;
+
+    // Build base query for reservation details
+    $query = DB::table('reservation_details')
+        ->join('users', 'reservation_details.user_id', '=', 'users.id')
+        ->select(
+            'reservation_details.*',
+            'users.name as user_name',
+            'users.email',
+            'users.mobileNo'
+        );
+
+    // Apply filters if they exist
+    if ($request->filled('start_date') && $request->filled('end_date')) {
+        $query->whereBetween('reservation_check_in_date', [
+            $request->start_date,
+            $request->end_date
+        ]);
+    }
+
+    if ($request->filled('guest_name')) {
+        $query->where('users.name', 'LIKE', '%' . $request->guest_name . '%');
+    }
+
+    if ($request->filled('payment_status')) {
+        $query->where('reservation_details.payment_status', $request->payment_status);
+    }
+
+    // Get filtered and paginated results
+    $reservationDetails = $query
+        ->orderBy('reservation_details.created_at', 'desc')
+        ->paginate(10)
+        ->withQueryString();
+
+    // Handle case when no results found
+    if ($reservationDetails->isEmpty()) {
+        $reservationDetails = DB::table('reservation_details')
+            ->join('users', 'reservation_details.user_id', '=', 'users.id')
+            ->select(
+                'reservation_details.*',
+                'users.name as user_name',
+                'users.email', 
+                'users.mobileNo'
+            )
+            ->orderBy('reservation_details.created_at', 'desc')
+            ->paginate(10);
+    }
 
     // Get pending payments (limit to 4)
     $pendingPayments = DB::table('reservation_details')
@@ -517,12 +564,10 @@ public function editPrice(Request $request)
         'entranceFee' => $entranceFee,
         'monthlyRevenue' => $monthlyRevenue,
         'availableYears' => $availableYears,
-        'pendingPayments' => $pendingPayments
+        'pendingPayments' => $pendingPayments,
+        'reservationDetails' => $reservationDetails,
     ]);
 }
-
-
-
     public function updatePrice(Request $request)
     {
         $request->validate(['entrance_fee' => 'required']);

@@ -65,7 +65,9 @@ Route::get('/admin/update-rooms', [RoomController::class, 'updateRoomAvailabilit
 /* LOGIN */
 Route::get('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/login/verify-recaptcha', [LoginController::class, 'verifyRecaptcha'])->name('login.verifyRecaptcha');
-
+Route::post('/login/send-login-otp', [LoginController::class, 'sendLoginOTP'])->name('send-login-otp');
+Route::post('/login/verify-login-otp', [LoginController::class, 'verifyLoginOTP'])->name('verify-login-otp');
+Route::post('/login/resend-otp', [LoginController::class, 'resendOTP'])->name('resend-login-otp');
 Route::post('/login/authenticate', [LoginController::class, 'authenticate'])->name('login.authenticate');
 Route::post('/forgot/otp', [LoginController::class, 'sendOtp'])->name('forgot.sendOTP');
 Route::post('/forgot/reset', [LoginController::class, 'resetPassword'])->name('forgot.reset');

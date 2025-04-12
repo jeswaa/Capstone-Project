@@ -186,14 +186,13 @@
                     <thead class="table-light text-uppercase text-secondary small">
                         <tr>
                             <th scope="col" class="small">Guest Name</th>
-                            <th scope="col" class="small">Check-in</th>
-                            <th scope="col" class="small">Check-out</th>
+                            <th scope="col" class="small">Dates(In-Out)</th>
                             <th scope="col" class="small">Room Type</th>
-                            <th scope="col" class="small">Check-in Time</th>
-                            <th scope="col" class="small">Check-out Time</th>
+                            <th scope="col" class="small">Time(In-Out)</th>
                             <th scope="col" class="small">Mobile Number</th>
                             <th scope="col" class="small">Reference Number</th>
-                            <th scope="col" class="small">Status</th>
+                            <th scope="col" class="small">Payment Status</th>
+                            <th scope="col" class="small">Res. Status</th>
                             <th scope="col" class="small">Amount</th>
                         </tr>
                     </thead>
@@ -201,8 +200,7 @@
                         @foreach ($reservations as $reservation)
                             <tr class="align-middle">
                                 <td class="fw-semibold">{{ $reservation->name }}</td>
-                                <td>{{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('F j, Y') }}</td>
-                                <td>{{ \Carbon\Carbon::parse($reservation->reservation_check_out_date)->format('F j, Y') }}</td>
+                                <td>{{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('M j, Y') }}-{{ \Carbon\Carbon::parse($reservation->reservation_check_out_date)->format('M j, Y') }}</td>
                                 <td>
                                     @if(!empty($reservation->accomodation_names))
                                         {{ implode(', ', $reservation->accomodation_names) }}
@@ -210,8 +208,7 @@
                                         <span class="text-muted">No Accommodation</span>
                                     @endif
                                 </td>
-                                <td>{{ $reservation->reservation_check_in }}</td>
-                                <td>{{ $reservation->reservation_check_out }}</td>
+                                <td>{{ \Carbon\Carbon::parse($reservation->reservation_check_in)->format('h:i A') }}-{{ \Carbon\Carbon::parse($reservation->reservation_check_out)->format('h:i A') }}</td>
                                 <td>{{$reservation->mobileNo}}</td>
                                 <td>{{ $reservation->reference_num}}</td>
                                 <td>
@@ -226,6 +223,7 @@
                                         {{ ucfirst($reservation->payment_status) }}
                                     </span>
                                 </td>
+                                <td>{{ $reservation->reservation_status}}</td>
                                 <td>{{($reservation->amount) }}</td>
                             </tr>
                         @endforeach

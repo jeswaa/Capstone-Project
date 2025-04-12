@@ -156,25 +156,35 @@
         </div>
     </div>
 
+    <!-- OTP Verification Modal -->
+    <div class="modal fade" id="otpModal" tabindex="-1" aria-labelledby="otpModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0" style="background-color: #f9f9f9;">
 
-        <!-- OTP Verification Modal -->
-<div class="modal fade" id="otpModal" tabindex="-1" aria-labelledby="otpModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="otpModalLabel">Verify Your Email</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <!-- Header -->
+            <div class="modal-header bg-success text-white rounded-top-4 py-3">
+                <h5 class="modal-title fw-bold" id="otpModalLabel">Verify Your Email</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <p>We've sent a 6-digit OTP to your email. Please enter it below to verify your account.</p>
-                <input type="text" id="otp" class="form-control" placeholder="Enter OTP">
+
+            <!-- Body -->
+            <div class="modal-body px-4 py-3">
+                <p class="text-success mb-3" style="font-size: 1rem;">
+                We've sent a 6-digit OTP to your email. Please enter it below to verify your account.
+                </p>
+                <input type="text" id="otp" class="form-control p-2 border-success" placeholder="Enter OTP" maxlength="6" style="font-weight: 500;">
             </div>
-            <div class="modal-footer">
-                <button type="button" id="verify-otp" class="btn btn-primary">Verify OTP</button>
+
+            <!-- Footer -->
+            <div class="modal-footer border-0 px-4 pb-4">
+                <button type="button" id="verify-otp" class="btn btn-success fw-bold px-4 py-2 w-100">
+                Verify OTP
+                </button>
+            </div>
+
             </div>
         </div>
     </div>
-</div>
 
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

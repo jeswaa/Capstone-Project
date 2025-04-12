@@ -121,6 +121,129 @@
                         @endif
                     </div>
                 </div>
+
+                <!-- Payment Table -->
+                <div>
+                    <h1 class="fw-semibold text-uppercase ms-3 mt-5" style="font-size: 40px; color: #0b573d; font-family: 'Anton', sans-serif; letter-spacing: 0.2em;">Transactions Management</h1>
+
+                    <!-- Filter -->
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <div class="card shadow-lg border-0 rounded-4 p-4 bg-white bg-opacity-90">
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="fas fa-filter me-2 text-success"></i>
+                                    <h5 class="mb-0 fw-bold text-success">Filter Transactions</h5>
+                                </div>
+                                <form action="{{ route('transactions') }}" method="GET">
+                                    <div class="row g-3">
+                                        <!-- Date Range Filter -->
+                                        <div class="col-md-2">
+                                            <label for="start_date" class="form-label fw-semibold">Start Date</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-white border-end-0 rounded-start-pill" style="width: 45px; height:49px;"><i class="far fa-calendar-alt text-muted"></i></span>
+                                                <input type="date" class="form-control border-start-0 shadow-sm rounded-end-pill" id="start_date" name="start_date" value="{{ request('start_date') }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label for="end_date" class="form-label fw-semibold">End Date</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-white border-end-0 rounded-start-pill" style="width: 45px; height:49px;"><i class="far fa-calendar-alt text-muted"></i></span>
+                                                <input type="date" class="form-control border-start-0 shadow-sm rounded-end-pill" id="end_date" name="end_date" value="{{ request('end_date') }}">
+                                            </div>
+                                        </div>
+
+                                        <!-- Guest Name Filter -->
+                                        <div class="col-md-3">
+                                            <label for="guest_name" class="form-label fw-semibold">Guest Name</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-white border-end-0 rounded-start-pill" style="width: 45px; height:49px;"><i class="far fa-user text-muted"></i></span>
+                                                <input type="text" class="form-control border-start-0 shadow-sm rounded-end-pill" id="guest_name" name="guest_name" placeholder="Enter guest name" value="{{ request('guest_name') }}">
+                                            </div>
+                                        </div>
+
+                                        <!-- Payment Status Filter -->
+                                        <div class="col-md-2">
+                                            <label for="payment_status" class="form-label fw-semibold">Payment Status</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-white border-end-0 rounded-start-pill" style="width: 45px; padding-left: 12px;"><i class="fas fa-money-check-alt text-muted"></i></span>
+                                                <select class="form-select border-start-0 shadow-sm rounded-end-pill" id="payment_status" name="payment_status">
+                                                    <option value="">All</option>
+                                                    <option value="pending" {{ request('payment_status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                                                    <option value="paid" {{ request('payment_status') == 'paid' ? 'selected' : '' }}>Paid</option>
+                                                    <option value="cancelled" {{ request('payment_status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <!-- Filter Buttons -->
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-semibold">&nbsp;</label>
+                                            <div class="d-flex gap-2">
+                                                <a href="{{ route('transactions') }}" class="btn btn-outline-secondary px-3 py-2 rounded-pill w-50">
+                                                    <i class="fas fa-undo-alt me-1"></i>Reset
+                                                </a>
+                                                <button type="submit" class="btn btn-success px-3 py-2 rounded-pill w-50">
+                                                    <i class="fas fa-filter me-1"></i>Apply
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Hidden Fields for Year Filter -->
+                                    @if(request('year'))
+                                        <input type="hidden" name="year" value="{{ request('year') }}">
+                                    @endif
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Table -->
+                    <div class="table-responsive">
+                        <table class="table table-hover bg-white shadow-lg rounded-4">
+                            <thead class="table-success">
+                                <tr>
+                                    <th scope="col" class="py-3">Guest Name</th>
+                                    <th scope="col" class="py-3">Amount Paid</th>
+                                    <th scope="col" class="py-3">Remaining Balance</th>
+                                    <th scope="col" class="py-3">Payment Mode</th>
+                                    <th scope="col" class="py-3">Date</th>
+                                    <th scope="col" class="py-3">Payment Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($reservationDetails as $transaction)
+                                    <tr>
+                                        <td class="py-3">{{ $transaction->name }}</td>
+                                        <td class="py-3">{{ $transaction->amount }}</td>
+                                    <td class="py-3">
+                                    @php
+                                        $balance = 0;
+                                        if (is_numeric($transaction->amount)) {
+                                            $balance = number_format($transaction->amount * 0.15, 2, '.', ',');
+                                        }
+                                    @endphp
+                                    <span>₱{{ $balance }}</span>
+                                    </td>
+                                        <td class="py-3">{{ $transaction->payment_method }}</td>
+                                        <td class="py-3">{{ \Carbon\Carbon::parse($transaction->reservation_check_in_date)->format('M d, Y') }}</td>
+                                        <td class="py-3">
+                                            <span class="badge rounded-pill {{ $transaction->payment_status === 'paid' ? 'bg-success' : ($transaction->payment_status === 'pending' ? 'bg-warning' : ($transaction->payment_status === 'booked' ? 'bg-primary' : 'bg-danger')) }}">
+                                                {{ ucfirst($transaction->payment_status) }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="text-center py-3">No transactions found</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                        
+                        <div class="d-flex justify-content-end mt-3">
+                            {{ $reservationDetails->links() }}
+                        </div>
+                    </div>
+                </div>
          </div>
     </div>
 
@@ -173,6 +296,28 @@
             }
         });
     });
+    </script>
+        <!-- Add this before the closing </body> tag -->
+        <script>
+        // Date range validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const startDate = document.getElementById('start_date');
+            const endDate = document.getElementById('end_date');
+
+            startDate.addEventListener('change', function() {
+                endDate.min = this.value;
+                if (endDate.value && endDate.value < this.value) {
+                    endDate.value = this.value;
+                }
+            });
+
+            endDate.addEventListener('change', function() {
+                startDate.max = this.value;
+                if (startDate.value && startDate.value > this.value) {
+                    startDate.value = this.value;
+                }
+            });
+        });
     </script>
 </body>
 </html>
