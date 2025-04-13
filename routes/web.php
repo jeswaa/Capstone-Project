@@ -53,6 +53,7 @@ Route::middleware(['isAdmin'])->group(function () {
     Route::post('/store-activities', [AdminSideController::class, 'storeActivity'])->name('storeActivity');
     Route::put('/activities/update/{id}', [AdminSideController::class, 'updateActivity'])->name('updateActivity');
     Route::get('/guests', [AdminSideController::class, 'guests'])->name('guests');
+    Route::post('/guests/ban/{id}', [AdminSideController::class, 'banGuest'])->name('ban.guest');
     Route::get('/transactions', [AdminSideController::class, 'editPrice'])->name('transactions');
     Route::get('/export-excel', [AdminSideController::class, 'exportExcel'])->name('transactions.export.excel');
     Route::get('/export-pdf', [AdminSideController::class, 'exportPDF'])->name('transactions.export.pdf');

@@ -96,58 +96,99 @@ class AdminSideController extends Controller
     {
         return view('AdminSide.addRoom');
     }
+    public function banGuest($id)
+    {
+        try {
+            // Update user status to banned
+            DB::table('users')
+                ->where('id', $id)
+                ->update([
+                    'status' => 'banned',
+                    'updated_at' => now()
+                ]);
 
-public function guests(){
-    // Get upcoming reservations count
-    $upcomingReservations = DB::table('reservation_details')
-        ->whereDate('reservation_check_in_date', '>', Carbon::today()->endOfDay())
-        ->count();
-    
-    // Get checked-in reservations count
-    $checkedInReservations = DB::table('reservation_details')
-        ->where('reservation_status', 'checked-in')
-        ->count();
+            return redirect()->back()->with('success', 'Guest has been banned successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to ban guest. Please try again.');
+        }
+    }
+    public function guests(){
+        // Get upcoming reservations count
+        $upcomingReservations = DB::table('reservation_details')
+            ->whereDate('reservation_check_in_date', '>', Carbon::today()->endOfDay())
+            ->count();
         
-    // Get user and reservation counts
-    $users = DB::table('users')->count();
-    $reservations = DB::table('reservation_details')->paginate(10);
-    $totalGuests = DB::table('users')->count();
-    $totalReservations = DB::table('reservation_details')->count();
+        // Get checked-in reservations count
+        $checkedInReservations = DB::table('reservation_details')
+            ->where('reservation_status', 'checked-in')
+            ->count();
+            
+        // Get user and reservation counts
+        $users = DB::table('users')->count();
+        $reservations = DB::table('users')
+        ->leftJoin('reservation_details', 'users.id', '=', 'reservation_details.user_id')
+        ->select(
+            'users.*',
+            DB::raw('COUNT(DISTINCT reservation_details.id) as visit_count'),
+            DB::raw('MAX(reservation_details.reservation_check_in_date) as last_visit')
+        )
+        ->groupBy(
+            'users.id',
+            'users.name',
+            'users.email',
+            'users.mobileNo',
+            'users.address',
+            'users.image',
+            'users.created_at',
+            'users.updated_at',
+            'users.password',
+            'users.role',
+            'users.status',
+            'users.email_verified_at',
+            'users.google_id',
+            'users.otp',
+            'users.otp_expires_at',
+            'users.remember_token'
+            // Add any other user columns you're using
+        )
+        ->paginate(10);
+        $totalGuests = DB::table('users')->count();
+        $totalReservations = DB::table('reservation_details')->count();
 
-    // Get reserved count
-    $reservedCount = DB::table('reservation_details')
-        ->where('reservation_status', 'reserved')
-        ->count();
+        // Get reserved count
+        $reservedCount = DB::table('reservation_details')
+            ->where('reservation_status', 'reserved')
+            ->count();
 
-    // Count cancelled reservations
-    $cancelledReservations = DB::table('reservation_details')
-        ->where(function($query) {
-            $query->where('reservation_status', 'cancelled')
-                  ->orWhere('payment_status', 'cancelled');
-        })
-        ->count();
+        // Count cancelled reservations
+        $cancelledReservations = DB::table('reservation_details')
+            ->where(function($query) {
+                $query->where('reservation_status', 'cancelled')
+                    ->orWhere('payment_status', 'cancelled');
+            })
+            ->count();
 
-    // Get upcoming reservations list with user details
-    $upcomingReservationsList = DB::table('reservation_details')
-        ->join('users', 'reservation_details.user_id', '=', 'users.id')
-        ->select('reservation_details.*', 'users.name as guest_name')
-        ->whereDate('reservation_check_in_date', '>', Carbon::today()->endOfDay())
-        ->where('reservation_status', 'reserved')
-        ->orderBy('reservation_check_in_date', 'asc')
-        ->get();
-        
-    // Return view with all data
-    return view('AdminSide.Guest', compact(
-        'users',
-        'reservations', 
-        'totalGuests',
-        'totalReservations',
-        'upcomingReservations',
-        'checkedInReservations',
-        'upcomingReservationsList',
-        'cancelledReservations'
-    ));
-}
+        // Get upcoming reservations list with user details
+        $upcomingReservationsList = DB::table('reservation_details')
+            ->join('users', 'reservation_details.user_id', '=', 'users.id')
+            ->select('reservation_details.*', 'users.name as guest_name')
+            ->whereDate('reservation_check_in_date', '>', Carbon::today()->endOfDay())
+            ->where('reservation_status', 'reserved')
+            ->orderBy('reservation_check_in_date', 'asc')
+            ->get();
+            
+        // Return view with all data
+        return view('AdminSide.Guest', compact(
+            'users',
+            'reservations', 
+            'totalGuests',
+            'totalReservations',
+            'upcomingReservations',
+            'checkedInReservations',
+            'upcomingReservationsList',
+            'cancelledReservations'
+        ));
+    }
 
     public function transactions(){
         return view('AdminSide.transactions');
@@ -479,11 +520,11 @@ public function login(Request $request) {
     ]);
 }
     // Export to Excel
+    
     public function exportExcel(Request $request)
     {
         try {
-            Excel::download(new TransactionsExport($request), 'transactions.xlsx');
-            return redirect()->route('transactions')->with('success', 'Excel file exported successfully!');
+            return Excel::download(new TransactionsExport($request), 'transactions.xlsx');
         } catch (\Exception $e) {
             return redirect()->route('transactions')->with('error', 'Failed to export Excel file. Please try again.');
         }
@@ -508,121 +549,119 @@ public function login(Request $request) {
                 'transactions' => $reservationDetails
             ]);
 
-            $pdf->download('transactions.pdf');
-
-            return redirect()->route('transactions')->with('success', 'PDF exported successfully!');
+            return $pdf->download('transactions.pdf');
             
         } catch (\Exception $e) {
             return redirect()->route('transactions')->with('error', 'Failed to export PDF. Please try again.');
         }
     }
-public function editPrice(Request $request)
-{
-    // Get available years from reservation data
-    $availableYears = DB::table('reservation_details')
-        ->select(DB::raw('YEAR(reservation_check_in_date) as year'))
-        ->distinct()
-        ->orderBy('year', 'desc')
-        ->pluck('year');
+    public function editPrice(Request $request)
+    {
+        // Get available years from reservation data
+        $availableYears = DB::table('reservation_details')
+            ->select(DB::raw('YEAR(reservation_check_in_date) as year'))
+            ->distinct()
+            ->orderBy('year', 'desc')
+            ->pluck('year');
 
-    // Get selected year from request or use current year
-    $selectedYear = $request->input('year', date('Y'));
+        // Get selected year from request or use current year
+        $selectedYear = $request->input('year', date('Y'));
 
-    // Get monthly revenue data for bar graph - only count paid reservations
-    $monthlyRevenue = DB::table('reservation_details')
-        ->select(
-            DB::raw('MONTH(reservation_check_in_date) as month'),
-            DB::raw('YEAR(reservation_check_in_date) as year'),
-            DB::raw('SUM(CAST(REPLACE(REPLACE(amount, "₱", ""), ",", "") AS DECIMAL(10,2))) as total_revenue')
-        )
-        ->whereYear('reservation_check_in_date', $selectedYear)
-        ->groupBy('year', 'month')
-        ->orderBy('year')
-        ->orderBy('month')
-        ->get();
+        // Get monthly revenue data for bar graph - only count paid reservations
+        $monthlyRevenue = DB::table('reservation_details')
+            ->select(
+                DB::raw('MONTH(reservation_check_in_date) as month'),
+                DB::raw('YEAR(reservation_check_in_date) as year'),
+                DB::raw('SUM(CAST(REPLACE(REPLACE(amount, "₱", ""), ",", "") AS DECIMAL(10,2))) as total_revenue')
+            )
+            ->whereYear('reservation_check_in_date', $selectedYear)
+            ->groupBy('year', 'month')
+            ->orderBy('year')
+            ->orderBy('month')
+            ->get();
 
-    // Format data for chart - prepare arrays for Chart.js
-    $chartLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    $chartValues = array_fill(0, 12, 0); // Initialize with zeros for all months
-    
-    foreach ($monthlyRevenue as $revenue) {
-        $monthIndex = $revenue->month - 1; // Convert 1-based month to 0-based index
-        $chartValues[$monthIndex] = round($revenue->total_revenue, 2);
-    }
+        // Format data for chart - prepare arrays for Chart.js
+        $chartLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        $chartValues = array_fill(0, 12, 0); // Initialize with zeros for all months
+        
+        foreach ($monthlyRevenue as $revenue) {
+            $monthIndex = $revenue->month - 1; // Convert 1-based month to 0-based index
+            $chartValues[$monthIndex] = round($revenue->total_revenue, 2);
+        }
 
-    // Get total revenue for the selected year
-    $totalRevenue = array_sum($chartValues);
+        // Get total revenue for the selected year
+        $totalRevenue = array_sum($chartValues);
 
-    // Get entrance fee from transactions table
-    $transactions = Transaction::first();
-    $entranceFee = $transactions ? $transactions->entrance_fee : 0;
+        // Get entrance fee from transactions table
+        $transactions = Transaction::first();
+        $entranceFee = $transactions ? $transactions->entrance_fee : 0;
 
-    // Build base query for reservation details
-    $query = DB::table('reservation_details')
-        ->join('users', 'reservation_details.user_id', '=', 'users.id')
-        ->select(
-            'reservation_details.*',
-            'users.name as user_name',
-            'users.email',
-            'users.mobileNo'
-        );
-
-    // Apply filters if they exist
-    if ($request->filled('start_date') && $request->filled('end_date')) {
-        $query->whereBetween('reservation_check_in_date', [
-            $request->start_date,
-            $request->end_date
-        ]);
-    }
-
-    if ($request->filled('guest_name')) {
-        $query->where('users.name', 'LIKE', '%' . $request->guest_name . '%');
-    }
-
-    if ($request->filled('payment_status')) {
-        $query->where('reservation_details.payment_status', $request->payment_status);
-    }
-
-    // Get filtered and paginated results
-    $reservationDetails = $query
-        ->orderBy('reservation_details.created_at', 'desc')
-        ->paginate(10)
-        ->withQueryString();
-
-    // Handle case when no results found
-    if ($reservationDetails->isEmpty()) {
-        $reservationDetails = DB::table('reservation_details')
+        // Build base query for reservation details
+        $query = DB::table('reservation_details')
             ->join('users', 'reservation_details.user_id', '=', 'users.id')
             ->select(
                 'reservation_details.*',
                 'users.name as user_name',
-                'users.email', 
+                'users.email',
                 'users.mobileNo'
-            )
+            );
+
+        // Apply filters if they exist
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('reservation_check_in_date', [
+                $request->start_date,
+                $request->end_date
+            ]);
+        }
+
+        if ($request->filled('guest_name')) {
+            $query->where('users.name', 'LIKE', '%' . $request->guest_name . '%');
+        }
+
+        if ($request->filled('payment_status')) {
+            $query->where('reservation_details.payment_status', $request->payment_status);
+        }
+
+        // Get filtered and paginated results
+        $reservationDetails = $query
             ->orderBy('reservation_details.created_at', 'desc')
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
+
+        // Handle case when no results found
+        if ($reservationDetails->isEmpty()) {
+            $reservationDetails = DB::table('reservation_details')
+                ->join('users', 'reservation_details.user_id', '=', 'users.id')
+                ->select(
+                    'reservation_details.*',
+                    'users.name as user_name',
+                    'users.email', 
+                    'users.mobileNo'
+                )
+                ->orderBy('reservation_details.created_at', 'desc')
+                ->paginate(10);
+        }
+
+        // Get pending payments (limit to 4)
+        $pendingPayments = DB::table('reservation_details')
+            ->join('users', 'reservation_details.user_id', '=', 'users.id')
+            ->select('reservation_details.*', 'users.name')
+            ->where('payment_status', 'pending')
+            ->orderBy('reservation_check_in_date', 'desc')
+            ->limit(4)
+            ->get();
+
+        return view('AdminSide.Transactions', [
+            'chartLabels' => json_encode($chartLabels),
+            'chartValues' => json_encode($chartValues),
+            'totalRevenue' => $totalRevenue,
+            'entranceFee' => $entranceFee,
+            'monthlyRevenue' => $monthlyRevenue,
+            'availableYears' => $availableYears,
+            'pendingPayments' => $pendingPayments,
+            'reservationDetails' => $reservationDetails,
+        ]);
     }
-
-    // Get pending payments (limit to 4)
-    $pendingPayments = DB::table('reservation_details')
-        ->join('users', 'reservation_details.user_id', '=', 'users.id')
-        ->select('reservation_details.*', 'users.name')
-        ->where('payment_status', 'pending')
-        ->orderBy('reservation_check_in_date', 'desc')
-        ->limit(4)
-        ->get();
-
-    return view('AdminSide.Transactions', [
-        'chartLabels' => json_encode($chartLabels),
-        'chartValues' => json_encode($chartValues),
-        'totalRevenue' => $totalRevenue,
-        'entranceFee' => $entranceFee,
-        'monthlyRevenue' => $monthlyRevenue,
-        'availableYears' => $availableYears,
-        'pendingPayments' => $pendingPayments,
-        'reservationDetails' => $reservationDetails,
-    ]);
-}
     public function updatePrice(Request $request)
     {
         $request->validate(['entrance_fee' => 'required']);

@@ -203,18 +203,37 @@
                                     <th scope="col">Guest Name</th>
                                     <th scope="col">Email</th>
                                     <th scope="col">Phone Number</th>
-                                    <th scope="col">Check-in</th>
-                                    <th scope="col">Check-out</th>
+                                    <th scope="col">No. of Visits</th>
+                                    <th scope="col">Last Visit</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($reservations as $reservation)
                                 <tr>
-                                    <td >{{ $reservation->name }}</td>
+                                    <td>{{ $reservation->name }}</td>
                                     <td>{{ $reservation->email }}</td>
-                                    <td>{{ $reservation->mobileNo}}</td>
-                                    <td>{{ $reservation->reservation_check_in }}</td>
-                                    <td>{{ $reservation->reservation_check_out }}</td>
+                                    <td>{{ $reservation->mobileNo }}</td>
+                                    <td>{{ $reservation->visit_count ?? '-' }}</td>
+                                    <td>{{ $reservation->last_visit ? date('M d, Y', strtotime($reservation->last_visit)) : '-' }}</td>
+                                    <td>{{$reservation->status}}</td>
+                                    <td>
+                                        <div class="d-flex gap-2">
+                                            <button class="btn btn-sm text-white" style="background-color: #0b573d;" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#viewGuestModal{{ $reservation->id }}" 
+                                                    title="View Guest">
+                                                <i class="fas fa-eye me-1"></i> View
+                                            </button>
+                                            <button class="btn btn-sm btn-danger" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#banGuestModal{{ $reservation->id }}" 
+                                                    title="Ban Guest">
+                                                <i class="fas fa-ban me-1"></i> Ban
+                                            </button>
+                                        </div>
+                                    </td>
                                 </tr>
                                 @endforeach
                             </tbody>
@@ -270,7 +289,7 @@
             if (filteredGuests.length === 0) {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td colspan="5" class="text-center py-3 px-4">
+                    <td colspan="6" class="text-center py-3 px-4">
                         <div class="d-flex justify-content-center align-items-center">
                             No results found
                         </div>
@@ -294,17 +313,38 @@
                         </td>
                         <td >
                             <div>
-                                ${guest.mobileNo}
+                                ${guest.mobileNo || '-'}
                             </div>
                         </td>
                         <td>
                             <div>
-                                ${guest.reservation_check_in}
+                                ${guest.visit_count || '-'}
                             </div>
                         </td>
                         <td>
                             <div>
-                                ${guest.reservation_check_out}
+                                ${guest.last_visit ? new Date(guest.last_visit).toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '-'}
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                ${guest.status || '-'}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm text-white" style="background-color: #0b573d;" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#viewGuestModal${guest.id}" 
+                                        title="View Guest">
+                                    <i class="fas fa-eye me-1"></i> View
+                                </button>
+                                <button class="btn btn-sm btn-danger" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#banGuestModal${guest.id}" 
+                                        title="Ban Guest">
+                                    <i class="fas fa-ban me-1"></i> Ban
+                                </button>
                             </div>
                         </td>
                     `;
@@ -323,6 +363,123 @@
         filterGuests('');
     });
 </script>
+
+<!-- Add these modals at the end of the body tag -->
+@foreach($reservations as $reservation)
+<!-- View Guest Modal -->
+<div class="modal fade" id="viewGuestModal{{ $reservation->id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: #0b573d; color: white;">
+                <h5 class="modal-title">Guest Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Guest Information -->
+                <div class="mb-4">
+                    <h6 class="fw-bold mb-3">Personal Information</h6>
+                    <div class="mb-2">
+                        <strong>Name:</strong> {{ $reservation->name }}
+                    </div>
+                    <div class="mb-2">
+                        <strong>Email:</strong> {{ $reservation->email }}
+                    </div>
+                    <div class="mb-2">
+                        <strong>Phone:</strong> {{ $reservation->mobileNo }}
+                    </div>
+                    <div class="mb-2">
+                        <strong>Total Visits:</strong> {{ $reservation->visit_count ?? '0' }}
+                    </div>
+                    <div class="mb-2">
+                        <strong>Last Visit:</strong> 
+                        {{ $reservation->last_visit ? date('M d, Y', strtotime($reservation->last_visit)) : 'No visits yet' }}
+                    </div>
+                </div>
+
+                <!-- Reservations History -->
+                <div>
+                    <h6 class="fw-bold mb-3">Reservation History</h6>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>No. of Guest</th>
+                                    <th>Room</th>
+                                    <th>Reservation Status</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            @php
+                                $userReservations = DB::table('reservation_details')
+                                    ->where('user_id', $reservation->id)
+                                    ->get()
+                                    ->map(function($res) {
+                                        // Decode the JSON string to array
+                                        $accomodationIds = json_decode($res->accomodation_id);
+                                        
+                                        // Get accommodation names
+                                        $accomodationNames = DB::table('accomodations')
+                                            ->whereIn('accomodation_id', $accomodationIds)
+                                            ->pluck('accomodation_name')
+                                            ->join(', ');
+                                        
+                                        $res->accomodation_name = $accomodationNames;
+                                        return $res;
+                                    });
+                            @endphp
+                                
+                                @forelse($userReservations as $res)
+                                    <tr>
+                                        <td>{{ date('M d, Y', strtotime($res->reservation_check_in_date)) }}</td>
+                                        <td>{{ $res->number_of_adults + $res->number_of_children }} ({{ $res->number_of_adults }} Adults, {{ $res->number_of_children }} Children)</td>
+                                        <td>{{ $res->accomodation_name }}</td>
+                                        <td>
+                                            <span class="badge {{ $res->reservation_status == 'cancelled' || $res->reservation_status == 'checked-out' ? 'bg-danger' : ($res->reservation_status == 'checked-in' ? 'bg-success' : 'bg-warning') }}">
+                                                {{ ucfirst($res->reservation_status) }}
+                                            </span>
+                                        </td>
+                                        <td>₱{{ number_format($res->amount, 2) }}</td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="text-center">No reservations found</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Ban Guest Modal -->
+<div class="modal fade" id="banGuestModal{{ $reservation->id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Ban Guest</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to ban {{ $reservation->name }}?</p>
+                <p class="text-muted">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form action="{{ route('ban.guest', $reservation->id) }}" method="POST" class="d-inline">
+                    @csrf
+                    <button type="submit" class="btn btn-danger">Ban Guest</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@endforeach
+
 </body>
 </html>
 
