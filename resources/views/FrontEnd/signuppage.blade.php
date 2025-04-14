@@ -124,7 +124,15 @@
                             <input type="number" class="form-control p-2 font-paragraph" id="mobileNo" name="mobileNo" placeholder="Mobile Number..." required>
                         </div>
                         <div class="mb-3">
-                            <input type="password" class="form-control p-2 font-paragraph" id="password" name="password" placeholder="Password..." required>
+                        <input type="password" class="form-control p-2 font-paragraph" id="password" name="password" placeholder="Password..." required>
+
+                        <!-- Password Strength Indicator -->
+                        <div class="password-strength mt-2">
+                            <div class="progress" style="height: 5px;">
+                            <div id="passwordStrength" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                            </div>
+                            <small id="passwordHelp" class="form-text text-muted"></small>
+                        </div>
                         </div>
                         <div class="mb-1">
                             <input type="password" class="form-control p-2 font-paragraph" id="password_confirmation" name="password_confirmation" placeholder="Confirm Password..." required>
@@ -156,35 +164,37 @@
         </div>
     </div>
 
-    <!-- OTP Verification Modal -->
-    <div class="modal fade" id="otpModal" tabindex="-1" aria-labelledby="otpModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content rounded-4 border-0" style="background-color: #f9f9f9;">
 
-            <!-- Header -->
-            <div class="modal-header bg-success text-white rounded-top-4 py-3">
-                <h5 class="modal-title fw-bold" id="otpModalLabel">Verify Your Email</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
+<!-- OTP Verification Modal -->
+<div class="modal fade" id="otpModal" tabindex="-1" aria-labelledby="otpModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 border-0" style="background-color: #f9f9f9;">
 
-            <!-- Body -->
-            <div class="modal-body px-4 py-3">
-                <p class="text-success mb-3" style="font-size: 1rem;">
-                We've sent a 6-digit OTP to your email. Please enter it below to verify your account.
-                </p>
-                <input type="text" id="otp" class="form-control p-2 border-success" placeholder="Enter OTP" maxlength="6" style="font-weight: 500;">
-            </div>
+      <!-- Header -->
+      <div class="modal-header bg-success text-white rounded-top-4 py-3">
+        <h5 class="modal-title fw-bold" id="otpModalLabel">Verify Your Email</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
 
-            <!-- Footer -->
-            <div class="modal-footer border-0 px-4 pb-4">
-                <button type="button" id="verify-otp" class="btn btn-success fw-bold px-4 py-2 w-100">
-                Verify OTP
-                </button>
-            </div>
+      <!-- Body -->
+      <div class="modal-body px-4 py-3">
+        <p class="text-success mb-3" style="font-size: 1rem;">
+          We've sent a 6-digit OTP to your email. Please enter it below to verify your account.
+        </p>
+        <input type="text" id="otp" class="form-control p-2 border-success" placeholder="Enter OTP" maxlength="6" style="font-weight: 500;">
+      </div>
 
-            </div>
-        </div>
+      <!-- Footer -->
+      <div class="modal-footer border-0 px-4 pb-4">
+        <button type="button" id="verify-otp" class="btn btn-success fw-bold px-4 py-2 w-100">
+          Verify OTP
+        </button>
+      </div>
+
     </div>
+  </div>
+</div>
+
 
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -253,8 +263,79 @@ $(document).ready(function() {
         }
     }
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+    const newPassword = document.getElementById('newPassword') || document.getElementById('password'); // fallback if using a single input
+    const confirmPassword = document.getElementById('confirmPassword');
+    const passwordMatch = document.getElementById('passwordMatch');
+    const submitBtn = document.getElementById('submitBtn');
+    const passwordStrength = document.getElementById('passwordStrength');
+    const passwordHelp = document.getElementById('passwordHelp');
+
+    // Event listeners
+    if (newPassword) {
+        newPassword.addEventListener('input', () => {
+            checkPasswordStrength(newPassword.value);
+            checkPasswordMatch();
+        });
+    }
+
+    if (confirmPassword) {
+        confirmPassword.addEventListener('input', checkPasswordMatch);
+    }
+
+    function checkPasswordMatch() {
+        if (!newPassword || !confirmPassword || !passwordMatch || !submitBtn) return;
+
+        if (newPassword.value && confirmPassword.value) {
+            if (newPassword.value === confirmPassword.value) {
+                passwordMatch.innerHTML = '<small class="text-success">Passwords match!</small>';
+                submitBtn.disabled = false;
+            } else {
+                passwordMatch.innerHTML = '<small class="text-danger">Passwords do not match!</small>';
+                submitBtn.disabled = true;
+            }
+        } else {
+            passwordMatch.innerHTML = '';
+            submitBtn.disabled = true;
+        }
+    }
+
+    function checkPasswordStrength(password) {
+        if (!passwordStrength || !passwordHelp) return;
+
+        const strength = calculatePasswordStrength(password);
+        passwordStrength.style.width = strength.percentage + '%';
+
+        if (strength.percentage < 40) {
+            passwordStrength.className = 'progress-bar bg-danger';
+            passwordHelp.textContent = 'Weak password';
+        } else if (strength.percentage < 70) {
+            passwordStrength.className = 'progress-bar bg-warning';
+            passwordHelp.textContent = 'Moderate password';
+        } else {
+            passwordStrength.className = 'progress-bar bg-success';
+            passwordHelp.textContent = 'Strong password';
+        }
+    }
+
+    function calculatePasswordStrength(password) {
+        let strength = 0;
+        if (password.length >= 8) strength += 30;
+        if (/[A-Z]/.test(password)) strength += 20;
+        if (/[a-z]/.test(password)) strength += 20;
+        if (/[0-9]/.test(password)) strength += 20;
+        if (/[^A-Za-z0-9]/.test(password)) strength += 10;
+
+        return {
+            percentage: Math.min(strength, 100)
+        };
+    }
+});
 </script>
 
 
+
+</script>
 </body>
 </html>

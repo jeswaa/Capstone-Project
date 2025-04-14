@@ -247,7 +247,7 @@
                         <input class="form-check-input" type="checkbox" id="agreeTerms" required>
                         <label class="form-check-label text-color-1 font-paragraph" for="agreeTerms" style="font-size: 0.9rem;">
                             I agree to the  
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#privacyPolicyModal" class="font-paragraph text-decoration-none text-color-1 fw-semibold text-underline-left-to-right">Privacy Policy</a>
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#privacyPolicyModal" class="font-paragraph text-decoration-none text-color-1 fw-semibold text-underline-left-to-right">Terms and Conditions</a>
                         </label>
                     </div>
 
@@ -258,7 +258,7 @@
 
                             <!-- Header -->
                             <div class="modal-header bg-success text-white rounded-top-4 py-3">
-                                <h5 class="modal-title fw-bold" id="privacyPolicyLabel">Privacy Policy</h5>
+                                <h5 class="modal-title fw-bold" id="privacyPolicyLabel">Terms and Conditions</h5>
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
 
@@ -266,7 +266,7 @@
                             <div class="modal-body d-flex justify-content-center align-items-center px-4 py-3">
                                 <div style="text-align: center;">
                                 <p class="mb-3" style="font-size: 1rem; font-weight: bold;">
-                                    We collect and store your email and password securely for authentication purposes. Your data is protected and will not be shared without your consent. By using our service, you agree to our terms.
+                                    We collect and store your email and password securely for authentication purposes. Your data is protected and will not be shared without your consent. Please note that all payments are non-refundable. By using our service, you agree to our terms. 
                                 </p>
                                 <p style="font-size: 1rem; font-weight: bold;">
                                     For more details, contact us at 
@@ -288,7 +288,7 @@
                         <div class="d-flex justify-content-center align-items-center color-background8 p-3 rounded-4 google"
                              style="font-size: 0.9rem;">
                             <img src="{{ asset('images/google.png') }}" alt="" width="16" height="16" class="me-2"> 
-                            Sign up using Google
+                            Sign In using Google
                         </div>
                     </a>
                 </form>

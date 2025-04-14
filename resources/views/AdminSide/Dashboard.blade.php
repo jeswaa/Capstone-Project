@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css">
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
     <title>Dashboard</title>
@@ -39,9 +41,9 @@
 
                         <div class="dropdown py-2 mt-4">
                             <a class="text-white text-decoration-none d-flex align-items-center dropdown-toggle" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-chart-line me-2 fs-5 text-underline-left-to-right"></i> Reports
+                                <i class="fas fa-chart-line me-2 fs-5"></i> Reports
                             </a>
-                            <ul class="dropdown-menu" aria-labelledby="reportsDropdown">
+                            <ul class="dropdown-menu " aria-labelledby="reportsDropdown">
                                 <li><a class="dropdown-item" href="{{ route('reports') }}">Summary Report</a></li>
                                 <li><a class="dropdown-item" href="#">Activity Logs</a></li>
                             </ul>

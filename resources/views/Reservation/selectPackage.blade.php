@@ -49,16 +49,70 @@
     </div>
     
     <div class="container">
-    <h1 class="text-white font-heading fs-2 mt-3 mb-3">Select your Accommodation</h1>
+    <h1 class="text-white font-heading fs-2 mt-3 mb-3 ms-2">Select your Room</h1>
     
     <form method="POST" action="{{ route('savePackageSelection') }}">
         @csrf
         <input type="hidden" name="package_type" value="custom">
 
-        <!-- Rooms Section -->
+        <!-- Room Section -->
         <div class="col-md-12 d-flex flex-column">
             <div class="form-group">
                 <label for="roomPreference" class="text-white font-paragraph fw-semibold mb-3 ms-2" style="font-size: 1.5rem;">ROOMS</label>
+                <div class="container">
+                    <div class="row g-4">
+                    @foreach($accomodations->where('accomodation_type', 'room') as $accomodation)
+                        <div class="col-md-4">
+                            <div class="card select-accommodation {{ $accomodation->accomodation_slot == 0 ? 'disabled' : '' }}" 
+                                 data-id="{{ $accomodation->accomodation_id }}" 
+                                 data-price="{{ $accomodation->accomodation_price }}"
+                                 data-capacity="{{ $accomodation->accomodation_capacity }}">
+                                <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" class="card-img-top" alt="accommodation image" style="max-width: 100%; height: 250px; object-fit: cover;">
+                                <div class="card-body p-3 position-relative" style="background-color: white;">
+                                    <h5 class="text-success text-capitalize font-heading fs-4 fw-bold">{{ $accomodation->accomodation_name }}</h5>
+                                    <p class="card-text text-success font-paragraph" style="font-size: smaller;">Description: {{ $accomodation->accomodation_description }}</p>
+                                    <p class="card-text text-success font-paragraph">Capacity: {{ $accomodation->accomodation_capacity }} pax</p>
+                                    <p class="card-text font-paragraph fw-bold text-success" style="text-align: right;">Price: <span style="background-color: #0b573d; color: white; padding: 2px 5px;">₱{{ $accomodation->accomodation_price }}</span></p>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cabin Section -->
+        <div class="col-md-12 d-flex flex-column">
+            <div class="form-group">
+                <label for="roomPreference" class="text-white font-paragraph fw-semibold mb-3 ms-2 mt-5" style="font-size: 1.5rem;">CABINS</label>
+                <div class="container">
+                    <div class="row g-4">
+                    @foreach($accomodations->where('accomodation_type', 'cabin') as $accomodation)
+                        <div class="col-md-4">
+                            <div class="card select-accommodation {{ $accomodation->accomodation_slot == 0 ? 'disabled' : '' }}" 
+                                 data-id="{{ $accomodation->accomodation_id }}" 
+                                 data-price="{{ $accomodation->accomodation_price }}"
+                                 data-capacity="{{ $accomodation->accomodation_capacity }}">
+                                <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" class="card-img-top" alt="accommodation image" style="max-width: 100%; height: 250px; object-fit: cover;">
+                                <div class="card-body p-3 position-relative" style="background-color: white;">
+                                    <h5 class="text-success text-capitalize font-heading fs-4 fw-bold">{{ $accomodation->accomodation_name }}</h5>
+                                    <p class="card-text text-success font-paragraph" style="font-size: smaller;">Description: {{ $accomodation->accomodation_description }}</p>
+                                    <p class="card-text text-success font-paragraph">Capacity: {{ $accomodation->accomodation_capacity }} pax</p>
+                                    <p class="card-text font-paragraph fw-bold text-success" style="text-align: right;">Price: <span style="background-color: #0b573d; color: white; padding: 2px 5px;">₱{{ $accomodation->accomodation_price }}</span></p>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cottage Section -->
+        <div class="col-md-12 d-flex flex-column">
+            <div class="form-group">
+                <label for="roomPreference" class="text-white font-paragraph fw-semibold mb-3 ms-2 mt-5" style="font-size: 1.5rem;">COTTAGES</label>
                 <div class="container">
                     <div class="row g-4">
                     @foreach($accomodations->where('accomodation_type', 'cottage') as $accomodation)
@@ -73,7 +127,6 @@
                                     <p class="card-text text-success font-paragraph" style="font-size: smaller;">Description: {{ $accomodation->accomodation_description }}</p>
                                     <p class="card-text text-success font-paragraph">Capacity: {{ $accomodation->accomodation_capacity }} pax</p>
                                     <p class="card-text font-paragraph fw-bold text-success" style="text-align: right;">Price: <span style="background-color: #0b573d; color: white; padding: 2px 5px;">₱{{ $accomodation->accomodation_price }}</span></p>
-                                    
                                 </div>
                             </div>
                         </div>
