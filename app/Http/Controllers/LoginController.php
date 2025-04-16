@@ -198,29 +198,49 @@ public function authenticate(Request $request)
     }
     public function sendLoginOTP(Request $request)
     {
+
         $email = $request->email;
+        $password = $request->input('password'); // Changed to use input() method
+        
+        // More detailed debug logging
+        \Log::info('Login attempt details:', [
+            'email' => $email,
+            'password_exists' => isset($password),
+            'password_empty' => empty($password),
+            'request_all' => $request->all() // This will show all data received
+        ]);
+        
         $user = User::where('email', $email)->first();
         
         if (!$user) {
             return response()->json([
                 'success' => false,
-                'message' => 'User not found with this email.'
+                'message' => 'User not found.'
+            ]);
+        }
+        
+        // Check if password is missing
+        if (empty($password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Password is required.'
+            ]);
+        }
+        
+        // Check password match
+        if (!Hash::check($password, $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid password.'
             ]);
         }
         
         // Generate a 6-digit OTP
         $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-        
-        // Store OTP in the session
         session(['login_otp' => $otp, 'login_otp_email' => $email]);
         
         try {
-            // Send OTP via email
             Mail::to($email)->send(new LoginOTPMail($otp));
-            
-            // Add success message to session
-            session()->flash('success', 'OTP has been successfully sent to your email.');
-            
             return response()->json([
                 'success' => true,
                 'message' => 'OTP has been successfully sent to your email.'

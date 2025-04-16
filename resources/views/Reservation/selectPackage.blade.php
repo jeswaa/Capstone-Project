@@ -62,8 +62,9 @@
                 <div class="container">
                     <div class="row g-4">
                     @foreach($accomodations->where('accomodation_type', 'room') as $accomodation)
-                        <div class="col-md-4">
-                            <div class="card select-accommodation {{ $accomodation->accomodation_slot == 0 ? 'disabled' : '' }}" 
+
+                    <div class="col-md-4">
+                            <div class="card select-accommodation" 
                                  data-id="{{ $accomodation->accomodation_id }}" 
                                  data-price="{{ $accomodation->accomodation_price }}"
                                  data-capacity="{{ $accomodation->accomodation_capacity }}">
@@ -90,7 +91,7 @@
                     <div class="row g-4">
                     @foreach($accomodations->where('accomodation_type', 'cabin') as $accomodation)
                         <div class="col-md-4">
-                            <div class="card select-accommodation {{ $accomodation->accomodation_slot == 0 ? 'disabled' : '' }}" 
+                            <div class="card select-accommodation" 
                                  data-id="{{ $accomodation->accomodation_id }}" 
                                  data-price="{{ $accomodation->accomodation_price }}"
                                  data-capacity="{{ $accomodation->accomodation_capacity }}">
@@ -117,7 +118,7 @@
                     <div class="row g-4">
                     @foreach($accomodations->where('accomodation_type', 'cottage') as $accomodation)
                         <div class="col-md-4">
-                            <div class="card select-accommodation {{ $accomodation->accomodation_slot == 0 ? 'disabled' : '' }}" 
+                            <div class="card select-accommodation" 
                                  data-id="{{ $accomodation->accomodation_id }}" 
                                  data-price="{{ $accomodation->accomodation_price }}"
                                  data-capacity="{{ $accomodation->accomodation_capacity }}">

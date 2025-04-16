@@ -737,17 +737,17 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 <!-- Verfication Modal After clicking the Login Button-->
 <script>
+// Find this script section and update it
 document.addEventListener('DOMContentLoaded', function() {
-    // Get the login button and form
     const loginButton = document.getElementById('loginButton');
     const loginForm = loginButton.closest('form');
     
-    // Add event listener to the login form
     loginForm.addEventListener('submit', function(e) {
-        e.preventDefault(); // Prevent default form submission
+        e.preventDefault();
         
-        // Get email from the form
+        // Get both email and password
         const email = document.getElementById('userEmail').value;
+        const password = document.getElementById('passwordField').value;
         
         // Show the OTP modal
         const otpModal = new bootstrap.Modal(document.getElementById('otpVerificationModal'));
@@ -756,22 +756,17 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('otpEmail').textContent = email;
         document.getElementById('otpEmailInput').value = email;
         
-        // Send OTP to the user's email
-        sendLoginOTP(email);
+        // Send OTP with both email and password
+        sendLoginOTP(email, password);
         
-        // Show the modal
         otpModal.show();
     });
     
-    // Function to send OTP
-        // Function to send OTP
-        function sendLoginOTP(email) {
-        // Show sending message
+    function sendLoginOTP(email, password) {
         const sendingAlert = document.createElement('div');
         sendingAlert.className = 'alert alert-info text-center';
         sendingAlert.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sending OTP to your email...';
         
-        // Fix: Insert the alert at the beginning of the modal body
         const modalBody = document.querySelector('#otpVerificationModal .modal-body');
         modalBody.insertBefore(sendingAlert, modalBody.firstChild);
 
@@ -781,26 +776,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
             },
-            body: JSON.stringify({ email: email })
+            body: JSON.stringify({ 
+                email: email,
+                password: password  // Include password in the request
+            })
         })
         .then(response => response.json())
         .then(data => {
-            // Remove sending message
             sendingAlert.remove();
             
             if (data.success) {
-                // Show success message
                 alert('OTP has been sent successfully to your email!');
-                // Start countdown for resend button
                 startResendCountdown();
             } else {
+                // Close the OTP modal if credentials are invalid
+                if (data.message === 'Invalid email or password.') {
+                    bootstrap.Modal.getInstance(document.getElementById('otpVerificationModal')).hide();
+                }
                 alert(data.message || 'Failed to send OTP. Please try again.');
             }
         })
         .catch(error => {
-            // Remove sending message
             sendingAlert.remove();
-            
             console.error('Error sending OTP:', error);
             alert('An error occurred while sending OTP. Please try again.');
         });

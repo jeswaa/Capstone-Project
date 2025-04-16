@@ -207,11 +207,9 @@
                                                                     <label for="payment_status" class="form-label">Payment Status</label>
                                                                     <select class="form-select" name="payment_status" id="payment_status" aria-label="Payment Status">
                                                                         <option value="" disabled selected hidden>Choose payment status</option>
-                                                                        <option value="pending" {{ $reservation->payment_status == 'pending' ? 'selected' : '' }}>Pending</option>
-                                                                        <option value="booked" {{ $reservation->payment_status == 'booked' ? 'selected' : '' }}>Booked</option>
+                                                                        <option value="unpaid" {{ $reservation->payment_status == 'unpaid' ? 'selected' : '' }}>Unpaid</option>
+                                                                        <option value="partial" {{ $reservation->payment_status == 'partial' ? 'selected' : '' }}>Partial Payment</option>
                                                                         <option value="paid" {{ $reservation->payment_status == 'paid' ? 'selected' : '' }}>Paid</option>
-                                                                        <option value="cancelled" {{ $reservation->payment_status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
-                                                                        <option value="checked-out" {{ $reservation->payment_status == 'checked-out' ? 'selected' : '' }}>Checked-out</option>
                                                                     </select>
                                                                 </div>
                                                                 <div class="mb-3">

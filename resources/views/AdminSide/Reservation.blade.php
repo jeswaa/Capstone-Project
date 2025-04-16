@@ -163,7 +163,7 @@
             </div>
 
             <div class="mt-5 ms-4">
-                <h1 class="text-color-2" style="font-family: 'Anton', sans-serif;">Reservation Calendar</h1>
+                <h1 class="text-color-2" style="font-family: 'Anton', sans-serif;"> Calendar</h1>
                 <div id="calendar-container" class="shadow-lg rounded-4 p-3 bg-white floating-effect">
                     <div id="calendar" class="mb-5"></div>
                 </div>

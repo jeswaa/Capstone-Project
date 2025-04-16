@@ -194,45 +194,133 @@ class AdminSideController extends Controller
         return view('AdminSide.transactions');
     }
 
-    public function reports()
-    {
-        $totalReservations = DB::table('reservation_details')->count();
-        $totalCancelled = DB::table('reservation_details')->where('payment_status', 'cancelled')->count();
-        $totalConfirmed = DB::table('reservation_details')->where('payment_status', 'paid')->count();
-        $totalPending = DB::table('reservation_details')->where('payment_status', 'pending')->count();
+public function reports(Request $request)
+{
+    // Get the month and year from request
+    $monthYear = $request->input('month_year', date('Y-m'));
+    list($selectedYear, $selectedMonth) = explode('-', $monthYear);
 
-        // Time-based Reservation Counts
-        $dailyReservations = DB::table('reservation_details')
-        ->whereDate('created_at', Carbon::today())
+    // Get confirmed bookings count
+    $confirmedBookings = DB::table('reservation_details')
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereMonth('reservation_check_in_date', $selectedMonth)
+        ->where('payment_status', 'paid')
         ->count();
 
-        $weeklyReservations = DB::table('reservation_details')
-            ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
-            ->count();
+    // Get guest counts
+    $adultGuests = DB::table('reservation_details')
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereMonth('reservation_check_in_date', $selectedMonth)
+        ->where('payment_status', 'paid')
+        ->sum('number_of_adults');
 
-        $monthlyReservations = DB::table('reservation_details')
-            ->whereMonth('created_at', Carbon::now()->month)
-            ->whereYear('created_at', Carbon::now()->year)
-            ->count();
+    $childGuests = DB::table('reservation_details')
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereMonth('reservation_check_in_date', $selectedMonth)
+        ->where('payment_status', 'paid')
+        ->sum('number_of_children');
 
-        $yearlyReservations = DB::table('reservation_details')
-            ->whereYear('created_at', Carbon::now()->year)
-            ->count();
-        // Most booked package
-        $mostBooked = DB::table('reservation_details')
-            ->join('packagestbl', 'reservation_details.package_id', '=', 'packagestbl.id')
-            ->select('packagestbl.package_room_type', DB::raw('COUNT(*) as count'))
-            ->groupBy('packagestbl.package_room_type')
-            ->orderByDesc('count')
-            ->first();
-        
+    // Get daily booking data
+    $dailyBookings = DB::table('reservation_details')
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereMonth('reservation_check_in_date', $selectedMonth)
+        ->where('payment_status', 'paid')
+        ->selectRaw('DAY(reservation_check_in_date) as day, COUNT(*) as count')
+        ->groupBy('day')
+        ->get()
+        ->pluck('count', 'day')
+        ->toArray();
 
-        return view('AdminSide.Reports', compact(
-            'totalReservations', 'totalCancelled', 'totalConfirmed', 'totalPending',
-            'dailyReservations', 'weeklyReservations', 'monthlyReservations', 'yearlyReservations',
-            'mostBooked'
-        ));
-    }
+    // Get most booked room type
+    $mostBookedRoomType = DB::table('reservation_details')
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereMonth('reservation_check_in_date', $selectedMonth)
+        ->where('payment_status', 'paid')
+        ->whereNotNull('accomodation_id') // Only include records with accommodation IDs
+        ->get()
+        ->flatMap(function($reservation) {
+            $accomodationIds = json_decode($reservation->accomodation_id, true);
+            if (!is_array($accomodationIds)) {
+                $accomodationIds = explode(',', $reservation->accomodation_id);
+            }
+            return array_filter($accomodationIds); // Remove any empty/null values
+        })
+        ->map(function($id) {
+            $accommodation = DB::table('accomodations')
+                ->where('accomodation_id', $id)
+                ->first();
+            return $accommodation ? $accommodation->accomodation_name : null;
+        })
+        ->filter() // Remove null values
+        ->unique() // Get unique room types
+        ->first(); // Get the first (most booked) room type
+    $totalBookings = DB::table('reservation_details')
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereMonth('reservation_check_in_date', $selectedMonth)
+        ->count();
+    // Get cancelled bookings count and calculate percentage
+    $cancelledBookings = DB::table('reservation_details')
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereMonth('reservation_check_in_date', $selectedMonth)
+        ->where('reservation_status', 'cancelled')
+        ->count();
+
+    $cancellationPercentage = $totalBookings > 0 
+        ? round(($cancelledBookings / $totalBookings) * 100, 2) 
+        : 0;
+
+    // Get monthly income data
+    $monthlyIncome = DB::table('reservation_details')
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereMonth('reservation_check_in_date', $selectedMonth)
+        ->where('payment_status', 'paid')
+        ->select(
+            DB::raw('DATE(reservation_check_in_date) as date'),
+            DB::raw('SUM(amount) as daily_total')
+        )
+        ->groupBy('date')
+        ->orderBy('date')
+        ->get();
+    
+    // Get payment status breakdown
+    $paymentStatusBreakdown = DB::table('reservation_details')
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereMonth('reservation_check_in_date', $selectedMonth)
+        ->select('payment_status', DB::raw('count(*) as count'))
+        ->whereIn('payment_status', ['paid', 'pending', 'partial','unpaid','cancelled'])
+        ->groupBy('payment_status')
+        ->get()
+        ->pluck('count', 'payment_status')
+        ->toArray();
+    
+     // Ensure all statuses have a value, default to 0 if not present
+     $paymentStatusData = [
+        'paid' => $paymentStatusBreakdown['paid'] ?? 0,
+        'pending' => $paymentStatusBreakdown['pending'] ?? 0,
+        'partial' => $paymentStatusBreakdown['partial'] ?? 0,
+        'unpaid' => $paymentStatusBreakdown['unpaid'] ?? 0,
+        'cancelled' => $paymentStatusBreakdown['cancelled'] ?? 0
+    ];
+
+    $dates = $monthlyIncome->pluck('date')->toArray();
+    $income = $monthlyIncome->pluck('daily_total')->toArray();
+    return view('AdminSide.Reports', compact(
+        'selectedMonth',
+        'selectedYear', 
+        'confirmedBookings',
+        'adultGuests',
+        'childGuests',
+        'dailyBookings',
+        'mostBookedRoomType',
+        'cancelledBookings', 
+        'cancellationPercentage',
+        'totalBookings',
+        'dates',
+        'income',
+        'paymentStatusData'
+    ));
+}
+
 
     
     public function logout(){
@@ -381,10 +469,9 @@ public function login(Request $request) {
         ->get();
     // Get total income for today
     $todayIncome = DB::table('reservation_details')
-        ->whereDate('created_at', Carbon::today())
-        ->whereIn('payment_status', ['paid', 'checked-in', 'checked-out'])
-        ->sum(DB::raw('CAST(REPLACE(REPLACE(amount, "₱", ""), ",", "") AS DECIMAL(10,2))'));
-    
+        ->whereDate('reservation_check_in_date', Carbon::today())
+        ->where('payment_status', 'paid')
+        ->sum('amount');
     // Room Type Utilization
     $roomTypeUtilization = DB::table('reservation_details')
     ->select('accomodation_id')
@@ -454,9 +541,9 @@ public function login(Request $request) {
                   ->whereDate('reservation_check_out_date', '>=', $startDate);
             });
         })
-        ->whereIn('payment_status', ['booked', 'paid']) // Get reservations with booked or paid status
+        ->whereIn('reservation_status', ['checked-in','reserved']) // Get reservations with booked or paid status
         ->get();
-
+    
     // Get total number of rooms
     $totalRooms = DB::table('accomodations')->count();
 

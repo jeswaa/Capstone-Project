@@ -248,14 +248,14 @@ class StaffController extends Controller
     
     public function editRoom(Request $request, $accomodation_id)
     {
+        
         $request->validate([
             'accomodation_image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
             'accomodation_name' => 'required|string|max:255',
-            'accomodation_type' => 'required|in:room,cottage',
+            'accomodation_type' => 'required|string',
             'accomodation_capacity' => 'required|numeric|min:1',
             'accomodation_price' => 'required|numeric|min:0',
             'accomodation_status' => 'required|in:available,unavailable,maintenance',
-            'accomodation_slot' => 'required|numeric|min:1',
             'accomodation_price' => 'required|numeric|min:0',
             'accomodation_description' => 'nullable|string',
         ]);
@@ -284,10 +284,9 @@ class StaffController extends Controller
         $accomodation->accomodation_capacity = $request->accomodation_capacity;
         $accomodation->accomodation_price = $request->accomodation_price;
         $accomodation->accomodation_status = $request->accomodation_status;
-        $accomodation->accomodation_slot = $request->accomodation_slot;
         $accomodation->accomodation_description = $request->accomodation_description;
         $accomodation->save();
-
+        
         return redirect()->route('staff.accomodations')->with('success', 'Rooms updated successfully!');
     }
 
@@ -309,7 +308,7 @@ class StaffController extends Controller
 
             // Update the reservation status to booked
             DB::table('reservation_details')->where('id', $reservationId)->update([
-                'payment_status' => 'booked,paid',
+                'payment_status' => 'paid',
             ]);
 
             // Reduce slot only if payment status is booked
@@ -351,7 +350,7 @@ class StaffController extends Controller
     $request->validate([
         'payment_status' => 'required|string',
         'custom_message' => 'nullable|max:255',
-        'reservation_status' => 'required|in:reserved,checked-in,checked-out,cancelled',
+        'reservation_status' => 'required|string',
     ]);
 
     // Fetch reservation details
@@ -364,7 +363,6 @@ class StaffController extends Controller
     $accommodationIds = json_decode($reservation->accomodation_id, true) ?? [];
 
     if (empty($accommodationIds) && !empty($reservation->package_id)) {
-        // Get room IDs from the package if it's a fixed package
         $packageRooms = DB::table('packagestbl')
             ->where('id', $reservation->package_id)
             ->value('package_room_type');
@@ -372,17 +370,9 @@ class StaffController extends Controller
         $accommodationIds = json_decode($packageRooms, true) ?? [];
     }
 
-    // Determine new payment status based on reservation status
-    $newPaymentStatus = $request->payment_status;
-    if ($request->reservation_status === 'checked-out') {
-        $newPaymentStatus = 'checked-out';
-    } elseif ($request->reservation_status === 'cancelled') {
-        $newPaymentStatus = 'cancelled';
-    }
-
-    // Update payment and reservation status
+    // Update payment and reservation status independently
     DB::table('reservation_details')->where('id', $id)->update([
-        'payment_status' => $newPaymentStatus,
+        'payment_status' => $request->payment_status,
         'reservation_status' => $request->reservation_status,
         'custom_message' => $request->custom_message ?? null,
         'updated_at' => now(),
@@ -391,49 +381,25 @@ class StaffController extends Controller
     // Refresh reservation data after update
     $updatedReservation = DB::table('reservation_details')->where('id', $id)->first();
 
-    // Set accommodation availability
-    if (in_array($newPaymentStatus, ['booked', 'paid'])) {
+    // Update accommodation status based on reservation status
+    if ($request->reservation_status === 'checked-in') {
         DB::table('accomodations')
             ->whereIn('accomodation_id', $accommodationIds)
             ->update(['accomodation_status' => 'unavailable']);
-    } elseif (in_array($newPaymentStatus, ['pending', 'cancelled', 'checked-out', 'refunded'])) {
+    } elseif (in_array($request->reservation_status, ['checked-out', 'cancelled'])) {
         DB::table('accomodations')
             ->whereIn('accomodation_id', $accommodationIds)
             ->update(['accomodation_status' => 'available']);
     }
 
-    // **AUTO-ARCHIVE RESERVATION IF CHECKED-OUT OR CANCELLED**
-    if (
-        in_array($request->reservation_status, ['Checked-out', 'Cancelled']) &&
-        in_array($newPaymentStatus, ['checked-out', 'cancelled'])
-    ) {
-        // Move to archive table
-        DB::table('archived_reservations')->insert([
-            'name' => $reservation->name,
-            'email' => $reservation->email,
-            'phone' => $reservation->mobileNo,
-            'package' => $reservation->package_id,
-            'reservation_check_in_date' => $reservation->reservation_check_in_date,
-            'reservation_check_in' => $reservation->reservation_check_in,
-            'reservation_check_out' => $reservation->reservation_check_out,
-            'amount' => $reservation->amount,
-            'payment_status' => $newPaymentStatus,
-            'created_at' => $reservation->created_at,
-            'updated_at' => now(),
-        ]);
-
-        // Delete from active reservations
-        DB::table('reservation_details')->where('id', $id)->delete();
-    }
-
-    // Send email notification with updated reservation data
+    // Send email notification
     Mail::to($updatedReservation->email)->send(new ReservationStatusUpdated(
         $updatedReservation,
         $request->custom_message,
         $updatedReservation
     ));
 
-    return redirect()->route('staff.reservation')->with('success', 'Payment and reservation status updated successfully!');
+    return redirect()->route('staff.reservation')->with('success', 'Reservation status updated successfully!');
 }
 
  
