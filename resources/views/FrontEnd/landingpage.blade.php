@@ -128,7 +128,7 @@
                 <div class="col-lg-6 mb-4">
                     <hr class="border-success mx-auto" style="width: 80%;">
                     <p class="fst-italic text-success" style="font-size: 1.2rem;">
-                        Enjoy breathtakingly
+                        Enjoy Breathtaking
                     </p>
                     <h1 class="fw-bold text-success text-uppercase" style="font-size: calc(1.8rem + 1vw); line-height: 1.2;">
                         Beautiful Views <br>
@@ -137,7 +137,7 @@
                     </h1>
                     <div class="mt-3 p-3 rounded-pill" style="background-color: #E6F4E6; display: inline-block;">
                         <p class="text-success m-0" style="font-size: 1.1rem;">
-                            <em>Booking your stay is quick and easy with our simple reservation system!</em>
+                            <em>Book your stay as quick and easy with our simple reservation system!</em>
                         </p>
                     </div>
                     <hr class="border-dark mx-auto" style="width: 80%;">

@@ -14,12 +14,18 @@ class HomePageController extends Controller
     {
         return view('Frontend.homepage'); // Ensure 'homepage' matches your blade file name
     }
-    public function profilepage()
+public function profilepage()
 {
     $userId = Auth::id();
+    if (!$userId) {
+        return redirect()->route('login')->with('error', 'Please login to view your profile.');
+    }
 
     // Fetch user details
     $user = DB::table('users')->where('id', $userId)->first();
+    if (!$user) {
+        return redirect()->route('login')->with('error', 'User not found.');
+    }
 
     $latestReservation = DB::table('reservation_details')
         ->leftJoin('packagestbl', 'reservation_details.package_id', '=', 'packagestbl.id')
@@ -38,8 +44,8 @@ class HomePageController extends Controller
 
     // --- Fetch Accommodations Safely ---
     $accommodations = [];
-    if ($latestReservation) {
-        $accommodationIds = json_decode($latestReservation->accomodation_id ?? '[]', true);
+    if ($latestReservation && $latestReservation->accomodation_id) {
+        $accommodationIds = json_decode($latestReservation->accomodation_id, true);
         
         if (is_array($accommodationIds) && count($accommodationIds) > 0) {
             $accommodations = DB::table('accomodations')
@@ -72,7 +78,6 @@ class HomePageController extends Controller
         'accommodations' => $accommodations
     ]);
 }
-
 
 
     public function editProfile(Request $request)

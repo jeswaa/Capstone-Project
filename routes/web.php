@@ -53,7 +53,10 @@ Route::middleware(['isAdmin'])->group(function () {
     Route::post('/store-activities', [AdminSideController::class, 'storeActivity'])->name('storeActivity');
     Route::put('/activities/update/{id}', [AdminSideController::class, 'updateActivity'])->name('updateActivity');
     Route::get('/guests', [AdminSideController::class, 'guests'])->name('guests');
+    Route::post('/guests/ban/{id}', [AdminSideController::class, 'banGuest'])->name('ban.guest');
     Route::get('/transactions', [AdminSideController::class, 'editPrice'])->name('transactions');
+    Route::get('/export-excel', [AdminSideController::class, 'exportExcel'])->name('transactions.export.excel');
+    Route::get('/export-pdf', [AdminSideController::class, 'exportPDF'])->name('transactions.export.pdf');
     Route::post('/transactions/update-entrance-fee', [AdminSideController::class, 'updatePrice'])->name('updatePrice');
     Route::get('reports', [AdminSideController::class, 'reports'])->name('reports');
     Route::get('/admin/settings', [AdminSideController::class, 'showForm'])->name('admin.settings');
@@ -65,7 +68,9 @@ Route::get('/admin/update-rooms', [RoomController::class, 'updateRoomAvailabilit
 /* LOGIN */
 Route::get('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/login/verify-recaptcha', [LoginController::class, 'verifyRecaptcha'])->name('login.verifyRecaptcha');
-
+Route::post('/login/send-login-otp', [LoginController::class, 'sendLoginOTP'])->name('send-login-otp');
+Route::post('/login/verify-login-otp', [LoginController::class, 'verifyLoginOTP'])->name('verify-login-otp');
+Route::post('/login/resend-otp', [LoginController::class, 'resendOTP'])->name('resend-login-otp');
 Route::post('/login/authenticate', [LoginController::class, 'authenticate'])->name('login.authenticate');
 Route::post('/forgot/otp', [LoginController::class, 'sendOtp'])->name('forgot.sendOTP');
 Route::post('/forgot/reset', [LoginController::class, 'resetPassword'])->name('forgot.reset');

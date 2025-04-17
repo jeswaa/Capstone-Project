@@ -207,21 +207,19 @@
                                                                     <label for="payment_status" class="form-label">Payment Status</label>
                                                                     <select class="form-select" name="payment_status" id="payment_status" aria-label="Payment Status">
                                                                         <option value="" disabled selected hidden>Choose payment status</option>
-                                                                        <option value="pending" {{ $reservation->payment_status == 'pending' ? 'selected' : '' }}>Pending</option>
-                                                                        <option value="booked" {{ $reservation->payment_status == 'booked' ? 'selected' : '' }}>Booked</option>
+                                                                        <option value="unpaid" {{ $reservation->payment_status == 'unpaid' ? 'selected' : '' }}>Unpaid</option>
+                                                                        <option value="partial" {{ $reservation->payment_status == 'partial' ? 'selected' : '' }}>Partial Payment</option>
                                                                         <option value="paid" {{ $reservation->payment_status == 'paid' ? 'selected' : '' }}>Paid</option>
-                                                                        <option value="cancelled" {{ $reservation->payment_status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
-                                                                        <option value="checked-out" {{ $reservation->payment_status == 'checked-out' ? 'selected' : '' }}>Checked-out</option>
                                                                     </select>
                                                                 </div>
                                                                 <div class="mb-3">
                                                                     <label for="reservation_status" class="form-label">Reservation Status</label>
                                                                     <select class="form-select" name="reservation_status" id="reservation_status" aria-label="Reservation Status">
                                                                         <option value="" disabled selected hidden>Choose reservation status</option>
-                                                                        <option value="Reserved" {{ $reservation->status == 'reserved' ? 'selected' : '' }}>Reserved</option>
-                                                                        <option value="Checked-in" {{ $reservation->status == 'checked-in' ? 'selected' : '' }}>Checked-In</option>
-                                                                        <option value="Checked-out" {{ $reservation->status == 'checked-out' ? 'selected' : '' }}>Checked-Out</option>
-                                                                        <option value="Cancelled" {{ $reservation->status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                                                                        <option value="reserved" {{ $reservation->status == 'reserved' ? 'selected' : '' }}>Reserved</option>
+                                                                        <option value="checked-in" {{ $reservation->status == 'checked-in' ? 'selected' : '' }}>Checked-In</option>
+                                                                        <option value="checked-out" {{ $reservation->status == 'checked-out' ? 'selected' : '' }}>Checked-Out</option>
+                                                                        <option value="cancelled" {{ $reservation->status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
                                                                     </select>
                                                                 </div>
                                                                 </select>

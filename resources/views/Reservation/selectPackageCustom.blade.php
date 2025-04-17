@@ -63,9 +63,10 @@
                 <label for="roomPreference" class="text-white font-paragraph fw-semibold mb-3 ms-2" style="font-size: 1.5rem;">ROOMS</label>
                 <div class="container">
                     <div class="row g-4">
+                    <!-- For Rooms Section -->
                     @foreach($accomodations->where('accomodation_type', 'room') as $accomodation)
                         <div class="col-md-4">
-                            <div class="card select-accommodation {{ $accomodation->accomodation_slot == 0 ? 'disabled' : '' }}" 
+                            <div class="card select-accommodation" 
                                  data-id="{{ $accomodation->accomodation_id }}" 
                                  data-price="{{ $accomodation->accomodation_price }}"
                                  data-capacity="{{ $accomodation->accomodation_capacity }}">
@@ -75,7 +76,7 @@
                                     <p class="card-text text-success font-paragraph" style="font-size: smaller;">Description: {{ $accomodation->accomodation_description }}</p>
                                     <p class="card-text text-success font-paragraph">Capacity: {{ $accomodation->accomodation_capacity }} pax</p>
                                     <p class="card-text font-paragraph fw-bold text-success" style="text-align: right;">Price: <span style="background-color: #0b573d; color: white; padding: 2px 5px;">₱{{ $accomodation->accomodation_price }}</span></p>
-                                    <input type="hidden" name="accomodation_id[]" value="{{ $accomodation->accomodation_id }}" class="hidden-input" @if($accomodation->accomodation_slot == 0) disabled @endif>
+                                    <input type="hidden" name="accomodation_id[]" value="{{ $accomodation->accomodation_id }}" class="hidden-input">
                                 </div>
                             </div>
                         </div>
@@ -93,9 +94,10 @@
                 <label for="roomPreference" class="text-white font-paragraph fw-semibold mb-3 ms-2" style="font-size: 1.5rem;">CABINS</label>
                 <div class="container">
                     <div class="row g-4">
+                    <!-- For Cabins Section -->
                     @foreach($accomodations->where('accomodation_type', 'cabin') as $accomodation)
                         <div class="col-md-4">
-                            <div class="card select-accommodation {{ $accomodation->accomodation_slot == 0 ? 'disabled' : '' }}" 
+                            <div class="card select-accommodation" 
                                  data-id="{{ $accomodation->accomodation_id }}" 
                                  data-price="{{ $accomodation->accomodation_price }}"
                                  data-capacity="{{ $accomodation->accomodation_capacity }}">
@@ -165,11 +167,17 @@
                                 <h6 class="fw-bold mb-3 text-success">Number of Visitors</h6>
                                 <div class="form-group mb-3">
                                     <label for="number_of_adults">Adults (18+):</label>
-                                    <input type="number" name="number_of_adults" id="number_of_adults" class="form-control p-2" min="0" oninput="calculateTotalGuest()">
+                                    <div class="input-group">
+                                        <input type="number" name="number_of_adults" id="number_of_adults" class="form-control p-2" min="0" oninput="calculateTotalGuest()">
+                                        <span class="input-group-text bg-success text-white" hidden>₱{{$entranceFees->entrance_fee}}</span>
+                                    </div>
                                 </div>
                                 <div class="form-group mb-3">
                                     <label for="number_of_children">Children (3-12):</label>
-                                    <input type="number" name="number_of_children" id="number_of_children" class="form-control p-2" min="0" oninput="calculateTotalGuest()">
+                                    <div class="input-group">
+                                        <input type="number" name="number_of_children" id="number_of_children" class="form-control p-2" min="0" oninput="calculateTotalGuest()">
+                                        <span class="input-group-text bg-success text-white" hidden>₱{{ $entranceFees->entrance_fee }}</span>
+                                    </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="total_guests">Total Guests:</label>
@@ -296,19 +304,25 @@
 
 
     function calculateTotalAmount() {
-        let adultEntranceFee = 100;
-        let childEntranceFee = 50;
+        // Get entrance fees from the spans (which are populated from the database)
+        let adultEntranceFeeSpan = document.querySelector('input[name="number_of_adults"]').nextElementSibling;
+        let childEntranceFeeSpan = document.querySelector('input[name="number_of_children"]').nextElementSibling;
+        
+        // Extract the numeric values from the spans
+        let adultEntranceFee = parseFloat(adultEntranceFeeSpan.textContent.replace('₱', '')) || 0;
+        let childEntranceFee = parseFloat(childEntranceFeeSpan.textContent.replace('₱', '')) || 0;
+        
         let numAdults = parseInt(document.getElementById("number_of_adults").value) || 0;
         let numChildren = parseInt(document.getElementById("number_of_children").value) || 0;
-
+    
         let entranceTotal = (numAdults * adultEntranceFee) + (numChildren * childEntranceFee);
         let accommodationTotal = 0;
-
+    
         document.querySelectorAll('.select-accommodation.selected').forEach(card => {
             let price = parseFloat(card.getAttribute("data-price")) || 0;
             accommodationTotal += price;
         });
-
+    
         let totalAmount = entranceTotal + accommodationTotal;
         document.getElementById("total_amount").value = totalAmount.toFixed(2);
     }

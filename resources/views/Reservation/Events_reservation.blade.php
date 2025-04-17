@@ -191,6 +191,34 @@
 </head>
 
 <body class="font-paragraph">
+    @if (session('login_success'))
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+        <div class="toast show align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body fw-bold">
+                    <i class="fas fa-check-circle me-2"></i>
+                    {{ session('login_success') }}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Bootstrap toast and auto-hide after 5 seconds
+        const toastEl = document.querySelector('.toast');
+        const toast = bootstrap.Toast.getOrCreateInstance(toastEl);
+        
+        setTimeout(() => {
+            toast.hide();
+        }, 5000);
+        
+        // Also hide when clicked
+        toastEl.addEventListener('click', () => toast.hide());
+    });
+    </script>
+    @endif
     @include('Alert.loginSuccessUser')
     <div class="position-absolute top-0 end-0 mt-3 me-5">
         @if (session('success'))
@@ -261,8 +289,7 @@
                     <p><strong>Dates:</strong> <span id="event-date"></span></p>
                     <p><strong>Check-in:</strong> <span id="event-check_in"></span></p>
                     <p><strong>Check-out:</strong> <span id="event-check_out"></span></p>
-                    <p><strong>Accommodation:</strong> <span id="event-room_type"></span></p>
-                    <p><strong>Facilities:</strong> <span id="event-accommodations"></span></p>
+                    <p><strong>Rooms:</strong> <span id="event-accommodations"></span></p>
                     <p><strong>Activities:</strong> <span id="event-activities"></span></p>
                 </div>
                 <div class="modal-footer">
@@ -306,12 +333,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const filteredEvents = [];
     Object.entries(eventsByDate).forEach(([date, events]) => {
-        const isFullyBooked = events.some(e => e.title === "Fully Booked");
-        if(isFullyBooked) {
+        events.forEach(event => {
+            if (event.extendedProps?.status === 'reserved' || event.extendedProps?.status === 'checked-in') {
+                filteredEvents.push({
+                    title: event.title,
+                    start: event.start,
+                    end: event.end,
+                    allDay: true,
+                    color: event.extendedProps.status === 'checked-in' ? '#2ecc71' : '#97a97c',
+                    extendedProps: event.extendedProps
+                });
+            }
+        });
+
+        if (events.some(e => e.title === "Fully Booked")) {
             fullyBookedDates.add(date);
-            filteredEvents.push(...events.filter(e => e.title === "Fully Booked"));
-        } else {
-            filteredEvents.push(...events);
+            filteredEvents.push({
+                title: "Fully Booked",
+                start: date,
+                allDay: true,
+                color: '#FF0000',
+                textColor: 'white'
+            });
         }
     });
 
@@ -323,16 +366,93 @@ document.addEventListener('DOMContentLoaded', function() {
             center: 'title',
             right: 'dayGridMonth'
         },
-        events: filteredEvents.map(event => ({
-            title: event.title,
-            start: event.start,
-            allDay: true,
-            color: event.extendedProps?.is_owner ? '#7a9c6c' : '#4a5568',
-            textColor: 'white',
-        })),
+        events: filteredEvents,
+        eventClick: function(info) {
+            if (info.event.title !== "Fully Booked") {
+                const props = info.event.extendedProps;
+                document.getElementById('event-name').textContent = props.name;
+                document.getElementById('event-date').textContent = `${new Date(info.event.start).toLocaleDateString()}`;
+                document.getElementById('event-check_in').textContent = props.check_in;
+                document.getElementById('event-check_out').textContent = props.check_out;
+                document.getElementById('event-accommodations').textContent = props.accommodations;
+                document.getElementById('event-activities').textContent = props.activities;
+                
+                const modal = new bootstrap.Modal(document.getElementById('eventModal'));
+                modal.show();
+            }
+        },
         dateClick: handleDateClick,
-        dayCellDidMount: handleDayCellMount
+        dayCellDidMount: handleDayCellMount,
+        selectable: true,
+        selectConstraint: {
+            start: today,
+            end: '2100-12-31' // Far future date
+        },
+        validRange: {
+            start: today
+        },
+        dayCellClassNames: function(arg) {
+            if (arg.date < new Date(today)) {
+                return ['past-date'];
+            }
+            return [];
+        }
     });
+
+    // Add these styles to your existing style element
+    const style = document.createElement('style');
+    style.textContent = `
+        .past-date {
+            background-color: #f5f5f5 !important;
+            color: #999 !important;
+            cursor: not-allowed !important;
+        }
+        .fc-daygrid-day-number {
+            position: absolute !important;
+            top: 5px !important;
+            right: 5px !important;
+        }
+        .fc-day-today {
+            background-color: #e8f4ea !important;
+        }
+        .fc-day-today .fc-daygrid-day-number {
+            background-color: #198754 !important;
+            color: white !important;
+            border-radius: 50% !important;
+            width: 24px !important;
+            height: 24px !important;
+            text-align: center !important;
+            line-height: 24px !important;
+            padding: 0 !important;
+            margin: 5px !important;
+        }
+        
+        .fc-event {
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            margin-top: 20px !important;
+            text-align: center !important;
+        }
+
+        .fc-daygrid-event-harness {
+            margin-top: 15px !important;
+        }
+
+        .fc-event-title {
+            text-align: center !important;
+            width: 100% !important;
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Update handleDayCellMount function
+    function handleDayCellMount(info) {
+        const cellDate = info.date.toISOString().split('T')[0];
+        if(cellDate < today) {
+            info.el.classList.add('past-date');
+        }
+    }
 
     calendar.render();
 
@@ -356,20 +476,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         highlightSelectedDates();
-    }
-
-    function handleDayCellMount(info) {
-        const cellDate = info.date.toISOString().split('T')[0];
-        if(cellDate < today) {
-            info.el.style.opacity = "0.6";
-            info.el.innerHTML += `<div class="text-danger text-center" style="
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                font-size: 1.2rem;
-            ">❌</div>`;
-        }
     }
 
     function handleDayTour(date) {
