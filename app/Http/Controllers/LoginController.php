@@ -44,11 +44,20 @@ public function authenticate(Request $request)
 
     $responseData = $response->json();
 
-    if ($responseData['success']) {
-        // reCAPTCHA verification passed, continue processing the form
-    } else {
-        // reCAPTCHA verification failed
+    if (!$responseData['success']) {
         return back()->withErrors(['recaptcha' => 'reCAPTCHA verification failed.']);
+    }
+
+    // Check if email exists and if the account is banned
+    $user = User::where('email', $request->email)->first();
+    if (!$user) {
+        return back()->with('invalidLogin', 'Email does not exist.')->withInput($request->only('email'));
+    }
+
+    // Check if user is banned
+    if ($user->status === 'banned') {
+        return back()->with('errorlogin', 'This account has been banned. Please contact support for assistance.')
+            ->withInput($request->only('email'));
     }
 
     // Validate input fields
@@ -61,19 +70,12 @@ public function authenticate(Request $request)
             'required',
             'string',
             function ($attribute, $value, $fail) use ($request) {
-                if (!User::where('email', $request->email)->exists()) {
-                    $fail('Email does not exist.');
-                } elseif (!Hash::check($value, User::where('email', $request->email)->first()->password)) {
+                if (!Hash::check($value, User::where('email', $request->email)->first()->password)) {
                     $fail('Password is incorrect.');
                 }
             },
         ],
     ]);
-
-    // Check if email exists in users table
-    if (!User::where('email', $request->email)->exists()) {
-        return back()->with('invalidLogin', 'Email does not exist.')->withInput($request->only('email'));
-    }
 
     // Attempt to authenticate the user
     if (Auth::attempt($request->only('email', 'password'))) {
@@ -91,6 +93,22 @@ public function authenticate(Request $request)
     
     return back()->with('errorlogin', 'Invalid email or password.')->withInput($request->only('email'));
 }
+    protected function attemptLogin(Request $request)
+    {
+        // Check if user is banned before attempting login
+        $user = DB::table('users')->where('email', $request->email)->first();
+        
+        if ($user && $user->status === 'banned') {
+            return redirect()->back()
+                ->withInput($request->only('email'))
+                ->withErrors(['email' => 'This account has been banned. Please contact support for assistance.']);
+        }
+
+        return Auth::attempt(
+            $request->only('email', 'password'),
+            $request->filled('remember')
+        );
+    }
     public function resetPassword(Request $request)
     {
         try {
@@ -198,17 +216,8 @@ public function authenticate(Request $request)
     }
     public function sendLoginOTP(Request $request)
     {
-
         $email = $request->email;
-        $password = $request->input('password'); // Changed to use input() method
-        
-        // More detailed debug logging
-        \Log::info('Login attempt details:', [
-            'email' => $email,
-            'password_exists' => isset($password),
-            'password_empty' => empty($password),
-            'request_all' => $request->all() // This will show all data received
-        ]);
+        $password = $request->input('password');
         
         $user = User::where('email', $email)->first();
         
@@ -216,6 +225,14 @@ public function authenticate(Request $request)
             return response()->json([
                 'success' => false,
                 'message' => 'User not found.'
+            ]);
+        }
+
+        // Check if user is banned
+        if ($user->status === 'banned') {
+            return response()->json([
+                'success' => false,
+                'message' => 'This account has been banned. Please contact support for assistance.'
             ]);
         }
         

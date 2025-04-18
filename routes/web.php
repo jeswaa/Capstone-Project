@@ -59,6 +59,7 @@ Route::middleware(['isAdmin'])->group(function () {
     Route::get('/export-pdf', [AdminSideController::class, 'exportPDF'])->name('transactions.export.pdf');
     Route::post('/transactions/update-entrance-fee', [AdminSideController::class, 'updatePrice'])->name('updatePrice');
     Route::get('reports', [AdminSideController::class, 'reports'])->name('reports');
+    Route::get('/activity-logs', [AdminSideController::class, 'activityLogs'])->name('activityLogs');
     Route::get('/admin/settings', [AdminSideController::class, 'showForm'])->name('admin.settings');
     Route::post('/admin/settings/update', [AdminSideController::class, 'updateEmail'])->name('admin.settings.update');
     Route::get('/logout', [AdminSideController::class, 'logout'])->name('logout');

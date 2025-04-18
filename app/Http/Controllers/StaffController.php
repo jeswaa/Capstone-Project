@@ -15,6 +15,7 @@ use App\Mail\ReservationStatusUpdated;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Carbon\Carbon;
 
+
 class StaffController extends Controller
 {
     public function StaffLogin()
@@ -32,31 +33,54 @@ class StaffController extends Controller
     }
     public function logout()
     {
+        $this->recordActivity('Staff logged out');
         auth()->logout();
         return redirect()->route('login')->with('success', 'Logged out successfully!');
     }
-    public function authenticate(Request $request)
-    {
-        $credentials = $request->only('username', 'password');
+public function authenticate(Request $request)
+{
+    $credentials = $request->only('username', 'password');
 
-        if (Staff::where('username', $credentials['username'])->exists()) {
-            $staff = Staff::where('username', $credentials['username'])->first();
+    if (Staff::where('username', $credentials['username'])->exists()) {
+        $staff = Staff::where('username', $credentials['username'])->first();
 
-            if ($staff && $staff->password == $credentials['password']) {
-                session()->put('StaffLogin', $staff->id);
-                return redirect()->route('staff.dashboard');
-            }
+        if ($staff && $staff->password == $credentials['password']) {
+            session()->put('StaffLogin', $staff->id);
+            $this->recordActivity($staff->username . ' logged in');
+            return redirect()->route('staff.dashboard');
         }
-
-        return back()->withErrors([
-            'username' => 'The provided credentials do not match our records.',
-        ]);
     }
 
-    public function dashboard()
+    return back()->withErrors([
+        'username' => 'The provided credentials do not match our records.',
+    ]);
+}
+private function recordActivity($activity)
+{
+    // Get current staff info from session
+    $staffId = session()->get('StaffLogin');
+    $staff = Staff::find($staffId);
+    
+    // Insert activity log
+    DB::table('activity_logs')->insert([
+        'date' => now()->toDateString(),
+        'time' => now()->toTimeString(),
+        'user' => $staff ? $staff->username : 'System', 
+        'role' => 'Staff',
+        'activity' => $activity,
+        'created_at' => now(),
+        'updated_at' => now()
+    ]);
+}
+
+
+public function dashboard()
 {
     if (session()->has('StaffLogin')) {
         $staffCredentials = Staff::where('id', session()->get('StaffLogin'))->first();
+        
+        // Record dashboard access activity
+        $this->recordActivity($staffCredentials->username . ' accessed the dashboard');
 
         $users = DB::table('users')->get();
         $totalUsers = $users->count();
@@ -69,7 +93,7 @@ class StaffController extends Controller
             ->get();
 
         $totalPendingTransactions = DB::table('reservation_details')
-            ->where('payment_status', 'pending') // Filter only pending payments
+            ->where('payment_status', 'pending')
             ->count();
 
         $totalCheckedInGuests = DB::table('reservation_details')
@@ -79,14 +103,13 @@ class StaffController extends Controller
         $vacantRooms = DB::table('accomodations')->where('accomodation_status', 'available')->count();
         
         $pendingBookings = DB::table('reservation_details')
-        ->where('payment_status', 'pending') // Filter only pending bookings
-        ->where('reservation_check_in_date', '>=', Carbon::today()) // Only show upcoming bookings
-        ->orderBy('reservation_check_in_date', 'desc') // Get the latest reservation
-        ->first(); // Retrieve only one record
+            ->where('payment_status', 'pending')
+            ->where('reservation_check_in_date', '>=', Carbon::today())
+            ->orderBy('reservation_check_in_date', 'desc')
+            ->first();
         
         $today = Carbon::today();
 
-        // Total revenue for today
         $totalTodayRevenue = DB::table('reservation_details')
             ->whereDate('created_at', $today)
             ->selectRaw("
@@ -103,11 +126,8 @@ class StaffController extends Controller
             ->first();
         
         $totalRevenue = $totalTodayRevenue ? $totalTodayRevenue->total_revenue : 0;
-        
-        // Format the total revenue as currency
         $formattedRevenue = '₱ ' . number_format($totalRevenue, 2);
 
-        // Total revenue for the current week
         $totalWeeklyRevenue = DB::table('reservation_details')
             ->whereBetween('created_at', [
                 Carbon::now()->startOfWeek(),
@@ -126,10 +146,9 @@ class StaffController extends Controller
             ")
             ->first();
 
-        // Total revenue for the current month
         $totalMonthlyRevenue = DB::table('reservation_details')
-            ->whereYear('reservation_check_in_date', Carbon::now()->year)  // Filter by current year
-                ->whereMonth('reservation_check_in_date', Carbon::now()->month)
+            ->whereYear('reservation_check_in_date', Carbon::now()->year)
+            ->whereMonth('reservation_check_in_date', Carbon::now()->month)
             ->selectRaw("
                 SUM(
                     CAST(
@@ -147,17 +166,22 @@ class StaffController extends Controller
         $monthlyRevenue = $totalMonthlyRevenue ? $totalMonthlyRevenue->total_revenue : 0;
 
         $totalPaidTransactions = DB::table('reservation_details')
-            ->where('payment_status', 'Paid') // Filter only completed payments
+            ->where('payment_status', 'Paid')
             ->count();
+
+        // Record revenue check activity
+        $this->recordActivity($staffCredentials->username . ' checked revenue statistics - Daily: ₱' . number_format($totalRevenue, 2) . 
+                            ', Weekly: ₱' . number_format($weeklyRevenue, 2) . 
+                            ', Monthly: ₱' . number_format($monthlyRevenue, 2));
 
         return view('StaffSide.StaffDashboard', [
             'staffCredentials' => $staffCredentials,
             'totalUsers' => $totalUsers,
             'totalGuests' => $totalGuests,
             'formattedRevenue' => $formattedRevenue,              
-            'totalRevenue' => $totalRevenue, // Pass totalRevenue for today
-            'weeklyRevenue' => $weeklyRevenue, // Pass weekly revenue
-            'monthlyRevenue' => $monthlyRevenue, // Pass monthly revenue
+            'totalRevenue' => $totalRevenue,
+            'weeklyRevenue' => $weeklyRevenue,
+            'monthlyRevenue' => $monthlyRevenue,
             'totalReservations' => $totalReservations,
             'pendingBookings' => $pendingBookings,
             'totalCheckedInGuests' => $totalCheckedInGuests,
@@ -230,65 +254,109 @@ class StaffController extends Controller
     }
 
 
-    public function accomodations()
-    {
-            // Fetch all accommodations
-                $accomodations = DB::table('accomodations')->get();
-                // Compute Room Overview
-                $totalRooms = DB::table('accomodations')->count();
-                $vacantRooms = DB::table('accomodations')->where('accomodation_status', 'available')->count();
+public function accomodations()
+{
+    // Get current staff info
+    $staffId = session()->get('StaffLogin');
+    $staff = Staff::find($staffId);
 
-                // Adjust reservedRooms count and update available slots
-                $reservedRooms = DB::table('reservation_details')
-                    ->whereIn('payment_status', ['booked', 'paid'])
-                    ->count();
-        return view('StaffSide.StaffsideAccomodations', compact('accomodations', 'totalRooms', 'vacantRooms', 'reservedRooms'));
-    }
+    // Fetch all accommodations
+    $accomodations = DB::table('accomodations')->get();
+    
+    // Compute Room Overview
+    $totalRooms = DB::table('accomodations')->count();
+    $vacantRooms = DB::table('accomodations')->where('accomodation_status', 'available')->count();
+
+    // Adjust reservedRooms count and update available slots
+    $reservedRooms = DB::table('reservation_details')
+        ->whereIn('payment_status', ['booked', 'paid'])
+        ->count();
+
+    // Record activity
+    $this->recordActivity($staff->username . ' viewed accommodations overview - Total: ' . $totalRooms . 
+                         ', Vacant: ' . $vacantRooms . 
+                         ', Reserved: ' . $reservedRooms);
+
+    return view('StaffSide.StaffsideAccomodations', compact('accomodations', 'totalRooms', 'vacantRooms', 'reservedRooms'));
+}
 
     
-    public function editRoom(Request $request, $accomodation_id)
-    {
-        
-        $request->validate([
-            'accomodation_image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
-            'accomodation_name' => 'required|string|max:255',
-            'accomodation_type' => 'required|string',
-            'accomodation_capacity' => 'required|numeric|min:1',
-            'accomodation_price' => 'required|numeric|min:0',
-            'accomodation_status' => 'required|in:available,unavailable,maintenance',
-            'accomodation_price' => 'required|numeric|min:0',
-            'accomodation_description' => 'nullable|string',
-        ]);
+public function editRoom(Request $request, $accomodation_id)
+{
+    // Get current staff info
+    $staffId = session()->get('StaffLogin');
+    $staff = Staff::find($staffId);
+    
+    $request->validate([
+        'accomodation_image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+        'accomodation_name' => 'required|string|max:255',
+        'accomodation_type' => 'required|string',
+        'accomodation_capacity' => 'required|numeric|min:1',
+        'accomodation_price' => 'required|numeric|min:0',
+        'accomodation_status' => 'required|in:available,unavailable,maintenance',
+        'accomodation_price' => 'required|numeric|min:0',
+        'accomodation_description' => 'nullable|string',
+    ]);
 
-        // Find accommodation using Eloquent
-        $accomodation = Accomodation::find($accomodation_id);
-        if (!$accomodation) {
-            return redirect()->back()->with('error', 'Accommodation not found.');
-        }
-
-        // Handle image upload
-        if ($request->hasFile('accomodation_image')) {
-            // Delete the old image if it exists
-            if ($accomodation->accomodation_image) {
-                Storage::delete('public/' . $accomodation->accomodation_image);
-            }
-
-            // Store the new image
-            $imagePath = $request->file('accomodation_image')->store('public/accomodations');
-            $accomodation->accomodation_image = str_replace('public/', '', $imagePath);
-        }
-
-        // Update other fields
-        $accomodation->accomodation_name = $request->accomodation_name;
-        $accomodation->accomodation_type = $request->accomodation_type;
-        $accomodation->accomodation_capacity = $request->accomodation_capacity;
-        $accomodation->accomodation_price = $request->accomodation_price;
-        $accomodation->accomodation_status = $request->accomodation_status;
-        $accomodation->accomodation_description = $request->accomodation_description;
-        $accomodation->save();
-        
-        return redirect()->route('staff.accomodations')->with('success', 'Rooms updated successfully!');
+    // Find accommodation using Eloquent
+    $accomodation = Accomodation::find($accomodation_id);
+    if (!$accomodation) {
+        return redirect()->back()->with('error', 'Accommodation not found.');
     }
+
+    // Store original values for activity log
+    $originalValues = [
+        'name' => $accomodation->accomodation_name,
+        'type' => $accomodation->accomodation_type,
+        'capacity' => $accomodation->accomodation_capacity,
+        'price' => $accomodation->accomodation_price,
+        'status' => $accomodation->accomodation_status
+    ];
+
+    // Handle image upload
+    if ($request->hasFile('accomodation_image')) {
+        // Delete the old image if it exists
+        if ($accomodation->accomodation_image) {
+            Storage::delete('public/' . $accomodation->accomodation_image);
+        }
+
+        // Store the new image
+        $imagePath = $request->file('accomodation_image')->store('public/accomodations');
+        $accomodation->accomodation_image = str_replace('public/', '', $imagePath);
+    }
+
+    // Update other fields
+    $accomodation->accomodation_name = $request->accomodation_name;
+    $accomodation->accomodation_type = $request->accomodation_type;
+    $accomodation->accomodation_capacity = $request->accomodation_capacity;
+    $accomodation->accomodation_price = $request->accomodation_price;
+    $accomodation->accomodation_status = $request->accomodation_status;
+    $accomodation->accomodation_description = $request->accomodation_description;
+    $accomodation->save();
+
+    // Record the activity with changes
+    $changes = [];
+    if($originalValues['name'] != $request->accomodation_name) {
+        $changes[] = "name from '{$originalValues['name']}' to '{$request->accomodation_name}'";
+    }
+    if($originalValues['type'] != $request->accomodation_type) {
+        $changes[] = "type from '{$originalValues['type']}' to '{$request->accomodation_type}'";
+    }
+    if($originalValues['capacity'] != $request->accomodation_capacity) {
+        $changes[] = "capacity from {$originalValues['capacity']} to {$request->accomodation_capacity}";
+    }
+    if($originalValues['price'] != $request->accomodation_price) {
+        $changes[] = "price from {$originalValues['price']} to {$request->accomodation_price}";
+    }
+    if($originalValues['status'] != $request->accomodation_status) {
+        $changes[] = "status from '{$originalValues['status']}' to '{$request->accomodation_status}'";
+    }
+
+    $changeLog = !empty($changes) ? " Changes: " . implode(', ', $changes) : "";
+    $this->recordActivity($staff->username . " edited accommodation #{$accomodation_id}." . $changeLog);
+    
+    return redirect()->route('staff.accomodations')->with('success', 'Rooms updated successfully!');
+}
 
     public function bookRoom(Request $request)
     {
@@ -323,33 +391,49 @@ class StaffController extends Controller
         }
     }
 
-    public function cancelReservation($reservationId)
-    {
-        $reservation = DB::table('reservation_details')->where('id', $reservationId)->first();
+public function cancelReservation($reservationId)
+{
+    // Get current staff info
+    $staffId = session()->get('StaffLogin');
+    $staff = Staff::find($staffId);
 
-        if ($reservation && in_array($reservation->payment_status, ['cancelled', 'checked_out']) && in_array($reservation->reservation_status, ['Checked-out', 'Cancelled'])) {
-            $roomIds = json_decode($reservation->accomodation_id, true);
+    $reservation = DB::table('reservation_details')->where('id', $reservationId)->first();
 
-            // Increase slots for each room booked
-            DB::table('accomodations')
-                ->whereIn('accomodation_id', $roomIds)
-                ->increment('available_slots');
+    if ($reservation && in_array($reservation->payment_status, ['cancelled', 'checked_out']) && in_array($reservation->reservation_status, ['Checked-out', 'Cancelled'])) {
+        $roomIds = json_decode($reservation->accomodation_id, true);
 
-            // Delete reservation
-            DB::table('reservation_details')->where('id', $reservationId)->delete();
+        // Increase slots for each room booked
+        DB::table('accomodations')
+            ->whereIn('accomodation_id', $roomIds)
+            ->increment('available_slots');
 
-            return response()->json(['success' => true, 'message' => 'Reservation canceled, slot restored.']);
-        }
+        // Record cancellation activity
+        $this->recordActivity($staff->username . " cancelled reservation #{$reservationId} and restored slots for rooms: " . implode(', ', $roomIds));
 
-        return response()->json(['success' => false, 'message' => 'Reservation not found or not eligible for cancellation.']);
+        // Delete reservation
+        DB::table('reservation_details')->where('id', $reservationId)->delete();
+
+        return response()->json(['success' => true, 'message' => 'Reservation canceled, slot restored.']);
     }
 
-    public function UpdateStatus(Request $request, $id)
+    // Record failed cancellation attempt
+    if ($staff) {
+        $this->recordActivity($staff->username . " attempted to cancel ineligible reservation #{$reservationId}");
+    }
+
+    return response()->json(['success' => false, 'message' => 'Reservation not found or not eligible for cancellation.']);
+}
+
+public function UpdateStatus(Request $request, $id)
 {
+    // Get current staff info
+    $staffId = session()->get('StaffLogin');
+    $staff = Staff::find($staffId);
+
     // Validate input
     $request->validate([
         'payment_status' => 'required|string',
-        'custom_message' => 'nullable|max:255',
+        'custom_message' => 'nullable|max:255', 
         'reservation_status' => 'required|string',
     ]);
 
@@ -358,6 +442,10 @@ class StaffController extends Controller
     if (!$reservation) {
         return redirect()->back()->with('error', 'Reservation not found.');
     }
+
+    // Store original status values for activity log
+    $originalPaymentStatus = $reservation->payment_status;
+    $originalReservationStatus = $reservation->reservation_status;
 
     // Extract accommodation IDs
     $accommodationIds = json_decode($reservation->accomodation_id, true) ?? [];
@@ -391,6 +479,18 @@ class StaffController extends Controller
             ->whereIn('accomodation_id', $accommodationIds)
             ->update(['accomodation_status' => 'available']);
     }
+
+    // Record the status update activity
+    $statusChanges = [];
+    if ($originalPaymentStatus != $request->payment_status) {
+        $statusChanges[] = "payment status from '{$originalPaymentStatus}' to '{$request->payment_status}'";
+    }
+    if ($originalReservationStatus != $request->reservation_status) {
+        $statusChanges[] = "reservation status from '{$originalReservationStatus}' to '{$request->reservation_status}'";
+    }
+    
+    $changeLog = !empty($statusChanges) ? " Changes: " . implode(', ', $statusChanges) : "";
+    $this->recordActivity($staff->username . " updated reservation #{$id}." . $changeLog);
 
     // Send email notification
     Mail::to($updatedReservation->email)->send(new ReservationStatusUpdated(

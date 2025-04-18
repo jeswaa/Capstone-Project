@@ -99,20 +99,35 @@ class AdminSideController extends Controller
     public function banGuest($id)
     {
         try {
-            // Update user status to banned
+            // Check if user is already banned
+            $user = DB::table('users')->where('id', $id)->first();
+            
+            if ($user->status === 'banned') {
+                return redirect()->back()->with('info', 'User is already banned.');
+            }
+
+            // Update user status to banned and invalidate any active sessions
             DB::table('users')
                 ->where('id', $id)
                 ->update([
                     'status' => 'banned',
-                    'updated_at' => now()
+                    'updated_at' => now(),
+                    'remember_token' => null, // Invalidate remember me token
+                    'email_verified_at' => null // Invalidate email verification
                 ]);
 
-            return redirect()->back()->with('success', 'Guest has been banned successfully.');
+            // Log the ban action
+            $this->recordActivity("Banned user: {$user->name} (ID: {$user->id})");
+
+            return redirect()->back()->with('success', 'Guest has been banned successfully and their account has been disabled.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Failed to ban guest. Please try again.');
         }
     }
     public function guests(){
+        // Record activity log for accessing guests page
+        $this->recordActivity('Accessed guests management page');
+
         // Get upcoming reservations count
         $upcomingReservations = DB::table('reservation_details')
             ->whereDate('reservation_check_in_date', '>', Carbon::today()->endOfDay())
@@ -176,6 +191,9 @@ class AdminSideController extends Controller
             ->where('reservation_status', 'reserved')
             ->orderBy('reservation_check_in_date', 'asc')
             ->get();
+
+        // Record activity log with summary statistics
+        $this->recordActivity("Viewed guest list - Total Guests: $totalGuests, Upcoming Reservations: $upcomingReservations, Checked-in: $checkedInReservations");
             
         // Return view with all data
         return view('AdminSide.Guest', compact(
@@ -1204,5 +1222,63 @@ public function packages()
         return redirect()->route('addOns')->with('success', 'Add-on deleted successfully!');
     }
 
+public function ActivityLogs(Request $request)
+{
+    // Get distinct roles from activity_logs table
+    $roles = DB::table('activity_logs')
+        ->select('role')
+        ->distinct()
+        ->pluck('role');
 
+    $query = DB::table('activity_logs')
+        ->orderBy('date', 'desc')
+        ->orderBy('time', 'desc');
+
+    // Date range filter
+    if ($request->filled('start_date')) {
+        $query->where('date', '>=', $request->start_date);
+    }
+    if ($request->filled('end_date')) {
+        $query->where('date', '<=', $request->end_date);
+    }
+
+    // Role filter using roles from database
+    if ($request->filled('role')) {
+        $query->where('role', $request->role);
+    }
+
+    // Search filter
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $query->where(function($q) use ($search) {
+            $q->where('activity', 'LIKE', "%{$search}%")
+              ->orWhere('user', 'LIKE', "%{$search}%");
+        });
+    }
+
+    $activityLogs = $query->paginate(10)->withQueryString();
+
+    return view('AdminSide.ActivityLogs', compact('activityLogs', 'roles'));
+}
+
+    // Helper function to record new activity logs
+public function recordActivity($activity)
+{
+    // Get current admin info from session
+    $adminId = session('AdminLogin');
+    $admin = DB::table('admintbl')->where('id', $adminId)->first();
+    
+    // Insert activity log
+    DB::table('activity_logs')->insert([
+        'date' => now()->toDateString(),
+        'time' => now()->toTimeString(),
+        'user' => $admin ? $admin->username : 'System',
+        'role' => 'Admin', // Since this is for admin table
+        'activity' => $activity,
+        'created_at' => now(),
+        'updated_at' => now()
+    ]);
+}
+       
+    
 }
