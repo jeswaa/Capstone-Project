@@ -12,6 +12,7 @@ class Staff extends Model
     protected $fillable = [
         'username',
         'password',
+        'status'
     ];
 
     protected $table = 'stafftbl';

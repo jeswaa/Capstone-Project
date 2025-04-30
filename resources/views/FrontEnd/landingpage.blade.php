@@ -128,7 +128,7 @@
                 <div class="col-lg-6 mb-4">
                     <hr class="border-success mx-auto" style="width: 80%;">
                     <p class="fst-italic text-success" style="font-size: 1.2rem;">
-                        Enjoy Breathtaking
+                        Enjoy breathtakingly
                     </p>
                     <h1 class="fw-bold text-success text-uppercase" style="font-size: calc(1.8rem + 1vw); line-height: 1.2;">
                         Beautiful Views <br>
@@ -137,7 +137,7 @@
                     </h1>
                     <div class="mt-3 p-3 rounded-pill" style="background-color: #E6F4E6; display: inline-block;">
                         <p class="text-success m-0" style="font-size: 1.1rem;">
-                            <em>Book your stay as quick and easy with our simple reservation system!</em>
+                            <em>Booking your stay is quick and easy with our simple reservation system!</em>
                         </p>
                     </div>
                     <hr class="border-dark mx-auto" style="width: 80%;">
@@ -189,55 +189,46 @@
 
     <!-- Fourth Page -->
     <section id="reviews" class="d-flex justify-content-center align-items-center" style="min-height: 100vh;">
-    <div class="container">
-        <div class="row">
-            <!-- Rotated Title (Large Screens) -->
-            <div class="col-md-2 d-none d-md-flex justify-content-start align-items-center">
-                <h1 class="fw-bold text-uppercase"
-                    style="writing-mode: vertical-rl; transform: rotate(180deg); font-size: 3rem; 
-                    color: #0b573d; font-family: 'Anton', sans-serif; letter-spacing: 0.1em;">
-                    REVIEWS
-                </h1>
-            </div>
-
-            <!-- Title for Small Screens -->
-            <div class="col-12 d-md-none text-center mb-3">
-                <h1 class="fw-bold text-uppercase"
-                    style="font-size: calc(2rem + 1vw); color: #0b573d; font-family: 'Anton', sans-serif; letter-spacing: 0.1em;">
-                    REVIEWS
-                </h1>
-            </div>
-
-            <!-- HR Lines and Content -->
-            <div class="col-md-10">
-                <hr class="mb-3" style="border-width: 5px; border-color: #0b573d; opacity: 1;">
-
-                <!-- Responsive Card Grid -->
-                <div class="row g-3">
-                    @foreach (['DSCF2814.JPG', 'DSCF2821.JPG', 'DSCF2729.JPG'] as $index => $image)
-                    <div class="col-12 col-sm-6 col-md-4">
-                        <div class="card h-100 shadow" style="background-color: #0b573d; border-radius: 15px;">
-                            <img src="{{ asset('images/' . $image) }}" class="card-img-top"
-                                alt="Review {{ $index + 1 }}"
-                                style="width: 100%; height: 200px; object-fit: cover; border-radius: 15px 15px 0 0;">
-                            <div class="card-body">
-                                <h5 class="card-title" style="color: #f5f5dc;">{{ ['Amazing Resort', 'Best Experience', 'Relaxing Stay'][$index] }}</h5>
-                                <p class="card-text" style="color: #f5f5dc;">{{ [
-                                    'This resort is amazing! The staff is so friendly and the rooms are so comfortable.',
-                                    'I had the best experience at this resort. The food is delicious and the amenities are top-notch.',
-                                    'I had a very relaxing stay at this resort. The staff is so friendly and the rooms are so comfortable.'
-                                ][$index] }}</p>
-                            </div>
-                        </div>
-                    </div>
-                    @endforeach
+        <div class="container">
+            <div class="row">
+                <!-- Title for All Screens -->
+                <div class="col-12 text-center mb-3">
+                    <h1 class="fw-bold text-uppercase text-start"
+                        style="font-size: calc(2rem + 1vw); color: #0b573d; font-family: 'Anton', sans-serif; letter-spacing: 0.1em;">
+                        REVIEWS
+                    </h1>
                 </div>
 
-                <hr class="mt-3" style="border-width: 5px; border-color: #0b573d; opacity: 1;">
+                <!-- HR Lines and Content -->
+                <div class="col-12">
+                    <hr class="mb-3" style="border-width: 5px; border-color: #0b573d; opacity: 1;">
+
+                    <!-- Responsive Card Grid -->
+                    <div class="row g-3 justify-content-center">
+                        @foreach (['DSCF2814.JPG', 'DSCF2821.JPG', 'DSCF2729.JPG'] as $index => $image)
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="card h-100 shadow" style="background-color: #0b573d; border-radius: 15px;">
+                                <img src="{{ asset('images/' . $image) }}" class="card-img-top"
+                                    alt="Review {{ $index + 1 }}"
+                                    style="width: 100%; height: 200px; object-fit: cover; border-radius: 15px 15px 0 0;">
+                                <div class="card-body">
+                                    <h5 class="card-title" style="color: #f5f5dc;">{{ ['Amazing Resort', 'Best Experience', 'Relaxing Stay'][$index] }}</h5>
+                                    <p class="card-text" style="color: #f5f5dc;">{{ [
+                                        'This resort is amazing! The staff is so friendly and the rooms are so comfortable.',
+                                        'I had the best experience at this resort. The food is delicious and the amenities are top-notch.',
+                                        'I had a very relaxing stay at this resort. The staff is so friendly and the rooms are so comfortable.'
+                                    ][$index] }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+
+                    <hr class="mt-3" style="border-width: 5px; border-color: #0b573d; opacity: 1;">
+                </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
 
 
@@ -269,29 +260,5 @@
             </div>
         </div>
     </footer>
-
-     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-        let logo = document.getElementById("logo"); // Target the logo
-        let clickCount = 0;
-        let timeout;
-
-        if (logo) {
-            logo.addEventListener("click", function () {
-                clickCount++;
-
-                if (clickCount === 5) {
-                    window.location.href = "login/admin"; // Change to your admin login URL
-                }
-
-                // Reset click count after 2 seconds of inactivity
-                clearTimeout(timeout);
-                timeout = setTimeout(() => {
-                    clickCount = 0;
-                }, 2000);
-            });
-        }
-    });
-     </script>   
 </body>
 </html> 

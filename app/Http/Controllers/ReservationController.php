@@ -98,8 +98,8 @@ class ReservationController extends Controller
     public function fetchAccomodationData(){
         $accomodations = DB::table('accomodations')->get();
         $activities = DB::table('activitiestbl')->get();
-        $entranceFees = DB::table('transaction')->first();
-        return view('Reservation.selectPackage', ['accomodations' => $accomodations, 'activities' => $activities, 'entranceFees' => $entranceFees]);
+        $transactions = DB::table('transaction')->first(); // <-- changed from get() to first()
+        return view('Reservation.selectPackage', ['accomodations' => $accomodations, 'activities' => $activities, 'transactions' => $transactions]);
     }
     
     public function saveReservationDetails(Request $request) 
@@ -146,8 +146,8 @@ class ReservationController extends Controller
         $request->validate([
             'reservation_check_in_date' => 'required|date|after_or_equal:today',
             'reservation_check_out_date' => 'required|date|after_or_equal:reservation_check_in_date',
-            'reservation_check_in' => 'required|date_format:H:i',
-            'reservation_check_out' => 'required|date_format:H:i',
+            'reservation_check_in' => 'required',
+            'reservation_check_out' => 'required',
             'number_of_adults' => 'required|integer|min:1',
             'number_of_children' => 'required|integer|min:0',
         ]);
@@ -199,6 +199,26 @@ class ReservationController extends Controller
             return redirect()->route('paymentProcess')->with('success', 'Package selection saved successfully.');
     }
 
+    public function getSessionTimes(Request $request) {
+        $session = $request->query('session');
+    
+        // Kunin ang start_time at end_time mula sa transaction table base sa session
+        $transaction = \App\Models\Transaction::where('session', $session)->first();
+    
+        if ($transaction) {
+            $start_time = $transaction->start_time;
+            $end_time = $transaction->end_time;
+        } else {
+            // Default na oras kung walang nahanap na session
+            $start_time = null;
+            $end_time = null;
+        }
+    
+        return response()->json([
+            'start_time' => $start_time,
+            'end_time' => $end_time
+        ]);
+    }
     
         public function StayInPackages(Request $request)
     {

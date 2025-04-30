@@ -13,5 +13,12 @@ class Transaction extends Model
 
     protected $fillable = [
         'entrance_fee',
+        'type',
+        'age_range',
+        'end_time',
+        'start_time',
+        'session',
+        'created_at',
+        'updated_at',
     ];
 }

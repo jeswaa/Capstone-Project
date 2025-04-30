@@ -14,6 +14,36 @@
     <title>Activity Logs</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
+<style>
+    .fancy-link {
+    text-decoration: none;
+    font-weight: 600;
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+.fancy-link::after {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 2px;
+    left: 0;
+    bottom: -2px;
+    background-color: #0b573d;
+    transition: width 0.3s ease;
+}
+
+.fancy-link:hover {
+    color: #0b573d;
+}
+
+.fancy-link:hover::after {
+    width: 100%;
+}
+.fancy-link.active::after {
+    width: 100% !important;
+}
+</style>
 <body style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
     @include('Alert.loginSucess')
 
@@ -64,7 +94,11 @@
                     </div>
 
                     <hr class="border-5">
-
+                    <!-- Links -->
+                    <div class="d-flex justify-content-center mb-5">
+                        <a href="{{ route('activityLogs') }}" class="text-color-2 text-decoration-none me-5 fancy-link active" style="font-family: 'Anton', sans-serif; letter-spacing: 0.1em;"><h1 class="fs-1 text-uppercase">Activity Logs</h1></a>
+                        <a href="{{ route('userAccountRoles') }}" class="text-color-2 me-5 text-decoration-none fancy-link" style="font-family: 'Anton', sans-serif; letter-spacing: 0.1em;"><h1 class="fs-1 text-uppercase">Account Creation</h1></a>
+                    </div>
                     <!-- Filter Form -->
                     <form action="{{ route('activityLogs') }}" method="GET" class="d-flex justify-content-center align-items-center gap-3 mb-4">
                         <div class="d-flex align-items-center">
@@ -145,8 +179,29 @@
                                     
                                     <!-- Pagination -->
                                     <div class="d-flex justify-content-center mt-4">
-                                        {{ $activityLogs->links() }}
+                                        <nav aria-label="Activity logs pagination">
+                                            <div class="pagination pagination-sm">
+                                                {{ $activityLogs->links('pagination::bootstrap-5') }}
+                                            </div>
+                                        </nav>
                                     </div>
+                                    <style>
+                                        .pagination .page-item.active .page-link {
+                                            background-color: #0b573d;
+                                            border-color: #0b573d;
+                                        }
+                                        .pagination .page-link {
+                                            color: #0b573d;
+                                            padding: 0.5rem 1rem;
+                                            border-radius: 0.25rem;
+                                            margin: 0 2px;
+                                        }
+                                        .pagination .page-link:hover {
+                                            background-color: #e9ecef;
+                                            border-color: #dee2e6;
+                                            color: #0b573d;
+                                        }
+                                    </style>
                                 </div>
                             </div>
                         </div>
