@@ -3,193 +3,738 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Anton&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Transactions</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <!-- Add Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="color-background5">
-    <div class="container-fluid">
-        <div class="row h-100">
-            <!-- Main Content -->
-            <div class="col-md-9 col-12 main-content color-background3 rounded-start-50 ps-0 pe-0 mt-4 flex-column align-items-end ms-auto">
-                <!-- TOP SECTION -->
-                <div class="color-background4 w-auto p-3 rounded-topright-50" id="main-content">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <form class="d-flex align-items-center w-75" role="search">
-                            <div class="input-group">
-                                <input type="search" class="form-control mb-0 rounded-start-5 bg-light border border-secondary" placeholder="Search" aria-label="Search">
-                                <button class="btn btn-outline-success rounded-end-5" type="submit">
-                                    <i class="fa-solid fa-magnifying-glass"></i>
-                                </button>
-                            </div>
-                        </form>
-                        <div data-bs-toggle="tooltip" data-bs-placement="bottom" title="Admin's Profile">
-                            <a href="#"><i class="fa-regular fa-circle-user fs-1 text-decoration-none text-color-1"></i></a>
+<style>
+    .fee-list::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    .fee-list::-webkit-scrollbar-track {
+        background: #e9ecef;
+        border-radius: 4px;
+    }
+    
+    .fee-list::-webkit-scrollbar-thumb {
+        background: #0b573d;
+        border-radius: 4px;
+    }
+
+    .fee-list::-webkit-scrollbar-thumb:hover {
+        background: #083d2a;
+    }
+
+    .hover-shadow:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+</style>
+<body style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
+    @include('Alert.loginSucess')
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    <div class="container-fluid min-vh-100 d-flex p-0">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 color-background8 text-white py-5 position-sticky" style="top: 0; height: 100vh;">
+            <div class="d-flex flex-column align-items-center">
+                <img src="{{ asset('images/default-profile.jpg') }}" alt="Profile Picture" class="rounded-circle w-50 mb-3 border border-5 border-white">
+                <p class="font-heading sidebar-text" data-bs-toggle="modal" data-bs-target="#editProfileModal" style="cursor: pointer;">Edit Profile</p>
+            </div>
+
+            <div class="d-flex flex-column px-4 mt-4">
+                <a href="{{ route('dashboard') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
+                    <i class="fas fa-tachometer-alt me-2 fs-5"></i> Dashboard
+                </a>
+                <a href="{{ route('reservations') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
+                    <i class="fas fa-calendar-alt me-2 fs-5"></i> Reservations
+                </a>
+                <a href="{{ route('guests') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
+                    <i class="fas fa-users me-2 fs-5"></i> Guests
+                </a>
+                <a href="{{ route('transactions') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
+                    <i class="fas fa-credit-card me-2 fs-5"></i> Transactions
+                </a>
+
+                <div class="dropdown py-2 mt-4">
+                    <a class="text-white text-decoration-none d-flex align-items-center dropdown-toggle" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-chart-line me-2 fs-5 text-underline-left-to-right"></i> Reports
+                    </a>
+                    <ul class="dropdown-menu " aria-labelledby="reportsDropdown">
+                        <li><a class="dropdown-item" href="{{ route('reports') }}">Summary Report</a></li>
+                        <li><a class="dropdown-item" href="{{ route('activityLogs') }}">Activity Logs</a></li>
+                    </ul>
+                </div>
+
+                <a href="{{ route('logout') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
+                    <i class="fas fa-sign-out-alt me-2 fs-5"></i> Logout
+                </a>
+            </div>
+        </div>
+        <!-- Main Content -->
+         <div class="col-md-9 col-lg-10 py-4 px-4">
+                <!-- Heading and Search Bar -->
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h1 class="fw-semibold" style="font-family: 'Anton', sans-serif; color: #0b573d; letter-spacing: 0.2em;">TRANSACTION</h1>
+                    <form class="d-flex w-50 ms-5" role="search">
+                        <div class="input-group">
+                            <input type="search" class="form-control rounded-start-5 border-3 border-secondary" style="background-color: transparent; height: 40px;" placeholder="Search" aria-label="Search">
+                            <button class="btn btn-secondary h-75 rounded-end-5" style="color: #e9ffcc;" type="submit">
+                                <i class="fa-solid fa-magnifying-glass" ></i>
+                            </button>
                         </div>
+                    </form>
+                    <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill me-3">
+                </div>
+
+                <hr class="border-5">
+                <!-- Content Bar Graph -->
+                <div>
+                    <h1 class="fw-semibold text-capitalize ms-3 mt-5" style="font-size: 50px; letter-spacing: 1px; color: #0b573d;  font-family: 'Anton', sans-serif; letter-spacing: .1em;">Income Overview</h1>
+                    <!-- Filterization by Year -->
+                    <div class="d-flex justify-content-end mb-4">
+                        <form action="{{ route('transactions') }}" method="GET" class="d-flex align-items-center">
+                            <label for="year" class="me-2">Filter by Year:</label>
+                            <select name="year" id="year" class="form-select" style="width: 150px;" onchange="this.form.submit()">
+                                @foreach($availableYears as $year)
+                                    <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>
+                                        {{ $year }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </form>
+                    </div>
+                    <!-- Bar Graph for the Income -->
+                    <div class="container mt-4 shadow-lg rounded-4 p-3 bg-white">
+                        <canvas id="incomeChart" width="400" height="200"></canvas>
                     </div>
                 </div>
 
-                <!-- MAIN SECTION -->
-                <div class="overflow-y-auto h-100 p-5">
-                
-                    <!-- Chart for Revenue (Daily, Weekly, Monthly) -->
-                    <div class="row g-3 mt-2">
-                        <div class="col-12">
-                            <h3 class="font-heading mb-4 text-center">Revenue Overview</h3>
-                            <div style="height: 400px;">
-                                <canvas id="revenueChart"></canvas>
+                <!-- Pending Payments -->
+                <div class="mt-5">
+                    <h1 class="fw-semibold text-uppercase ms-3" style="font-size: 40px; color: #0b573d; font-family: 'Anton', sans-serif; letter-spacing: 0.2em;">PENDING PAYMENTS</h1>
+                    
+                    <div class="row mt-4">
+                        @if(isset($pendingPayments) && count($pendingPayments) > 0)
+                            @foreach($pendingPayments as $payment)
+                                <div class="col-md-6 mb-4">
+                                    <div class="card border-0 rounded-4 shadow" style="background-color: #0b573d;">
+                                        <div class="card-body text-white p-4">
+                                            <h3 class="fs-2 fw-bold">{{ $payment->name ?? 'Guest' }}</h3>
+                                            <p class="mb-1 fst-italic">
+                                                <i class="fas fa-envelope me-2"></i>
+                                                {{ $payment->email ?? 'No email provided' }}
+                                            </p>
+                                            <p class="mb-0">
+                                                <i class="fas fa-calendar me-2"></i>
+                                                {{ \Carbon\Carbon::parse($payment->reservation_check_in_date)->format('F j, Y') }}, {{ \Carbon\Carbon::parse($payment->reservation_check_in)->format('h:i A') }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        @else
+                            <div class="col-12">
+                                <div class="alert alert-info">
+                                    No pending payments found.
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- Payment Table -->
+                <div>
+                    
+                    <h1 class="fw-semibold text-uppercase ms-3 mt-5" style="font-size: 40px; color: #0b573d; font-family: 'Anton', sans-serif; letter-spacing: 0.2em;">Transactions Management</h1>
+                    <!-- Export Buttons -->
+                    <div class="d-flex justify-content-end mb-3">
+                        <div class="btn-group">
+                            <a href="{{ route('transactions.export.excel') }}" class="btn btn-success btn-sm me-2 rounded-2" style="font-size: 14px; transition: all 0.3s ease;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                                <i class="fas fa-file-excel"></i> Excel
+                            </a>
+                            <a href="{{ route('transactions.export.pdf') }}" class="btn btn-danger btn-sm me-2 rounded-2" style="font-size: 14px; transition: all 0.3s ease;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </a>
+                            <button onclick="printContent()" class="btn btn-primary btn-sm rounded-2" style="font-size: 14px; background-color: #0b573d; transition: all 0.3s ease;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                                <i class="fas fa-print"></i> Print
+                            </button>
+
+                            <script>
+                                function printContent() {
+                                    // Create a new window for printing
+                                    var printWindow = window.open('', '_blank');
+                                    
+                                    // Get the content to print
+                                    var contentToPrint = document.querySelector('.table-responsive').innerHTML;
+                                    
+                                    // Add some basic styling
+                                    var styles = `
+                                        <style>
+                                            table { 
+                                                width: 100%;
+                                                border-collapse: collapse;
+                                            }
+                                            th, td {
+                                                border: 1px solid #ddd;
+                                                padding: 8px;
+                                                text-align: left;
+                                            }
+                                            th {
+                                                background-color: #198754;
+                                                color: white;
+                                            }
+                                            .badge {
+                                                padding: 5px 10px;
+                                                border-radius: 20px;
+                                                color: white;
+                                            }
+                                            .bg-success { background-color: #198754; }
+                                            .bg-warning { background-color: #ffc107; }
+                                            .bg-primary { background-color: #0d6efd; }
+                                            .bg-danger { background-color: #dc3545; }
+                                            @media print {
+                                                body { print-color-adjust: exact; }
+                                            }
+                                        </style>
+                                    `;
+                                    
+                                    // Write the content to the new window
+                                    printWindow.document.write('<html><head><title>Lelo\'s Resort - Transactions</title>' + styles + '</head><body>');
+                                    printWindow.document.write('<h2 style="text-align: center; margin-bottom: 20px;">Lelo\'s Resort - Transactions Report</h2>');
+                                    printWindow.document.write(contentToPrint);
+                                    printWindow.document.write('</body></html>');
+                                    
+                                    // Wait for content to load then print
+                                    printWindow.document.close();
+                                    printWindow.onload = function() {
+                                        printWindow.focus();
+                                        printWindow.print();
+                                        printWindow.close();
+                                    };
+                                }
+                            </script>
+                        </div>
+                    </div>
+                    <!-- Filter and Entrance Fee Section -->
+                    <div class="row mb-4">
+                        <div class="col-md-7">
+                            <div class="card shadow-lg border-0 rounded-4 p-4 bg-white bg-opacity-90 h-100">
+                                <div class="d-flex align-items-center mb-4">
+                                    <i class="fas fa-filter me-2 text-success fs-4"></i>
+                                    <h5 class="mb-0 fw-bold" style="color: #0b573d;">Filter Transactions</h5>
+                                </div>
+
+                                <form action="{{ route('transactions') }}" method="GET" class="mt-3">
+                                    <div class="row g-4">
+                                        <!-- Date Range Filter -->
+                                        <div class="col-md-3">
+                                            <label for="start_date" class="form-label fw-semibold">Start Date</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-white border-end-0" style="height: 45px;">
+                                                    <i class="far fa-calendar-alt text-muted"></i>
+                                                </span>
+                                                <input type="date" class="form-control border-start-0" id="start_date" name="start_date" value="{{ request('start_date') }}" style="height: 45px;">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="end_date" class="form-label fw-semibold">End Date</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-white border-end-0" style="height: 45px;">
+                                                    <i class="far fa-calendar-alt text-muted"></i>
+                                                </span>
+                                                <input type="date" class="form-control border-start-0" id="end_date" name="end_date" value="{{ request('end_date') }}" style="height: 45px;">
+                                            </div>
+                                        </div>
+
+                                        <!-- Guest Name Filter -->
+                                        <div class="col-md-3">
+                                            <label for="guest_name" class="form-label fw-semibold">Guest Name</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-white border-end-0" style="height: 45px;">
+                                                    <i class="far fa-user text-muted"></i>
+                                                </span>
+                                                <input type="text" class="form-control border-start-0" id="guest_name" name="guest_name" placeholder="Enter guest name" value="{{ request('guest_name') }}" style="height: 45px;">
+                                            </div>
+                                        </div>
+
+                                        <!-- Payment Status Filter -->
+                                        <div class="col-md-3">
+                                            <label for="payment_status" class="form-label fw-semibold">Payment Status</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-white border-end-0" style="height: 45px;">
+                                                    <i class="fas fa-money-check-alt text-muted"></i>
+                                                </span>
+                                                <select class="form-select border-start-0" id="payment_status" name="payment_status" style="height: 45px;">
+                                                    <option value="">All</option>
+                                                    <option value="pending" {{ request('payment_status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                                                    <option value="paid" {{ request('payment_status') == 'paid' ? 'selected' : '' }}>Paid</option>
+                                                    <option value="cancelled" {{ request('payment_status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <!-- Filter Buttons -->
+                                        <div class="col-12 d-flex justify-content-end mt-4">
+                                            <a href="{{ route('transactions') }}" class="btn btn-outline-secondary px-4 py-2 me-2" style="width: 120px;">
+                                                <i class="fas fa-undo-alt me-2"></i>Reset
+                                            </a>
+                                            <button type="submit" class="btn btn-success px-4 py-2" style="width: 120px;">
+                                                <i class="fas fa-filter me-2"></i>Apply
+                                            </button>
+                                        </div>
+                                    </div>
+                                    @if(request('year'))
+                                        <input type="hidden" name="year" value="{{ request('year') }}">
+                                    @endif
+                                </form>
+                            </div>
+                        </div>
+                        <!-- Entrance Fee Section -->
+                        <div class="col-md-5">
+                            <div class="card shadow-lg border-0 rounded-4 p-2 bg-white bg-opacity-90 h-100" >
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h6 class="card-title fw-bold" style="color: #0b573d;">
+                                            <i class="fas fa-ticket-alt me-2"></i>Entrance Fee
+                                        </h6>
+                                        <div>
+                                            <a href="#" class="text-success" data-bs-toggle="modal" data-bs-target="#addEntranceFeeModal">
+                                                <i class="fas fa-plus-circle fs-5"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="entrance-fees">
+                                        <!-- Dynamic Filterization -->
+                                        <div class="mb-3">
+                                            <div class="row g-2">
+                                                <div class="col-6">
+                                                <select class="form-select form-select-sm" id="sessionFilter">
+                                                    <option value="">All Sessions</option>
+                                                    @foreach($transactions->pluck('session')->unique() as $session)
+                                                        <option value="{{ $session }}">{{ ucfirst($session) }}</option>
+                                                    @endforeach
+                                                </select>
+                                                </div>
+                                                <div class="col-6">
+                                                <select class="form-select form-select-sm" id="typeFilter">
+                                                    <option value="">All Types</option>
+                                                    @foreach($transactions->pluck('type')->unique() as $type)
+                                                        <option value="{{ $type }}">{{ ucfirst($type) }}</option>
+                                                    @endforeach
+                                                </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="fee-list" style="height: 100px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #0b573d #e9ecef;">
+                                            @foreach($transactions as $fee)
+                                                <div class="fee-item mb-2 p-3 border rounded hover-shadow" 
+                                                    data-id="{{ $fee->id }}"
+                                                    data-session="{{ $fee->session }}"
+                                                    data-type="{{ $fee->type }}"
+                                                    style="transition: all 0.3s ease;">
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <div>
+                                                            <span class="fw-bold text-success">
+                                                                <i class="fas fa-clock me-2"></i>
+                                                                {{ ucfirst($fee->session) }} Session - {{ ucfirst($fee->type) }}
+                                                            </span>
+                                                        </div>
+                                                        <div class="d-flex align-items-center">
+                                                            <span class="fs-6 me-3 fw-bold">₱{{ number_format($fee->entrance_fee, 2) }}</span>
+                                                            <a href="#" class="edit-entrance-fee text-primary" 
+                                                                data-bs-toggle="modal" 
+                                                                data-bs-target="#editEntranceFeeModal"
+                                                                data-id="{{ $fee->id }}"
+                                                                data-session="{{ $fee->session }}"
+                                                                data-start-time="{{ $fee->start_time }}"
+                                                                data-end-time="{{ $fee->end_time }}"
+                                                                data-type="{{ $fee->type }}"
+                                                                data-age-range="{{ $fee->age_range }}"
+                                                                data-entrance-fee="{{ $fee->entrance_fee }}">
+                                                                <i class="fas fa-edit fs-5"></i>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Modal for Editing Entrance Fee -->
-                    <div class="modal fade" id="editEntranceFeeModal" tabindex="-1" aria-labelledby="editEntranceFeeModalLabel" aria-hidden="true">
+                    <!-- Add Entrance Fee Modal -->
+                    <div class="modal fade" id="addEntranceFeeModal" tabindex="-1" aria-labelledby="addEntranceFeeModalLabel" aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="editEntranceFeeModalLabel">Edit Entrance Fee</h5>
+                                    <h5 class="modal-title" id="addEntranceFeeModalLabel">Edit Entrance Fee</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <form method="POST" action="{{ route('updatePrice') }}">
+                                    <form id="entranceFeeForm" method="POST" action="{{ route('updatePrice') }}">
                                         @csrf
                                         <div class="mb-3">
-                                            <label for="entranceFee" class="form-label">Entrance Fee</label>
-                                            <input type="number" class="form-control" id="entranceFee" name="entrance_fee" value="{{ isset($entranceFee) ? $entranceFee : 'N/A' }}">
+                                            <label for="session" class="form-label">Session</label>
+                                            <select class="form-select" id="session" name="session" required>
+                                                <option value="Morning Session">Morning Session</option>
+                                                <option value="Night Session">Night Session</option>
+                                            </select>
                                         </div>
-                                        <button type="submit" class="btn btn-primary">Update</button>
+                                        <div class="mb-3">
+                                            <label for="start_time" class="form-label">Start Time</label>
+                                            <input type="time" class="form-control" id="start_time" name="start_time" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="end_time" class="form-label">End Time</label>
+                                            <input type="time" class="form-control" id="end_time" name="end_time" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="type" class="form-label">Type</label>
+                                            <select class="form-select" id="type" name="type" required>
+                                                <option value="">Select Type</option>
+                                                <option value="adult">Adult</option>
+                                                <option value="kid">Kid</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="age_range" class="form-label">Age Range</label>
+                                            <select class="form-select" id="age_range" name="age_range" required>
+                                                <option value="">Select Age Range</option>
+                                                <option value="0-3">0-3 years old</option>
+                                                <option value="4-12">4-12 years old</option>
+                                                <option value="13-59">13-59 years old</option>
+                                                <option value="60+">60+ years old</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="entrance_fee" class="form-label">Entrance Fee</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">₱</span>
+                                                <input type="number" class="form-control" id="entrance_fee" name="entrance_fee" required>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-success">Save Changes</button>
+                                        </div>
                                     </form>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="row g-3 mt-5">
-                        <div class="col-12">
-                            <h3 class="font-heading mb-4">Pending Payments</h3>
-                            <div class="row row-cols-1 row-cols-md-2 g-4">
-                                @foreach ($totalPendingPayment as $user)
-                                    <div class="col">
-                                        <div class="card h-100">
-                                            <div class="card-body">
-                                                <h5 class="card-title">{{ $user->name }}</h5>
-                                                <p class="card-text">{{ $user->email }}</p>
-                                                <p class="card-text"><small class="text-muted">{{ \Carbon\Carbon::parse($user->created_at)->format('F j, Y, g:i a') }}</small></p>
+
+                    <!-- Edit Entrance Fee Modal -->
+                    <div class="modal fade" id="editEntranceFeeModal" tabindex="-1" aria-labelledby="editEntranceFeeModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header bg-success text-white">
+                                    <h5 class="modal-title" id="editEntranceFeeModalLabel">
+                                        <i class="fas fa-edit me-2"></i>Edit Entrance Fee
+                                    </h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="editEntranceFeeForm" method="POST" action="{{ route('updatePrice') }}">
+                                        @csrf
+                                        <input type="hidden" id="edit_fee_id" name="fee_id">
+                                        
+                                        <div class="mb-3">
+                                            <label for="edit_session" class="form-label fw-bold">
+                                                <i class="fas fa-clock me-2 text-success"></i>Session
+                                            </label>
+                                            <select class="form-select border-2" id="edit_session" name="session" style="height: 45px;" required>
+                                                <option value="Morning">Morning Session</option>
+                                                <option value="Evening">Evening Session</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="edit_start_time" class="form-label fw-bold">
+                                                <i class="far fa-clock me-2 text-success"></i>Start Time
+                                            </label>
+                                            <input type="time" class="form-control border-2" id="edit_start_time" name="start_time" style="height: 45px;" required>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="edit_end_time" class="form-label fw-bold">
+                                                <i class="far fa-clock me-2 text-success"></i>End Time
+                                            </label>
+                                            <input type="time" class="form-control border-2" id="edit_end_time" name="end_time" style="height: 45px;" required>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="edit_type" class="form-label fw-bold">
+                                                <i class="fas fa-users me-2 text-success"></i>Type
+                                            </label>
+                                            <select class="form-select border-2" id="edit_type" name="type" style="height: 45px;" required>
+                                                <option value="">Select Guest</option>
+                                                <option value="adult">Adult</option>
+                                                <option value="kid">Child</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="edit_age_range" class="form-label fw-bold">
+                                                <i class="fas fa-users me-2 text-success"></i>Age Range
+                                            </label>
+                                            <select class="form-select border-2" id="edit_age_range" name="age_range" style="height: 45px;" required>
+                                                <option value="">Select Age Range</option>
+                                                <option value="13 years - 18 years above">Adult (13 years - 18 years above)</option>
+                                                <option value="12 years old below">Child (12 years old below)</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="edit_entrance_fee" class="form-label fw-bold">
+                                                <i class="fas fa-dollar-sign me-2 text-success"></i>Entrance Fee
+                                            </label>
+                                            <div class="input-group" style="height: 45px;">
+                                                <span class="input-group-text" style="height: 46px;" >₱</span>
+                                                <input type="number" class="form-control border-2" id="edit_entrance_fee" name="entrance_fee" style="height: 46px;" required>
                                             </div>
                                         </div>
-                                    </div>
-                                @endforeach
+
+                                        <div class="modal-footer border-0">
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="fas fa-save me-2"></i>Update
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>
-
-                    <hr class="mt-4">
-                    <!-- Display here the Filterazation of the Transactions -->
-
-                    <form method="GET" action="{{ route('transactions') }}" class="mb-4">
-                        <div class="row g-2">
-                            <!-- Date Filter -->
-                            <div class="col-md-4">
-                                <label for="dateFilter" class="form-label">Filter by Date:</label>
-                                <input type="date" class="form-control" id="dateFilter" name="date" value="{{ request('date') }}">
-                            </div>
-
-                            <!-- Payment Status Filter -->
-                            <div class="col-md-4">
-                                <label for="paymentStatus" class="form-label">Payment Status:</label>
-                                <select class="form-select" id="paymentStatus" name="payment_status">
-                                    <option value="">All</option>
-                                    <option value="pending" {{ request('payment_status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                                    <option value="paid" {{ request('payment_status') == 'paid' ? 'selected' : '' }}>Paid</option>
-                                    <option value="canceled" {{ request('payment_status') == 'canceled' ? 'selected' : '' }}>Canceled</option>
-                                </select>
-                            </div>
-
-                            <!-- Submit Button -->
-                            <div class="col-12 text-end mt-3">
-                                <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill shadow-sm">
-                                    <i class="fa-solid fa-filter me-1"></i> Filter
-                                </button>
-                                <a href="{{ route('transactions') }}" class="btn btn-light border px-4 py-2 rounded-pill shadow-sm mt-3">
-                                    Reset <i class="fa-solid fa-arrow-rotate-left ms-1"></i>
-                                </a>
-                            </div>
-
-                        </div>
-                    </form>
-
+                    <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // Get all edit buttons
+                        const editButtons = document.querySelectorAll('.edit-entrance-fee');
+                        
+                        // Check if edit buttons exist before adding event listeners
+                        if (editButtons && editButtons.length > 0) {
+                            // Add click event listener to each edit button
+                            editButtons.forEach(button => {
+                                button.addEventListener('click', function() {
+                                    // Get data attributes from the button
+                                    const id = this.getAttribute('data-id');
+                                    const session = this.getAttribute('data-session');
+                                    const startTime = this.getAttribute('data-start-time');
+                                    const endTime = this.getAttribute('data-end-time');
+                                    const type = this.getAttribute('data-type');
+                                    const ageRange = this.getAttribute('data-age-range');
+                                    const entranceFee = this.getAttribute('data-entrance-fee');
+                                    
+                                    // Check if form elements exist before setting values
+                                    const idField = document.getElementById('edit_fee_id');
+                                    const sessionField = document.getElementById('edit_session');
+                                    const startTimeField = document.getElementById('edit_start_time');
+                                    const endTimeField = document.getElementById('edit_end_time');
+                                    const typeField = document.getElementById('edit_type');
+                                    const ageRangeField = document.getElementById('edit_age_range');
+                                    const entranceFeeField = document.getElementById('edit_entrance_fee');
+                                    
+                                    // Set values in the form if elements exist
+                                    if (idField) idField.value = id;
+                                    if (sessionField) sessionField.value = session;
+                                    if (startTimeField) startTimeField.value = startTime;
+                                    if (endTimeField) endTimeField.value = endTime;
+                                    if (typeField) typeField.value = type;
+                                    if (ageRangeField) ageRangeField.value = ageRange;
+                                    if (entranceFeeField) entranceFeeField.value = entranceFee;
+                                });
+                            });
+                        } else {
+                            console.log('No edit entrance fee buttons found on the page');
+                        }
+                    });
+                    </script>
+                    
+                    
+                    <!-- Table -->
                     <div class="table-responsive">
-                        <table class="table table-striped table-bordered">
-                            <thead class="table-dark">
+                        <table class="table table-hover bg-white shadow-lg rounded-4">
+                            <thead class="table-success">
                                 <tr>
-                                    <th>Guest Name</th>
-                                    <th>Check-in Date</th>
-                                    <th>Amount</th>
-                                    <th>Payment Status</th>
-                                    <th>Reservation Status</th>
+                                    <th scope="col" class="py-3">Guest Name</th>
+                                    <th scope="col" class="py-3">Amount Paid</th>
+                                    <th scope="col" class="py-3">Remaining Balance</th>
+                                    <th scope="col" class="py-3">Payment Mode</th>
+                                    <th scope="col" class="py-3">Date</th>
+                                    <th scope="col" class="py-3">Payment Status</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($filteredTransactions as $transaction)
+                                @forelse($reservationDetails as $transaction)
                                     <tr>
-                                        <td>{{ $transaction->name }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($transaction->reservation_check_in_date)->format('F j, Y') }}</td>
-                                        <td>{{($transaction->amount) }}</td>
-                                        <td class="{{ $transaction->payment_status == 'paid' ? 'text-success' : ($transaction->payment_status == 'pending' ? 'text-warning' : 'text-danger') }}">
-                                            {{ ucfirst($transaction->payment_status) }}
-                                        </td>
-                                        <td class="{{ $transaction->reservation_status == 'checked_out' ? 'text-primary' : ($transaction->reservation_status == 'reserved' ? 'text-secondary' : 'text-danger') }}">
-                                            {{ ucfirst(str_replace('_', ' ', $transaction->reservation_status)) }}
+                                        <td class="py-3">{{ $transaction->name }}</td>
+                                        <td class="py-3">₱{{ number_format($transaction->amount, 2) }}</td>
+                                        <td class="py-3">₱{{ in_array($transaction->payment_status, ['paid', 'cancelled', 'checked-out']) ? '0.00' : number_format($transaction->balance, 2) }}</td>
+                                        <td class="py-3">{{ $transaction->payment_method }}</td>
+                                        <td class="py-3">{{ \Carbon\Carbon::parse($transaction->reservation_check_in_date)->format('M d, Y') }}</td>
+                                        <td class="py-3">
+                                            <span class="badge rounded-pill {{ $transaction->payment_status === 'paid' ? 'bg-success' : ($transaction->payment_status === 'pending' ? 'bg-warning' : ($transaction->payment_status === 'booked' ? 'bg-primary' : 'bg-danger')) }}">
+                                                {{ ucfirst($transaction->payment_status) }}
+                                            </span>
                                         </td>
                                     </tr>
-                                @endforeach
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="text-center py-3">No transactions found</td>
+                                    </tr>
+                                @endforelse
                             </tbody>
                         </table>
-
-                        <!-- Pagination -->
-                        <div class="d-flex justify-content-center">
-                            {{ $filteredTransactions->links() }}
+                        
+                        <div class="d-flex justify-content-end mt-3">
+                            {{ $reservationDetails->links() }}
                         </div>
                     </div>
-
-
                 </div>
-            </div>
-        </div>
+         </div>
     </div>
 
-    <!-- SIDE NAV BAR -->
-    @include('Navbar.sidenavbar')
-
+    <!-- Scripts -->
     <script>
-        // Add Chart.js script for daily, weekly, and monthly revenue
-        document.addEventListener('DOMContentLoaded', function () {
-            const ctx = document.getElementById('revenueChart').getContext('2d');
-            const revenueChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Daily', 'Weekly', 'Monthly'],  // Labels for daily, weekly, and monthly
-                    datasets: [{
-                        label: 'Revenue',
-                        data: [@json($dailyRevenue), @json($weeklyRevenue), @json($monthlyRevenue)],  // Data for daily, weekly, and monthly revenues
-                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('incomeChart').getContext('2d');
+        
+        // Use data from backend
+        const chartLabels = {!! $chartLabels !!};
+        const chartValues = {!! $chartValues !!};
+        
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    label: 'Monthly Income',
+                    data: chartValues,
+                    backgroundColor: 'rgba(11, 87, 61, 0.7)', // Matching your theme color
+                    borderColor: 'rgba(11, 87, 61, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '₱' + value.toLocaleString();
+                            }
                         }
                     }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return '₱' + context.raw.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+    </script>
+        <script>
+        // Date range validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const startDate = document.getElementById('start_date');
+            const endDate = document.getElementById('end_date');
+
+            startDate.addEventListener('change', function() {
+                endDate.min = this.value;
+                if (endDate.value && endDate.value < this.value) {
+                    endDate.value = this.value;
+                }
+            });
+
+            endDate.addEventListener('change', function() {
+                startDate.max = this.value;
+                if (startDate.value && startDate.value > this.value) {
+                    startDate.value = this.value;
                 }
             });
         });
     </script>
+    <script>
+    function updateFeeFields() {
+        const selectElement = document.getElementById('select_fee');
+        const selectedOption = selectElement.options[selectElement.selectedIndex];
+        
+        if (selectedOption.value) {
+            document.getElementById('entranceFee').value = selectedOption.dataset.fee;
+        }
+    }
+    </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const editButtons = document.querySelectorAll('[data-bs-toggle="modal"][data-bs-target="#editEntranceFeeModal"]');
+        
+        editButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const type = this.getAttribute('data-type');
+                const typeField = document.getElementById('edit_type');
+                
+                if (typeField) {
+                    // Convert both values to lowercase for comparison
+                    const options = typeField.options;
+                    for (let i = 0; i < options.length; i++) {
+                        if (options[i].value.toLowerCase() === type.toLowerCase()) {
+                            typeField.selectedIndex = i;
+                            break;
+                        }
+                    }
+                }
+                
+                // ... existing code ...
+            });
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const sessionFilter = document.getElementById('sessionFilter');
+        const typeFilter = document.getElementById('typeFilter');
+        const feeItems = document.querySelectorAll('.fee-item');
+
+        if (sessionFilter && typeFilter) {
+            // Add event listeners
+            sessionFilter.addEventListener('change', filterFees);
+            typeFilter.addEventListener('change', filterFees);
+        }
+        function filterFees() {
+            const selectedSession = sessionFilter.value;
+            const selectedType = typeFilter.value;
+            const feeItems = document.querySelectorAll('.fee-item');
+
+            feeItems.forEach(item => {
+                const matchSession = !selectedSession || item.dataset.session === selectedSession;
+                const matchType = !selectedType || item.dataset.type === selectedType;
+                item.style.display = matchSession && matchType ? 'block' : 'none';
+            });
+        }
+    });
+    </script>
 </body>
 </html>
+

@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Anton&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <title>Packages</title>
+    <title>Activities</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </head>
@@ -67,9 +69,9 @@
                     <a class="text-white text-decoration-none d-flex align-items-center dropdown-toggle" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fas fa-chart-line me-2 fs-5 text-underline-left-to-right"></i> Reports
                     </a>
-                    <ul class="dropdown-menu" aria-labelledby="reportsDropdown">
+                    <ul class="dropdown-menu " aria-labelledby="reportsDropdown">
                         <li><a class="dropdown-item" href="{{ route('reports') }}">Summary Report</a></li>
-                        <li><a class="dropdown-item" href="#">Activity Logs</a></li>
+                        <li><a class="dropdown-item" href="{{ route('activityLogs') }}">Activity Logs</a></li>
                     </ul>
                 </div>
 
@@ -109,6 +111,41 @@
                             Add Activity
                         </button>
                     </div>
+
+                    <!-- Add Activity Modal -->
+                    <div class="modal fade" id="addActivityModal" tabindex="-1" aria-labelledby="addActivityModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="addActivityModalLabel">Add New Activity</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form action="{{ route('storeActivity') }}" method="POST" enctype="multipart/form-data">
+                                        @csrf
+                                        <div class="form-group">
+                                            <label for="activity_name">Activity Name</label>
+                                            <input type="text" class="form-control" id="activity_name" name="activity_name" required>
+                                        </div>
+                                        <div class="form-group mt-3">
+                                            <label for="activity_image">Activity Image</label>
+                                            <input type="file" class="form-control" id="activity_image" name="activity_image" required>
+                                        </div>
+                                        <div class="form-group mt-3">
+                                            <label for="activity_status">Activity Status</label>
+                                            <select class="form-select" id="activity_status" name="activity_status" required>
+                                                <option value="Available">Available</option>
+                                                <option value="Unavailable">Unavailable</option>
+                                            </select>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary mt-3">Add Activity</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- End Add Activity Modal -->
+
                     <!-- Table -->
                     <div class="bg-white shadow-lg rounded-4 p-4 mt-2">
                         <table class="table table-hover table-borderless mb-0">

@@ -32,8 +32,8 @@ class ReservationController extends Controller
     {
         $accomodations = DB::table('accomodations')->get();
         $activities = DB::table('activitiestbl')->get();
-        $addons = DB::table('addons')->get();
-        return view('Reservation.selectPackageCustom', ['accomodations' => $accomodations, 'activities' => $activities, 'addons' => $addons]);
+        $entranceFees = DB::table('transaction')->first();
+        return view('Reservation.selectPackageCustom', ['accomodations' => $accomodations, 'activities' => $activities, 'entranceFees' => $entranceFees]);
     }
     public function paymentProcess()
     {
@@ -97,7 +97,8 @@ class ReservationController extends Controller
     public function fetchAccomodationData(){
         $accomodations = DB::table('accomodations')->get();
         $activities = DB::table('activitiestbl')->get();
-        return view('Reservation.selectPackage', ['accomodations' => $accomodations, 'activities' => $activities]);
+        $transactions = DB::table('transaction')->first(); // <-- changed from get() to first()
+        return view('Reservation.selectPackage', ['accomodations' => $accomodations, 'activities' => $activities, 'transactions' => $transactions]);
     }
     
     public function saveReservationDetails(Request $request) 
@@ -144,8 +145,8 @@ class ReservationController extends Controller
         $request->validate([
             'reservation_check_in_date' => 'required|date|after_or_equal:today',
             'reservation_check_out_date' => 'required|date|after_or_equal:reservation_check_in_date',
-            'reservation_check_in' => 'required|date_format:H:i',
-            'reservation_check_out' => 'required|date_format:H:i',
+            'reservation_check_in' => 'required',
+            'reservation_check_out' => 'required',
             'number_of_adults' => 'required|integer|min:1',
             'number_of_children' => 'required|integer|min:0',
         ]);
@@ -197,10 +198,30 @@ class ReservationController extends Controller
             return redirect()->route('paymentProcess')->with('success', 'Package selection saved successfully.');
     }
 
+    public function getSessionTimes(Request $request) {
+        $session = $request->query('session');
+    
+        // Kunin ang start_time at end_time mula sa transaction table base sa session
+        $transaction = \App\Models\Transaction::where('session', $session)->first();
+    
+        if ($transaction) {
+            $start_time = $transaction->start_time;
+            $end_time = $transaction->end_time;
+        } else {
+            // Default na oras kung walang nahanap na session
+            $start_time = null;
+            $end_time = null;
+        }
+    
+        return response()->json([
+            'start_time' => $start_time,
+            'end_time' => $end_time
+        ]);
+    }
     
         public function StayInPackages(Request $request)
     {
-
+        
         // Validate input data
         $request->validate([
             'reservation_check_in_date' => 'required|date|after_or_equal:today',
@@ -295,12 +316,15 @@ class ReservationController extends Controller
     $accomodationIds = is_array($accomodationIds) ? json_encode($accomodationIds) : json_encode([]);
     
     // Store payment details in session
-    $reservationDetails['amount'] = $request->input('amount');
+    $reservationDetails['amount'] = str_replace(['₱', ' ', ','], '', $request->input('amount'));
+    $reservationDetails['downpayment'] = str_replace(['₱', ' ', ','], '', $request->input('downpayment'));
+    $reservationDetails['balance'] = str_replace(['₱', ' ', ','], '', $request->input('balance'));
     $reservationDetails['payment_method'] = $request->input('payment_method', 'gcash');
     $reservationDetails['mobileNo'] = $request->input('mobileNo');
     $reservationDetails['upload_payment'] = $request->file('upload_payment')->store('public/payments');
     $reservationDetails['reference_num'] = $request->input('reference_num');
     $reservationDetails['payment_status'] = 'pending';
+    $reservationDetails['reservation_status'] = 'pending';
     
     // Save reservation details to database
     $reservation = new Reservation();
@@ -318,12 +342,16 @@ class ReservationController extends Controller
     $reservation->reservation_check_out_date = $reservationDetails['reservation_check_out_date'] ?? null;
     $reservation->reservation_check_in = $reservationDetails['reservation_check_in'] ?? null;
     $reservation->reservation_check_out = $reservationDetails['reservation_check_out'] ?? null;
-    $reservation->amount = $reservationDetails['amount'];
+    // When saving to database
+    $reservation->amount = floatval($reservationDetails['amount']);
+    $reservation->balance = floatval($reservationDetails['balance']);
+    $reservation->downpayment = floatval($reservationDetails['downpayment']);
     $reservation->payment_method = $reservationDetails['payment_method'];
     $reservation->mobileNo = $reservationDetails['mobileNo'];
     $reservation->upload_payment = $reservationDetails['upload_payment'];
     $reservation->reference_num = $reservationDetails['reference_num'];
     $reservation->payment_status = $reservationDetails['payment_status'];
+    $reservation->reservation_status = $reservationDetails['reservation_status'];
     $reservation->save();
     
     // Clear session after saving to database
@@ -403,81 +431,72 @@ class ReservationController extends Controller
         ]);
     }
 
-    public function showReservationsInCalendar()
-    {
-        $userId = Auth::id();
+public function showReservationsInCalendar()
+{
+    $userId = Auth::id();
+    $events = [];
 
-        // Fetch all reservations
-        $reservations = DB::table('reservation_details')->get();
+    // Fetch user's own reservations
+    $userReservations = DB::table('reservation_details')
+        ->where('user_id', $userId)
+        ->whereIn('reservation_status', ['reserved', 'checked-in'])
+        ->get();
 
-        // Get Fully Booked Dates (Only when all accommodations are unavailable on that date)
-        $fullyBookedDates = DB::table('reservation_details')
-            ->select('reservation_check_in_date')
-            ->groupBy('reservation_check_in_date')
-            ->havingRaw('COUNT(*) >= (SELECT COUNT(*) FROM accomodations)')
-            ->pluck('reservation_check_in_date')
+    foreach ($userReservations as $reservation) {
+        $accommodationIds = json_decode($reservation->accomodation_id, true);
+        $accommodations = DB::table('accomodations')
+            ->whereIn('accomodation_id', (array) $accommodationIds)
+            ->pluck('accomodation_name')
             ->toArray();
 
-        $events = [];
+        $activityIds = json_decode($reservation->activity_id, true);
+        $activities = DB::table('activitiestbl')
+            ->whereIn('id', (array) $activityIds)
+            ->pluck('activity_name')
+            ->toArray();
 
-        foreach ($reservations as $reservation) {
-            // Fetch accommodations
-            $accommodationIds = json_decode($reservation->accomodation_id, true);
-            $accommodations = DB::table('accomodations')
-                ->whereIn('accomodation_id', (array) $accommodationIds)
-                ->pluck('accomodation_name')
-                ->toArray();
+        $package = DB::table('packagestbl')->where('id', $reservation->package_id)->first();
 
-            // Fetch activities
-            $activityIds = json_decode($reservation->activity_id, true);
-            $activities = DB::table('activitiestbl')
-                ->whereIn('id', (array) $activityIds)
-                ->pluck('activity_name')
-                ->toArray();
-
-            // Check if the logged-in user owns this reservation
-            $isOwner = (int) $reservation->user_id === (int) $userId;
-
-            // Only add reservation events for the owner
-            if ($isOwner) {
-                $package = DB::table('packagestbl')->where('id', $reservation->package_id)->first();
-
-                $events[] = [
-                    'title' => 'Your Reservation',
-                    'start' => \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('Y-m-d'),
-                    'end' => \Carbon\Carbon::parse($reservation->reservation_check_out_date)->format('Y-m-d'),
-                    'allDay' => true,
-                    'color' => '#97a97c', // Green for the user's reservation
-                    'extendedProps' => [
-                        'user_id' => (int) $reservation->user_id,
-                        'name' => $reservation->name,
-                        'check_in' => $reservation->reservation_check_in_date,
-                        'check_out' => $reservation->reservation_check_out_date,
-                        'room_type' => $package->package_room_type ?? '',
-                        'accommodations' => implode(", ", $accommodations),
-                        'activities' => implode(", ", $activities),
-                        'is_owner' => true,
-                    ],
-                ];
-            }
-        }
-
-        // Add Fully Booked events
-        foreach ($fullyBookedDates as $date) {
-            $events[] = [
-                'title' => 'Fully Booked',
-                'start' => $date,
-                'allDay' => true,
-                'color' => '#FF0000', // Red for Fully Booked
-                'textColor' => 'white'
-            ];
-        }
-
-        return view('Reservation.Events_reservation', compact('events', 'userId'));
+        $events[] = [
+            'title' => 'Your Reservation',
+            'start' => \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('Y-m-d'),
+            'allDay' => true,
+            'color' => $reservation->reservation_status === 'checked-in' ? '#2ecc71' : '#97a97c',
+            'extendedProps' => [
+                'user_id' => (int) $reservation->user_id,
+                'name' => $reservation->name,
+                'check_in' => $reservation->reservation_check_in,
+                'check_out' => $reservation->reservation_check_out,
+                'room_type' => $package->package_room_type ?? '',
+                'accommodations' => implode(", ", $accommodations),
+                'activities' => implode(", ", $activities),
+                'status' => $reservation->reservation_status
+            ],
+        ];
     }
 
+    // Get Fully Booked Dates
+    $fullyBookedDates = DB::table('reservation_details')
+        ->whereIn('reservation_status', ['reserved', 'checked-in'])
+        ->select('reservation_check_in_date')
+        ->groupBy('reservation_check_in_date')
+        ->havingRaw('COUNT(*) >= (SELECT COUNT(*) FROM accomodations)')
+        ->pluck('reservation_check_in_date')
+        ->toArray();
 
+    // Add Fully Booked events
+    foreach ($fullyBookedDates as $date) {
+        $events[] = [
+            'title' => 'Fully Booked',
+            'start' => $date,
+            'allDay' => true,
+            'color' => '#FF0000',
+            'textColor' => 'white'
+        ];
+    }
 
+    return view('Reservation.Events_reservation', compact('events', 'userId'));
+}
     public function guestcancelReservation(Request $request, $id)
     {
         $request->validate([
@@ -513,7 +532,8 @@ class ReservationController extends Controller
         $reservation->cancel_reason = $request->cancel_reason;
         DB::table('reservation_details')->where('id', $reservation->id)->update([
             'cancel_reason' => $request->cancel_reason,
-            'payment_status' => 'cancelled'
+            'payment_status' => 'cancelled',
+            'reservation_status' => 'cancelled'
         ]);
 
         return redirect()->route('profile')->with('success', 'Reservation cancelled successfully.');

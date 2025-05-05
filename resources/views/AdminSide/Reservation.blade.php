@@ -125,9 +125,9 @@
                     <a class="text-white text-decoration-none d-flex align-items-center dropdown-toggle" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fas fa-chart-line me-2 fs-5 text-underline-left-to-right"></i> Reports
                     </a>
-                    <ul class="dropdown-menu" aria-labelledby="reportsDropdown">
+                    <ul class="dropdown-menu " aria-labelledby="reportsDropdown">
                         <li><a class="dropdown-item" href="{{ route('reports') }}">Summary Report</a></li>
-                        <li><a class="dropdown-item" href="#">Activity Logs</a></li>
+                        <li><a class="dropdown-item" href="{{ route('activityLogs') }}">Activity Logs</a></li>
                     </ul>
                 </div>
 
@@ -163,7 +163,7 @@
             </div>
 
             <div class="mt-5 ms-4">
-                <h1 class="text-color-2" style="font-family: 'Anton', sans-serif;">Reservation Calendar</h1>
+                <h1 class="text-color-2" style="font-family: 'Anton', sans-serif;"> Calendar</h1>
                 <div id="calendar-container" class="shadow-lg rounded-4 p-3 bg-white floating-effect">
                     <div id="calendar" class="mb-5"></div>
                 </div>
@@ -186,14 +186,13 @@
                     <thead class="table-light text-uppercase text-secondary small">
                         <tr>
                             <th scope="col" class="small">Guest Name</th>
-                            <th scope="col" class="small">Check-in</th>
-                            <th scope="col" class="small">Check-out</th>
+                            <th scope="col" class="small">Dates(In-Out)</th>
                             <th scope="col" class="small">Room Type</th>
-                            <th scope="col" class="small">Check-in Time</th>
-                            <th scope="col" class="small">Check-out Time</th>
+                            <th scope="col" class="small">Time(In-Out)</th>
                             <th scope="col" class="small">Mobile Number</th>
                             <th scope="col" class="small">Reference Number</th>
-                            <th scope="col" class="small">Status</th>
+                            <th scope="col" class="small">Payment Status</th>
+                            <th scope="col" class="small">Res. Status</th>
                             <th scope="col" class="small">Amount</th>
                         </tr>
                     </thead>
@@ -201,8 +200,7 @@
                         @foreach ($reservations as $reservation)
                             <tr class="align-middle">
                                 <td class="fw-semibold">{{ $reservation->name }}</td>
-                                <td>{{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('F j, Y') }}</td>
-                                <td>{{ \Carbon\Carbon::parse($reservation->reservation_check_out_date)->format('F j, Y') }}</td>
+                                <td>{{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('M j, Y') }}-{{ \Carbon\Carbon::parse($reservation->reservation_check_out_date)->format('M j, Y') }}</td>
                                 <td>
                                     @if(!empty($reservation->accomodation_names))
                                         {{ implode(', ', $reservation->accomodation_names) }}
@@ -210,8 +208,7 @@
                                         <span class="text-muted">No Accommodation</span>
                                     @endif
                                 </td>
-                                <td>{{ $reservation->reservation_check_in }}</td>
-                                <td>{{ $reservation->reservation_check_out }}</td>
+                                <td>{{ \Carbon\Carbon::parse($reservation->reservation_check_in)->format('h:i A') }}-{{ \Carbon\Carbon::parse($reservation->reservation_check_out)->format('h:i A') }}</td>
                                 <td>{{$reservation->mobileNo}}</td>
                                 <td>{{ $reservation->reference_num}}</td>
                                 <td>
@@ -226,7 +223,8 @@
                                         {{ ucfirst($reservation->payment_status) }}
                                     </span>
                                 </td>
-                                <td>{{($reservation->amount) }}</td>
+                                <td>{{ $reservation->reservation_status}}</td>
+                                <td>₱{{ number_format($reservation->amount, 2) }}</td>
                             </tr>
                         @endforeach
                     </tbody>

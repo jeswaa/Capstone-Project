@@ -129,6 +129,7 @@
                                                         <label for="editRoomType{{ $accomodation->accomodation_id }}" class="form-label">Type</label>
                                                         <select class="form-select" id="editRoomType{{ $accomodation->accomodation_id }}" name="accomodation_type" required>
                                                             <option value="room" {{ $accomodation->accomodation_type == 'room' ? 'selected' : '' }}>Room</option>
+                                                            <option value="cabin" {{ $accomodation->accomodation_type == 'cabin' ? 'selected' : '' }}>Cabin</option>
                                                             <option value="cottage" {{ $accomodation->accomodation_type == 'cottage' ? 'selected' : '' }}>Cottage</option>
                                                         </select>
                                                     </div>
@@ -147,10 +148,6 @@
                                                             <option value="unavailable" {{ $accomodation->accomodation_status == 'unavailable' ? 'selected' : '' }}>Not Available</option>
                                                             <option value="maintenance" {{ $accomodation->accomodation_status == 'maintenance' ? 'selected' : '' }}>Under Maintenance</option>
                                                         </select>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label for="editRoomSlot{{ $accomodation->accomodation_id }}" class="form-label">Slot</label>
-                                                        <input type="number" class="form-control" id="editRoomSlot{{ $accomodation->accomodation_id }}" name="accomodation_slot" min="1" required value="{{ $accomodation->accomodation_slot }}">
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="submit" class="btn btn-primary">Save Changes</button>

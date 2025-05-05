@@ -267,12 +267,12 @@ body::after {
                                     <div class="d-flex justify-content-between">
                                         <p><strong>Status:</strong> 
                                             <span class="badge 
-                                                @if($latestReservation->payment_status == 'paid') bg-success 
-                                                @elseif($latestReservation->payment_status == 'pending') bg-warning 
-                                                @elseif($latestReservation->payment_status == 'booked') bg-primary 
+                                                @if(isset($reservation) && $reservation->payment_status == 'paid') bg-success 
+                                                @elseif(isset($reservation) && $reservation->payment_status == 'pending') bg-warning 
+                                                @elseif(isset($reservation) && $reservation->payment_status == 'booked') bg-primary 
                                                 @else bg-danger 
                                                 @endif">
-                                                {{ $latestReservation->payment_status }}
+                                                {{ isset($reservation) ? $reservation->payment_status : 'N/A' }}
                                             </span>
                                         </p>
                                     </div>
@@ -302,7 +302,7 @@ body::after {
             </div>
             <div class="modal-body">
                 <p>Are you sure you want to cancel this reservation?</p>
-                @if(isset($latestReservation) && $latestReservation)
+                @if(isset($latestReservation) && $latestReservation && $latestReservation->id)
                     <form method="POST" action="{{ route('guestcancelReservation', ['id' => $latestReservation->id]) }}">
                         @csrf
                         <div class="form-group">

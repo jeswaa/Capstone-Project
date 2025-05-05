@@ -250,7 +250,7 @@
                             </ul>
                         </div>
                         <div class="d-flex justify-content-between align-items-center">
-                            <span class="fst-italic">Total Accommodation Price</span>
+                            <span class="fst-italic">Total Room Price</span>
                             <input type="text" class="form-control text-end bg-secondary-subtle border-0" id="total-accommodation" 
                                    value="₱{{ number_format($accomodations->sum('accomodation_price'), 2) }}" readonly>
                         </div>
@@ -288,30 +288,40 @@
                         <hr class="border-success my-2">
                         
                         @php
-                            $totalAccommodationPrice = isset($reservationDetails->package_id) 
-                                ? ($selectedPackage->package_price ?? 0)
-                                : $accomodations->sum('accomodation_price');
+                            // Calculate stay duration from check-in and check-out dates
+                            $checkInDate = new DateTime($reservationDetails['reservation_check_in_date'] ?? '');
+                            $checkOutDate = new DateTime($reservationDetails['reservation_check_out_date'] ?? '');
+                            $stayDuration = $checkInDate && $checkOutDate ? $checkOutDate->diff($checkInDate)->days : 1;
+                            if ($stayDuration < 1) $stayDuration = 1;
                             
-                            $entranceFee = isset($reservationDetails->package_id)
-                                ? ($selectedPackage->package_max_guests ?? 0) * 100
-                                : ($reservationDetails['total_guest'] ?? 0) * 100;
+                            // Calculate total room price with correct duration
+                            $totalRoomPrice = $accomodations->sum('accomodation_price') * $stayDuration;
                             
-                            $amount = $totalAccommodationPrice + $entranceFee;
+                            // Calculate total entrance fee
+                            $totalEntranceFee = ($reservationDetails['total_guest'] ?? 0) * 100;
+                            
+                            // Calculate final amount
+                            $amount = $totalRoomPrice + $totalEntranceFee;
                             $downpayment = $amount * 0.15;
                         @endphp
 
                         <div class="d-flex justify-content-between align-items-center">
                             <h5 class="fw-bold text-success">Total Amount to Pay</h5>
-                            <input type="text" class="form-control text-center bg-secondary-subtle border-0 fw-bold fs-5" name="amount" 
-                                   style="max-width: 150px;" value="₱ {{ number_format($amount, 2) }}" readonly>
+                            <input type="text" class="form-control text-center bg-secondary-subtle border-0 fw-bold fs-5" 
+                                   id="amount-display" style="max-width: 150px;" 
+                                   value="₱{{ number_format($amount, 2) }}" readonly>
+                            <input type="hidden" name="amount">
                         </div>
                         
                         <div class="d-flex justify-content-between align-items-center mt-3">
                             <span class="fst-italic">Required 15% Downpayment</span>
-                            <input type="text" class="form-control text-end bg-secondary-subtle border-0" 
-                                   style="max-width: 150px;" value="₱{{ number_format($downpayment, 2) }}" readonly>
+                            <input type="text" id="downpayment-display" class="form-control text-end bg-secondary-subtle border-0" 
+                                   style="max-width: 150px;" value="₱ {{ number_format($downpayment, 2) }}" readonly>
+                            <!-- Hidden input for raw downpayment value -->
+                            <input type="hidden" name="downpayment" value="{{ $downpayment }}">
                         </div>
-                        
+                        <!-- Hidden input for raw balance value -->
+                        <input type="hidden" name="balance" value="{{ $amount - $downpayment }}">
                         <div class="mt-3">
                             <label class="fw-bold">Upload Proof of Payment</label>
                             <input type="file" class="form-control bg-secondary-subtle border-0" name="upload_payment" id="upload_payment" required>
@@ -319,13 +329,13 @@
                         
                         <div class="mt-3">
                             <label class="fw-bold">Sender's Number</label>
-                            <input type="text" class="form-control bg-secondary-subtle border-0" name="mobileNo" id="mobileNo" 
+                            <input type="number" class="form-control bg-secondary-subtle border-0" name="mobileNo" id="mobileNo" 
                                    value="{{ auth()->user() ? auth()->user()->mobileNo : '' }}" placeholder="ex: 09xxxxxxxxx" required>
                         </div>
                         
                         <div class="mt-3">
                             <label class="fw-bold">Reference Number</label>
-                            <input type="text" class="form-control bg-secondary-subtle border-0" name="reference_num" id="reference_num" 
+                            <input type="number" class="form-control bg-secondary-subtle border-0" name="reference_num" id="reference_num" 
                                    placeholder="ex: 1100xx-xxx-xxx" required>
                         </div>
                         
@@ -373,10 +383,11 @@
         if(checkInDate && checkOutDate) {
             const start = new Date(checkInDate);
             const end = new Date(checkOutDate);
-            stayDuration = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) || 1;
+            stayDuration = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+            if (stayDuration < 1) stayDuration = 1;
         }
 
-        // Update duration display
+        // Update duration display and hidden input
         document.getElementById('duration-text').textContent = `Stay Duration: ${stayDuration} ${stayDuration > 1 ? 'days' : 'day'}`;
         document.getElementById('stay_duration').value = stayDuration;
 

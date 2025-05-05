@@ -93,29 +93,29 @@
 <body>
     <div class="email-container">
         <div class="header">
-            <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" class="logo">
-            <h2>Reservation Status Update</h2>
+            <h2>Payment Status Update</h2>
         </div>
 
         <p>Dear {{ $reservation->name }},</p>
         
         <div class="status-box">
-            <h5>Your reservation status has been updated:</h5>
-            <p><strong>Current Status:</strong> <span style="color: {{ $reservation->payment_status === 'paid' ? '#2a5d34' : ($reservation->payment_status === 'pending' ? '#e6a700' : ($reservation->payment_status === 'booked' ? '#428bca' : '#d9534f')) }}; font-weight: bold; text-transform: capitalize;">
+            <h5>Your payment status has been updated:</h5>
+            <p><strong>Payment Status:</strong> <span style="color: {{ $reservation->payment_status === 'paid' ? '#2a5d34' : ($reservation->payment_status === 'pending' ? '#e6a700' : ($reservation->payment_status === 'booked' ? '#428bca' : '#d9534f')) }}; font-weight: bold; text-transform: capitalize;">
                 {{ $reservation->payment_status }}
             </span></p>
+            <p>Your reservation status is: <span style="color: {{ $reservation->reservation_status === 'reserved' ? '#428bca' : ($reservation->reservation_status === 'checked-in' || $reservation->reservation_status === 'checked-out' ? '#2a5d34' : ($reservation->reservation_status === 'cancelled' ? '#d9534f' : 'inherit')) }}; font-weight: bold; text-transform: capitalize;">{{ $reservation->reservation_status }}</span></p>
         </div>
 
         <div class="details-box">
             <div class="detail-item">
-                <span class="detail-label">Mobile No:</span> {{ $reservation->mobileNo }}
+                <span class="detail-label">Mobile No:</span> {{ $reservation->mobileNo ?? 'No mobile number provided'  }}
             </div>
             <div class="detail-item">
-                <span class="detail-label">Address:</span> {{ $reservation->address }}
+                <span class="detail-label">Address:</span> {{ $reservation->address ?? 'No address provided' }}
             </div>
             <div class="detail-item">
                 <span class="detail-label">Total Amount:</span> 
-                <span class="amount-highlight">{{ ($reservation->amount) }}</span>
+                <span class="amount-highlight">₱ {{ number_format($reservation->amount, 2) }}</span>
             </div>
             <div class="detail-item">
                 <span class="detail-label">Balance:</span> 
@@ -159,18 +159,14 @@
                 <span class="detail-label">Check-in Date:</span> {{ date('F j, Y', strtotime($reservationDetails->reservation_check_in_date)) }}
             </div>
             <div class="detail-item">
+                <span class="detail-label">Check-out Date:</span> {{ date('F j, Y', strtotime($reservationDetails->reservation_check_out_date)) }}
+            </div>
+            <div class="detail-item">
                 <span class="detail-label">Check-in Time:</span> {{ date('g:i A', strtotime($reservationDetails->reservation_check_in)) }}
             </div>
-            @if(isset($reservationDetails->reservation_check_out_date))
-                <div class="detail-item">
-                    <span class="detail-label">Check-out Date:</span> {{ date('F j, Y', strtotime($reservationDetails->reservation_check_out_date)) }}
-                </div>
-            @endif
-            @if(isset($reservationDetails->reservation_check_out))
-                <div class="detail-item">
-                    <span class="detail-label">Check-out Time:</span> {{ date('g:i A', strtotime($reservationDetails->reservation_check_out)) }}
-                </div>
-            @endif
+            <div class="detail-item">
+                <span class="detail-label">Check-out Time:</span> {{ date('g:i A', strtotime($reservationDetails->reservation_check_out)) }}
+            </div>
         </div>
         @endif
 

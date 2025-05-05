@@ -15,6 +15,9 @@ use App\Models\SignUpUser;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
+use App\Mail\LoginOTPMail;
+
 
 class LoginController extends Controller
 {
@@ -23,72 +26,89 @@ class LoginController extends Controller
         return view('FrontEnd.Loginpage');
     }
 
-    public function authenticate(Request $request)
-    {
-        $recaptchaResponse = $request->input('g-recaptcha-response');
-        $secretKey = '6LeAQAgrAAAAALayvy-bvh83aloEH0xtXjQC_gsd';
+public function authenticate(Request $request)
+{
+    $recaptchaResponse = $request->input('g-recaptcha-response');
+    $secretKey = '6LeAQAgrAAAAALayvy-bvh83aloEH0xtXjQC_gsd';
 
-        // Validate that the reCAPTCHA checkbox was checked
-        if (!$recaptchaResponse) {
-            return back()->withErrors(['recaptcha' => 'Please check the reCAPTCHA box.']);
-        }
-
-        // Send a request to Google to verify the reCAPTCHA response
-        $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
-            'secret' => $secretKey,
-            'response' => $recaptchaResponse,
-        ]);
-
-        $responseData = $response->json();
-
-        if ($responseData['success']) {
-            // reCAPTCHA verification passed, continue processing the form
-        } else {
-            // reCAPTCHA verification failed
-            return back()->withErrors(['recaptcha' => 'reCAPTCHA verification failed.']);
-        }
-
-        // Validate input fields
-        $request->validate([
-            'email' => [
-                'required',
-                'email',
-            ],
-            'password' => [
-                'required',
-                'string',
-                function ($attribute, $value, $fail) use ($request) {
-                    if (!User::where('email', $request->email)->exists()) {
-                        $fail('Email does not exist.');
-                    } elseif (!Hash::check($value, User::where('email', $request->email)->first()->password)) {
-                        $fail('Password is incorrect.');
-                    }
-                },
-            ],
-        ]);
-
-        // Check if email exists in users table
-        if (!User::where('email', $request->email)->exists()) {
-            return back()->with('invalidLogin', 'Email does not exist.')->withInput($request->only('email'));
-        }
-
-        // Attempt to authenticate the user
-        if (Auth::attempt($request->only('email', 'password'))) {
-            $user = Auth::user();
-
-            // Store user in session
-            Session::put('user', $user->id);
-            Session::put('user_email', $user->email);
-            Session::put('user_name', $user->name);
-            Session::put('user_mobile', $user->mobileNo);
-            Session::put('user_address', $user->address);
-
-            return redirect()->route('calendar')->with('success', 'Welcome, ' . $user->name . '!');
-        }
-        return back()->with('errorlogin', 'Invalid email or password.')->withInput($request->only('email'));
+    // Validate that the reCAPTCHA checkbox was checked
+    if (!$recaptchaResponse) {
+        return back()->withErrors(['recaptcha' => 'Please check the reCAPTCHA box.']);
     }
 
+    // Send a request to Google to verify the reCAPTCHA response
+    $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+        'secret' => $secretKey,
+        'response' => $recaptchaResponse,
+    ]);
 
+    $responseData = $response->json();
+
+    if (!$responseData['success']) {
+        return back()->withErrors(['recaptcha' => 'reCAPTCHA verification failed.']);
+    }
+
+    // Check if email exists and if the account is banned
+    $user = User::where('email', $request->email)->first();
+    if (!$user) {
+        return back()->with('invalidLogin', 'Email does not exist.')->withInput($request->only('email'));
+    }
+
+    // Check if user is banned
+    if ($user->status === 'banned') {
+        return back()->with('errorlogin', 'This account has been banned. Please contact support for assistance.')
+            ->withInput($request->only('email'));
+    }
+
+    // Validate input fields
+    $request->validate([
+        'email' => [
+            'required',
+            'email',
+        ],
+        'password' => [
+            'required',
+            'string',
+            function ($attribute, $value, $fail) use ($request) {
+                if (!Hash::check($value, User::where('email', $request->email)->first()->password)) {
+                    $fail('Password is incorrect.');
+                }
+            },
+        ],
+    ]);
+
+    // Attempt to authenticate the user
+    if (Auth::attempt($request->only('email', 'password'))) {
+        $user = Auth::user();
+
+        // Store user in session
+        Session::put('user', $user->id);
+        Session::put('user_email', $user->email);
+        Session::put('user_name', $user->name);
+        Session::put('user_mobile', $user->mobileNo);
+        Session::put('user_address', $user->address);
+
+        return redirect()->route('calendar');
+    }
+    
+    return back()->with('errorlogin', 'Invalid email or password.')->withInput($request->only('email'));
+}
+    protected function attemptLogin(Request $request)
+    {
+        // Check if user is banned before attempting login
+        $user = DB::table('users')->where('email', $request->email)->first();
+        
+        if ($user && $user->status === 'banned') {
+            return redirect()->back()
+                ->withInput($request->only('email'))
+                ->withErrors(['email' => 'This account has been banned. Please contact support for assistance.']);
+        }
+
+        return Auth::attempt(
+            $request->only('email', 'password'),
+            $request->filled('remember')
+        );
+    }
     public function resetPassword(Request $request)
     {
         try {
@@ -194,7 +214,120 @@ class LoginController extends Controller
             return back()->withErrors(['recaptcha' => 'reCAPTCHA verification failed.']);
         }
     }
+    public function sendLoginOTP(Request $request)
+    {
+        $email = $request->email;
+        $password = $request->input('password');
+        
+        $user = User::where('email', $email)->first();
+        
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found.'
+            ]);
+        }
 
+        // Check if user is banned
+        if ($user->status === 'banned') {
+            return response()->json([
+                'success' => false,
+                'message' => 'This account has been banned. Please contact support for assistance.'
+            ]);
+        }
+        
+        // Check if password is missing
+        if (empty($password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Password is required.'
+            ]);
+        }
+        
+        // Check password match
+        if (!Hash::check($password, $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid password.'
+            ]);
+        }
+        
+        // Generate a 6-digit OTP
+        $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        session(['login_otp' => $otp, 'login_otp_email' => $email]);
+        
+        try {
+            Mail::to($email)->send(new LoginOTPMail($otp));
+            return response()->json([
+                'success' => true,
+                'message' => 'OTP has been successfully sent to your email.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to send OTP. Please try again.'
+            ]);
+        }
+    }
+    public function verifyLoginOTP(Request $request)
+    {
+        $inputOTP = $request->otp;
+        $email = $request->email;
+        
+        // Check if OTP matches
+        if (session('login_otp') == $inputOTP && session('login_otp_email') == $email) {
+            // Clear OTP from session
+            session()->forget(['login_otp', 'login_otp_email']);
+            
+            // Log the user in
+            $user = User::where('email', $email)->first();
+            Auth::login($user);
+            // Add success message to flash session for display on calendar page
+            session()->flash('login_success', 'Login successful!');
+            return response()->json([
+                'success' => true,
+                'message' => 'OTP verified successfully.'
+            ]);
+        }
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Invalid OTP. Please try again.'
+        ]);
+    }
+    public function resendOTP(Request $request)
+    {
+        try {
+            $email = $request->email;
+            $user = User::where('email', $email)->first();
 
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found with this email.'
+                ]);
+            }
+
+            // Generate new 6-digit OTP
+            $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
+            // Update OTP in session
+            session(['login_otp' => $otp, 'login_otp_email' => $email]);
+
+            // Send new OTP via email
+            Mail::to($email)->send(new LoginOTPMail($otp));
+
+            return response()->json([
+                'success' => true,
+                'message' => 'New OTP has been sent to your email.'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to resend OTP. Please try again.'
+            ]);
+        }
+    }
 }
 
