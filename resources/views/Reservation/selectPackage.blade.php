@@ -51,9 +51,9 @@
     <div class="container">
     <h1 class="text-white font-heading fs-2 mt-3 mb-3 ms-2">Select your Room</h1>
     
-    <form method="POST" action="{{ route('savePackageSelection') }}">
+    <form method="POST" action="{{ route('fixPackagesSelection') }}">
         @csrf
-        <input type="hidden" name="package_type" value="custom">
+        <input type="hidden" name="package_type" value="One day Stay">
 
         <!-- Room Section -->
         <div class="col-md-12 d-flex flex-column">
@@ -188,16 +188,24 @@
                                 <div class="card p-3 shadow-sm border-0">
                                     <h6 class="fw-bold mb-3 text-success">Number of Visitors</h6>
                                     <div class="form-group mb-3">
-                                        <label for="number_of_adults">Adults (18+):</label>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <label for="number_of_adults">Adults <small style="font-size:10px;">(13 years and above):</small></label>
+                                            <small class="text-muted" id="adult_entrance_fee">Entrance Fee: ₱<span id="adult_fee"> {{ number_format($adultTransaction->entrance_fee,2) }}</span></small>
+                                        </div>
                                         <input type="number" name="number_of_adults" id="number_of_adults" class="form-control p-2" min="0" oninput="calculateTotalGuest()">
+                                        
                                     </div>
                                     <div class="form-group mb-3">
-                                        <label for="number_of_children">Children (3-12):</label>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <label for="number_of_children">Children <small style="font-size:10px;">(3 to 12 years old):</small></label>
+                                            <small class="text-muted" id="child_entrance_fee">Entrance Fee: ₱<span id="child_fee"> {{ number_format($kidTransaction->entrance_fee,2) }}</span></small>
+                                        </div>
                                         <input type="number" name="number_of_children" id="number_of_children" class="form-control p-2" min="0" oninput="calculateTotalGuest()">
                                     </div>
                                     <div class="form-group">
                                         <label for="total_guests">Total Guests:</label>
                                         <input type="number" name="total_guest" id="total_guests" class="form-control p-2" readonly>
+                                        <small class="text-muted">Total Entrance Fee: ₱<span id="total_entrance_fee">0</span></small>
                                         <div id="guestError" class="text-danger mt-2" style="display: none;">
                                             Exceeds maximum room capacity!
                                         </div>
@@ -302,45 +310,54 @@
 </script>
 
 <script>
-    // Move function outside DOMContentLoaded to prevent "ReferenceError"
-    function calculateTotalGuest() {
-        let adults = parseInt(document.getElementById("number_of_adults").value) || 0;
-        let children = parseInt(document.getElementById("number_of_children").value) || 0;
-        let totalGuests = adults + children;
-
-        let selectedAccommodations = document.querySelectorAll(".select-accommodation.selected");
-        let totalCapacity = 0;
-        selectedAccommodations.forEach(item => {
-            totalCapacity += parseInt(item.getAttribute("data-capacity"));
-        });
-
-        if (totalGuests > totalCapacity) {
-            document.getElementById("guestError").style.display = "block";
-        } else {
-            document.getElementById("guestError").style.display = "none";
+        function calculateTotalGuest() {
+            let adults = parseInt(document.getElementById("number_of_adults").value) || 0;
+            let children = parseInt(document.getElementById("number_of_children").value) || 0;
+            let totalGuests = adults + children;
+            
+            // Kunin ang entrance fees
+            let adultFee = parseFloat(document.getElementById("adult_fee").textContent.trim().replace(/[₱,]/g, ''));
+            let childFee = parseFloat(document.getElementById("child_fee").textContent.trim().replace(/[₱,]/g, ''));
+            
+            // Kalkulahin ang total entrance fee
+            let totalEntranceFee = (adults * adultFee) + (children * childFee);
+            
+            // I-update ang display ng total guests at entrance fee
+            document.getElementById("total_guests").value = totalGuests;
+            document.getElementById("total_entrance_fee").textContent = totalEntranceFee.toFixed(2);
+            
+            // I-save ang total entrance fee sa hidden input para ma-submit sa form
+            let hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'entrance_fee';
+            hiddenInput.value = totalEntranceFee.toFixed(2);
+            
+            // Tanggalin ang dating hidden input kung meron
+            let existingInput = document.querySelector('input[name="entrance_fee"]');
+            if (existingInput) {
+                existingInput.remove();
+            }
+            
+            // Idagdag ang bagong hidden input sa form
+            document.querySelector('form').appendChild(hiddenInput);
         }
-
-        document.getElementById("total_guests").value = totalGuests;
-        calculateTotalAmount(); // Ensure total amount updates correctly
-    }
-
-
     function calculateTotalAmount() {
-        let adultEntranceFee = 100;
-        let childEntranceFee = 50;
-        let numAdults = parseInt(document.getElementById("number_of_adults").value) || 0;
-        let numChildren = parseInt(document.getElementById("number_of_children").value) || 0;
-
-        let entranceTotal = (numAdults * adultEntranceFee) + (numChildren * childEntranceFee);
+        // Kunin ang total entrance fee
+        let totalEntranceFee = parseFloat(document.getElementById("total_entrance_fee").textContent) || 0;
+        
+        // Kunin ang total ng mga napiling accommodation
         let accommodationTotal = 0;
-
         document.querySelectorAll('.select-accommodation.selected').forEach(card => {
             let price = parseFloat(card.getAttribute("data-price")) || 0;
             accommodationTotal += price;
         });
-
-        let totalAmount = entranceTotal + accommodationTotal;
+    
+        // I-add ang total entrance fee at accommodation total
+        let totalAmount = totalEntranceFee + accommodationTotal;
+    
+        // I-update ang hidden input para sa total amount
         document.getElementById("total_amount").value = totalAmount.toFixed(2);
+        value = totalAmount;
     }
 
     document.addEventListener("DOMContentLoaded", function () {
@@ -444,19 +461,28 @@
     });
 });
 </script>
-// ... existing code ...
 <script>
 function updateSessionTimes() {
     var session = document.getElementById('session').value;
     fetch('/get-session-times?session=' + session)
         .then(response => response.json())
         .then(data => {
-            // Kung may nakuha na oras, i-update ang mga input
+            // Parse the entrance fees as numbers first
+            const adultFee = parseFloat(data.adultFee);
+            const kidFee = parseFloat(data.kidFee);
+
+            // Update entrance fees with proper formatting
+            document.getElementById('adult_fee').textContent = ' ' + adultFee.toFixed(2);
+            document.getElementById('child_fee').textContent = ' ' + kidFee.toFixed(2);
+
+            // Recalculate total entrance fee
+            calculateTotalGuest();
+
+            // Update session times
             if (data.start_time && data.end_time) {
                 document.getElementById('start_time').value = data.start_time.substring(0,5);
                 document.getElementById('end_time').value = data.end_time.substring(0,5);
             } else {
-                // Kung walang nakuha, i-clear ang fields
                 document.getElementById('start_time').value = '';
                 document.getElementById('end_time').value = '';
             }
@@ -468,6 +494,5 @@ function updateSessionTimes() {
         });
 }
 </script>
-// ... existing code ...
 </body>
 </html>

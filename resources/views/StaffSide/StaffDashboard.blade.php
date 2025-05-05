@@ -84,17 +84,16 @@
         <!-- Main Content -->
          <div class="col-md-10 col-lg-10 py-4 px-4">
             <!-- Heading and Logo -->
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <h1 class="fw-semibold" style="font-family: 'Anton', sans-serif; color: #0b573d; letter-spacing: 0.2em;">DASHBOARD</h1>
+            <div class="d-flex justify-content-end align-items-end mb-2">
                 <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill me-3">
             </div>
 
             <hr class="border-5">
             
             <!-- Welcome Message -->
-            <div>
-                <p class="text-color-1 fs-1" style="font-family: 'Anton', sans-serif; letter-spacing: 0.2em;">Hello</p>
-                <h1 class="fw-semibold text-capitalize" style="font-size: 100px; letter-spacing: 1px; color: #0b573d; margin-top: -30px; font-family: 'Anton', sans-serif; letter-spacing: .1em;">{{ $staffCredentials->username }}!</h1>
+            <div class="d-flex align-items-center">
+                <p class="text-color-1 me-3" style="font-family: 'Anton', sans-serif;  font-size: 5rem;">Hello</p>
+                <h1 class="fw-semibold text-capitalize" style="font-family: 'Anton', sans-serif;  font-size: 5rem; color: #0b573d;">{{ $staffCredentials->username }}!</h1>
             </div>
 
             <!-- Dashboard Cards -->
@@ -143,9 +142,23 @@
             
                 <!-- Column 3: Pending Bookings -->
                 <div class="col-md-4">
-                    <div class="h-100 p-4 rounded-4 border border-4" style="border-color: #0b573d !important;  background-color: white;">
-                        <h2 class="font-heading mb-3" style="color: #0b573d;">Pending Bookings</h2>
-                        <p class="text-secondary font-paragraph fst-italic">No pending reservations.</p>
+                    <div class="p-4 rounded-4 border border-4" style="border-color: #0b573d !important;  background-color: white; height:280px;">
+                        <h2 class="font-heading mb-1" style="color: #0b573d;">Pending Bookings</h2>
+                        @if($pendingReservationsList && count($pendingReservationsList) > 0)
+                            <div class="overflow-auto" style="max-height: 300px;">
+                                @foreach($pendingReservationsList as $reservation)
+                                    <div class="d-flex align-items-center justify-content-between mb-1 p-1 border-bottom">
+                                        <div>
+                                            <p class="mb-0 font-paragraph fw-bold">{{ $reservation->guest_name }}</p>
+                                            <small class="text-muted">{{ \Carbon\Carbon::parse($reservation->reservation_check_in)->format('M d, Y') }}</small>
+                                        </div>
+                                        <span class="badge bg-warning text-dark">Pending</span>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <p class="text-secondary font-paragraph fst-italic">No pending reservations.</p>
+                        @endif
                     </div>
                 </div>
             <!-- After the Pending Bookings Section -->
