@@ -279,9 +279,6 @@
                 <!-- HR Lines and Content -->
                 <div class="col-12">
                     <hr class="mb-3" style="border-width: 5px; border-color: #0b573d; opacity: 1;">
-                <!-- HR Lines and Content -->
-                <div class="col-12">
-                    <hr class="mb-3" style="border-width: 5px; border-color: #0b573d; opacity: 1;">
 
                     <!-- Responsive Card Grid -->
                     <div class="row g-3 justify-content-center">
@@ -303,32 +300,7 @@
                         </div>
                         @endforeach
                     </div>
-                    <!-- Responsive Card Grid -->
-                    <div class="row g-3 justify-content-center">
-                        @foreach (['DSCF2814.JPG', 'DSCF2821.JPG', 'DSCF2729.JPG'] as $index => $image)
-                        <div class="col-12 col-sm-6 col-md-4">
-                            <div class="card h-100 shadow" style="background-color: #0b573d; border-radius: 15px;">
-                                <img src="{{ asset('images/' . $image) }}" class="card-img-top"
-                                    alt="Review {{ $index + 1 }}"
-                                    style="width: 100%; height: 200px; object-fit: cover; border-radius: 15px 15px 0 0;">
-                                <div class="card-body">
-                                    <h5 class="card-title" style="color: #f5f5dc;">{{ ['Amazing Resort', 'Best Experience', 'Relaxing Stay'][$index] }}</h5>
-                                    <p class="card-text" style="color: #f5f5dc;">{{ [
-                                        'This resort is amazing! The staff is so friendly and the rooms are so comfortable.',
-                                        'I had the best experience at this resort. The food is delicious and the amenities are top-notch.',
-                                        'I had a very relaxing stay at this resort. The staff is so friendly and the rooms are so comfortable.'
-                                    ][$index] }}</p>
-                                </div>
-                            </div>
-                        </div>
-                        @endforeach
-                    </div>
 
-                    <hr class="mt-3" style="border-width: 5px; border-color: #0b573d; opacity: 1;">
-                </div>
-            </div>
-        </div>
-    </section>
                     <hr class="mt-3" style="border-width: 5px; border-color: #0b573d; opacity: 1;">
                 </div>
             </div>

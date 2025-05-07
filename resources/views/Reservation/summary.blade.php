@@ -122,37 +122,69 @@
     </div>
 </div>
 
-            <!-- Right Column -->
-            <div class="col-md-4">
-                <div class="p-4 border rounded">
-                    <div class="d-flex align-items-center mb-4">
-                        <h5 class="mb-0">Status:</h5>
-                        <span class="badge 
-                            @if($reservationDetails->payment_status == 'paid') bg-success 
-                            @elseif($reservationDetails->payment_status == 'pending') bg-warning
-                            @elseif($reservationDetails->payment_status == 'booked') bg-primary
-                            @else bg-danger 
-                            @endif text-white">
-                            {{ ucfirst($reservationDetails->payment_status) }}
-                        </span>
-                    </div>
+<!-- Right Column -->
+<div class="col-md-4">
+    <div class="p-4 border rounded">
+        <!-- Status Section -->
+        <div class="d-flex align-items-center mb-4">
+            <h5 class="mb-0">Status:</h5>
+            <span class="badge 
+                @if($reservationDetails->payment_status == 'paid') bg-success 
+                @elseif($reservationDetails->payment_status == 'pending') bg-warning
+                @elseif($reservationDetails->payment_status == 'booked') bg-primary
+                @else bg-danger 
+                @endif text-white">
+                {{ ucfirst($reservationDetails->payment_status) }}
+            </span>
+        </div>
 
-                    <div class="text-center">
-                        <button class="btn btn-dark w-100 mb-3" onclick="generateQRCode()">
-                            <i class="fa-solid fa-qrcode me-2"></i>GENERATE QR
-                        </button>
-                        <canvas id="qr-code" class="mb-3"></canvas>
-                        <button id="download-qr" class="btn btn-success w-100" style="display: none;" onclick="downloadQRCode()">
-                            <i class="fa-solid fa-download me-2"></i>DOWNLOAD QR
-                        </button>
-                    </div>
-                </div>
+        <!-- Instructions Section -->
+        <div class="mb-4">
+            <h5 class="text-success mb-3">Instructions:</h5>
+            <div class="alert alert-info p-3" style="font-size: 0.9rem;">
+                <ol class="mb-0 ps-3">
+                    <li class="mb-2">Download your QR code by clicking the button below</li>
+                    <li class="mb-2">Present this QR code upon check-in at our resort</li>
+                </ol>
             </div>
         </div>
+
+        <!-- QR Code Section -->
+        <div class="text-center">
+            <canvas id="qr-code" class="mb-3"></canvas>
+            <button id="download-qr" class="btn btn-success w-100" onclick="downloadQRCode()">
+                <i class="fa-solid fa-download me-2"></i>DOWNLOAD QR
+            </button>
+        </div>
     </div>
+</div>
+</div>
+</div>
     <div class="pb-5"></div> <!-- Add padding at the bottom -->
 
 <script>
+    // Generate QR code on page load
+    window.onload = function() {
+        let email = '{{ $reservationDetails->email ?? '' }}';
+        if (email) {
+            let qr = new QRious({
+                element: document.getElementById('qr-code'),
+                value: `Email: ${email}`,
+                size: 300
+            });
+
+            // Center the QR code
+            let qrCodeContainer = document.getElementById('qr-code').parentElement;
+            qrCodeContainer.style.display = 'flex';
+            qrCodeContainer.style.flexDirection = 'column';
+            qrCodeContainer.style.justifyContent = 'center';
+            qrCodeContainer.style.alignItems = 'center';
+
+            // Show download button
+            document.getElementById('download-qr').style.display = 'inline-block';
+        }
+    };
+
     function generateQRCode() {
         let email = '{{ $reservationDetails->email ?? '' }}';
 
@@ -161,7 +193,6 @@
             return;
         }
 
-        // Generate QR Code
         let qr = new QRious({
             element: document.getElementById('qr-code'),
             value: `Email: ${email}`,
