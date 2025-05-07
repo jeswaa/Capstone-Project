@@ -59,7 +59,7 @@
         <div class="smoke"></div>
         <!-- Hero Section with Background -->
         <div class="hero vh-100 d-flex flex-column justify-content-center align-items-center text-center text-light position-relative"
-            style="background: url('{{ asset('images/background.png') }}') no-repeat center; background-size: cover; overflow: hidden;">
+            style="background: url('{{ asset('images/background.png') }}') no-repeat center; background-size: cover; overflow: hidden">
             
     
             <!-- Hero Content -->
@@ -96,7 +96,7 @@
 
 
     <!-- Second Page -->
-    <section id="about" class="d-flex flex-column justify-content-center align-items-center py-5" style="background-color: white;">
+    <section class="d-flex flex-column justify-content-center align-items-center py-5" style="background-color: white;">
         <div class="container">
             <div class="row align-items-center text-center">
                 <!-- Left Image (Hidden on small screens) -->
@@ -128,7 +128,7 @@
                 <div class="col-lg-6 mb-4">
                     <hr class="border-success mx-auto" style="width: 80%;">
                     <p class="fst-italic text-success" style="font-size: 1.2rem;">
-                        Enjoy breathtaking
+                        Enjoy breathtakingly
                     </p>
                     <h1 class="fw-bold text-success text-uppercase" style="font-size: calc(1.8rem + 1vw); line-height: 1.2;">
                         Beautiful Views <br>
@@ -137,7 +137,7 @@
                     </h1>
                     <div class="mt-3 p-3 rounded-pill" style="background-color: #E6F4E6; display: inline-block;">
                         <p class="text-success m-0" style="font-size: 1.1rem;">
-                            <em>Book your stay is quick and easy with our simple reservation system!</em>
+                            <em>Booking your stay is quick and easy with our simple reservation system!</em>
                         </p>
                     </div>
                     <hr class="border-dark mx-auto" style="width: 80%;">
@@ -183,9 +183,86 @@
     </section>
 
     <!-- Third Page -->
-    <section>
+    <section id="about">
 
-    </section>
+    <div class="container">
+    <h1 class="fw-bold text-uppercase text-start mt-4" style="font-size: calc(2rem + 1vw); color: #0b573d; font-family: 'Anton', sans-serif; letter-spacing: 0.1em;">ABOUT</h1>
+</div>
+
+    
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="p-4 h-100" style="background: #0b573d; border-radius: 10px;">
+                <h5 class="text-center mb-4" style="font-size: 2.5rem; color: white; font-family: 'Montserrat', sans-serif; font-weight: 600;">
+                    Lelo's Resort Location
+                </h5>
+                <div class="map-container" style="position: relative; overflow: hidden; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <iframe 
+                        src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d961.0491022967285!2d121.15607442205169!3d15.527598132646467!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x339733007d27d00d%3A0xb261c522c057f04f!2sLelo&#39;s%20Peak!5e0!3m2!1sen!2sus!4v1746511741643!5m2!1sen!2sus"
+                        width="100%" 
+                        height="350" 
+                        style="border: none;" 
+                        allowfullscreen="" 
+                        loading="lazy" 
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div>
+                <div class=" text-start">
+                    <h5 style="font-size: 2rem; color: white; font-family: 'Montserrat', sans-serif; font-weight: 600;">
+                        Our Locations
+                    </h5>
+                    <p style="font-size: 1.2rem; color: white; font-family: 'Montserrat', sans-serif; margin-bottom: 0.8rem;">
+                         Resort: Laur, Nueva Ecija, Philippines
+                    </p>
+                </div>
+
+                <div class="mt-4 text-start">
+                    <h5 style="font-size: 2rem; color: white; font-family: 'Montserrat', sans-serif; font-weight: 600;">
+                        Contact & Social Media
+                    </h5>
+                    <p style="font-size: 1.2rem; color: white; font-family: 'Montserrat', sans-serif; margin-bottom: 0.8rem;">
+                        Facebook: <a href="https://www.facebook.com/lelosmountainresort" class="text-decoration-none" target="_blank" style="color: #e6f4e6;">Lelo's Mountain Resort</a>
+                    </p>
+                    <p style="font-size: 1.2rem; color: white; font-family: 'Montserrat', sans-serif; margin-bottom: 0.8rem;">
+                        Contact: +63 912 345 6789
+                    </p>
+                </div>
+            </div>
+        </div>
+
+      <div class="col-md-6">
+        <!-- Second section content -->
+        <div class="p-4 h-100">
+          <div class="d-flex flex-column h-100">
+            <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" class="img-fluid mb-4" style="height: 150px; width: auto; margin: -20px auto; display: block;">
+            
+            <div class="text-start">
+              <h3 class="mb-4" style="color: #0b573d; font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 2.5rem;">About Lelo's Resort</h3>
+
+              <div class="mb-4">
+                <h5 style="color: #0b573d; font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 1.8rem;">Our Story</h5>
+                <p style="font-family: 'Montserrat', sans-serif; font-size: 1.2rem; color: #333;">Established in 2020, Lelo's Resort has been providing a serene mountain getaway experience for families and friends. Nestled in the heart of Nueva Ecija, our resorts offer stunning views, comfortable accommodations, and a perfect blend of nature and modern amenities.</p>
+              </div>
+ 
+              <div>
+                <h5 style="color: #0b573d; font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 1.8rem;">Amenities</h5>
+                <p style="font-family: 'Montserrat', sans-serif; font-size: 1.2rem;">• Swimming Pools</p>
+                <p style="font-family: 'Montserrat', sans-serif; font-size: 1.2rem;">• Function Halls</p>
+                <p style="font-family: 'Montserrat', sans-serif; font-size: 1.2rem;">• Cottages & Pavilions</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+
+
 
     <!-- Fourth Page -->
     <section id="reviews" class="d-flex justify-content-center align-items-center" style="min-height: 100vh;">
@@ -194,7 +271,7 @@
                 <!-- Title for All Screens -->
                 <div class="col-12 text-center mb-3">
                     <h1 class="fw-bold text-uppercase text-start"
-                        style="font-size: calc(3rem + 1vw); color: #0b573d; font-family: 'Anton', sans-serif; letter-spacing: 0.1em;">
+                        style="font-size: calc(2rem + 1vw); color: #0b573d; font-family: 'Anton', sans-serif; letter-spacing: 0.1em;">
                         REVIEWS
                     </h1>
                 </div>
@@ -230,35 +307,25 @@
         </div>
     </section>
 
-
-
-
-
+     <!-- footer section -->                                   
     <footer style="background-color: #0b573d; height: auto; padding: 20px;">
-        <div class="container">
-            <div class="row">
-                <!-- Right Side -->
-                <div class="col-md-4 d-flex flex-column align-items-start mb-4 mb-md-0">
-                    <img src="{{ asset('images/map.png') }}" class="img-fluid mt-4" alt="Map" style="height: 150px;">
-                    <p class="mt-3 font-paragraph fs-6 text-white">Phone: <span>+ 123 456 789</span></p>
-                    <p class="font-paragraph fs-6 text-white" style="line-height: .5;">Email: <span>lelosresort@gmail.com</span></p>
-                    <p class="font-paragraph fs-6 text-white">Address: <span>Laur, Nueva Ecija</span></p>
-                </div>
-                <!-- Middle Side -->
-                <div class="col-md-4 d-flex flex-column align-items-center mt-auto">
-                    <div>
-                        <p class="text-center font-paragraph fs-6 text-white">Terms of Service <span> | </span> Privacy Policy</p>
-                    </div>
-                </div>
-                <!-- Left Side (Optional for Additional Content) -->
-                <div class="col-md-4 d-flex flex-column justify-content-center align-items-center">
-                    <img src="{{ asset('images/appicon.png') }}" class="img-fluid mt-4 d-sm-block" alt="App Icon" style="height: 200px;">
-                    <a href="https://www.facebook.com/lelosmountainresort" target="_blank" class="text-white fs-6 text-center">
-                        <i style="color: #0a66c2" class="bi bi-facebook fs-3 "><span class="ms-2 fs-6 color-3">facebook.com/lelosmountainresort</span></i>
-                    </a>
-                </div>
+    <div class="container">
+        <div class="row">
+            <!-- Left Side: Smaller App Icon -->
+            <div class="col-md-6 d-flex justify-content-start align-items-center">
+                <img src="{{ asset('images/appicon.png') }}" class="img-fluid" alt="App Icon" style="height: 100px;">
+            </div>
+
+            <!-- Right Side: Facebook Link -->
+            <div class="col-md-6 d-flex justify-content-end align-items-center">
+                <a href="https://www.facebook.com/lelosmountainresort" target="_blank" class="text-white fs-6 text-center">
+                    <i style="color: #0a66c2" class="bi bi-facebook fs-3"></i>
+                </a>
             </div>
         </div>
-    </footer>
+    </div>
+</footer>
+
+
 </body>
 </html> 

@@ -124,19 +124,89 @@
                             <input type="number" class="form-control p-2 font-paragraph" id="mobileNo" name="mobileNo" placeholder="Mobile Number..." required>
                         </div>
                         <div class="mb-3">
-                        <input type="password" class="form-control p-2 font-paragraph" id="password" name="password" placeholder="Password..." required>
-
-                        <!-- Password Strength Indicator -->
-                        <div class="password-strength mt-2">
-                            <div class="progress" style="height: 5px;">
-                            <div id="passwordStrength" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                            <div class="input-group">
+                                <input type="password" class="form-control p-2 font-paragraph" id="password" name="password" placeholder="Password..." required oninput="checkPasswordMatch()">
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
                             </div>
-                            <small id="passwordHelp" class="form-text text-muted"></small>
-                        </div>
+
+                            <!-- Password Strength Indicator -->
+                            <div class="password-strength mt-2">
+                                <div class="progress" style="height: 5px;">
+                                    <div id="passwordStrength" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                                </div>
+                                <small id="passwordHelp" class="form-text text-muted"></small>
+                            </div>
                         </div>
                         <div class="mb-1">
-                            <input type="password" class="form-control p-2 font-paragraph" id="password_confirmation" name="password_confirmation" placeholder="Confirm Password..." required>
+                            <div class="input-group">
+                                <input type="password" class="form-control p-2 font-paragraph" id="password_confirmation" name="password_confirmation" placeholder="Confirm Password..." required oninput="checkPasswordMatch()">
+                                <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                            <!-- Password Match Indicator -->
+                            <div id="passwordMatchMessage" class="mt-1">
+                                <small class="text-muted"></small>
+                            </div>
                         </div>
+
+                        <script>
+                            document.getElementById('togglePassword').addEventListener('click', function() {
+                                const passwordInput = document.getElementById('password');
+                                const icon = this.querySelector('i');
+                                
+                                if (passwordInput.type === 'password') {
+                                    passwordInput.type = 'text';
+                                    icon.classList.remove('fa-eye');
+                                    icon.classList.add('fa-eye-slash');
+                                } else {
+                                    passwordInput.type = 'password';
+                                    icon.classList.remove('fa-eye-slash');
+                                    icon.classList.add('fa-eye');
+                                }
+                            });
+
+                            document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
+                                const confirmPasswordInput = document.getElementById('password_confirmation');
+                                const icon = this.querySelector('i');
+                                
+                                if (confirmPasswordInput.type === 'password') {
+                                    confirmPasswordInput.type = 'text';
+                                    icon.classList.remove('fa-eye');
+                                    icon.classList.add('fa-eye-slash');
+                                } else {
+                                    confirmPasswordInput.type = 'password';
+                                    icon.classList.remove('fa-eye-slash');
+                                    icon.classList.add('fa-eye');
+                                }
+                            });
+                            
+                            function checkPasswordMatch() {
+                                const password = document.getElementById('password');
+                                const confirmPassword = document.getElementById('password_confirmation');
+                                const matchMessage = document.getElementById('passwordMatchMessage').querySelector('small');
+                                const signupBtn = document.getElementById('signup-btn');
+
+                                if (confirmPassword.value === '') {
+                                    matchMessage.textContent = '';
+                                    matchMessage.className = 'text-muted';
+                                    signupBtn.disabled = true;
+                                    return;
+                                }
+
+                                if (password.value === confirmPassword.value) {
+                                    matchMessage.textContent = 'Passwords match';
+                                    matchMessage.className = 'text-success';
+                                    signupBtn.disabled = false;
+                                } else {
+                                    matchMessage.textContent = 'Password does not match';
+                                    matchMessage.className = 'text-danger';
+                                    signupBtn.disabled = true;
+                                }
+                            }
+                        </script>
 
                         <div class="mt-3 text-center">
                             <button type="submit" id="signup-btn" class="signup-button">
@@ -205,6 +275,15 @@ $(document).ready(function() {
     $('#signup-btn').click(function(event) {
         event.preventDefault(); // Prevent form submission
 
+        // Disable the signup button and show loading message
+        $('#signup-btn').prop('disabled', true);
+        $('#signup-btn').html(`
+            <div class="d-flex align-items-center">
+                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Sending OTP. Please wait...
+            </div>
+        `);
+
         let formData = {
             name: $('#name').val(),
             email: $('#email').val(),
@@ -219,10 +298,28 @@ $(document).ready(function() {
             method: "POST",
             data: formData,
             success: function(response) {
+                // Reset button state
+                $('#signup-btn').prop('disabled', false);
+                $('#signup-btn').html(`
+                    SIGN-UP
+                    <span class="arrow d-flex align-items-center justify-content-center rounded-circle">
+                        &rsaquo;
+                    </span>
+                `);
+                
                 alert(response.message);
                 $('#otpModal').modal('show'); // Show OTP modal
             },
             error: function(xhr) {
+                // Reset button state
+                $('#signup-btn').prop('disabled', false);
+                $('#signup-btn').html(`
+                    SIGN-UP
+                    <span class="arrow d-flex align-items-center justify-content-center rounded-circle">
+                        &rsaquo;
+                    </span>
+                `);
+                
                 handleAjaxError(xhr);
             }
         });

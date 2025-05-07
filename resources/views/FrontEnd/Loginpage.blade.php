@@ -427,8 +427,11 @@
                 <div class="mb-3">
                     <label for="otp" class="form-label fw-bold text-success">OTP Code</label>
                     <div class="d-flex">
-                    <input type="text" class="form-control me-2" name="otp" id="otp" placeholder="Enter OTP" required>
-                    <button type="button" id="sendOTPBtn" class="btn btn-success" onclick="sendOTP()">Send OTP</button>
+                        <div class="position-relative w-100">
+                            <input type="number" class="form-control me-2" name="otp" id="otp" placeholder="Enter OTP" required maxlength="6" oninput="validateOTP(this.value)">
+                            <div id="otpValidationMessage" class="position-absolute" style="top: 100%; left: 0; font-size: 0.8rem;"></div>
+                        </div>
+                        <button type="button" id="sendOTPBtn" class="btn btn-success text-center mx-auto d-block ms-2" style="font-size: 10px; height: 50px;" onclick="sendOTP()">Send OTP</button>
                     </div>
                 </div>
 
@@ -437,21 +440,63 @@
                     <!-- NEW PASSWORD -->
                     <div class="mb-3">
                         <label for="password" class="form-label fw-bold text-success">New Password</label>
-                        <input type="password" class="form-control" name="password" id="newPassword" placeholder="Enter new password" required>
-                        <div class="password-strength mt-2">
-                        <div class="progress" style="height: 5px;">
-                            <div id="passwordStrength" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                        <div class="input-group">
+                            <input type="password" class="form-control" name="password" id="newPassword" placeholder="Enter new password" required>
+                            <button class="btn btn-outline-secondary" type="button" id="toggleNewPassword" style="height: 50px;">
+                                <i class="fas fa-eye" id="newPasswordIcon"></i>
+                            </button>
                         </div>
-                        <small id="passwordHelp" class="form-text text-muted"></small>
+                        <div class="password-strength mt-2">
+                            <div class="progress" style="height: 5px;">
+                                <div id="passwordStrength" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                            </div>
+                            <small id="passwordHelp" class="form-text text-muted"></small>
                         </div>
                     </div>
 
                     <!-- CONFIRM PASSWORD -->
                     <div class="mb-3">
                         <label for="password_confirmation" class="form-label fw-bold text-success">Confirm Password</label>
-                        <input type="password" class="form-control" name="password_confirmation" id="confirmPassword" placeholder="Confirm your password" required>
+                        <div class="input-group">
+                            <input type="password" class="form-control" name="password_confirmation" id="confirmPassword" placeholder="Confirm your password" required>
+                            <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword" style="height: 50px;">
+                                <i class="fas fa-eye" id="confirmPasswordIcon"></i>
+                            </button>
+                        </div>
                         <div id="passwordMatch" class="mt-2"></div>
                     </div>
+
+                    <script>
+                        // Toggle visibility for new password
+                        document.getElementById('toggleNewPassword').addEventListener('click', function() {
+                            const input = document.getElementById('newPassword');
+                            const icon = document.getElementById('newPasswordIcon');
+                            if (input.type === 'password') {
+                                input.type = 'text';
+                                icon.classList.remove('fa-eye');
+                                icon.classList.add('fa-eye-slash');
+                            } else {
+                                input.type = 'password';
+                                icon.classList.remove('fa-eye-slash');
+                                icon.classList.add('fa-eye');
+                            }
+                        });
+
+                        // Toggle visibility for confirm password
+                        document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
+                            const input = document.getElementById('confirmPassword');
+                            const icon = document.getElementById('confirmPasswordIcon');
+                            if (input.type === 'password') {
+                                input.type = 'text';
+                                icon.classList.remove('fa-eye');
+                                icon.classList.add('fa-eye-slash');
+                            } else {
+                                input.type = 'password';
+                                icon.classList.remove('fa-eye-slash');
+                                icon.classList.add('fa-eye');
+                            }
+                        });
+                    </script>
 
                     <!-- SUBMIT BUTTON -->
                     <div class="text-center mt-4">
@@ -468,39 +513,6 @@
         </div>
     </div>
 
-    <!-- Hidden Modal for Staff/Admin (Bootstrap Version) -->
-    <div id="staffAdminModal" class="modal fade" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-        <div class="modal-header">
-            <h5 class="modal-title">Staff/Admin Login</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-            <form action="{{ route('authenticate') }}" method="POST">
-                @csrf
-            <div class="mb-3">
-                <label for="role" class="form-label">Role</label>
-                <select class="form-select" name="role" required>
-                <option value="">-- Select Role --</option>
-                <option value="staff">Staff</option>
-                <option value="admin">Admin</option>
-                </select>
-            </div>
-            <div class="mb-3">
-                <label for="username" class="form-label">Username</label>
-                <input type="text" class="form-control" name="username" placeholder="Username" required>
-            </div>
-            <div class="mb-3">
-                <label for="password" class="form-label">Password</label>
-                <input type="password" class="form-control" name="password" placeholder="Password" required>
-            </div>
-            <button type="submit" class="btn btn-primary w-100">Login</button>
-            </form>
-        </div>
-        </div>
-    </div>
-    </div>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const newPassword = document.getElementById('newPassword');
@@ -563,7 +575,51 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- Bootstrap JS (Add before your custom scripts) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function validateOTP(value) {
+        const otpValidationMessage = document.getElementById('otpValidationMessage');
+        const passwordFields = document.getElementById('passwordFields');
+        
+        // Check kung 6 digits ang input
+        if (!/^\d{6}$/.test(value)) {
+            otpValidationMessage.textContent = 'The OTP must be 6 digits.';
+            otpValidationMessage.style.color = '#dc3545';
+            passwordFields.style.display = 'none';
+            return;
+        }
 
+        // Dito mo ilalagay ang AJAX call para i-verify ang OTP
+        fetch('/verify-otp', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({
+                otp: value,
+                email: document.getElementById('email').value
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.valid) {
+                otpValidationMessage.textContent = 'Correct OTP!';
+                otpValidationMessage.style.color = '#198754';
+                passwordFields.style.display = 'block';
+                passwordFields.style.opacity = '1';
+            } else {
+                otpValidationMessage.textContent = 'Wrong OTP. Try Again.';
+                otpValidationMessage.style.color = '#dc3545';
+                passwordFields.style.display = 'none';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            otpValidationMessage.textContent = 'Error verfying OTP. Try Again.';
+            otpValidationMessage.style.color = '#dc3545';
+        });
+    }
+</script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         let modalElement = document.getElementById("forgotPasswordModal");

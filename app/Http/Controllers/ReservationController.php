@@ -33,12 +33,12 @@ class ReservationController extends Controller
     {
         $accomodations = DB::table('accomodations')->get();
         $activities = DB::table('activitiestbl')->get();
-        $entranceFees = DB::table('transaction')->first();
+        $transactions = DB::table('transaction')->first();
 
         return view('Reservation.selectPackageCustom', [
             'accomodations' => $accomodations, 
             'activities' => $activities, 
-            'entranceFees' => $entranceFees,
+            'transactions' => $transactions,
         ]);
     }
     public function paymentProcess()
@@ -253,6 +253,27 @@ class ReservationController extends Controller
             'entrance_fee' => $entrance_fee,
             'adultFee' => $adultTransaction->entrance_fee,
             'kidFee' => $kidTransaction->entrance_fee
+        ]);
+    }
+
+
+    public function SessionTimeOnly(Request $request) {
+        $session = $request->query('session');
+        // Get session times and entrance fee from transaction table
+        $transaction = \App\Models\Transaction::where('session', $session)->first();
+        
+        if ($transaction) {
+            $start_time = $transaction->start_time;
+            $end_time = $transaction->end_time;
+        } else {
+            // Default values if no session found
+            $start_time = null;
+            $end_time = null;
+        }
+
+        return response()->json([
+            'start_time' => $start_time,
+            'end_time' => $end_time
         ]);
     }
     
