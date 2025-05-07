@@ -41,60 +41,23 @@
         <!-- SIDEBAR -->
         <div class="col-md-3 col-lg-2 color-background8 text-white position-sticky" id="sidebar" style="top: 0; height: 100vh; background-color: #0b573d background-color: #0b573d ">
             <div class="d-flex flex-column h-100">
-                <!-- Logo Section -->
-                <div class="d-flex flex-column align-items-center mt-5">
-                    <img src="{{ asset('images/default-profile.jpg') }}" alt="Profile Picture" class="rounded-circle w-50 mb-3 border border-5 border-white nav-link">
-                    <p class="font-heading sidebar-text text-white" data-bs-toggle="modal" data-bs-target="#editProfileModal" style="cursor: pointer;">Edit Profile</p>
-                </div>
-                
-                <!-- Navigation Links -->
-                <div class="d-flex flex-column gap-3 px-2 mt-4">
-                    <a href="{{ route('staff.dashboard') }}" class="nav-link text-white text-decoration-none d-flex align-items-center p-2 rounded-2 {{ Request::routeIs('staff.dashboard') ? 'bg-white bg-opacity-10' : '' }} nav-link">
-                        <i class="fas fa-tachometer-alt fs-5"></i>
-                        <span class="ms-3 font-paragraph">Dashboard</span>
-                    </a>
-                
-                    <div class="dropdown w-100">
-                        <a href="#" class="text-white nav-link text-decoration-none d-flex align-items-center p-2 rounded-2 nav-link" data-bs-toggle="dropdown">
-                            <i class="fas fa-calendar-alt fs-5 icon-center"></i>
-                            <span class="nav-text ms-3 font-paragraph">Reservations</span>
-                            <i class="fas fa-chevron-down nav-text ms-auto"></i>
-                        </a>
-                        <ul class="dropdown-menu w-100 border-0 shadow" style="background-color: #0d6e4c !important;">
-                            <li><a class="nav-link text-white nav-link p-2 font-paragraph" href="{{ route('staff.reservation') }}">Reservations</a></li>
-                            <li><a class="nav-link text-white nav-link p-2 font-paragraph" href="{{ route('staff.accomodations')}}">Room Availability</a></li>
-                        </ul>
-                    </div>
-                
-                    <a href="{{ route ('staff.guests')}}" class="text-white nav-link text-decoration-none d-flex align-items-center p-2 rounded-2 {{ Request::routeIs('staff.guests') ? 'bg-white bg-opacity-10' : '' }} nav-link">
-                        <i class="fas fa-users fs-5 icon-center"></i>
-                        <span class="nav-text ms-3 font-paragraph">Guests</span>
-                    </a>
-                </div>
-            
-                <div class="mt-auto mb-4 px-2">
-                    <a href="{{ route('staff.logout')}}" class="text-white text-decoration-none d-flex align-items-center p-2 rounded-2 nav-link justify-content-end">
-                        <span class="nav-text me-3 font-paragraph">Log Out</span>
-                        <i class="fas fa-sign-out-alt fs-5 icon-center"></i>
-                    </a>
-                </div>
+            @include('Navbar.sidenavbarStaff')
             </div>
         </div>
 
         <!-- Main Content -->
          <div class="col-md-10 col-lg-10 py-4 px-4">
             <!-- Heading and Logo -->
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <h1 class="fw-semibold" style="font-family: 'Anton', sans-serif; color: #0b573d; letter-spacing: 0.2em;">DASHBOARD</h1>
+            <div class="d-flex justify-content-end align-items-end mb-2">
                 <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill me-3">
             </div>
 
             <hr class="border-5">
             
             <!-- Welcome Message -->
-            <div>
-                <p class="text-color-1 fs-1" style="font-family: 'Anton', sans-serif; letter-spacing: 0.2em;">Hello</p>
-                <h1 class="fw-semibold text-capitalize" style="font-size: 100px; letter-spacing: 1px; color: #0b573d; margin-top: -30px; font-family: 'Anton', sans-serif; letter-spacing: .1em;">{{ $staffCredentials->username }}!</h1>
+            <div class="d-flex align-items-center">
+                <p class="text-color-1 me-3" style="font-family: 'Anton', sans-serif;  font-size: 5rem;">Hello</p>
+                <h1 class="fw-semibold text-capitalize" style="font-family: 'Anton', sans-serif;  font-size: 5rem; color: #0b573d;">{{ $staffCredentials->username }}!</h1>
             </div>
 
             <!-- Dashboard Cards -->
@@ -143,9 +106,23 @@
             
                 <!-- Column 3: Pending Bookings -->
                 <div class="col-md-4">
-                    <div class="h-100 p-4 rounded-4 border border-4" style="border-color: #0b573d !important;  background-color: white;">
-                        <h2 class="font-heading mb-3" style="color: #0b573d;">Pending Bookings</h2>
-                        <p class="text-secondary font-paragraph fst-italic">No pending reservations.</p>
+                    <div class="p-4 rounded-4 border border-4" style="border-color: #0b573d !important;  background-color: white; height:280px;">
+                        <h2 class="font-heading mb-1" style="color: #0b573d;">Pending Bookings</h2>
+                        @if($pendingReservationsList && count($pendingReservationsList) > 0)
+                            <div class="overflow-auto" style="max-height: 300px;">
+                                @foreach($pendingReservationsList as $reservation)
+                                    <div class="d-flex align-items-center justify-content-between mb-1 p-1 border-bottom">
+                                        <div>
+                                            <p class="mb-0 font-paragraph fw-bold">{{ $reservation->guest_name }}</p>
+                                            <small class="text-muted">{{ \Carbon\Carbon::parse($reservation->reservation_check_in)->format('M d, Y') }}</small>
+                                        </div>
+                                        <span class="badge bg-warning text-dark">Pending</span>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <p class="text-secondary font-paragraph fst-italic">No pending reservations.</p>
+                        @endif
                     </div>
                 </div>
             <!-- After the Pending Bookings Section -->

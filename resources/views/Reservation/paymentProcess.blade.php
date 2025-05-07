@@ -236,15 +236,15 @@
                     <hr class="border-success my-2">
                     <div class="d-flex flex-column gap-2">
                         <div class="duration-display">
-                            <p id="duration-text">Stay Duration: 1 day</p>
+                            <p id="duration-text">Stay Duration</p>
                         </div>
 
                         <div class="d-flex justify-content-between align-items-center">
-                            <span class="fst-italic">Accommodations:</span>
+                            <span class="fst-italic">Room:</span>
                             <ul class="list-unstyled text-end" id="accommodation-list">
                                 @foreach ($accomodations as $accomodation)
                                 <li data-price="{{ $accomodation->accomodation_price }}">
-                                    {{ $accomodation->accomodation_name }} - ₱{{ number_format($accomodation->accomodation_price, 2) }} (1 day)
+                                    {{ $accomodation->accomodation_name }} - ₱{{ number_format($accomodation->accomodation_price, 2) }}
                                 </li>
                                 @endforeach
                             </ul>
@@ -253,14 +253,6 @@
                             <span class="fst-italic">Total Room Price</span>
                             <input type="text" class="form-control text-end bg-secondary-subtle border-0" id="total-accommodation" 
                                    value="₱{{ number_format($accomodations->sum('accomodation_price'), 2) }}" readonly>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="fst-italic">Entrance Fee per Person</span>
-                            <input type="text" class="form-control text-end bg-secondary-subtle border-0" value="₱{{ number_format($entranceFee, 2) }}" readonly>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="fst-italic">Total Guests</span>
-                            <input type="text" class="form-control text-end bg-secondary-subtle border-0" value="{{ $reservationDetails['total_guest'] ?? 0 }}" readonly>
                         </div>
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="fst-italic">Total Entrance Fee</span>
@@ -297,8 +289,7 @@
                             // Calculate total room price with correct duration
                             $totalRoomPrice = $accomodations->sum('accomodation_price') * $stayDuration;
                             
-                            // Calculate total entrance fee
-                            $totalEntranceFee = ($reservationDetails['total_guest'] ?? 0) * 100;
+                           
                             
                             // Calculate final amount
                             $amount = $totalRoomPrice + $totalEntranceFee;

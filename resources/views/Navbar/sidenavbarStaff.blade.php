@@ -35,8 +35,7 @@
         <div class="d-flex flex-column h-100">
             <!-- Logo Section -->
             <div class="d-flex flex-column align-items-center mt-5">
-                <img src="{{ asset('images/default-profile.jpg') }}" alt="Profile Picture" class="rounded-circle w-50 mb-3 border border-5 border-white">
-                <p class="font-heading sidebar-text text-white" data-bs-toggle="modal" data-bs-target="#editProfileModal" style="cursor: pointer;">Edit Profile</p>
+                <img src="{{ asset('images/appicon.png') }}" alt="Profile Picture" class="rounded-circle w-50 mb-3 border border-5 border-white">
             </div>
             
             <div class="d-flex flex-column gap-3 px-2 mt-4">

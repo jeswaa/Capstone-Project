@@ -154,47 +154,17 @@
 
 <script>
     function generateQRCode() {
-        let reservationId = '{{ $reservationDetails->id ?? '' }}'; // Get email instead of ID
-        let name = '{{ $reservationDetails->name ?? '' }}';
         let email = '{{ $reservationDetails->email ?? '' }}';
-        let totalGuest = '{{ !empty($reservationDetails->total_guest) ? $reservationDetails->total_guest : $reservationDetails->package_max_guest ?? '' }}';
-        let package = '{{ $reservationDetails->package_name ?? 'N/A' }}';
-        let roomType = '';
 
-        @if(!empty($reservationDetails->package_room_type))
-            roomType = '{{ DB::table('accomodations')->where('accomodation_id', $reservationDetails->package_room_type)->value('accomodation_name') }}';
-        @else
-            roomType = '{{ implode(", ", $accommodations) }}';
-        @endif
-        let reservationCheckInDate = '{{ $reservationDetails->reservation_check_in_date ?? '' }}';
-        let reservationCheckIn = '{{ $reservationDetails->reservation_check_in ?? '' }}';
-        let reservationCheckOut = '{{ $reservationDetails->reservation_check_out ?? '' }}';
-        let specialRequest = '{{ $reservationDetails->special_request ?? '' }}';
-        let paymentMethod = '{{ $reservationDetails->payment_method ?? '' }}';
-        let amount = '{{ $reservationDetails->amount ?? '' }}';
-
-        if (!reservationId) {
-            alert('No reservation ID available!');
+        if (!email) {
+            alert('No email available!');
             return;
         }
-
-        // Use Laravel-generated URL with email
-        let summaryUrl = '{{ route("reservation.summary", ":id") }}'.replace(':id', encodeURIComponent(reservationId));
 
         // Generate QR Code
         let qr = new QRious({
             element: document.getElementById('qr-code'),
-            value: `
-                Name: ${name}
-                Email: ${email}
-                Total Guest: ${totalGuest}
-                Package: ${package}
-                Room Type: ${roomType}
-                Reservation Date: ${reservationCheckInDate}
-                Check-in Time: ${reservationCheckIn}
-                Check-out Time: ${reservationCheckOut}
-                Amount: ${amount}
-            `,
+            value: `Email: ${email}`,
             size: 300
         });
 
@@ -208,6 +178,7 @@
         // Show the download button
         document.getElementById('download-qr').style.display = 'inline-block';
     }
+
     function downloadQRCode() {
         let canvas = document.getElementById('qr-code');
         let link = document.createElement('a');

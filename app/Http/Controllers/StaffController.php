@@ -31,10 +31,20 @@ class StaffController extends Controller
     {
         return view('StaffSide.StaffDashboard');
     }
-    public function guests()
+    public function guests(Request $request)
     {
-        $users = DB::table('users')->get();
-        return view('StaffSide.StaffGuest', compact('users'));
+        $query = DB::table('users');
+
+        if ($request->has('search')) {
+            $search = $request->get('search');
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'LIKE', '%'.$search.'%')
+                  ->orWhere('email', 'LIKE', '%'.$search.'%');
+            });
+        }
+
+        $guests = $query->paginate(10); // Add pagination with 10 items per page
+        return view('StaffSide.StaffGuest', compact('guests'));
     }
     public function logout()
     {
@@ -123,6 +133,18 @@ public function dashboard()
             ->where('accomodation_status', 'available')
             ->count();
 
+        // Get pending reservations list - limited to 3 records with name and date only
+        $pendingReservationsList = DB::table('reservation_details')
+            ->join('users', 'reservation_details.user_id', '=', 'users.id')
+            ->where('reservation_details.payment_status', 'pending')
+            ->where('reservation_details.reservation_status', 'pending')
+            ->select(
+                'users.name as guest_name',
+                'reservation_details.reservation_check_in'
+            )
+            ->orderBy('reservation_check_in_date')
+            ->limit(3)
+            ->get();
         // Fixed query for today's reservations
         $todayReservations = DB::table('reservation_details')
             ->join('users', 'reservation_details.user_id', '=', 'users.id')
@@ -167,7 +189,8 @@ public function dashboard()
             'pendingReservations' => $pendingReservations,
             'checkedInGuests' => $checkedInGuests,
             'availableAccommodations' => $availableAccommodations,
-            'todayReservations' => $todayReservations
+            'todayReservations' => $todayReservations,
+            'pendingReservationsList' => $pendingReservationsList
         ]);
     } else {
         return redirect()->route('staff.login');
@@ -222,7 +245,30 @@ public function reservations(Request $request)
 
     $totalCount = DB::table('reservation_details')->count();
 
-    $reservations = DB::table('reservation_details')
+    $accommodationIdRows = DB::table('reservation_details')->pluck('accomodation_id');
+    $allAccommodationIds = [];
+    foreach ($accommodationIdRows as $jsonIds) {
+        $decoded = json_decode($jsonIds, true);
+        if (is_array($decoded)) {
+            foreach ($decoded as $id) {
+                $allAccommodationIds[] = $id;
+            }
+        } elseif (is_numeric($decoded)) {
+            $allAccommodationIds[] = $decoded;
+        }
+    }
+    $allAccommodationIds = array_unique($allAccommodationIds);
+
+    $accommodationTypes = DB::table('reservation_details')
+        ->join('accomodations', function($join) {
+            $join->whereRaw("JSON_CONTAINS(reservation_details.accomodation_id, CONCAT('\"', accomodations.accomodation_id, '\"'))");
+        })
+        ->select('accomodations.accomodation_id', 'accomodations.accomodation_name')
+        ->distinct()
+        ->get();
+    
+    // Define the query builder
+    $query = DB::table('reservation_details')
         ->leftJoin('accomodations', 'reservation_details.accomodation_id', '=', 'accomodations.accomodation_id')
         ->leftJoin('packagestbl', 'reservation_details.package_id', '=', 'packagestbl.id')
         ->select(
@@ -232,9 +278,19 @@ public function reservations(Request $request)
             'packagestbl.package_activities',
             'packagestbl.package_room_type'                
         )
-        ->orderByDesc('reservation_details.created_at')
-        ->paginate(10);
-    
+        ->orderByDesc('reservation_details.created_at');
+
+    // Add search functionality
+    if ($request->has('search')) {
+        $searchTerm = $request->search;
+        $query->where(function($q) use ($searchTerm) {
+            $q->where('reservation_details.name', 'LIKE', '%' . $searchTerm . '%')
+              ->orWhere('reservation_details.email', 'LIKE', '%' . $searchTerm . '%');
+        });
+    }
+
+    $reservations = $query->paginate(5)->withQueryString();
+
     $archivedReservations = DB::table('archived_reservations')->latest()->get();
 
     // Process each reservation
@@ -284,7 +340,8 @@ public function reservations(Request $request)
         'pendingCount',
         'checkedInCount',
         'checkedOutCount', 
-        'totalCount'
+        'totalCount',
+        'accommodationTypes'
     ));
 }
 
@@ -296,15 +353,15 @@ public function accomodations()
     $staff = Staff::find($staffId);
 
     // Fetch all accommodations
-    $accomodations = DB::table('accomodations')->get();
+    $accomodations = DB::table('accomodations')->paginate(5);
     
     // Compute Room Overview
     $totalRooms = DB::table('accomodations')->count();
     $vacantRooms = DB::table('accomodations')->where('accomodation_status', 'available')->count();
 
     // Adjust reservedRooms count and update available slots
-    $reservedRooms = DB::table('reservation_details')
-        ->whereIn('payment_status', ['booked', 'paid'])
+    $reservedRooms = DB::table('accomodations')
+        ->where('accomodation_status', 'unavailable')
         ->count();
 
     // Record activity

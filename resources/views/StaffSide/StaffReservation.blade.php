@@ -6,12 +6,14 @@
     <title>Reservations</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Anton&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <!-- Remove duplicate Bootstrap scripts and keep only these -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css">
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <style>
@@ -68,51 +70,14 @@
         <!-- SIDEBAR -->
         <div class="col-md-3 col-lg-2 color-background8 text-white position-sticky" id="sidebar" style="top: 0; height: 100vh; background-color: #0b573d background-color: #0b573d ">
             <div class="d-flex flex-column h-100">
-                <!-- Logo Section -->
-                <div class="d-flex flex-column align-items-center mt-5">
-                    <img src="{{ asset('images/default-profile.jpg') }}" alt="Profile Picture" class="rounded-circle w-50 mb-3 border border-5 border-white nav-link">
-                    <p class="font-heading sidebar-text text-white" data-bs-toggle="modal" data-bs-target="#editProfileModal" style="cursor: pointer;">Edit Profile</p>
-                </div>
-                
-                <!-- Navigation Links -->
-                <div class="d-flex flex-column gap-3 px-2 mt-4">
-                    <a href="{{ route('staff.dashboard') }}" class="nav-link text-white text-decoration-none d-flex align-items-center p-2 rounded-2 {{ Request::routeIs('staff.dashboard') ? 'bg-white bg-opacity-10' : '' }} nav-link">
-                        <i class="fas fa-tachometer-alt fs-5"></i>
-                        <span class="ms-3 font-paragraph">Dashboard</span>
-                    </a>
-                
-                    <div class="dropdown w-100">
-                        <a href="#" class="text-white nav-link text-decoration-none d-flex align-items-center p-2 rounded-2 nav-link" data-bs-toggle="dropdown">
-                            <i class="fas fa-calendar-alt fs-5 icon-center"></i>
-                            <span class="nav-text ms-3 font-paragraph">Reservations</span>
-                            <i class="fas fa-chevron-down nav-text ms-auto"></i>
-                        </a>
-                        <ul class="dropdown-menu w-100 border-0 shadow" style="background-color: #0d6e4c !important;">
-                            <li><a class="nav-link text-white nav-link p-2 font-paragraph" href="{{ route('staff.reservation') }}">Reservations</a></li>
-                            <li><a class="nav-link text-white nav-link p-2 font-paragraph" href="{{ route('staff.accomodations')}}">Room Availability</a></li>
-                        </ul>
-                    </div>
-                
-                    <a href="{{ route ('staff.guests')}}" class="text-white nav-link text-decoration-none d-flex align-items-center p-2 rounded-2 {{ Request::routeIs('staff.guests') ? 'bg-white bg-opacity-10' : '' }} nav-link">
-                        <i class="fas fa-users fs-5 icon-center"></i>
-                        <span class="nav-text ms-3 font-paragraph">Guests</span>
-                    </a>
-                </div>
-            
-                <div class="mt-auto mb-4 px-2">
-                    <a href="{{ route('staff.logout')}}" class="text-white text-decoration-none d-flex align-items-center p-2 rounded-2 nav-link justify-content-end">
-                        <span class="nav-text me-3 font-paragraph">Log Out</span>
-                        <i class="fas fa-sign-out-alt fs-5 icon-center"></i>
-                    </a>
-                </div>
+            @include('Navbar.sidenavbarStaff')
             </div>
         </div>
 
         <!-- Main Content  -->
          <div class="col-md-10 col-lg-10 py-4 px-4">
             <!-- Heading and Logo -->
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <h1 class="fw-semibold" style="font-family: 'Anton', sans-serif; color: #0b573d; letter-spacing: 0.2em;">RESERVATIONS</h1>
+            <div class="d-flex justify-content-end align-items-end mb-2">
                 <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill me-3">
             </div>
 
@@ -173,32 +138,130 @@
             </div>
             
             <!-- Search Bar -->
-            <div class="card shadow-sm border-0 rounded-4 mb-4" style="height: 100px;">
+            <div class="card shadow-sm border-0 rounded-3 mb-4" style="height: 70px;">
                 <div class="card-body">
                     <div class="d-flex gap-3">
                         <div class="flex-grow-1">
+                        <form action="{{ route('staff.reservation') }}" method="GET" class="mb-3">
                             <div class="input-group" style="height: 40px;">
-                                <span class="input-group-text bg-white border-end-0" style="height: 40px;">
-                                    <i class="fas fa-search text-muted"></i>
-                                </span>
                                 <input type="text" 
                                     id="searchInput"
+                                    name="search"
                                     class="form-control border-start-0" 
                                     placeholder="Search by name or email..."
                                     style="border-color: #0b573d; height: 40px;"
-                                    onkeyup="searchTable()">
+                                    value="{{ request('search') }}">
+
+                                <span type="submit" class="input-group-text bg-white border-end-0" style="height: 40px;">
+                                <button type="submit" class="btn btn-link text-dark p-0">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                                </span>
                             </div>
                         </div>
-                        <button onclick="clearSearchField()" id="clearBtn" class="btn btn-outline-secondary" style="height: 40px; display: none;">
-                            Clear
-                        </button>
+                        @if(request('search'))
+                        <a href="{{ route('staff.reservation') }}" class="btn btn-outline-secondary" style="height: 40px;">
+                                Clear
+                        </a>
+                        @endif
                     </div>
+                    </form>     
                 </div>
             </div>
 
             <div id="noResultsMessage" class="alert alert-info text-center" style="display: none;">
                 No reservations found
             </div>
+            <!-- QR Scanner Modal -->
+            <div class="modal fade" id="qrScannerModal" tabindex="-1" aria-labelledby="qrScannerModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="qrScannerModalLabel">QR Code Scanner</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body text-center">
+                            <div class="card mx-auto border-0">
+                                <div class="card-body">
+                                <video id="preview" class="img-fluid mb-4" width="100%" height="auto"></video>
+                                <p class="font-weight-bold">Scanned QR Code: <span id="qrResult" class="text-muted">None</span></p>
+                                <button id="toggleCamera" class="btn btn-primary mb-3 w-100" onclick="toggleCamera()">Toggle Camera</button>
+                                <!-- Stop Scanner button -->
+                                <button id="stopScanner" class="btn btn-danger w-100" style="display: none;" onclick="stopScanner()">Stop Scanner</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
+                let isCameraOn = false;
+
+                scanner.addListener('scan', function (content) {
+                    try {
+                        // Extract email from the QR content
+                        const email = content.split('\n')
+                            .find(line => line.toLowerCase().includes('email:'))
+                            ?.replace('Email:', '')
+                            ?.trim();
+                        
+                        if (email) {
+                            // Update QR result display
+                            document.getElementById("qrResult").innerText = email;
+                            
+                            // Set the email in search input
+                            document.getElementById("searchInput").value = email;
+                            
+                            // Submit the form
+                            document.querySelector('form').submit();
+                            
+                            // Stop scanner and close modal
+                            stopScanner();
+                            $('#qrScannerModal').modal('hide');
+                            
+                            // Show success message
+                            swal("Success!", "Email found: " + email, "success");
+                        } else {
+                            swal("Error", "No email found in QR code", "error");
+                        }
+                    } catch (e) {
+                        console.error('Error processing QR code:', e);
+                        swal("Error", "Failed to process QR code", "error");
+                    }
+                });
+
+                Instascan.Camera.getCameras().then(function (cameras) {
+                    if (cameras.length > 0) {
+                        // Toggle camera on and off
+                        document.getElementById("toggleCamera").addEventListener("click", function() {
+                            if (isCameraOn) {
+                                stopScanner();
+                            } else {
+                                scanner.start(cameras[0]);
+                                isCameraOn = true;
+                                document.getElementById("toggleCamera").style.display = 'none';
+                                document.getElementById("stopScanner").style.display = 'block';
+                            }
+                        });
+                    } else {
+                        swal("Error", "No cameras found.", "error");
+                    }
+                }).catch(function (e) {
+                    console.error(e);
+                    swal("Error", "An error occurred while accessing the cameras.", "error");
+                });
+
+                // Stop scanner
+                function stopScanner() {
+                    scanner.stop();
+                    isCameraOn = false;
+                    document.getElementById("toggleCamera").style.display = 'block';
+                    document.getElementById("stopScanner").style.display = 'none';
+                }
+            </script>
+            
             <!-- Checked-out Guest -->
             <div>
                 <!-- Modal for Checked Out Guests -->
@@ -259,10 +322,46 @@
                     </div>
                 </div>
 
-                <!-- Button to trigger modal -->
-                <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#checkedOutGuestsModal">
-                    <i class="fas fa-history me-2"></i>View Checked Out Guests
-                </button>
+                <!-- Buttons Container -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <!-- Button to trigger modal -->
+                    <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#checkedOutGuestsModal">
+                        <i class="fas fa-history me-2"></i>View Checked Out Guests
+                    </button>
+                    
+                    <!-- QR Scanner Button -->
+                    <div class="ms-auto" style="width: 25%;">
+                    <button type="button" id="qrScannerBtn" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#qrScannerModal" style="background-color: #0b573d">
+                        <i class="fas fa-qrcode me-2"></i>Open QR Scanner
+                    </button>
+
+                    <!-- QR Scanner Modal -->
+                    <div class="modal fade" id="qrScannerModal" tabindex="-1" aria-labelledby="qrScannerModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="qrScannerModalLabel">QR Code Scanner</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body text-center">
+                                    <div class="card mx-auto border-0">
+                                        <div class="card-body">
+                                            <video id="preview" class="img-fluid mb-4" width="100%" height="auto"></video>
+                                            <p class="font-weight-bold">Scanned QR Code: <span id="qrResult" class="text-muted">None</span></p>
+                                            <button id="toggleCamera" class="btn btn-primary mb-3 w-100" onclick="toggleCamera()">
+                                                <i class="fas fa-camera me-2"></i>Toggle Camera
+                                            </button>
+                                            <button id="stopScanner" class="btn btn-danger w-100" style="display: none;" onclick="stopScanner()">
+                                                <i class="fas fa-stop-circle me-2"></i>Stop Scanner
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
             </div>
             <!-- Table -->
             <div class="card shadow-sm border-0 rounded-4 mb-4 mt-4 p-2">
@@ -361,12 +460,29 @@
                                             <form action="{{ route('staff.updateStatus', $reservation->id) }}" method="POST">
                                                 @csrf
                                                 <div class="mb-3">
-                                                    <label for="payment_status" class="form-label">Payment Status</label>
-                                                    <select class="form-select" name="payment_status" id="payment_status" aria-label="Payment Status">
-                                                        <option value="" disabled selected hidden>Choose payment status</option>
-                                                        <option value="unpaid" {{ $reservation->payment_status == 'unpaid' ? 'selected' : '' }}>Unpaid</option>
-                                                        <option value="partial" {{ $reservation->payment_status == 'partial' ? 'selected' : '' }}>Partial Payment</option>
-                                                        <option value="paid" {{ $reservation->payment_status == 'paid' ? 'selected' : '' }}>Paid</option>
+                                                    <label for="amount" class="form-label">Amount Paid</label>
+                                                    <input type="number" class="form-control" name="amount" id="amount" step="0.01" min="0" value="{{ $reservation->amount }}">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="accomodation_type" class="form-label">Accommodation Name</label>
+                                                    <select class="form-select" name="accomodation_type" id="accomodation_type" aria-label="Accommodation Type">
+                                                        <option value="" disabled selected hidden>
+                                                        @php
+                                                            $roomTypeIds = json_decode($reservation->package_room_type, true);
+                                                            $roomNames = is_array($roomTypeIds) ? DB::table('accomodations')
+                                                                ->whereIn('accomodation_id', $roomTypeIds)
+                                                                ->pluck('accomodation_name')
+                                                                ->toArray() : [];
+                                                            $accommodationNames = is_array($reservation->accommodations) ? $reservation->accommodations : [];
+                                                        @endphp
+                                                        {{ count($roomNames) > 0 ? implode(', ', $roomNames) : '' }}
+                                                        {{ count($accommodationNames) > 0 ? ', ' . implode(', ', $accommodationNames) : '' }}
+                                                        </option>
+                                                        @foreach($accommodationTypes as $type)
+                                                            <option value="{{ $type->accomodation_id }}" {{ $reservation->package_room_type == $type->accomodation_id ? 'selected' : '' }}>
+                                                                {{ $type->accomodation_name }}
+                                                            </option>
+                                                        @endforeach
                                                     </select>
                                                 </div>
                                                 <div class="mb-3">
@@ -430,48 +546,6 @@
         }
         
     </script>
-    <script>
-        function searchTable() {
-            const input = document.getElementById('searchInput');
-            const filter = input.value.toLowerCase();
-            const table = document.querySelector('table');
-            const rows = table.getElementsByTagName('tr');
-            const clearBtn = document.getElementById('clearBtn');
-            const noResultsMessage = document.getElementById('noResultsMessage');
-
-            // Show/hide clear button based on search input
-            clearBtn.style.display = filter ? 'block' : 'none';
-
-            let foundMatch = false;
-
-            // Start from index 1 to skip the header row
-            for (let i = 1; i < rows.length; i++) {
-                const nameCell = rows[i].getElementsByTagName('td')[0];
-                const emailCell = rows[i].getElementsByTagName('td')[1];
-                
-                if (nameCell && emailCell) {
-                    const name = nameCell.textContent || nameCell.innerText;
-                    const email = emailCell.textContent || emailCell.innerText;
-                    
-                    if (name.toLowerCase().indexOf(filter) > -1 || 
-                        email.toLowerCase().indexOf(filter) > -1) {
-                        rows[i].style.display = '';
-                        foundMatch = true;
-                    } else {
-                        rows[i].style.display = 'none';
-                    }
-                }
-            }
-
-            // Show/hide no results message
-            noResultsMessage.style.display = filter && !foundMatch ? 'block' : 'none';
-        }
-
-        function clearSearchField() {
-            document.getElementById('searchInput').value = '';
-            document.getElementById('noResultsMessage').style.display = 'none';
-            searchTable();
-        }
-        </script>
 </body>
 </html>
+

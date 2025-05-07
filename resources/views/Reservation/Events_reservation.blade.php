@@ -262,10 +262,10 @@
                 <div class="text-center mb-4">
                     <div class="btn-group" role="group">
                         <button type="button" class="btn btn-success active" id="stayinBtn">
-                            STAY-IN
+                            OVERNIGHT STAY
                         </button>
                         <button type="button" class="btn btn-success" id="daytourBtn">
-                            DAY PASS
+                            ONE DAY STAY
                         </button>
                     </div>
                 </div>
