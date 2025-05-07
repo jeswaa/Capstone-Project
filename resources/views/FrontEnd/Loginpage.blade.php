@@ -162,12 +162,12 @@
                     <h1 class="text-success font-paragraph mx-auto fs-4 text-center fw-bold">Welcome to Lelo's Resort</h1>
                 </div>
 
-                <form action="{{ route('login.authenticate') }}" method="POST">
+                <form id="login-form" action="{{ route('login.authenticate') }}" method="POST">
                     @csrf
                     <div class="mb-4">
-                        <input id="userEmail" type="email" class="form-control @error('email') is-invalid @enderror p-3" 
-                               name="email" placeholder="Email..." required>
-                        @error('email')
+                        <input id="userCredential" type="text" class="form-control @error('credential') is-invalid @enderror p-3" 
+                            name="credential" placeholder="Email or Username..." required>
+                        @error('credential')
                             <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
                         @enderror
                     </div>
@@ -304,50 +304,43 @@
 
 <!-- OTP Modal (Bootstrap 5) -->
 <div class="modal fade" id="otpModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-md">
-    <div class="modal-content shadow-lg rounded-4">
-
-      <!-- HEADER -->
-      <div class="modal-header bg-success text-white py-3">
-        <h5 class="modal-title fw-bold">OTP Verification</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">OTP Verification</h5>
       </div>
-
-      <!-- BODY -->
-      <div class="modal-body px-4">
-        <p class="mb-4">Enter the 6-digit OTP sent to <strong>{{ session('otp_email') }}</strong></p>
-
+      <div class="modal-body">
+        <p>Enter the 6-digit OTP sent to <strong>{{ session('otp_email') }}</strong></p>
         <form id="otpForm" action="{{ route('verifyOTP') }}" method="POST">
           @csrf
           <input type="hidden" name="user_id" value="{{ session('otp_user_id') }}">
-
-          <div class="card p-3 shadow-sm border-0 mb-3">
-            <label for="otp" class="fw-bold text-success mb-2">OTP Code</label>
-            <input type="text" name="otp" id="otp" class="form-control p-2" placeholder="123456" required>
+          <div class="mb-3">
+            <input type="text" name="otp" class="form-control" placeholder="123456" required>
           </div>
-
-          <div class="text-center">
-            <button type="submit" class="btn btn-success fw-bold px-5 py-2 shadow-sm">
-              Verify
-            </button>
-          </div>
+          <button type="submit" class="btn btn-primary">Verify</button>
         </form>
       </div>
-
     </div>
   </div>
 </div>
 
-
-@if(session('show_otp_modal'))
-  <script>
-    // Auto-show modal kapag may OTP requirement
-    document.addEventListener('DOMContentLoaded', function() {
-      const modal = new bootstrap.Modal(document.getElementById('otpModal'));
-      modal.show();
-    });
-  </script>
-@endif
+    @if(session('show_otp_modal'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Kunin ang value ng credential input mula sa previous submission (old input)
+                var credential = "{{ old('credential') }}";
+                // Regex para sa email format
+                var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                // Ipakita lang ang OTP modal kung email format ang input
+                if(emailPattern.test(credential)) {
+                    var otpModal = new bootstrap.Modal(document.getElementById('otpVerificationModal'));
+                    otpModal.show();
+                    document.getElementById('otpEmail').textContent = "{{ session('otp_email') }}";
+                    document.getElementById('otpEmailInput').value = "{{ session('otp_email') }}";
+                }
+            });
+        </script>
+    @endif
 
     <!-- OTP Verification Modal -->
     <div class="modal fade" id="otpVerificationModal" tabindex="-1" aria-labelledby="otpVerificationModalLabel" aria-hidden="true">
@@ -435,31 +428,35 @@
                     </div>
                 </div>
 
-                <!-- NEW PASSWORD -->
-                <div class="mb-3">
-                    <label for="password" class="form-label fw-bold text-success">New Password</label>
-                    <input type="password" class="form-control" name="password" id="newPassword" placeholder="Enter new password" required>
-                    <div class="password-strength mt-2">
-                    <div class="progress" style="height: 5px;">
-                        <div id="passwordStrength" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                <!-- Hidden password fields initially -->
+                <div id="passwordFields" style="display: none;">
+                    <!-- NEW PASSWORD -->
+                    <div class="mb-3">
+                        <label for="password" class="form-label fw-bold text-success">New Password</label>
+                        <input type="password" class="form-control" name="password" id="newPassword" placeholder="Enter new password" required>
+                        <div class="password-strength mt-2">
+                        <div class="progress" style="height: 5px;">
+                            <div id="passwordStrength" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                        </div>
+                        <small id="passwordHelp" class="form-text text-muted"></small>
+                        </div>
                     </div>
-                    <small id="passwordHelp" class="form-text text-muted"></small>
+
+                    <!-- CONFIRM PASSWORD -->
+                    <div class="mb-3">
+                        <label for="password_confirmation" class="form-label fw-bold text-success">Confirm Password</label>
+                        <input type="password" class="form-control" name="password_confirmation" id="confirmPassword" placeholder="Confirm your password" required>
+                        <div id="passwordMatch" class="mt-2"></div>
+                    </div>
+
+                    <!-- SUBMIT BUTTON -->
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-success w-100 fw-bold py-2" id="submitBtn" disabled>
+                        Reset Password
+                        </button>
                     </div>
                 </div>
 
-                <!-- CONFIRM PASSWORD -->
-                <div class="mb-3">
-                    <label for="password_confirmation" class="form-label fw-bold text-success">Confirm Password</label>
-                    <input type="password" class="form-control" name="password_confirmation" id="confirmPassword" placeholder="Confirm your password" required>
-                    <div id="passwordMatch" class="mt-2"></div>
-                </div>
-
-                <!-- SUBMIT BUTTON -->
-                <div class="text-center mt-4">
-                    <button type="submit" class="btn btn-success w-100 fw-bold py-2" id="submitBtn" disabled>
-                    Reset Password
-                    </button>
-                </div>
                 </form>
             </div>
 
@@ -500,62 +497,6 @@
         </div>
     </div>
     </div>
-
-    <script>
-// Modal Trigger: Ctrl + Shift + A
-document.addEventListener('keydown', function(event) {
-    if (event.ctrlKey && event.shiftKey && event.key === 'A') {
-        event.preventDefault();
-        var myModal = new bootstrap.Modal(document.getElementById('staffAdminModal'));
-        myModal.show();
-        
-        // Set default form action based on current role selection
-        updateFormAction();
-    }
-});
-
-// Update form action based on selected role
-function updateFormAction() {
-    let loginForm = document.querySelector('#staffAdminModal form');
-    let roleSelect = document.querySelector('select[name="role"]');
-    
-    if (roleSelect.value === 'staff') {
-        loginForm.action = "{{ route('staff.authenticate') }}";
-    } else if (roleSelect.value === 'admin') {
-        loginForm.action = "{{ route('authenticate') }}";
-    }
-}
-
-// Role switch event listener
-document.addEventListener('DOMContentLoaded', function() {
-    const roleSelect = document.querySelector('select[name="role"]');
-    if (roleSelect) {
-        roleSelect.addEventListener('change', updateFormAction);
-    }
-});
-
-// Enhanced Developer Tools Prevention
-document.addEventListener('contextmenu', e => e.preventDefault());
-
-document.addEventListener('keydown', e => {
-    // Prevent F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+U
-    if (e.key === 'F12' || 
-        (e.ctrlKey && e.shiftKey && e.key === 'I') || 
-        (e.ctrlKey && e.shiftKey && e.key === 'J') ||
-        (e.ctrlKey && e.shiftKey && e.key === 'C') ||
-        (e.ctrlKey && e.key === 'U')) {
-        e.preventDefault();
-    }
-    
-    // Additional protection against menu opening
-    if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
-        alert('Developer tools are disabled for security reasons.');
-        return false;
-    }
-});
-</script>
-
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const newPassword = document.getElementById('newPassword');
@@ -752,30 +693,271 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 <!-- Verfication Modal After clicking the Login Button-->
 <script>
-// Find this script section and update it
 document.addEventListener('DOMContentLoaded', function() {
-    const loginButton = document.getElementById('loginButton');
-    const loginForm = loginButton.closest('form');
+    const loginForm = document.getElementById('login-form');
     
-    loginForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        // Get both email and password
-        const email = document.getElementById('userEmail').value;
-        const password = document.getElementById('passwordField').value;
-        
-        // Show the OTP modal
-        const otpModal = new bootstrap.Modal(document.getElementById('otpVerificationModal'));
-        
-        // Set the email in the modal
-        document.getElementById('otpEmail').textContent = email;
-        document.getElementById('otpEmailInput').value = email;
-        
-        // Send OTP with both email and password
-        sendLoginOTP(email, password);
-        
-        otpModal.show();
+    if (loginForm) {
+        loginForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const userCredential = document.getElementById('userCredential').value;
+            const password = document.getElementById('passwordField').value;
+            const agreeTerms = document.getElementById('agreeTerms').checked;
+            
+            // Validate required fields
+            if (!userCredential || !password) {
+                alert('Mangyaring punan ang lahat ng kinakailangang fields.');
+                return;
+            }
+
+            // Check if terms are agreed
+            if (!agreeTerms) {
+                alert('Mangyaring tanggapin ang Terms and Conditions para magpatuloy.');
+                return;
+            }
+            
+            // Check kung email ang ginamit
+            const isEmail = userCredential.includes('@');
+            
+            if (isEmail) {
+                try {
+                    // Send OTP request
+                    const response = await fetch('{{ route("send-login-otp") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: `email=${encodeURIComponent(userCredential)}&password=${encodeURIComponent(password)}`
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        // Show OTP modal
+                        const otpModal = new bootstrap.Modal(document.getElementById('otpVerificationModal'));
+                        document.getElementById('otpEmail').textContent = userCredential;
+                        document.getElementById('otpEmailInput').value = userCredential;
+                        otpModal.show();
+                    } else {
+                        alert(data.message || 'Hindi matagumpay ang pagpapadala ng OTP. Pakisubukan muli.');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('May naganap na error. Pakisubukan muli.');
+                }
+            } else {
+                // Para sa username login, direct submit
+                this.submit();
+            }
+        });
+    }
+
+    // Resend OTP functionality
+    const resendOTPButton = document.getElementById('resendOTP');
+    if (resendOTPButton) {
+        resendOTPButton.addEventListener('click', async function() {
+            const email = document.getElementById('otpEmailInput').value;
+            
+            try {
+                const response = await fetch('{{ route("resend-login-otp") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: `email=${encodeURIComponent(email)}`
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Matagumpay na naipadala ang bagong OTP sa iyong email.');
+                    
+                    // Start countdown
+                    this.disabled = true;
+                    let countdown = 60;
+                    const countdownSpan = document.getElementById('countdown');
+                    countdownSpan.classList.remove('d-none');
+                    
+                    const timer = setInterval(() => {
+                        countdown--;
+                        countdownSpan.textContent = `(${countdown}s)`;
+                        if (countdown <= 0) {
+                            clearInterval(timer);
+                            this.disabled = false;
+                            countdownSpan.classList.add('d-none');
+                        }
+                    }, 1000);
+                } else {
+                    alert(data.message || 'Hindi matagumpay ang muling pagpapadala ng OTP.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('May naganap na error sa muling pagpapadala ng OTP.');
+            }
+        });
+    }
+});
+</script>
+
+<!-- Bootstrap JS (Add before your custom scripts) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let modalElement = document.getElementById("forgotPasswordModal");
+        if (modalElement) {
+            var myModal = new bootstrap.Modal(modalElement);
+            document.querySelectorAll(".forgot-password").forEach(el => {
+                el.addEventListener("click", function () {
+                    myModal.show();
+                });
+            });
+        }
     });
+
+    function sendOTP() {
+        let email = document.getElementById("email").value;
+        let sendOTPBtn = document.getElementById("sendOTPBtn");
+
+        if (!email) {
+            alert("Please enter your email first.");
+            return;
+        }
+
+        sendOTPBtn.disabled = true; // Disable button to prevent multiple requests
+        sendOTPBtn.textContent = "Sending...";
+
+        fetch("{{ route('forgot.sendOTP') }}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
+            },
+            body: JSON.stringify({ email: email })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+        })
+        .catch(error => {
+            console.error("Error sending OTP:", error);
+            alert("Failed to send OTP. Please try again.");
+        })
+        .finally(() => {
+            sendOTPBtn.disabled = false;
+            sendOTPBtn.textContent = "Send OTP";
+        });
+    }
+
+    function resetPassword() {
+        let email = document.getElementById("email").value;
+        let otp = document.getElementById("otp").value;
+        let password = document.getElementById("password").value;
+        let confirmPassword = document.getElementById("confirmPassword").value;
+        let resetPasswordBtn = document.getElementById("resetPasswordBtn");
+
+        if (!email || !otp || !password || !confirmPassword) {
+            alert("Please fill in all fields.");
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            alert("Passwords do not match!");
+            return;
+        }
+
+        resetPasswordBtn.disabled = true;
+        resetPasswordBtn.textContent = "Resetting...";
+
+        fetch("{{ route('forgot.reset') }}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
+            },
+            body: JSON.stringify({ email, otp, password, password_confirmation: confirmPassword })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            if (data.message === "Password reset successfully!") {
+                window.location.href = "/login"; // Redirect to login page after successful reset
+            }
+        })
+        .catch(error => {
+            console.error("Error resetting password:", error);
+            alert("Failed to reset password. Please try again.");
+        })
+        .finally(() => {
+            resetPasswordBtn.disabled = false;
+            resetPasswordBtn.textContent = "Reset Password";
+        });
+    }
+    // Google login success callback
+    function handleGoogleLogin(response) {
+    fetch('/auth/google/callback', {
+        method: 'GET',
+        headers: {
+        'Accept': 'application/json',
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.otp_required) {
+        // Ipakita ang modal
+        const modal = new bootstrap.Modal(document.getElementById('otpModal'));
+        document.getElementById('userEmail').textContent = data.email;
+        document.getElementById('userId').value = data.user_id;
+        modal.show();
+        } else {
+        window.location.href = '/calendar'; // Redirect kung walang OTP
+        }
+    });
+    }
+
+    // OTP verification
+    function verifyOTP() {
+    const formData = new FormData(document.getElementById('otpForm'));
+    
+    fetch('/verify-otp', {
+        method: 'POST',
+        body: formData,
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+        window.location.href = '/calendar'; // Redirect pag successful
+        } else {
+        alert('Invalid OTP!'); // I-show ang error
+        }
+    });
+    }
+</script>
+<!-- Verfication Modal After clicking the Login Button-->
+<script>
+document.getElementById('login-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const loginIdentifier = document.getElementById('login_identifier').value;
+    const password = document.getElementById('password').value;
+    
+    // Check kung email o username ang ginamit
+    const isEmail = loginIdentifier.includes('@');
+    
+    if (!isEmail) {
+        // Kung username, direct login
+        this.submit();
+        return;
+    }
+    
+    // Kung email, ipakita ang OTP verification
+    const modalBody = document.querySelector('#otpModal .modal-body');
+    const sendingAlert = document.createElement('div');
+    sendingAlert.className = 'alert alert-info text-center';
+    sendingAlert.textContent = 'Sending OTP...';
+    modalBody.insertBefore(sendingAlert, modalBody.firstChild);
     
     function sendLoginOTP(email, password) {
         const sendingAlert = document.createElement('div');

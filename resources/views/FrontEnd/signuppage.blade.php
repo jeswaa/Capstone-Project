@@ -88,16 +88,16 @@
                 </div>
             @endif
 
-    <div class="position-absolute top-0 start-0 mt-5 ms-5">
-        <a href="{{ url('login') }}" class="d-flex align-items-center justify-content-center rounded-circle shadow"
+            <div class="position-absolute top-0 start-0 mt-4 ms-5">
+        <a href="{{ url('/') }}" class="d-flex align-items-center justify-content-center rounded-circle shadow"
         style="width: 45px; height: 45px; background-color: #0B5D3B; text-decoration: none;">
             <i class="fa-solid fa-arrow-left text-white fs-4"></i>
         </a>
     </div>
 
-    <div class="position-absolute top-0 end-0 mt-3 me-5">
+    <div class="position-absolute top-0 end-0 mt-1 me-5">
         <a href="{{ url('/') }}" class="text-decoration-none">
-            <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="120" class="rounded-pill">
+            <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill">
         </a>
     </div>
 
