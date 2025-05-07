@@ -111,6 +111,7 @@ Route::get('/reservation/display-summary', [ReservationController::class, 'displ
 Route::post('/reservation-personal', [ReservationController::class, 'fetchUserData'])->name('fetchUserData');
 Route::post('/reservation/personal-details', [ReservationController::class, 'saveReservationDetails'])->name('saveReservationDetails');
 Route::get('/get-session-times', [ReservationController::class, 'getSessionTimes']);
+Route::get('/get-session-times-only', [ReservationController::class, 'SessionTimeOnly']);
 Route::post('/reservation/select-package-details', [ReservationController::class, 'StayInPackages'])->name('savePackageSelection');
 Route::post('/reservation/select-fix-package-details', [ReservationController::class, 'OnedayStay'])->name('fixPackagesSelection');
 Route::post('/reservation/save-payment-process', [ReservationController::class, 'savePaymentProcess'])->name('savePaymentProcess');

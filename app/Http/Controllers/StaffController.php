@@ -31,10 +31,20 @@ class StaffController extends Controller
     {
         return view('StaffSide.StaffDashboard');
     }
-    public function guests()
+    public function guests(Request $request)
     {
-        $users = DB::table('users')->get();
-        return view('StaffSide.StaffGuest', compact('users'));
+        $query = DB::table('users');
+
+        if ($request->has('search')) {
+            $search = $request->get('search');
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'LIKE', '%'.$search.'%')
+                  ->orWhere('email', 'LIKE', '%'.$search.'%');
+            });
+        }
+
+        $guests = $query->paginate(10); // Add pagination with 10 items per page
+        return view('StaffSide.StaffGuest', compact('guests'));
     }
     public function logout()
     {
@@ -343,15 +353,15 @@ public function accomodations()
     $staff = Staff::find($staffId);
 
     // Fetch all accommodations
-    $accomodations = DB::table('accomodations')->get();
+    $accomodations = DB::table('accomodations')->paginate(5);
     
     // Compute Room Overview
     $totalRooms = DB::table('accomodations')->count();
     $vacantRooms = DB::table('accomodations')->where('accomodation_status', 'available')->count();
 
     // Adjust reservedRooms count and update available slots
-    $reservedRooms = DB::table('reservation_details')
-        ->whereIn('payment_status', ['booked', 'paid'])
+    $reservedRooms = DB::table('accomodations')
+        ->where('accomodation_status', 'unavailable')
         ->count();
 
     // Record activity

@@ -29,8 +29,41 @@
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 16px 32px rgba(0, 0, 0, 0.1);
         transform: translateY(-5px);
     }
+    .accommodation-type-btn {
+    transition: all 0.3s ease;
+    border: 2px solid white;
+    font-weight: bold;
+    letter-spacing: 1px;
+    padding: 10px 20px;
+    }
+
+    .accommodation-type-btn:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+    }
+
+    .accommodation-type-btn.active {
+        background-color: white;
+        color: #0b573d !important;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .accommodation-card {
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .accommodation-card.hidden {
+        display: none;
+        opacity: 0;
+        transform: scale(0.95);
+    }
 </style>
-@if ($errors->any())
+
+<body class="bg-light font-paragraph" style="background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('{{ asset('images/packagebg.jpg') }}') no-repeat center center fixed; background-size: cover;">
+    <div class="d-flex align-items-center ms-5 mt-5">
+        <a href="{{ route('calendar') }}"><i class="color-3 fa-2x fa-circle-left fa-solid icon icon-hover ms-4"></i></a><h1 class="text-white text-uppercase font-heading ms-3">Reservation</h1>
+    </div>
+    @if ($errors->any())
     <div class="alert alert-danger mt-3">
         <ul>
             @foreach ($errors->all() as $error)
@@ -39,11 +72,6 @@
         </ul>
     </div>
 @endif
-<body class="bg-light font-paragraph" style="background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('{{ asset('images/packagebg.jpg') }}') no-repeat center center fixed; background-size: cover;">
-    <div class="d-flex align-items-center ms-5 mt-5">
-        <a href="{{ route('calendar') }}"><i class="color-3 fa-2x fa-circle-left fa-solid icon icon-hover ms-4"></i></a><h1 class="text-white text-uppercase font-heading ms-3">Reservation</h1>
-    </div>
-    
     <div class="position-absolute top-0 end-0 mt-3 me-5">
         <a class="text-decoration-none">
             <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="120" class="rounded-pill">
@@ -51,71 +79,62 @@
     </div>
 
     <div class="container">
-    <h1 class="text-white font-heading fs-2 mt-3 mb-3">Select your Accommodation</h1>
+    <h1 class="text-white font-heading fs-2 mt-3 mb-3 ms-2">Select your Room</h1>
     
     <form method="POST" action="{{ route('savePackageSelection') }}">
         @csrf
-        <input type="hidden" name="package_type" value="custom">
+        <input type="hidden" name="package_type" value="One day Stay">
+        <div class="d-flex justify-content-end mt-4 mb-3">
+            <button type="button" 
+                class="btn text-dark px-4" 
+                style="background-color: rgba(255, 255, 255, 0.9);" 
+                id="proceedToPayment" 
+                data-bs-toggle="modal" 
+                data-bs-target="#reservationModal" 
+                disabled>
+                <i class="fas fa-calendar-check me-2"></i>Booking Details
+            </button>
+        </div>
+        <!-- Accommodation Type Selection -->
+        <div class="mb-4">
+            <div class="btn-group w-100" role="group" aria-label="Accommodation Types">
+                @php
+                    $types = $accomodations->pluck('accomodation_type')->unique();
+                @endphp
+                
+                @foreach($types as $type)
+                    <button type="button" class="btn btn-outline-light accommodation-type-btn text-uppercase" data-type="{{ $type }}">
+                        {{ ucfirst($type) }}s
+                    </button>
+                @endforeach
+            </div>
+        </div>
 
-        <!-- Rooms Section -->
+        <!-- Accommodation Cards Container -->
         <div class="col-md-12 d-flex flex-column">
             <div class="form-group">
-                <label for="roomPreference" class="text-white font-paragraph fw-semibold mb-3 ms-2" style="font-size: 1.5rem;">ROOMS</label>
                 <div class="container">
-                    <div class="row g-4">
-                    <!-- For Rooms Section -->
-                    @foreach($accomodations->where('accomodation_type', 'room') as $accomodation)
-                        <div class="col-md-4">
-                            <div class="card select-accommodation" 
-                                 data-id="{{ $accomodation->accomodation_id }}" 
-                                 data-price="{{ $accomodation->accomodation_price }}"
-                                 data-capacity="{{ $accomodation->accomodation_capacity }}">
-                                <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" class="card-img-top" alt="accommodation image" style="max-width: 100%; height: 250px; object-fit: cover;">
-                                <div class="card-body p-3 position-relative" style="background-color: white;">
-                                    <h5 class="text-success text-capitalize font-heading fs-4 fw-bold">{{ $accomodation->accomodation_name }}</h5>
-                                    <p class="card-text text-success font-paragraph" style="font-size: smaller;">Description: {{ $accomodation->accomodation_description }}</p>
-                                    <p class="card-text text-success font-paragraph">Capacity: {{ $accomodation->accomodation_capacity }} pax</p>
-                                    <p class="card-text font-paragraph fw-bold text-success" style="text-align: right;">Price: <span style="background-color: #0b573d; color: white; padding: 2px 5px;">₱{{ $accomodation->accomodation_price }}</span></p>
-                                    <input type="hidden" name="accomodation_id[]" value="{{ $accomodation->accomodation_id }}" class="hidden-input">
+                    <div class="row g-4" id="accommodationContainer">
+                        @foreach($accomodations as $accomodation)
+                            <div class="col-md-4 accommodation-card " data-type="{{ $accomodation->accomodation_type }}">
+                                <div class="card select-accommodation" 
+                                     data-id="{{ $accomodation->accomodation_id }}" 
+                                     data-price="{{ $accomodation->accomodation_price }}"
+                                     data-capacity="{{ $accomodation->accomodation_capacity }}">
+                                    <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" class="card-img-top" alt="accommodation image" style="max-width: 100%; height: 250px; object-fit: cover;">
+                                    <div class="card-body p-3 position-relative" style="background-color: white;">
+                                        <h5 class="text-success text-capitalize font-heading fs-4 fw-bold">{{ $accomodation->accomodation_name }}</h5>
+                                        <p class="card-text text-success font-paragraph" style="font-size: smaller;">Description: {{ $accomodation->accomodation_description }}</p>
+                                        <p class="card-text text-success font-paragraph">Capacity: {{ $accomodation->accomodation_capacity }} pax</p>
+                                        <p class="card-text font-paragraph fw-bold text-success" style="text-align: right;">Price: <span style="background-color: #0b573d; color: white; padding: 2px 5px;">₱{{ $accomodation->accomodation_price }}</span></p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
                         @endforeach
                     </div>
                 </div>
             </div>
         </div>
-
-        <div><hr class="w-100 background-color mt-5" style="height: 5px;"></div>
-
-        <!-- Rooms Section -->
-        <div class="col-md-12 d-flex flex-column">
-            <div class="form-group">
-                <label for="roomPreference" class="text-white font-paragraph fw-semibold mb-3 ms-2" style="font-size: 1.5rem;">CABINS</label>
-                <div class="container">
-                    <div class="row g-4">
-                    <!-- For Cabins Section -->
-                    @foreach($accomodations->where('accomodation_type', 'cabin') as $accomodation)
-                        <div class="col-md-4">
-                            <div class="card select-accommodation" 
-                                 data-id="{{ $accomodation->accomodation_id }}" 
-                                 data-price="{{ $accomodation->accomodation_price }}"
-                                 data-capacity="{{ $accomodation->accomodation_capacity }}">
-                                <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" class="card-img-top" alt="accommodation image" style="max-width: 100%; height: 250px; object-fit: cover;">
-                                <div class="card-body p-3 position-relative" style="background-color: white;">
-                                    <h5 class="text-success text-capitalize font-heading fs-4 fw-bold">{{ $accomodation->accomodation_name }}</h5>
-                                    <p class="card-text text-success font-paragraph" style="font-size: smaller;">Description: {{ $accomodation->accomodation_description }}</p>
-                                    <p class="card-text text-success font-paragraph">Capacity: {{ $accomodation->accomodation_capacity }} pax</p>
-                                    <p class="card-text font-paragraph fw-bold text-success" style="text-align: right;">Price: <span style="background-color: #0b573d; color: white; padding: 2px 5px;">₱{{ $accomodation->accomodation_price }}</span></p>
-                                </div>
-                            </div>
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Activities Section -->
         <div>
             <label for="activities" class="text-white font-paragraph fw-semibold mb-3 ms-2 mt-4" style="font-size: 1.5rem;">Activities <span style="font-size: 1rem;">(ALL INCLUDED)</span></label>
@@ -138,112 +157,111 @@
                 </div>
             </div>
         </div>
-
-        
-            <div class="d-grid gap-2 mt-4 mb-3">
-                <button type="button" class="btn text-white" style="background-color: #0b573d;" id="proceedToPayment" data-bs-toggle="modal" data-bs-target="#reservationModal">Booking Details</button>
-            </div>
-
-     <!-- Reservation Modal -->
-<div class="modal fade" id="reservationModal" tabindex="-1" aria-labelledby="reservationModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content shadow-lg rounded-4">
-            <!-- HEADER -->
-            <div class="modal-header bg-success text-white py-3">
-                <h5 class="modal-title fw-bold" id="reservationModalLabel">Booking Details</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-
-            <!-- BODY -->
-            <div class="modal-body px-4">
-                <form method="POST" action="{{ route('savePackageSelection') }}">
-                    @csrf
-                    <input type="hidden" name="package_type" value="custom">
-
-                    <!-- VISITOR INFO -->
-                    <div class="row g-4">
-                        <div class="col-md-6">
-                            <div class="card p-3 shadow-sm border-0">
-                                <h6 class="fw-bold mb-3 text-success">Number of Visitors</h6>
-                                <div class="form-group mb-3">
-                                    <label for="number_of_adults">Adults (18+):</label>
-                                    <div class="input-group">
-                                        <input type="number" name="number_of_adults" id="number_of_adults" class="form-control p-2" min="0" oninput="calculateTotalGuest()">
-                                        <span class="input-group-text bg-success text-white" hidden>₱{{$entranceFees->entrance_fee}}</span>
-                                    </div>
-                                </div>
-                                <div class="form-group mb-3">
-                                    <label for="number_of_children">Children (3-12):</label>
-                                    <div class="input-group">
-                                        <input type="number" name="number_of_children" id="number_of_children" class="form-control p-2" min="0" oninput="calculateTotalGuest()">
-                                        <span class="input-group-text bg-success text-white" hidden>₱{{ $entranceFees->entrance_fee }}</span>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="total_guests">Total Guests:</label>
-                                    <input type="number" name="total_guest" id="total_guests" class="form-control p-2" readonly>
-                                    <div id="guestError" class="text-danger mt-2" style="display: none;">
-                                        Exceeds maximum room capacity!
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- TIME SELECTION -->
-                        <div class="col-md-6">
-                            <div class="card p-3 shadow-sm border-0">
-                                <h6 class="fw-bold mb-3 text-success">Time</h6>
-                                <div class="form-group mb-3">
-                                    <label for="check_in">Check-in Time:</label>
-                                    <input type="time" id="check_in" name="reservation_check_in" class="form-control" value="15:00" readonly>
-                                </div>
-                                <div class="form-group">
-                                    <label for="check_out">Check-out Time:</label>
-                                    <input type="time" id="check_out" name="reservation_check_out" class="form-control" value="10:00" readonly>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- DATE SELECTION -->
-                        <div class="col-md-12">
-                            <div class="card p-3 shadow-sm border-0">
-                                <h6 class="fw-bold mb-3 text-success">Select Date</h6>
-                                <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <label for="reservation_date">Check-in Date:</label>
-                                        <input type="date" id="reservation_date" name="reservation_check_in_date" class="form-control" required>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="check_out_date" class="form-label">Check-out Date:</label>
-                                        <input type="date" id="check_out_date" name="reservation_check_out_date" class="form-control">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- SPECIAL REQUEST -->
-                        <div class="col-md-12">
-                            <div class="card p-3 shadow-sm border-0">
-                                <h6 class="fw-bold mb-3 text-success">Special Request</h6>
-                                <textarea id="specialRequest" name="special_request" class="form-control" rows="4" placeholder="Enter any special requests"></textarea>
-                            </div>
-                        </div>
+        <!-- Reservation Modal -->
+        <div class="modal fade" id="reservationModal" tabindex="-1" aria-labelledby="reservationModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content shadow-lg rounded-4">
+                    <!-- HEADER -->
+                    <div class="modal-header bg-success text-white py-3">
+                        <h5 class="modal-title fw-bold" id="reservationModalLabel">Booking Details</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
 
-                    <input type="hidden" name="total_amount" id="total_amount">
+                    <!-- BODY -->
+                    <div class="modal-body px-4">
+                        <form method="POST" action="{{ route('savePackageSelection') }}">
+                            @csrf
+                            <input type="hidden" name="package_type" value="custom">
 
-                    <!-- SUBMIT BUTTON -->
-                    <div class="text-center mt-4">
-                        <button type="submit" class="btn btn-success fw-bold px-5 py-2 shadow-sm">
-                            Save and Continue
-                        </button>
+                            <!-- VISITOR INFO -->
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="card p-3 shadow-sm border-0">
+                                        <h6 class="fw-bold mb-3 text-success">Number of Visitors</h6>
+                                        <div class="form-group mb-3">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <label for="number_of_adults">Adults <small style="font-size:10px;">(13 years old and above):</small></label>
+                                            </div>
+                                            <input type="number" name="number_of_adults" id="number_of_adults" class="form-control p-2" min="0" oninput="calculateTotalGuest()">
+                                            
+                                        </div>
+                                        <div class="form-group mb-3">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <label for="number_of_children">Children <small style="font-size:10px;">(3 to 12 years old):</small></label>
+                                            </div>
+                                            <input type="number" name="number_of_children" id="number_of_children" class="form-control p-2" min="0" oninput="calculateTotalGuest()">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="total_guests">Total Guests:</label>
+                                            <input type="number" name="total_guest" id="total_guests" class="form-control p-2" readonly>
+                                            <div id="guestError" class="text-danger mt-2" style="display: none;">
+                                                Exceeds maximum room capacity!
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="card p-3 shadow-sm border-0">
+                                        <h6 class="fw-bold mb-3 text-success">Time</h6>
+                                        <div class="form-group mb-3">
+                                            <label for="check_in">Session:</label>
+                                            <select id="session" name="session" class="form-control" onchange="updateSessionTimes()">
+                                                <option value="morning" {{ (isset($transactions->session) && $transactions->session == 'morning') ? 'selected' : '' }}>Morning Session</option>
+                                                <option value="evening" {{ (isset($transactions->session) && $transactions->session == 'evening') ? 'selected' : '' }}>Evening Session</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="start_time">Start Time:</label>
+                                            <input type="time" id="start_time" name="reservation_check_in" class="form-control" value="{{ \Carbon\Carbon::createFromFormat('H:i:s', $transactions->start_time)->format('H:i') }}" required>
+                                        </div>
+                                        <div class="form-group mt-3">
+                                            <label for="end_time">End Time:</label>
+                                            <input type="time" id="end_time" name="reservation_check_out" value="{{ \Carbon\Carbon::createFromFormat('H:i:s', $transactions->end_time)->format('H:i') }}" class="form-control" required>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- DATE SELECTION -->
+                                <div class="col-md-12">
+                                    <div class="card p-3 shadow-sm border-0">
+                                        <h6 class="fw-bold mb-3 text-success">Select Date</h6>
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label for="reservation_date">Check-in Date:</label>
+                                                <input type="date" id="reservation_date" name="reservation_check_in_date" class="form-control" required readonly>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="check_out_date" class="form-label">Check-out Date:</label>
+                                                <input type="date" id="check_out_date" name="reservation_check_out_date" class="form-control" required readonly>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- SPECIAL REQUEST -->
+                                <div class="col-md-12">
+                                    <div class="card p-3 shadow-sm border-0">
+                                        <h6 class="fw-bold mb-3 text-success">Special Request</h6>
+                                        <textarea id="specialRequest" name="special_request" class="form-control" rows="4" placeholder="Enter any special requests"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <input type="hidden" name="total_amount" id="total_amount">
+
+                            <!-- SUBMIT BUTTON -->
+                            <div class="text-center mt-4">
+                                <button type="submit" class="btn btn-success fw-bold px-5 py-2 shadow-sm">
+                                    Save and Continue
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
-</div>
 
     <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -279,62 +297,58 @@
     });
     </script>
 
-    <script>
-    // Move function outside DOMContentLoaded to prevent "ReferenceError"
-    function calculateTotalGuest() {
-        let adults = parseInt(document.getElementById("number_of_adults").value) || 0;
-        let children = parseInt(document.getElementById("number_of_children").value) || 0;
-        let totalGuests = adults + children;
-
-        let selectedAccommodations = document.querySelectorAll(".select-accommodation.selected");
-        let totalCapacity = 0;
-        selectedAccommodations.forEach(item => {
-            totalCapacity += parseInt(item.getAttribute("data-capacity"));
-        });
-
-        if (totalGuests > totalCapacity) {
-            document.getElementById("guestError").style.display = "block";
-        } else {
-            document.getElementById("guestError").style.display = "none";
+<script>
+        function calculateTotalGuest() {
+            let adults = parseInt(document.getElementById("number_of_adults").value) || 0;
+            let children = parseInt(document.getElementById("number_of_children").value) || 0;
+            let totalGuests = adults + children;
+            
+            // Get selected accommodation capacity
+            let selectedAccommodation = document.querySelector('.select-accommodation.selected');
+            let maxCapacity = selectedAccommodation ? parseInt(selectedAccommodation.getAttribute('data-capacity')) : 0;
+            
+            // Get the save button and error message elements
+            let saveButton = document.querySelector('button[type="submit"]');
+            let guestError = document.getElementById('guestError');
+            let totalGuestsInput = document.getElementById("total_guests");
+            
+            // Update total guests display
+            totalGuestsInput.value = totalGuests;
+            
+            // Check if total guests exceeds capacity
+            if (totalGuests > maxCapacity && maxCapacity > 0) {
+                guestError.style.display = 'block';
+                saveButton.disabled = true;
+                saveButton.classList.add('opacity-50');
+                totalGuestsInput.style.color = 'red';
+            } else {
+                guestError.style.display = 'none';
+                saveButton.disabled = false;
+                saveButton.classList.remove('opacity-50');
+                totalGuestsInput.style.color = 'black';
+            }
+            
+            document.getElementById("total_guests").value = totalGuests;
+            calculateTotalAmount();
         }
-
-        document.getElementById("total_guests").value = totalGuests;
-        calculateTotalAmount(); // Ensure total amount updates correctly
-    }
-
-
-    function calculateTotalAmount() {
-        // Get entrance fees from the spans (which are populated from the database)
-        let adultEntranceFeeSpan = document.querySelector('input[name="number_of_adults"]').nextElementSibling;
-        let childEntranceFeeSpan = document.querySelector('input[name="number_of_children"]').nextElementSibling;
-        
-        // Extract the numeric values from the spans
-        let adultEntranceFee = parseFloat(adultEntranceFeeSpan.textContent.replace('₱', '')) || 0;
-        let childEntranceFee = parseFloat(childEntranceFeeSpan.textContent.replace('₱', '')) || 0;
-        
-        let numAdults = parseInt(document.getElementById("number_of_adults").value) || 0;
-        let numChildren = parseInt(document.getElementById("number_of_children").value) || 0;
-    
-        let entranceTotal = (numAdults * adultEntranceFee) + (numChildren * childEntranceFee);
-        let accommodationTotal = 0;
-    
-        document.querySelectorAll('.select-accommodation.selected').forEach(card => {
-            let price = parseFloat(card.getAttribute("data-price")) || 0;
-            accommodationTotal += price;
-        });
-    
-        let totalAmount = entranceTotal + accommodationTotal;
-        document.getElementById("total_amount").value = totalAmount.toFixed(2);
-    }
 
     document.addEventListener("DOMContentLoaded", function () {
         const accommodationCards = document.querySelectorAll(".select-accommodation");
         const totalAmountInput = document.getElementById("total_amount");
         const form = document.querySelector("form");
+        const proceedButton = document.getElementById("proceedToPayment"); // Add this line
 
+        // Function para i-update ang estado ng button
+        function updateProceedButton() {
+            const selectedAccommodations = document.querySelectorAll(".select-accommodation.selected");
+            proceedButton.disabled = selectedAccommodations.length === 0;
+        }
+
+        // Magdagdag ng click event listener sa bawat accommodation card
         accommodationCards.forEach(card => {
             card.addEventListener("click", function () {
                 this.classList.toggle("selected");
+                updateProceedButton(); // I-update ang button state tuwing may click
 
                 let accommodationId = this.getAttribute("data-id");
                 let existingInput = document.querySelector(`input[name="accomodation_id[]"][value="${accommodationId}"]`);
@@ -351,7 +365,7 @@
                     if (existingInput) existingInput.remove();
                 }
 
-                calculateTotalAmount();
+
             });
         });
 
@@ -425,5 +439,77 @@
     });
 });
 </script>
+<script>
+function updateSessionTimes() {
+    var session = document.getElementById('session').value;
+    fetch('/get-session-times-only?session=' + session)
+        .then(response => response.json())
+        .then(data => {
+            var startElem = document.getElementById('start_time');
+            var endElem = document.getElementById('end_time');
+            if (startElem && endElem && data.start_time && data.end_time) {
+                startElem.value = data.start_time.substring(0,5);
+                endElem.value = data.end_time.substring(0,5);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching session times:', error);
+        });
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    // I-set agad ang tamang oras base sa default session
+    updateSessionTimes();
+    // I-update kapag nagbago ang session
+    var sessionSelect = document.getElementById('session');
+    if (sessionSelect) {
+        sessionSelect.addEventListener('change', updateSessionTimes);
+    }
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const typeButtons = document.querySelectorAll('.accommodation-type-btn');
+    const cards = document.querySelectorAll('.accommodation-card');
+    
+    // Ipakita ang unang type ng accommodation by default
+    if (typeButtons.length > 0) {
+        typeButtons[0].classList.add('active');
+        const defaultType = typeButtons[0].getAttribute('data-type');
+        filterAccommodations(defaultType);
+    }
+
+    typeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Alisin ang active class sa lahat ng buttons
+            typeButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Idagdag ang active class sa napiling button
+            this.classList.add('active');
+            
+            // I-filter ang mga accommodations
+            const selectedType = this.getAttribute('data-type');
+            filterAccommodations(selectedType);
+        });
+    });
+
+    function filterAccommodations(type) {
+        cards.forEach(card => {
+            if (card.getAttribute('data-type') === type) {
+                card.classList.remove('hidden');
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'scale(1)';
+                }, 50);
+            } else {
+                card.classList.add('hidden');
+                card.style.opacity = '0';
+                card.style.transform = 'scale(0.95)';
+            }
+        });
+    }
+});
+</script>
 </body>
 </html>
+

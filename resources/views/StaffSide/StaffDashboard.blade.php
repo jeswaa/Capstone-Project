@@ -41,43 +41,7 @@
         <!-- SIDEBAR -->
         <div class="col-md-3 col-lg-2 color-background8 text-white position-sticky" id="sidebar" style="top: 0; height: 100vh; background-color: #0b573d background-color: #0b573d ">
             <div class="d-flex flex-column h-100">
-                <!-- Logo Section -->
-                <div class="d-flex flex-column align-items-center mt-5">
-                    <img src="{{ asset('images/default-profile.jpg') }}" alt="Profile Picture" class="rounded-circle w-50 mb-3 border border-5 border-white nav-link">
-                    <p class="font-heading sidebar-text text-white" data-bs-toggle="modal" data-bs-target="#editProfileModal" style="cursor: pointer;">Edit Profile</p>
-                </div>
-                
-                <!-- Navigation Links -->
-                <div class="d-flex flex-column gap-3 px-2 mt-4">
-                    <a href="{{ route('staff.dashboard') }}" class="nav-link text-white text-decoration-none d-flex align-items-center p-2 rounded-2 {{ Request::routeIs('staff.dashboard') ? 'bg-white bg-opacity-10' : '' }} nav-link">
-                        <i class="fas fa-tachometer-alt fs-5"></i>
-                        <span class="ms-3 font-paragraph">Dashboard</span>
-                    </a>
-                
-                    <div class="dropdown w-100">
-                        <a href="#" class="text-white nav-link text-decoration-none d-flex align-items-center p-2 rounded-2 nav-link" data-bs-toggle="dropdown">
-                            <i class="fas fa-calendar-alt fs-5 icon-center"></i>
-                            <span class="nav-text ms-3 font-paragraph">Reservations</span>
-                            <i class="fas fa-chevron-down nav-text ms-auto"></i>
-                        </a>
-                        <ul class="dropdown-menu w-100 border-0 shadow" style="background-color: #0d6e4c !important;">
-                            <li><a class="nav-link text-white nav-link p-2 font-paragraph" href="{{ route('staff.reservation') }}">Reservations</a></li>
-                            <li><a class="nav-link text-white nav-link p-2 font-paragraph" href="{{ route('staff.accomodations')}}">Room Availability</a></li>
-                        </ul>
-                    </div>
-                
-                    <a href="{{ route ('staff.guests')}}" class="text-white nav-link text-decoration-none d-flex align-items-center p-2 rounded-2 {{ Request::routeIs('staff.guests') ? 'bg-white bg-opacity-10' : '' }} nav-link">
-                        <i class="fas fa-users fs-5 icon-center"></i>
-                        <span class="nav-text ms-3 font-paragraph">Guests</span>
-                    </a>
-                </div>
-            
-                <div class="mt-auto mb-4 px-2">
-                    <a href="{{ route('staff.logout')}}" class="text-white text-decoration-none d-flex align-items-center p-2 rounded-2 nav-link justify-content-end">
-                        <span class="nav-text me-3 font-paragraph">Log Out</span>
-                        <i class="fas fa-sign-out-alt fs-5 icon-center"></i>
-                    </a>
-                </div>
+            @include('Navbar.sidenavbarStaff')
             </div>
         </div>
 

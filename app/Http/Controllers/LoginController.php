@@ -106,7 +106,7 @@ class LoginController extends Controller
             }
 
             // If neither admin nor staff credentials match
-            return back()->with('errorlogin', 'Invalid username or password')->withInput($request->only('credential'));
+            return back()->with('error', 'Invalid username or password')->withInput($request->only('credential'));
         }
     }
     protected function attemptLogin(Request $request)
