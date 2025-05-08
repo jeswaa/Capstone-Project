@@ -197,6 +197,18 @@
         text-align: center;
         font-size: 1.1rem;
     }
+
+    .nav-link:hover {
+    background-color: #0B5D3B !important;
+     color: white !important;
+    }
+
+    .nav-link.active {
+    background-color: #0B5D3B !important;
+    color: white !important;
+    border-color: #0B5D3B !important;
+    
+    }
 </style>
 
 <body class="bg-light font-paragraph">
@@ -223,10 +235,97 @@
                 <div class="w-100 w-md-50 bg-light p-3 text-white">
                     <h5 class="text-center text-md-center text-success">Payment Method</h5>
                     <hr class="bg-light my-2">
-                    <div class="d-flex justify-content-center">
-                        <input class="form-check-input d-none" type="checkbox" name="payment_method" id="gcash" value="gcash" checked>
-                        <div class="bg-secondary p-1 d-flex align-items-center justify-content-center rounded-2" style="width: 400px; height: 400px; background-image: url('{{ asset('images/logosheesh.png') }}'); background-size: cover; background-position: center;">
-                            <img src="{{ asset('images/qrcode.jpg') }}" alt="QR Code" style="max-width: 80%; height: auto;">
+                    
+                    <!-- Payment Method Tabs -->
+                    <ul class="nav nav-tabs justify-content-center mb-3" id="paymentTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="gcash1-tab" data-bs-toggle="tab" data-bs-target="#gcash1-content" type="button" role="tab" aria-controls="gcash1-content" aria-selected="true" style="color: #0B5D3B; transition: all 0.3s ease;">
+                                GCash 1
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="gcash2-tab" data-bs-toggle="tab" data-bs-target="#gcash2-content" type="button" role="tab" aria-controls="gcash2-content" aria-selected="false" style="color: #0B5D3B; transition: all 0.3s ease;">
+                                GCash 2
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="gcash3-tab" data-bs-toggle="tab" data-bs-target="#gcash3-content" type="button" role="tab" aria-controls="gcash3-content" aria-selected="false" style="color: #0B5D3B; transition: all 0.3s ease;">
+                                GCash 3
+                            </button>
+                        </li>
+
+                     <!-- Tab Content -->
+                    <div class="tab-content" id="paymentTabContent">
+                        <!-- GCash 1 Content -->
+                        <div class="tab-pane fade show active" id="gcash1-content" role="tabpanel" aria-labelledby="gcash1-tab">
+                            <div class="d-flex flex-column align-items-center">
+                                <input class="form-check-input d-none" type="radio" name="payment_method" id="gcash1" value="gcash1" checked>
+                                <div class="bg-secondary p-1 d-flex align-items-center justify-content-center rounded-2" style="width: 400px; height: 400px; background-image: url('{{ asset('images/logosheesh.png') }}'); background-size: cover; background-position: center;">
+                                    <img src="{{ asset('images/qrcode.jpg') }}" alt="GCash QR Code 1" style="max-width: 80%; height: auto;">
+                                </div>
+                                <div class="text-center mt-3">
+                                    <p class="fw-bold text-success mb-0">GCash Number:</p>
+                                    <p class="text-dark">0912-345-6789</p>
+                                </div>
+                                <div class="alert mt-3" role="alert" style="background-color: #0B5D3B; color: white;">
+                                    <h6 class="fw-bold">Important Payment Instructions:</h6>
+                                    <ul class="mb-0">
+                                        <li>Please ensure to scan the correct QR code for payment</li>
+                                        <li>Double check the amount before confirming the transaction</li>
+                                        <li>Save your reference number and screenshot of payment</li>
+                                        <li>Payment confirmation may take up to 24 hours</li>
+                                        <li>For assistance, contact our support team</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- GCash 2 Content -->
+                        <div class="tab-pane fade" id="gcash2-content" role="tabpanel" aria-labelledby="gcash2-tab">
+                            <div class="d-flex flex-column align-items-center">
+                                <input class="form-check-input d-none" type="radio" name="payment_method" id="gcash2" value="gcash2">
+                                <div class="bg-secondary p-1 d-flex align-items-center justify-content-center rounded-2" style="width: 400px; height: 400px; background-image: url('{{ asset('images/logosheesh.png') }}'); background-size: cover; background-position: center;">
+                                    <img src="{{ asset('images/maya-qr.jpg') }}" alt="GCash QR Code 2" style="max-width: 80%; height: auto;">
+                                </div>
+                                <div class="text-center mt-3">
+                                    <p class="fw-bold text-success mb-0">GCash Number:</p>
+                                    <p class="text-dark">0923-456-7890</p>
+                                </div>
+                                <div class="alert mt-3" role="alert" style="background-color: #0B5D3B; color: white;">
+                                    <h6 class="fw-bold">Important Payment Instructions:</h6>
+                                    <ul class="mb-0">
+                                        <li>Please ensure to scan the correct QR code for payment</li>
+                                        <li>Double check the amount before confirming the transaction</li>
+                                        <li>Save your reference number and screenshot of payment</li>
+                                        <li>Payment confirmation may take up to 24 hours</li>
+                                        <li>For assistance, contact our support team</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- GCash 3 Content -->
+                        <div class="tab-pane fade" id="gcash3-content" role="tabpanel" aria-labelledby="gcash3-tab">
+                            <div class="d-flex flex-column align-items-center">
+                                <input class="form-check-input d-none" type="radio" name="payment_method" id="gcash3" value="gcash3">
+                                <div class="bg-secondary p-1 d-flex align-items-center justify-content-center rounded-2" style="width: 400px; height: 400px; background-image: url('{{ asset('images/logosheesh.png') }}'); background-size: cover; background-position: center;">
+                                    <img src="{{ asset('images/qrcode.jpg') }}" alt="GCash QR Code 3" style="max-width: 80%; height: auto;">
+                                </div>
+                                <div class="text-center mt-3">
+                                    <p class="fw-bold text-success mb-0">GCash Number:</p>
+                                    <p class="text-dark">0934-567-8901</p>
+                                </div>
+                                <div class="alert mt-3" role="alert" style="background-color: #0B5D3B; color: white;">
+                                    <h6 class="fw-bold">Important Payment Instructions:</h6>
+                                    <ul class="mb-0">
+                                        <li>Please ensure to scan the correct QR code for payment</li>
+                                        <li>Double check the amount before confirming the transaction</li>
+                                        <li>Save your reference number and screenshot of payment</li>
+                                        <li>Payment confirmation may take up to 24 hours</li>
+                                        <li>For assistance, contact our support team</li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -341,6 +440,8 @@
             </div>
         </form>
     </div>
+
+    <div class="pb-5"></div> <!-- Add padding at the bottom -->
 
     
     <!-- JavaScript -->
