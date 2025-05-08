@@ -3,199 +3,300 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Landing Page</title>
+    <title>Lelo's Resort</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
-    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css">
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>
-    @include('Alert.loginSuccessUser')
-<section style="background-color: #E5F9DB;">
-    <!-- Hero Section with Background -->
-    <div class="hero vh-100 d-flex flex-column justify-content-center align-items-center text-center text-light position-relative "
-     style="background: url('{{ asset('images/hotelPic.jpg') }}') no-repeat center center; background-size: cover; border-bottom-left-radius: 100px; overflow: hidden;">
-     
-        <!-- Navbar (Inside Hero) -->
-        <nav class="navbar navbar-expand-lg navbar-dark position-absolute top-0 start-0 w-100">
-    <div class="container">
-        <a class="navbar-brand fs-2 fw-bold" href="#">LOGO NAME</a> 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-            <ul class="navbar-nav">
-                <li class="nav-item me-3">
-                    <a class="nav-link fs-4 fw-bold text-light" href="#">Home</a>
-                </li>
-                <li class="nav-item me-3">
-                    <a class="nav-link fs-4 fw-bold text-light" href="#">About</a>
-                </li>
-                <li class="nav-item me-3">
-                    <a class="nav-link fs-4 fw-bold text-light" href="#">Contact Us</a> 
-                </li>
-                <!-- Profile Logo -->
-                <li class="nav-item">
-                    <a class="nav-link fs-3 text-black" href="{{ route('profile') }}">
-                        <i class="bi bi-person-circle"></i> <!-- Profile Logo -->
-                    </a>
-                </li>
-            </ul>
+    <!-- ✅ Navbar (Fixed at the Top with z-index) -->
+    <nav class="navbar navbar-expand-lg  position-absolute top-0 w-100" style="z-index: 10;">
+        <div class="container">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link fw-semibold text-uppercase text-underline-left-to-right me-4" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#home">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link fw-semibold text-uppercase text-underline-left-to-right me-4" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#about">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link fw-semibold text-uppercase text-underline-left-to-right me-4" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#reviews">Review</a>
+                    </li>
+                </ul>
+                <a href="{{ route('login') }}" class="me-3 text-color-2 fs-5 p-2 text-decoration-none fw-semibold text-uppercase text-underline-left-to-right" style="font-family: 'Josefin Sans', sans-serif;">Login</a>
+                <a class="navbar-brand d-none d-md-block" href="#">
+                    <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort" id="logo" height="150" width="130">
+                </a>
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
+    <!-- First Page -->
+    <section id="home">
+        <div class="smoke"></div>
+        <!-- Hero Section with Background -->
+        <div class="hero vh-100 d-flex flex-column justify-content-center align-items-center text-center text-light position-relative"
+            style="background: url('{{ asset('images/background.png') }}') no-repeat center; background-size: cover; overflow: hidden">
+            
+    
+            <!-- Hero Content -->
+            <div id="hero" class="container">
+                <div class="row align-items-center justify-content-center">
+                    <!-- Responsive Text Content -->
+                    <div class="col-lg-6 col-md-10 col-sm-12 text-lg-end text-center ms-auto">
+                        <div class="d-flex justify-content-center align-items-center">
+                            <h1 class="fw-bold text-white" style="font-size: 3vw; text-align: center;">WELCOME TO LELO'S</h1>
+                        </div>
+                        <p class="fw-bold" style="color:#e9ffcc; font-size: 10vw; font-weight: 900; line-height: .8; text-align: center;">RESORT</p>
+                        <h1 class="fw-bold text-white" style="font-size: 2vw; text-align: center;">DIGITAL BOOKING COMPANION</h1>
 
-        <!-- Hero Content -->
-        <div class="container text-start d-flex flex-column align-items-start">
-            <h1 class="display-4 fw-bold">LOREM IPSUM<br>DOLOR SIT AMET</h1>
-            <a href="{{ route('Reservation.Events_reservation')}}"><button class="btn btn-success mt-3">Make a Reservation</button></a>
+                        <!-- Responsive Button -->
+                        <div class="d-flex justify-content-lg-center justify-content-center mt-4">
+                            <a href="{{ route('login') }}"
+                                class="btn btn-success d-flex align-items-center gap-2 px-4 py-2 fw-bold text-white"
+                                style="border-radius: 50px; background-color: #0b573d; font-style: italic; transition: all 0.3s ease-in-out;"
+                                onmouseover="this.classList.add('animate-button'); this.classList.add('icon-move');"
+                                onmouseout="this.classList.remove('animate-button'); this.classList.remove('icon-move');">
+                                BOOK YOUR STAY
+                                <span class="d-flex align-items-center justify-content-center bg-white rounded-circle"
+                                    style="width: 1.8rem; height: 1.8rem; transition: all 0.3s ease-in-out;">
+                                    <i class="fas fa-chevron-right" style="color: #0b573d; transform: translateX(0);"></i>
+                                </span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+    <!-- Rooms section -->    
+    <section>
+    <div class="container text-center my-5">
+        <div class="position-relative py-5">
+            <div class="position-absolute top-0 bottom-0 start-0" style="width: 150px; background-color: #eaffcc; clip-path: polygon(0 0, 80% 0, 100% 100%, 0% 100%); z-index: 0;"></div>
+            <div class="position-relative bg-light-subtle">
+             <h1 class="fw-bold text-success display-5">ROOMS</h1>
+          </div>
+         <div class="position-absolute top-0 bottom-0 end-0" style="width: 150px; background-color: #eaffcc; clip-path: polygon(20% 0, 100% 0, 100% 100%, 0 100%); z-index: 0;"></div>
+          </div>
+          <p class="fst-italic text-success">Modern, clean, and comfortable spaces to rest and recharge!</p>
+        <div class="row g-4 mt-4">
+            <!-- Room 1 -->
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <img src="{{ asset('images/room1.jpg') }}" class="card-img-top" alt="Room 1">
+                    <div class="card-img-overlay d-flex align-items-end p-0">
+                        <div class="w-100 bg-success bg-opacity-75 text-white p-2 text-end fw-bold" style="font-size: 1.2rem;">
+                            Price: ₱ 3,000
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title fw-semibold">Room 1</h5>
+                    </div>
+                </div>
+            </div>
+            <!-- Room 2 -->
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <img src="{{ asset('images/room2.jpg') }}" class="card-img-top" alt="Room 2">
+                    <div class="card-img-overlay d-flex align-items-end p-0">
+                        <div class="w-100 bg-success bg-opacity-75 text-white p-2 text-end fw-bold" style="font-size: 1.2rem;">
+                            Price: ₱ 3,000
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title fw-semibold">Room 2</h5>
+                    </div>
+                </div>
+            </div>
+            <!-- Room 3 -->
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <img src="{{ asset('images/room3.jpg') }}" class="card-img-top" alt="Room 3">
+                    <div class="card-img-overlay d-flex align-items-end p-0">
+                        <div class="w-100 bg-success bg-opacity-75 text-white p-2 text-end fw-bold" style="font-size: 1.2rem;">
+                            Price: ₱ 3,000
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title fw-semibold">Room 3</h5>
+                    </div>
+                </div>
+            </div>
+            <!-- Room 4 -->
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <img src="{{ asset('images/room4.jpg') }}" class="card-img-top" alt="Room 4">
+                    <div class="card-img-overlay d-flex align-items-end p-0">
+                        <div class="w-100 bg-success bg-opacity-75 text-white p-2 text-end fw-bold" style="font-size: 1.2rem;">
+                            Price: ₱ 3,000
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title fw-semibold">Room 4</h5>
+                    </div>
+                </div>
+            </div>
+            <!-- Room 5 -->
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <img src="{{ asset('images/room5.jpg') }}" class="card-img-top" alt="Room 5">
+                    <div class="card-img-overlay d-flex align-items-end p-0">
+                        <div class="w-100 bg-success bg-opacity-75 text-white p-2 text-end fw-bold" style="font-size: 1.2rem;">
+                            Price: ₱ 3,000
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title fw-semibold">Room 5</h5>
+                    </div>
+                </div>
+            </div>
+            <!-- Room 6 -->
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <img src="{{ asset('images/room6.jpg') }}" class="card-img-top" alt="Room 6">
+                    <div class="card-img-overlay d-flex align-items-end p-0">
+                        <div class="w-100 bg-success bg-opacity-75 text-white p-2 text-end fw-bold" style="font-size: 1.2rem;">
+                            Price: ₱ 3,000
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title fw-semibold">Room 6</h5>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     </section>
-<!-- Welcome Section -->
-<section id="about" class="py-5" style="background-color: #E5F9DB;">
-    <div class="container">
-        <div class="row align-items-center">
-            <!-- Text Content -->
-            <div class="col-md-6">
-                <div class="d-flex align-items-center">
-                    <!-- First Heading -->
-                    <h2 class="display-7 text-center text-md-start ms-4 mt-3">Welcome to</h2>
 
-                    <!-- Second Heading with larger font weight -->
-                    <h2 class="display-4 fw-bold text-center text-md-start ms-3">Lelo’s Resort</h2>
-                </div>
 
-                <!-- Paragraph -->
-                <div class="d-flex flex-column align-items-center justify-content-center text-center me-5">
-                    <p class="lead text-md-end text-secondary me-5">
-                        Relax and unwind at Lelo’s Resort, where
-                        comfort and peace come together. Enjoy 
-                        beautiful views, great amenities, and friendly 
-                        service. Booking your stay is quick and easy with
-                        our simple reservation system!
-                    </p>
-                </div>
-            </div>
-
-            <!-- Image Content -->
-            <div class="col-md-6">
-                <img src="{{ asset('images/hotelpic.jpg') }}" class="img-fluid rounded" alt="Welcome Image">
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Activities Section -->
-<section class="py-5" style="background-color: #E5F9DB;">
-    <div class="container">
-        <h2 class="fw-bold text-center mb-4">ACTIVITIES</h2>
-        <div class="row text-center">
+    <!-- cottage section -->     
+    <section>
+    <div class="container text-center my-5">
+        <div class="position-relative py-5">
+            <div class="position-absolute top-0 bottom-0 start-0" style="width: 150px; background-color: #eaffcc; clip-path: polygon(0 0, 80% 0, 100% 100%, 0% 100%); z-index: 0;"></div>
+            <div class="position-relative bg-light-subtle">
+             <h1 class="fw-bold text-success display-5">ROOMS</h1>
+          </div>
+         <div class="position-absolute top-0 bottom-0 end-0" style="width: 150px; background-color: #eaffcc; clip-path: polygon(20% 0, 100% 0, 100% 100%, 0 100%); z-index: 0;"></div>
+          </div>
+          <p class="fst-italic text-success">Modern, clean, and comfortable spaces to rest and recharge!</p>
+        <div class="row g-4 mt-4">
+            <!-- Room 1 -->
             <div class="col-md-4">
-                <div class="card bg-dark text-white">
-                    <img src="{{ asset('images/hotelpic.jpg') }}" class="card-img activity-img" alt="Swimming">
-                    <div class="card-img-overlay d-flex flex-column justify-content-end">
-                        <h4 class="fw-bold">Swimming</h4>
-                        <p class="small">Enjoy a refreshing swim in our pool or natural water spots.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card bg-dark text-white">
-                    <img src="{{ asset('images/hotelpic.jpg') }}" class="card-img activity-img" alt="Camping">
-                    <div class="card-img-overlay d-flex flex-column justify-content-end">
-                        <h4 class="fw-bold">Camping</h4>
-                        <p class="small">Experience nature up close with our camping facilities.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card bg-dark text-white">
-                    <img src="{{ asset('images/hotelpic.jpg') }}" class="card-img activity-img" alt="Hiking">
-                    <div class="card-img-overlay d-flex flex-column justify-content-end">
-                        <h4 class="fw-bold">Hiking</h4>
-                        <p class="small">Explore scenic trails with breathtaking views.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Customer Testimonials -->
-<section class="py-5" style="background-color: #E5F9DB;">
-    <div class="container">
-        <div class="card shadow-lg rounded-4 p-4" style="background-color: #97A97C;"> <!-- Changed card background color -->
-        <h2 class="fw-bold text-center position-relative" style="top: 70px;">What Our Customers Say?</h2>
-            <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel">
-                <!-- Carousel Indicators -->
-                <div class="carousel-indicators">
-                    <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="0" class="active" aria-current="true"></button>
-                    <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="1"></button>
-                </div>
-
-                <div class="carousel-inner">
-                    <div class="carousel-item active">
-                        <div class="row align-items-center">
-                            <div class="col-md-4 text-center">
-                                <img src="{{ asset('images/hotelpic.jpg') }}" class="testimonial-img" alt="Customer Review">
-                            </div>
-                            <div class="col-md-8">
-                                <p class="lead">"An amazing experience! The staff was so friendly, and the views were breathtaking. Highly recommended!"</p>
-                                <p class="fw-bold">- Jobert</p>
-                            </div>
+                <div class="card h-100 shadow-sm">
+                    <img src="{{ asset('images/room1.jpg') }}" class="card-img-top" alt="Room 1">
+                    <div class="card-img-overlay d-flex align-items-end p-0">
+                        <div class="w-100 bg-success bg-opacity-75 text-white p-2 text-end fw-bold" style="font-size: 1.2rem;">
+                            Price: ₱ 3,000
                         </div>
                     </div>
-                    <div class="carousel-item">
-                        <div class="row align-items-center">
-                            <div class="col-md-4 text-center">
-                                <img src="{{ asset('images/hotelpic.jpg') }}" class="testimonial-img" alt="Customer Review">
-                            </div>
-                            <div class="col-md-8">
-                                <p class="lead">"The best getaway I’ve had in years. Everything was perfect from the rooms to the activities."</p>
-                                <p class="fw-bold">- Maria</p>
-                            </div>
-                        </div>
+                    <div class="card-body">
+                        <h5 class="card-title fw-semibold">Room 1</h5>
                     </div>
                 </div>
-
-                <!-- Carousel Controls -->
-                <button class="carousel-control-prev" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon"></span>
-                </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="next">
-                    <span class="carousel-control-next-icon"></span>
-                </button>
+            </div>
+            <!-- Room 2 -->
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <img src="{{ asset('images/room2.jpg') }}" class="card-img-top" alt="Room 2">
+                    <div class="card-img-overlay d-flex align-items-end p-0">
+                        <div class="w-100 bg-success bg-opacity-75 text-white p-2 text-end fw-bold" style="font-size: 1.2rem;">
+                            Price: ₱ 3,000
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title fw-semibold">Room 2</h5>
+                    </div>
+                </div>
+            </div>
+            <!-- Room 3 -->
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <img src="{{ asset('images/room3.jpg') }}" class="card-img-top" alt="Room 3">
+                    <div class="card-img-overlay d-flex align-items-end p-0">
+                        <div class="w-100 bg-success bg-opacity-75 text-white p-2 text-end fw-bold" style="font-size: 1.2rem;">
+                            Price: ₱ 3,000
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title fw-semibold">Room 3</h5>
+                    </div>
+                </div>
+            </div>
+            <!-- Room 4 -->
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <img src="{{ asset('images/room4.jpg') }}" class="card-img-top" alt="Room 4">
+                    <div class="card-img-overlay d-flex align-items-end p-0">
+                        <div class="w-100 bg-success bg-opacity-75 text-white p-2 text-end fw-bold" style="font-size: 1.2rem;">
+                            Price: ₱ 3,000
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title fw-semibold">Room 4</h5>
+                    </div>
+                </div>
+            </div>
+            <!-- Room 5 -->
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <img src="{{ asset('images/room5.jpg') }}" class="card-img-top" alt="Room 5">
+                    <div class="card-img-overlay d-flex align-items-end p-0">
+                        <div class="w-100 bg-success bg-opacity-75 text-white p-2 text-end fw-bold" style="font-size: 1.2rem;">
+                            Price: ₱ 3,000
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title fw-semibold">Room 5</h5>
+                    </div>
+                </div>
+            </div>
+            <!-- Room 6 -->
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <img src="{{ asset('images/room6.jpg') }}" class="card-img-top" alt="Room 6">
+                    <div class="card-img-overlay d-flex align-items-end p-0">
+                        <div class="w-100 bg-success bg-opacity-75 text-white p-2 text-end fw-bold" style="font-size: 1.2rem;">
+                            Price: ₱ 3,000
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title fw-semibold">Room 6</h5>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</section>
+    </section>
 
-<!-- Footer Section -->
-<footer class="py-5" style="background-color: #6B8E6B; color: white;">
+
+     <!-- footer section -->                                   
+    <footer style="background-color: #0b573d; height: auto; padding: 20px;">
     <div class="container">
-        <div class="row d-flex justify-content-between align-items-center">
-            <!-- Logo and Map Section -->
-            <div class="col-md-4">
-                <h4 class="fw-bold fs-1">LOGO NAME</h4>
-                <!-- Map Image Below the Logo Name -->
-                <div class="mt-3">
-                    <img src="{{ asset('images/map.png') }}" class="img-fluid" alt="Map" style="max-width: 110%; height: auto;">
-                </div>
+        <div class="row">
+            <!-- Left Side: Smaller App Icon -->
+            <div class="col-md-6 d-flex justify-content-start align-items-center">
+                <img src="{{ asset('images/appicon.png') }}" class="img-fluid" alt="App Icon" style="height: 100px;">
             </div>
-            <!-- Terms, Privacy Policy, and Facebook Icon Section with Custom Gap -->
-            <div class="d-flex justify-content-end align-items-center custom-gap custom-move">
-                <a href="#" class="text-white text-decoration-none fs-5 fw-bold">Terms of Service</a>
-                <a href="#" class="text-white text-decoration-none fs-5 fw-bold">Privacy Policy</a>
-                <a href="#" class="text-black fs-1 fw-bold"><i class="bi bi-facebook"></i></a>
+
+            <!-- Right Side: Facebook Link -->
+            <div class="col-md-6 d-flex justify-content-end align-items-center">
+                <a href="https://www.facebook.com/lelosmountainresort" target="_blank" class="text-white fs-6 text-center">
+                    <i style="color: #0a66c2" class="bi bi-facebook fs-3"></i>
+                </a>
             </div>
-            <!-- Contact Info Section -->
-            <div class="col-md-3 text-white align-items-center custom-move-b custom-mt-5">
-                <p><strong>Phone:</strong> +123 456 7890</p>
-                <p><strong>Email:</strong> contact@yourdomain.com</p>
-                <p><strong>Address:</strong> 123 Street Name, City, Country</p>
-            </div>
-        </div> <!-- Closing the row div -->
-    </div> <!-- Closing the container div -->
+        </div>
+    </div>
 </footer>
+
+
 </body>
 </html> 

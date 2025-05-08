@@ -15,6 +15,7 @@ use App\Http\Controllers\SignUpController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\Admin\RoomController;
+use App\Http\Controllers\FrontendController;
 
 /*
 |--------------------------------------------------------------------------
@@ -87,6 +88,9 @@ Route::post('/signup/send-otp', [SignUpController::class, 'sendOTP'])->name('sig
 Route::post('/signup/verify-otp', [SignUpController::class, 'verifyOTP'])->name('signup.verifyOTP');
 /*Landing page/index */
 Route::get('/', [LandingPageController::class, 'index'])->name('landingpage');
+
+/*homepage*/
+Route::get('/homepage', [FrontendController::class, 'homepage']);
 
 
 Route::get('/profile', [HomePageController::class, 'profilepage'])->name('profile');
