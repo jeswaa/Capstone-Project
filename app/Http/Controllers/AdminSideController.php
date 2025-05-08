@@ -16,6 +16,7 @@ use App\Models\Reservation;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\TransactionsExport;
+use Illuminate\Support\Facades\Log;
 
 
 class AdminSideController extends Controller
@@ -99,20 +100,35 @@ class AdminSideController extends Controller
     public function banGuest($id)
     {
         try {
-            // Update user status to banned
+            // Check if user is already banned
+            $user = DB::table('users')->where('id', $id)->first();
+            
+            if ($user->status === 'banned') {
+                return redirect()->back()->with('info', 'User is already banned.');
+            }
+
+            // Update user status to banned and invalidate any active sessions
             DB::table('users')
                 ->where('id', $id)
                 ->update([
                     'status' => 'banned',
-                    'updated_at' => now()
+                    'updated_at' => now(),
+                    'remember_token' => null, // Invalidate remember me token
+                    'email_verified_at' => null // Invalidate email verification
                 ]);
 
-            return redirect()->back()->with('success', 'Guest has been banned successfully.');
+            // Log the ban action
+            $this->recordActivity("Banned user: {$user->name} (ID: {$user->id})");
+
+            return redirect()->back()->with('success', 'Guest has been banned successfully and their account has been disabled.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Failed to ban guest. Please try again.');
         }
     }
     public function guests(){
+        // Record activity log for accessing guests page
+        $this->recordActivity('Accessed guests management page');
+
         // Get upcoming reservations count
         $upcomingReservations = DB::table('reservation_details')
             ->whereDate('reservation_check_in_date', '>', Carbon::today()->endOfDay())
@@ -176,6 +192,9 @@ class AdminSideController extends Controller
             ->where('reservation_status', 'reserved')
             ->orderBy('reservation_check_in_date', 'asc')
             ->get();
+
+        // Record activity log with summary statistics
+        $this->recordActivity("Viewed guest list - Total Guests: $totalGuests, Upcoming Reservations: $upcomingReservations, Checked-in: $checkedInReservations");
             
         // Return view with all data
         return view('AdminSide.Guest', compact(
@@ -738,6 +757,10 @@ public function login(Request $request) {
             ->limit(4)
             ->get();
 
+        // Get all transaction data
+        $transactions = DB::table('transaction')
+            ->get();
+        
         return view('AdminSide.Transactions', [
             'chartLabels' => json_encode($chartLabels),
             'chartValues' => json_encode($chartValues),
@@ -747,15 +770,83 @@ public function login(Request $request) {
             'availableYears' => $availableYears,
             'pendingPayments' => $pendingPayments,
             'reservationDetails' => $reservationDetails,
+            'transactions' => $transactions,
         ]);
     }
-    public function updatePrice(Request $request)
-    {
-        $request->validate(['entrance_fee' => 'required']);
+public function updatePrice(Request $request)
+{
+    \Log::info('Update Price Request:', $request->all());
+    
+    try {
+        $request->validate([
+            'entrance_fee' => 'required',
+            'type' => 'required|string',
+            'age_range' => 'required|string', 
+            'start_time' => 'required|string',
+            'end_time' => 'required|string',
+            'fee_id' => 'required|integer',
+            'session' => 'required|string'
+        ]);
+
+        $fee = Transaction::findOrFail($request->fee_id);
+        \Log::info('Found Fee:', ['fee' => $fee]);
         
-        Transaction::first()->update(['entrance_fee' => $request->entrance_fee]);
+        $fee->update([
+            'entrance_fee' => $request->entrance_fee,
+            'type' => $request->type,
+            'age_range' => $request->age_range,
+            'start_time' => $request->start_time,
+            'end_time' => $request->end_time,
+            'session' => $request->session
+        ]);
+        
+        \Log::info('Updated Fee:', ['fee' => $fee]);
         return redirect()->route('transactions')->with('success', 'Entrance fee updated successfully!');
+        
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        \Log::error('Fee not found:', ['fee_id' => $request->fee_id]);
+        return redirect()->route('transactions')->with('error', 'Fee record not found');
+    } catch (\Exception $e) {
+        \Log::error('Update Error:', ['error' => $e->getMessage()]);
+        return redirect()->route('transactions')->with('error', 'Failed to update: ' . $e->getMessage());
     }
+}
+public function addPrice(Request $request)
+{
+    
+    // Validate the request
+    $request->validate([
+        'type' => 'required|string',
+        'entrance_fee' => 'required|numeric|min:0',
+        'age_range' => 'required|string',
+        'session' => 'required|string',
+        'start_time' => 'required|date_format:H:i',
+        'end_time' => 'required|date_format:H:i|after:start_time'
+    ]);
+
+    try {
+        // Insert new price adjustment
+        DB::table('transaction')->insert([
+            'type' => $request->type,
+            'entrance_fee' => $request->entrance_fee,
+            'age_range' => $request->age_range,
+            'session' => $request->session,
+            'start_time' => $request->start_time,
+            'end_time' => $request->end_time,
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        // Log the activity
+        $this->recordActivity("Added entrance fee adjustment for {$request->type}");
+
+        return back()->with('success', 'Entrance fee added successfully');
+
+    } catch (\Exception $e) {
+        return back()->with('error', 'Failed to add entrance fee adjustment: ' . $e->getMessage());
+    }
+}
+
 
     public function addPackages(Request $request)
 {
@@ -1204,5 +1295,160 @@ public function packages()
         return redirect()->route('addOns')->with('success', 'Add-on deleted successfully!');
     }
 
+public function ActivityLogs(Request $request)
+{
+    // Get distinct roles from activity_logs table
+    $roles = DB::table('activity_logs')
+        ->select('role')
+        ->distinct()
+        ->pluck('role');
 
+    $query = DB::table('activity_logs')
+        ->orderBy('date', 'desc')
+        ->orderBy('time', 'desc');
+
+    // Date range filter
+    if ($request->filled('start_date')) {
+        $query->where('date', '>=', $request->start_date);
+    }
+    if ($request->filled('end_date')) {
+        $query->where('date', '<=', $request->end_date);
+    }
+
+    // Role filter using roles from database
+    if ($request->filled('role')) {
+        $query->where('role', $request->role);
+    }
+
+    // Search filter
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $query->where(function($q) use ($search) {
+            $q->where('activity', 'LIKE', "%{$search}%")
+              ->orWhere('user', 'LIKE', "%{$search}%");
+        });
+    }
+
+    $activityLogs = $query->paginate(10)->withQueryString();
+
+    return view('AdminSide.ActivityLogs', compact('activityLogs', 'roles'));
+}
+
+    // Helper function to record new activity logs
+public function recordActivity($activity)
+{
+    // Get current admin info from session
+    $adminId = session('AdminLogin');
+    $admin = DB::table('admintbl')->where('id', $adminId)->first();
+    
+    // Insert activity log
+    DB::table('activity_logs')->insert([
+        'date' => now()->toDateString(),
+        'time' => now()->toTimeString(),
+        'user' => $admin ? $admin->username : 'System',
+        'role' => 'Admin', // Since this is for admin table
+        'activity' => $activity,
+        'created_at' => now(),
+        'updated_at' => now()
+    ]);
+}
+public function UserAccountRoles()
+{
+    // Get all staff accounts from stafftbl
+// Get all staff accounts with pagination and search functionality
+$query = DB::table('stafftbl')
+    ->select('id', 'username','password', 'status', 'created_at', 'updated_at');
+
+// Apply search filter if provided
+if (request()->has('search')) {
+    $search = request()->search;
+    $query->where('username', 'LIKE', "%{$search}%");
+}
+
+// Apply status filter if provided
+if (request()->has('status')) {
+    $query->where('status', request()->status);
+}
+
+$staffAccounts = $query
+    ->orderBy('created_at', 'desc')
+    ->paginate(10)
+    ->withQueryString();
+
+    // Pass staff accounts data to the view
+    return view('AdminSide.AccountCreation', [
+        'staffAccounts' => $staffAccounts
+    ]);
+}
+    
+public function addUser(Request $request)
+{
+    // Validate the request
+    $request->validate([
+        'username' => 'required|string|max:255|unique:stafftbl',
+        'password' => 'required|string|min:6',
+        'status' => 'required|string'
+    ]);
+
+    try {
+        // Create new staff record
+        DB::table('stafftbl')->insert([
+            'username' => $request->username,
+            'password' => Hash::make($request->password), // Hash the password
+            'status' => $request->status,
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        // Record the activity
+        $this->recordActivity("Created new {$request->role} account: {$request->username}");
+
+        return redirect()->route('userAccountRoles')->with('success', 'User account created successfully!');
+    } catch (\Exception $e) {
+        return redirect()->route('userAccountRoles')->with('error', 'Failed to create user account. Please try again.');
+    }
+}
+public function updateUser(Request $request, $id)
+{
+    // Validate the request
+    $request->validate([
+        'username' => 'required|string|max:255|unique:stafftbl,username,'.$id,
+        'password' => 'nullable|string|min:6',
+        'status' => 'required|string'
+    ]);
+
+    try {
+        // Get current user data
+        $user = DB::table('stafftbl')->where('id', $id)->first();
+        if (!$user) {
+            return redirect()->route('userAccountRoles')->with('error', 'User not found.');
+        }
+
+        // Prepare update data
+        $updateData = [
+            'username' => $request->username,
+            'status' => $request->status,
+            'updated_at' => now()
+        ];
+
+        // Only update password if provided
+        if ($request->filled('password')) {
+            $updateData['password'] = Hash::make($request->password);
+        }
+
+        // Update user record
+        DB::table('stafftbl')
+            ->where('id', $id)
+            ->update($updateData);
+
+        // Record the activity
+        $this->recordActivity("Updated user account: {$request->username}");
+
+        return redirect()->route('userAccountRoles')->with('success', 'User account updated successfully!');
+    } catch (\Exception $e) {
+        return redirect()->route('userAccountRoles')->with('error', 'Failed to update user account. Please try again.');
+    }
+}
+
+    
 }

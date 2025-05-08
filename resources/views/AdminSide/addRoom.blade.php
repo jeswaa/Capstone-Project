@@ -67,9 +67,9 @@
                     <a class="text-white text-decoration-none d-flex align-items-center dropdown-toggle" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fas fa-chart-line me-2 fs-5 text-underline-left-to-right"></i> Reports
                     </a>
-                    <ul class="dropdown-menu" aria-labelledby="reportsDropdown">
+                    <ul class="dropdown-menu " aria-labelledby="reportsDropdown">
                         <li><a class="dropdown-item" href="{{ route('reports') }}">Summary Report</a></li>
-                        <li><a class="dropdown-item" href="#">Activity Logs</a></li>
+                        <li><a class="dropdown-item" href="{{ route('activityLogs') }}">Activity Logs</a></li>
                     </ul>
                 </div>
 

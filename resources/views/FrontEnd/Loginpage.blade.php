@@ -100,6 +100,10 @@
         filter: FlipH;
         -ms-filter: "FlipH";
     }
+    #passwordFields {
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+    }
         @keyframes fadeOut {
             from {
                 opacity: 1;
@@ -166,7 +170,7 @@
                     @csrf
                     <div class="mb-4">
                         <input id="userCredential" type="text" class="form-control @error('credential') is-invalid @enderror p-3" 
-                            name="credential" placeholder="Email or Username..." required>
+                            name="credential" placeholder="Email..." required>
                         @error('credential')
                             <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
                         @enderror
@@ -1142,6 +1146,29 @@ document.getElementById('resendOTP').addEventListener('click', resendOTP);
 // Start initial timer when OTP is first sent
 startResendTimer();
 
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const otpInput = document.getElementById('otp');
+    const passwordFields = document.getElementById('passwordFields');
+    
+    // Listen for input in OTP field
+    otpInput.addEventListener('input', function() {
+        // Check if OTP has 6 digits
+        if (this.value.length === 6) {
+            // Show password fields with fade-in animation
+            passwordFields.style.display = 'block';
+            passwordFields.style.opacity = '0';
+            setTimeout(() => {
+                passwordFields.style.opacity = '1';
+                passwordFields.style.transition = 'opacity 0.3s ease-in-out';
+            }, 50);
+        } else {
+            // Hide password fields if OTP is incomplete
+            passwordFields.style.display = 'none';
+        }
+    });
+});
 </script>
 </body>
 </html>

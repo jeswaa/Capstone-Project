@@ -19,7 +19,7 @@
 
             <div class="container-fluid min-vh-100 d-flex p-0">
                 <!-- Sidebar -->
-                <div class="col-md-3 col-lg-2 color-background8 text-white py-5 position-sticky" style="top: 0; height: 100vh;">
+                <div class="col-md-3 col-lg-2 color-background8 text-white py-5 position-sticky" style="top: 0; height: 100vh; background-color: #0b573d">
                     <div class="d-flex flex-column align-items-center">
                         <img src="{{ asset('images/default-profile.jpg') }}" alt="Profile Picture" class="rounded-circle w-50 mb-3 border border-5 border-white">
                         <p class="font-heading sidebar-text" data-bs-toggle="modal" data-bs-target="#editProfileModal" style="cursor: pointer;">Edit Profile</p>
@@ -45,7 +45,7 @@
                             </a>
                             <ul class="dropdown-menu " aria-labelledby="reportsDropdown">
                                 <li><a class="dropdown-item" href="{{ route('reports') }}">Summary Report</a></li>
-                                <li><a class="dropdown-item" href="#">Activity Logs</a></li>
+                                <li><a class="dropdown-item" href="{{ route('activityLogs') }}">Activity Logs</a></li>
                             </ul>
                         </div>
 

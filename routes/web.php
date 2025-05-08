@@ -57,8 +57,13 @@ Route::middleware(['isAdmin'])->group(function () {
     Route::get('/transactions', [AdminSideController::class, 'editPrice'])->name('transactions');
     Route::get('/export-excel', [AdminSideController::class, 'exportExcel'])->name('transactions.export.excel');
     Route::get('/export-pdf', [AdminSideController::class, 'exportPDF'])->name('transactions.export.pdf');
+    Route::post('/transactions/add-price', [AdminSideController::class, 'addPrice'])->name('addPrice');
     Route::post('/transactions/update-entrance-fee', [AdminSideController::class, 'updatePrice'])->name('updatePrice');
     Route::get('reports', [AdminSideController::class, 'reports'])->name('reports');
+    Route::get('/activity-logs', [AdminSideController::class, 'activityLogs'])->name('activityLogs');
+    Route::get('/user-account-roles', [AdminSideController::class, 'UserAccountRoles'])->name('userAccountRoles');
+    Route::post('/add-user', [AdminSideController::class, 'addUser'])->name('addUser');
+    Route::put('/update-user/{id}', [AdminSideController::class, 'updateUser'])->name('updateUser');
     Route::get('/admin/settings', [AdminSideController::class, 'showForm'])->name('admin.settings');
     Route::post('/admin/settings/update', [AdminSideController::class, 'updateEmail'])->name('admin.settings.update');
     Route::get('/logout', [AdminSideController::class, 'logout'])->name('logout');
@@ -105,6 +110,7 @@ Route::get('/reservation/display-summary', [ReservationController::class, 'displ
 // Display the credentials of the login user
 Route::post('/reservation-personal', [ReservationController::class, 'fetchUserData'])->name('fetchUserData');
 Route::post('/reservation/personal-details', [ReservationController::class, 'saveReservationDetails'])->name('saveReservationDetails');
+Route::get('/get-session-times', [ReservationController::class, 'getSessionTimes']);
 Route::post('/reservation/select-package-details', [ReservationController::class, 'StayInPackages'])->name('savePackageSelection');
 Route::post('/reservation/select-fix-package-details', [ReservationController::class, 'OnedayStay'])->name('fixPackagesSelection');
 Route::post('/reservation/save-payment-process', [ReservationController::class, 'savePaymentProcess'])->name('savePaymentProcess');
