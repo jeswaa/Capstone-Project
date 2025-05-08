@@ -13,87 +13,41 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <style>
-    body {
-        background:
-            url("{{ asset('images/Screenshot.png') }}") no-repeat center top,
-            url("{{ asset('images/logosheesh.png') }}") no-repeat center bottom;
-        background-size: 100% 40%, 100% 70%;
-        /* 30% taas, 70% baba */
-        background-attachment: fixed, fixed;
-        /* Para hindi gumalaw habang nag-scroll */
-        position: relative;
-        height: 100vh;
-        margin: 0;
-    }
-
-    body::before {
-        content: "";
-        position: fixed;
-        top: 10%;
-        /* Aligns with the bottom of the top section */
-        left: 0;
-        width: 100%;
-        height: 30%;
-        /* Covers the top section */
-        background: linear-gradient(to top, rgba(0, 93, 59, 0.8), transparent);
-        /* Green smoke effect */
-        pointer-events: none;
-        z-index: 0;
-    }
-
-    /* White Overlay for Bottom Background */
-    body::after {
-        content: "";
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 60%;
-        /* Covers the bottom background */
-        background: rgba(255, 255, 255, 0.8);
-        /* White overlay */
-        pointer-events: none;
-        z-index: -1;
-    }
 </style>
 
-<nav class="navbar navbar-expand-lg  position-absolute top-0 w-100" style="z-index: 10;">
-    <div class="container">
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link fw-semibold text-uppercase text-underline-left-to-right me-4"
-                        style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#home">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link fw-semibold text-uppercase text-underline-left-to-right me-4"
-                        style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#about">About</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link fw-semibold text-uppercase text-underline-left-to-right me-4"
-                        style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#reviews">Review</a>
-                </li>
-            </ul>
-            <a href="{{ route('login') }}"
-                class="me-3 text-color-2 fs-5 p-2 text-decoration-none fw-semibold text-uppercase text-underline-left-to-right"
-                style="font-family: 'Josefin Sans', sans-serif;">Login</a>
-            <a class="navbar-brand d-none d-md-block" href="#">
-                <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort" id="logo" height="150" width="130">
-            </a>
+<body
+    style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
+    <nav class="navbar navbar-expand-lg  position-absolute top-0 w-100" style="z-index: 10;">
+        <div class="container">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link fw-semibold text-uppercase text-underline-left-to-right me-4"
+                            style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#home">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link fw-semibold text-uppercase text-underline-left-to-right me-4"
+                            style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#about">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link fw-semibold text-uppercase text-underline-left-to-right me-4"
+                            style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#reviews">Review</a>
+                    </li>
+                </ul>
+                <a href="{{ route('login') }}"
+                    class="me-3 text-color-2 fs-5 p-2 text-decoration-none fw-semibold text-uppercase text-underline-left-to-right"
+                    style="font-family: 'Josefin Sans', sans-serif;">Login</a>
+                <a class="navbar-brand d-none d-md-block" href="#">
+                    <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort" id="logo" height="150" width="130">
+                </a>
+            </div>
         </div>
-    </div>
-</nav>
-<!-- Background Banner -->
-<div class="container-fluid position-relative p-0 mb-n5">
-    <div class="d-flex justify-content-start align-items-start">
-        <a href="{{ route('calendar') }}" class="m-3 mt-5">
-            <i class="text-color-1 fa-2x fa-circle-left fa-solid icon icon-hover color-3"></i>
-        </a>
-    </div>
+    </nav>
 
     <!-- Flash Messages -->
     <div class="position-fixed top-0 end-0 p-3" style="z-index: 9999;">
@@ -193,11 +147,18 @@
     </div>
 
     <!-- Main Layout: Profile & Reservation Section -->
-    <div class="container mt-1 mt-n3 position-relative">
+    <div class="container mt-1 mt-n3 position-relative ms-0 ">
         <div class="row justify-content-center">
             <!-- Profile Card -->
             <div class="col-md-4">
-                <div class="p-4 shadow bg rounded-4 text-center text-white color-background8 h-100">
+                <div class="p-4 shadow bg text-center text-white color-background8 h-100">
+                    <!-- Back Arrow -->
+                    <div class="d-flex justify-content-start align-items-start mb-3">
+                        <a href="{{ route('calendar') }}" class="text-decoration-none">
+                            <i class="text-color-1 fa-2x fa-circle-left fa-solid icon icon-hover color-3"></i>
+                        </a>
+                    </div>
+
                     <!-- Profile Image -->
                     <div class="d-flex justify-content-center">
                         <div class="rounded-circle border border-white overflow-hidden w-150px h-150px">
@@ -229,82 +190,91 @@
                 </div>
             </div>
 
-            <div class="col-md-8">
+            <div class="col-md-8 mt-8 mt-md-10 mt-lg-12" style="margin-top: 8rem !important;">
                 <div>
                     <p class="fw-bold text-start display-4"><span class="text-white fs-1">Hello,<br></span><span
-                            class="color-3">{{ $user->name }}</span></p>
+                            class="text-color-2">{{ $user->name }}</span></p>
                 </div>
-                <div class="p-4 shadow bg rounded-4 text-white color-background8 mt-5">
+                <div class="p-4 shadow text-white background-color mt-5">
                     <!-- Navigation Tabs -->
                     <ul class="nav nav-tabs">
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="#"
-                                onclick="toggleHistory(event, 'reservation-list-section')">Reservation</a>
+                            <a class="nav-link active" href="#" id="reservation-tab"
+                                onclick="toggleTab(event, 'reservation-list-section', 'reservation-tab', 'history-tab')"
+                                style="background-color: #0b573d; color: white;">Reservation</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="#"
-                                onclick="toggleHistory(event, 'history-section')">History</a>
+                            <a class="nav-link" href="#" id="history-tab"
+                                onclick="toggleTab(event, 'history-section', 'history-tab', 'reservation-tab')"
+                                style="background-color: white; color: #0b573d;">History</a>
                         </li>
                     </ul>
+
+                    <script>
+                        function toggleTab(event, sectionToShow, activeTabId, inactiveTabId) {
+                            event.preventDefault();
+
+                            // Toggle sections visibility
+                            document.getElementById('reservation-list-section').style.display = 'none';
+                            document.getElementById('history-section').style.display = 'none';
+                            document.getElementById(sectionToShow).style.display = 'block';
+
+                            // Toggle tab styles
+                            document.getElementById(activeTabId).style.backgroundColor = '#0b573d';
+                            document.getElementById(activeTabId).style.color = 'white';
+                            document.getElementById(inactiveTabId).style.backgroundColor = 'white';
+                            document.getElementById(inactiveTabId).style.color = '#0b573d';
+                        }
+                    </script>
 
 
                     <!-- Reservation List -->
                     <section id="reservation-list-section">
-                        <h5 class="mb-3 fw-bold">YOUR CURRENT RESERVATION</h5>
+                        <h5 class="mb-4 fw-bold text-color-2 border-bottom pb-2">YOUR CURRENT RESERVATION</h5>
                         @if ($latestReservation && $latestReservation->payment_status !== 'cancelled')
                             <div class="row">
-                                <div class="col-md-8">
-                                    <div class="card mb-4 shadow-sm">
-                                        <div class="card-body fw-bold">
-                                            <p>
-                                                <strong class="me-5">Room Type:</strong>
-                                                <span class="d-inline-block ms-4">
+                                <div class="col-12">
+                                    <div class="border-0 mb-4" style="background: transparent;">
+                                        <div class="fw-bold text-color-2">
+                                            <div class="d-flex align-items-center mb-3">
+                                                <p class="mb-0"><strong>Status:</strong></p>
+                                                <span class="badge ms-2 @if($latestReservation->payment_status == 'paid') bg-success 
+                                                @elseif($latestReservation->payment_status == 'pending') bg-warning 
+                                                @elseif($latestReservation->payment_status == 'booked') bg-primary
+                                                @else bg-danger @endif">
+                                                    {{ $latestReservation->payment_status }}
+                                                </span>
+                                            </div>
+                                            <div class="row mb-2">
+                                                <div class="col-4"><strong>Room Type</strong></div>
+                                                <div class="col-8">
                                                     @foreach($accommodations as $accommodation) {{ $accommodation }}
                                                     @endforeach
-                                                </span>
-                                            </p>
-                                            <p>
-                                                <strong class="me-5">Check-in:</strong>
-                                                <span class="d-inline-block ms-4">
-                                                    {{ $latestReservation->reservation_check_in }} -
-                                                    {{ $latestReservation->reservation_check_out }}
-                                                </span>
-                                            </p>
-                                            <p>
-                                                <strong class="me-2">Check-in Date:</strong>
-                                                <span class="d-inline-block ms-4">
-                                                    {{ \Carbon\Carbon::parse($latestReservation->reservation_check_in_date)->format('F j, Y') }}
-                                                </span>
-                                            </p>
-                                            <p>
-                                                <strong class="me-1">Special Request:</strong>
-                                                <span class="d-inline-block ms-4">
-                                                    {{ $latestReservation->special_request ?? 'None' }}
-                                                </span>
-                                            </p>
-                                            <p>
-                                                <strong class="me-5">Amount:</strong>
-                                                <span class="d-inline-block ms-4">
-                                                    {{ $latestReservation->amount }}
-                                                </span>
-                                            </p>
+                                                </div>
+                                            </div>
+                                            <div class="row mb-2">
+                                                <div class="col-4"><strong>Time Check-In</strong></div>
+                                                <div class="col-8">{{ $latestReservation->reservation_check_in }} - {{ $latestReservation->reservation_check_out }}</div>
+                                            </div>
+                                            <div class="row mb-2">
+                                                <div class="col-4"><strong>Date Check-In</strong></div>
+                                                <div class="col-8">{{ \Carbon\Carbon::parse($latestReservation->reservation_check_in_date)->format('F j, Y') }}</div>
+                                            </div>
+                                            <div class="row mb-2">
+                                                <div class="col-4"><strong>Special Request</strong></div>
+                                                <div class="col-8">{{ $latestReservation->special_request ?? 'None' }}</div>
+                                            </div>
+                                            <div class="row mb-4">
+                                                <div class="col-4"><strong>Balance</strong></div>
+                                                <div class="col-8">₱{{ number_format($latestReservation->amount, 2) }}</div>
+                                            </div>
+                                            <div class="text-end">
+                                                <button class="btn btn-danger px-5 py-3" style="border-radius: 5;" onclick="openCancelModal({{ $latestReservation->id }})">
+                                                    Cancel Booking
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="col-md-4 d-flex justify-content-between align-items-center">
-                                    <p><strong>Status:</strong>
-                                        <span class="badge mb-5
-                                                                   @if($latestReservation->payment_status == 'paid') bg-success 
-                                                                   @elseif($latestReservation->payment_status == 'pending') bg-warning 
-                                                                   @elseif($latestReservation->payment_status == 'booked') bg-primary
-                                                                       @else bg-danger 
-                                                                   @endif">
-                                            {{ $latestReservation->payment_status }}
-                                        </span>
-                                        <button class="btn btn-danger btn-sm mt-5"
-                                            onclick="openCancelModal({{ $latestReservation->id }})">
-                                            Cancel Reservation
-                                        </button>
                                 </div>
                             </div>
                         @else
@@ -320,12 +290,13 @@
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between">
                                         <p><strong>Status:</strong>
-                                            <span class="badge 
-                                                                            @if(isset($reservation) && $reservation->payment_status == 'paid') bg-success 
-                                                                            @elseif(isset($reservation) && $reservation->payment_status == 'pending') bg-warning 
-                                                                            @elseif(isset($reservation) && $reservation->payment_status == 'booked') bg-primary 
-                                                                                @else bg-danger 
-                                                                            @endif">
+                                            <span
+                                                class="badge 
+                                                                                                                                                                                                                                                                @if(isset($reservation) && $reservation->payment_status == 'paid') bg-success 
+                                                                                                                                                                                                                                                                @elseif(isset($reservation) && $reservation->payment_status == 'pending') bg-warning 
+                                                                                                                                                                                                                                                                @elseif(isset($reservation) && $reservation->payment_status == 'booked') bg-primary 
+                                                                                                                                                                                                                                                                    @else bg-danger 
+                                                                                                                                                                                                                                                                @endif">
                                                 {{ isset($reservation) ? $reservation->payment_status : 'N/A' }}
                                             </span>
                                         </p>
@@ -409,6 +380,6 @@
         }
     </script>
 
-    </body>
+</body>
 
 </html>
