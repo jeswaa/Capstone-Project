@@ -63,7 +63,17 @@
 .fancy-link.active::after {
     width: 100% !important;
 }
+.filter-btn {
+    transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
 </style>
+
 <body style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
 @include('Alert.loginSucess')
     <div class="container-fluid min-vh-100 d-flex p-0">
@@ -168,7 +178,6 @@
                     </form>     
                 </div>
             </div>
-
             <div id="noResultsMessage" class="alert alert-info text-center" style="display: none;">
                 No reservations found
             </div>
@@ -363,6 +372,36 @@
                     </div>
                 </div>
             </div>
+
+            <div class="mb-4 w-100">
+                <div class="btn-group w-100" role="group" aria-label="Reservation Status Filters">
+                    <a href="{{ route('staff.reservation', ['status' => 'all']) }}" 
+                    class="btn w-100 filter-btn fw-semibold"
+                    style="{{ request('status') == 'all' || !request('status') ? 'background-color: #0b573d; border: 1px solid #0b573d; color: white;' : 'background-color: transparent; border: 1px solid #0b573d; color: black;' }}">
+                        All
+                    </a>
+                    <a href="{{ route('staff.reservation', ['status' => 'pending']) }}" 
+                    class="btn w-100 filter-btn fw-semibold"
+                    style="{{ request('status') == 'pending' ? 'background-color: #0b573d; border: 1px solid #0b573d; color: white;' : 'background-color: transparent; border: 1px solid #0b573d; color: black;' }}">
+                        Pending
+                    </a>
+                    <a href="{{ route('staff.reservation', ['status' => 'reserved']) }}" 
+                    class="btn w-100 filter-btn fw-semibold"
+                    style="{{ request('status') == 'reserved' ? 'background-color: #0b573d; border: 1px solid #0b573d; color: white;' : 'background-color: transparent; border: 1px solid #0b573d; color: black;' }}">
+                        Reserved
+                    </a>
+                    <a href="{{ route('staff.reservation', ['status' => 'checked-in']) }}" 
+                    class="btn w-100 filter-btn fw-semibold"
+                    style="{{ request('status') == 'checked-in' ? 'background-color: #0b573d; border: 1px solid #0b573d; color: white;' : 'background-color: transparent; border: 1px solid #0b573d; color: black;' }}">
+                        Checked-in
+                    </a>
+                    <a href="{{ route('staff.reservation', ['status' => 'early-checked-out']) }}" 
+                    class="btn w-100 filter-btn fw-semibold"
+                    style="{{ request('status') == 'early-checked-out' ? 'background-color: #0b573d; border: 1px solid #0b573d; color: white;' : 'background-color: transparent; border: 1px solid #0b573d; color: black;' }}">
+                        Early Checked-out
+                    </a>
+                </div>
+            </div>
             <!-- Table -->
             <div class="card shadow-sm border-0 rounded-4 mb-4 mt-4 p-2">
                 <table class="table table-hover table-striped ">
@@ -460,29 +499,12 @@
                                             <form action="{{ route('staff.updateStatus', $reservation->id) }}" method="POST">
                                                 @csrf
                                                 <div class="mb-3">
-                                                    <label for="amount" class="form-label">Amount Paid</label>
-                                                    <input type="number" class="form-control" name="amount" id="amount" step="0.01" min="0" value="{{ $reservation->amount }}">
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label for="accomodation_type" class="form-label">Accommodation Name</label>
-                                                    <select class="form-select" name="accomodation_type" id="accomodation_type" aria-label="Accommodation Type">
-                                                        <option value="" disabled selected hidden>
-                                                        @php
-                                                            $roomTypeIds = json_decode($reservation->package_room_type, true);
-                                                            $roomNames = is_array($roomTypeIds) ? DB::table('accomodations')
-                                                                ->whereIn('accomodation_id', $roomTypeIds)
-                                                                ->pluck('accomodation_name')
-                                                                ->toArray() : [];
-                                                            $accommodationNames = is_array($reservation->accommodations) ? $reservation->accommodations : [];
-                                                        @endphp
-                                                        {{ count($roomNames) > 0 ? implode(', ', $roomNames) : '' }}
-                                                        {{ count($accommodationNames) > 0 ? ', ' . implode(', ', $accommodationNames) : '' }}
-                                                        </option>
-                                                        @foreach($accommodationTypes as $type)
-                                                            <option value="{{ $type->accomodation_id }}" {{ $reservation->package_room_type == $type->accomodation_id ? 'selected' : '' }}>
-                                                                {{ $type->accomodation_name }}
-                                                            </option>
-                                                        @endforeach
+                                                    <label for="reservation_status" class="form-label">Payment Status</label>
+                                                    <select class="form-select" name="payment_status" id="reservation_status" aria-label="Reservation Status">
+                                                        <option value="" disabled selected hidden>Choose payment status</option>
+                                                        <option value="paid" {{ $reservation->status == 'paid' ? 'selected' : '' }}>Paid</option>
+                                                        <option value="partial" {{ $reservation->status == 'partial' ? 'selected' : '' }}>Partial</option>
+                                                        <option value="unpaid" {{ $reservation->status == 'unpaid' ? 'selected' : '' }}>Unpaid</option>
                                                     </select>
                                                 </div>
                                                 <div class="mb-3">
@@ -548,4 +570,3 @@
     </script>
 </body>
 </html>
-

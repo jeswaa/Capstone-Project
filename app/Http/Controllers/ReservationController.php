@@ -347,6 +347,7 @@ class ReservationController extends Controller
 
 public function savePaymentProcess(Request $request)
 {
+    
     // Retrieve reservation details from session instead of database
     $reservationDetails = session('reservation_details');
 
@@ -441,6 +442,11 @@ public function savePaymentProcess(Request $request)
 
     public function displayReservationSummary()
     {
+        // Check if user is authenticated
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Please login to view your reservation summary.');
+        }
+
         $userId = Auth::user()->id;
 
         // Fetch latest reservation
@@ -450,7 +456,7 @@ public function savePaymentProcess(Request $request)
         ->select(
             'reservation_details.*',
             'packagestbl.package_name',
-            'packagestbl.package_room_type', // palitan mo ito ng package_room_type
+            'packagestbl.package_room_type',
             'packagestbl.package_max_guests',
             'packagestbl.package_activities'
         )

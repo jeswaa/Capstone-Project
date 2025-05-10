@@ -240,7 +240,7 @@
 
 
                     <button id="loginButton" type="submit" class="login-button d-flex align-items-center justify-content-center">
-                        LOG IN 
+                        <span id="loginText">LOG IN</span>
                         <span class="arrow d-flex align-items-center justify-content-center rounded-circle" style="width: 20px; height: 20px; margin-left: 10px;">
                             &rsaquo;
                         </span>
@@ -267,17 +267,82 @@
                             </div>
 
                             <!-- Body -->
-                            <div class="modal-body d-flex justify-content-center align-items-center px-4 py-3">
-                                <div style="text-align: center;">
-                                <p class="mb-3" style="font-size: 1rem; font-weight: bold;">
-                                    We collect and store your email and password securely for authentication purposes. Your data is protected and will not be shared without your consent. Please note that all payments are non-refundable. By using our service, you agree to our terms. 
-                                </p>
-                                <p style="font-size: 1rem; font-weight: bold;">
-                                    For more details, contact us at 
-                                    <a href="mailto:lelosresort@gmail.com" class="text-decoration-none fw-bold text-success">lelosresort@gmail.com</a>.
-                                </p>
-                                </div>
-                            </div>
+                            <div class="modal-body d-flex flex-column px-4 py-3" style="max-height: 70vh; overflow-y: auto;">
+    <div class="text-start">
+        <h5 class="fw-bold text-success mb-4">Terms and Conditions</h5>
+        
+        <div class="mb-4">
+            <p class="fw-bold mb-2">Reservation Agreement</p>
+            <p>By confirming a reservation, guests acknowledge and agree to all terms and conditions set by Lelo's Resort management.</p>
+        </div>
+
+        <div class="mb-4">
+            <p class="fw-bold mb-2">Payment Policy</p>
+            <ul class="list-unstyled ps-3">
+                <li>• Full payment is required in advance to secure the reservation.</li>
+                <li>• All payments are strictly non-refundable, regardless of:</li>
+                <ul class="ps-4">
+                    <li>- Cancellations</li>
+                    <li>- Date changes</li>
+                    <li>- Late arrivals</li>
+                    <li>- Early departures</li>
+                    <li>- No-shows</li>
+                    <li>- Weather disturbances</li>
+                    <li>- Any other unforeseen events</li>
+                </ul>
+            </ul>
+            <p class="mt-2">Guests are strongly advised to finalize their plans before confirming a reservation.</p>
+        </div>
+
+        <div class="mb-4">
+            <p class="fw-bold mb-2">Security Deposit</p>
+            <ul class="list-unstyled ps-3">
+                <li>• A security deposit equivalent to 50% of the total booking amount must be provided upon check-in.</li>
+                <li>• This deposit covers:</li>
+                <ul class="ps-4">
+                    <li>- Potential damages to resort property</li>
+                    <li>- Loss of items</li>
+                    <li>- Violations of resort rules</li>
+                </ul>
+                <li>• The deposit is fully refundable upon check-out if no issues are found after inspection.</li>
+                <li>• Deductions will be made for any damages or violations, and excess charges will be billed to the guest.</li>
+            </ul>
+        </div>
+
+        <div class="mb-4">
+            <p class="fw-bold mb-2">Check-in/Check-out Policy</p>
+            <ul class="list-unstyled ps-3">
+                <li>• Guests must follow scheduled check-in and check-out times.</li>
+                <li>• Early check-in or late check-out is subject to availability and may incur additional charges.</li>
+            </ul>
+        </div>
+
+        <div class="mb-4">
+            <p class="fw-bold mb-2">Guest Conduct</p>
+            <ul class="list-unstyled ps-3">
+                <li>• Guests must behave responsibly and follow all resort guidelines.</li>
+                <li>• Respect towards other guests and staff is expected at all times.</li>
+            </ul>
+        </div>
+
+        <div class="mb-4">
+            <p class="fw-bold mb-2">Right to Refuse Service</p>
+            <ul class="list-unstyled ps-3">
+                <li>• Lelo's Resort reserves the right to refuse service or evict any guest who:</li>
+                <ul class="ps-4">
+                    <li>- Violates the terms and conditions</li>
+                    <li>- Engages in disruptive or inappropriate behavior</li>
+                </ul>
+                <li>• No refund will be given in such cases.</li>
+            </ul>
+        </div>
+
+        <div class="text-center mt-4">
+            <p class="fw-bold mb-1">Contact Information</p>
+            <p>For more details, contact us at <a href="mailto:lelosresort@gmail.com" class="text-decoration-none fw-bold text-success">lelosresort@gmail.com</a></p>
+        </div>
+    </div>
+</div>
 
                             </div>
                         </div>
@@ -766,13 +831,13 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Validate required fields
             if (!userCredential || !password) {
-                alert('Mangyaring punan ang lahat ng kinakailangang fields.');
+                alert('Fill up all the fields.');
                 return;
             }
 
             // Check if terms are agreed
             if (!agreeTerms) {
-                alert('Mangyaring tanggapin ang Terms and Conditions para magpatuloy.');
+                alert('Check the box to agree to the terms.');
                 return;
             }
             
@@ -781,6 +846,12 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (isEmail) {
                 try {
+                    // Update button text and disable it
+                    const loginButton = document.getElementById('loginButton');
+                    const loginText = loginButton.querySelector('span');
+                    loginButton.disabled = true;
+                    loginText.textContent = 'SENDING OTP PLEASE WAIT';
+
                     // Send OTP request
                     const response = await fetch('{{ route("send-login-otp") }}', {
                         method: 'POST',
@@ -802,9 +873,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     } else {
                         alert(data.message || 'Hindi matagumpay ang pagpapadala ng OTP. Pakisubukan muli.');
                     }
+
+                    // Reset button after response
+                    loginButton.disabled = false;
+                    loginText.textContent = 'LOG IN';
                 } catch (error) {
                     console.error('Error:', error);
                     alert('May naganap na error. Pakisubukan muli.');
+                    
+                    // Reset button on error
+                    const loginButton = document.getElementById('loginButton');
+                    const loginText = loginButton.querySelector('span');
+                    loginButton.disabled = false;
+                    loginText.textContent = 'LOG IN';
                 }
             } else {
                 // Para sa username login, direct submit

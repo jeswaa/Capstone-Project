@@ -158,8 +158,13 @@ Route::post('/login/admin/authenticate', [AdminSideController::class, 'login'])-
 Route::get('/login/staff', [StaffController::class, 'StaffLogin'])->name('staff.login');
 Route::post('/login/staff/authenticate', [StaffController::class, 'authenticate'])->name('staff.authenticate');
 Route::get('/staff/dashboard', [StaffController::class, 'dashboard'])->name('staff.dashboard');
+Route::get('/staff/notifications', [StaffController::class, 'getNotifications']);
+Route::post('/staff/notifications/{id}/mark-as-read', [StaffController::class, 'markNotificationAsRead']);
 Route::get('/staff/reservation-details', [StaffController::class, 'reservations'])->name('staff.reservation');
 Route::get('/staff/accomodations', [StaffController::class, 'accomodations'])->name('staff.accomodations');
+Route::get('/staff/walk-in-guest', [StaffController::class, 'walkIn'])->name('staff.walkIn');
+Route::get('/staff/walk-in-guest/add', [StaffController::class, 'walkInAdd'])->name('staff.walkin.create');
+Route::post('/staff/walk-in-guest/add', [StaffController::class, 'storeWalkInGuest'])->name('staff.walkin.store');
 Route::put('/staff/edit-room/{id}', [StaffController::class, 'editRoom'])->name('staff.editRoom');
 Route::post('/staff/book-room', [StaffController::class, 'bookRoom'])->name('staff.bookRoom');
 Route::post('/staff/cancel-reservation/{id}', [StaffController::class, 'cancelReservation'])->name('staff.cancelReservation');

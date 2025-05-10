@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Anton&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
@@ -11,32 +12,15 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css">
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
     <title>Dashboard</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<style>
-    .nav-link {
-        position: relative;
-    }
-    
-    .nav-link::after {
-        content: '';
-        position: absolute;
-        width: 0;
-        height: 2px;
-        background: #ffffff;
-        left: 0;
-        bottom: 0;
-        transition: width 0.3s ease-in-out;
-    }
-    
-    .nav-link:hover::after {
-        width: 100%;
-    }
-</style>
+
 <body style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
     @include('Alert.loginSucess')
-    
+    @include('Alert.notification')
     <div class="container-fluid min-vh-100 d-flex p-0">
         <!-- SIDEBAR -->
         <div class="col-md-3 col-lg-2 color-background8 text-white position-sticky" id="sidebar" style="top: 0; height: 100vh; background-color: #0b573d background-color: #0b573d ">
@@ -48,9 +32,12 @@
         <!-- Main Content -->
          <div class="col-md-10 col-lg-10 py-4 px-4">
             <!-- Heading and Logo -->
-            <div class="d-flex justify-content-end align-items-end mb-2">
-                <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill me-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="ms-auto">
+                    <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill">
+                </div>
             </div>
+            
 
             <hr class="border-5">
             
@@ -114,7 +101,7 @@
                                     <div class="d-flex align-items-center justify-content-between mb-1 p-1 border-bottom">
                                         <div>
                                             <p class="mb-0 font-paragraph fw-bold">{{ $reservation->guest_name }}</p>
-                                            <small class="text-muted">{{ \Carbon\Carbon::parse($reservation->reservation_check_in)->format('M d, Y') }}</small>
+                                            <small class="text-muted">{{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('M d, Y') }} - {{ \Carbon\Carbon::parse($reservation->reservation_check_in)->format('h:i A') }}</small>
                                         </div>
                                         <span class="badge bg-warning text-dark">Pending</span>
                                     </div>
@@ -152,7 +139,7 @@
                                                 <td>{{ $reservation->accomodation_name}}</td>
                                                 <td>{{ $reservation->guest_name }}</td>
                                                 <td>{{ \Carbon\Carbon::parse($reservation->reservation_check_in)->format('h:i A') }}</td>
-                                                <td>{{ $reservation->reservation_status }}</td>
+                                                <td class="text-capitalize badge mt-2" style="background-color: {{ $reservation->reservation_status === 'checked-in' ? '#0b573d' : ($reservation->reservation_status === 'pending' ? '#ffc107' : '#dc3545') }}">{{ $reservation->reservation_status }}</td>
                                                 <td>
                                                     @if($reservation->reservation_status !== 'checked-in')
                                                         <a href="{{ route('staff.reservation') }}" 
@@ -160,7 +147,7 @@
                                                            style="transition: all 0.3s ease; display: inline-block;"
                                                            onmouseover="this.style.transform='scale(1.1)'; this.style.backgroundColor='#0d6e4c';"
                                                            onmouseout="this.style.transform='scale(1)'; this.style.backgroundColor='';">
-                                                            View
+                                                            <i class="fas fa-eye"></i>
                                                         </a>
                                                     @endif
                                                 </td>
@@ -175,50 +162,9 @@
                     </div>
                 </div>
             </div>
-            
-            @push('scripts')
-            <script>
-                // Check-in functionality
-                $('.check-in-btn').click(function() {
-                    const reservationId = $(this).data('reservation-id');
-                    $.ajax({
-                        url: `/staff/reservation/${reservationId}/update-status`,
-                        type: 'POST',
-                        data: {
-                            _token: '{{ csrf_token() }}',
-                            reservation_status: 'checked-in',
-                            payment_status: 'paid'
-                        },
-                        success: function(response) {
-                            location.reload();
-                        }
-                    });
-                });
-            
-                // Cancel functionality
-                $('.confirm-cancel').click(function() {
-                    const reservationId = $(this).data('reservation-id');
-                    const formData = new FormData($(`#cancelForm${reservationId}`)[0]);
-                    
-                    $.ajax({
-                        url: `/staff/reservation/${reservationId}/cancel-with-reason`,
-                        type: 'POST',
-                        data: formData,
-                        processData: false,
-                        contentType: false,
-                        success: function(response) {
-                            if (response.success) {
-                                location.reload();
-                            }
-                        }
-                    });
-                });
-            </script>
-            @endpush
-        </div>
+    </div>
     </div>
     
     
 </body>
 </html>
-
