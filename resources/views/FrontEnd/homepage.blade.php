@@ -21,17 +21,15 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase text-underline-left-to-right me-4" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#home">Home</a>
+                        <a class="nav-link fw-semibold text-uppercase me-4" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase text-underline-left-to-right me-4" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#about">About</a>
+                        <a class="nav-link fw-semibold text-uppercase me-4" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#">About</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase text-underline-left-to-right me-4" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#reviews">Review</a>
+                        <a class="nav-link fw-semibold text-uppercase me-4" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#">Review</a>
                     </li>
                 </ul>
-                <a href="{{ route('login') }}" class="me-3 text-color-2 fs-5 p-2 text-decoration-none fw-semibold text-uppercase text-underline-left-to-right" style="font-family: 'Josefin Sans', sans-serif;">Login</a>
-                <a class="navbar-brand d-none d-md-block" href="#">
                     <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort" id="logo" height="150" width="130">
                 </a>
             </div>
@@ -79,96 +77,111 @@
     <!-- Rooms section -->    
     <section>
     <div class="container text-center my-5">
-        <div class="position-relative py-5">
-            <div class="position-absolute top-0 bottom-0 start-0" style="width: 150px; background-color: #eaffcc; clip-path: polygon(0 0, 80% 0, 100% 100%, 0% 100%); z-index: 0;"></div>
-            <div class="position-relative bg-light-subtle">
-             <h1 class="fw-bold text-success display-5">ROOMS</h1>
-          </div>
-         <div class="position-absolute top-0 bottom-0 end-0" style="width: 150px; background-color: #eaffcc; clip-path: polygon(20% 0, 100% 0, 100% 100%, 0 100%); z-index: 0;"></div>
-          </div>
-          <p class="fst-italic text-success">Modern, clean, and comfortable spaces to rest and recharge!</p>
-        <div class="row g-4 mt-4">
+        <div class="py-5">
+            <div class="position-relative">
+                <!-- Main heading with enhanced styling -->
+                <div class="position-relative px-4 py-3 w-100" style="background-color: #eaffcc; border-radius: 15px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                    <h1 class="fw-bolder text-success display-5" style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); font-weight: 900;">
+                        ROOMS
+                    </h1>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Subtitle with enhanced styling -->
+        <p class="fst-italic text-success mb-4" style="font-size: 1.2rem; letter-spacing: 0.5px;">
+            Stay close, enjoy hard—outdoor fun starts near your cottage room.
+        </p>
+        
+        <!-- Decorative line -->
+        <div class="d-flex justify-content-center align-items-center gap-3 mb-4">
+            <div style="height: 2px; width: 50px; background-color: #0b573d;"></div>
+            <i class="bi bi-star-fill text-success"></i>
+            <div style="height: 2px; width: 50px; background-color: #0b573d;"></div>
+        </div>
+        
+        <div class="row g-4">
             <!-- Room 1 -->
             <div class="col-md-4">
-                <div class="card h-100 shadow-sm">
-                    <img src="{{ asset('images/room1.jpg') }}" class="card-img-top" alt="Room 1">
-                    <div class="card-img-overlay d-flex align-items-end p-0">
-                        <div class="w-100 bg-success bg-opacity-75 text-white p-2 text-end fw-bold" style="font-size: 1.2rem;">
+                <div class="card h-100 shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
+                    <div class="position-relative">
+                        <img src="{{ asset('images/room1.jpg') }}" class="card-img-top" alt="Room 1" style="border-radius: 20px 20px 0 0; height: 180px; object-fit: cover;">
+                        <div class="position-absolute bottom-0 end-0 m-2 px-3 py-1 bg-success text-white fw-bold" style="border-radius: 8px; font-style: italic; font-size: 1.2rem;">
                             Price: ₱ 3,000
                         </div>
                     </div>
-                    <div class="card-body">
-                        <h5 class="card-title fw-semibold">Room 1</h5>
+                    <div class="card-body p-2">
+                        <h5 class="card-title mb-0" style="font-style: italic; color: #0b573d;">Room 1</h5>
                     </div>
                 </div>
             </div>
             <!-- Room 2 -->
             <div class="col-md-4">
-                <div class="card h-100 shadow-sm">
-                    <img src="{{ asset('images/room2.jpg') }}" class="card-img-top" alt="Room 2">
-                    <div class="card-img-overlay d-flex align-items-end p-0">
-                        <div class="w-100 bg-success bg-opacity-75 text-white p-2 text-end fw-bold" style="font-size: 1.2rem;">
+                <div class="card h-100 shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
+                    <div class="position-relative">
+                        <img src="{{ asset('images/room1.jpg') }}" class="card-img-top" alt="Room 2" style="border-radius: 20px 20px 0 0; height: 180px; object-fit: cover;">
+                        <div class="position-absolute bottom-0 end-0 m-2 px-3 py-1 bg-success text-white fw-bold" style="border-radius: 8px; font-style: italic; font-size: 1.2rem;">
                             Price: ₱ 3,000
                         </div>
                     </div>
-                    <div class="card-body">
-                        <h5 class="card-title fw-semibold">Room 2</h5>
+                    <div class="card-body p-2">
+                        <h5 class="card-title mb-0" style="font-style: italic; color: #0b573d;">Room 2</h5>
                     </div>
                 </div>
             </div>
             <!-- Room 3 -->
             <div class="col-md-4">
-                <div class="card h-100 shadow-sm">
-                    <img src="{{ asset('images/room3.jpg') }}" class="card-img-top" alt="Room 3">
-                    <div class="card-img-overlay d-flex align-items-end p-0">
-                        <div class="w-100 bg-success bg-opacity-75 text-white p-2 text-end fw-bold" style="font-size: 1.2rem;">
+                <div class="card h-100 shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
+                    <div class="position-relative">
+                        <img src="{{ asset('images/room3.jpg') }}" class="card-img-top" alt="Room 3" style="border-radius: 20px 20px 0 0; height: 180px; object-fit: cover;">
+                        <div class="position-absolute bottom-0 end-0 m-2 px-3 py-1 bg-success text-white fw-bold" style="border-radius: 8px; font-style: italic; font-size: 1.2rem;">
                             Price: ₱ 3,000
                         </div>
                     </div>
-                    <div class="card-body">
-                        <h5 class="card-title fw-semibold">Room 3</h5>
+                    <div class="card-body p-2">
+                        <h5 class="card-title mb-0" style="font-style: italic; color: #0b573d;">Room 3</h5>
                     </div>
                 </div>
             </div>
             <!-- Room 4 -->
             <div class="col-md-4">
-                <div class="card h-100 shadow-sm">
-                    <img src="{{ asset('images/room4.jpg') }}" class="card-img-top" alt="Room 4">
-                    <div class="card-img-overlay d-flex align-items-end p-0">
-                        <div class="w-100 bg-success bg-opacity-75 text-white p-2 text-end fw-bold" style="font-size: 1.2rem;">
+                <div class="card h-100 shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
+                    <div class="position-relative">
+                        <img src="{{ asset('images/room1.jpg') }}" class="card-img-top" alt="Room 4" style="border-radius: 20px 20px 0 0; height: 180px; object-fit: cover;">
+                        <div class="position-absolute bottom-0 end-0 m-2 px-3 py-1 bg-success text-white fw-bold" style="border-radius: 8px; font-style: italic; font-size: 1.2rem;">
                             Price: ₱ 3,000
                         </div>
                     </div>
-                    <div class="card-body">
-                        <h5 class="card-title fw-semibold">Room 4</h5>
+                    <div class="card-body p-2">
+                        <h5 class="card-title mb-0" style="font-style: italic; color: #0b573d;">Room 4</h5>
                     </div>
                 </div>
             </div>
             <!-- Room 5 -->
             <div class="col-md-4">
-                <div class="card h-100 shadow-sm">
-                    <img src="{{ asset('images/room5.jpg') }}" class="card-img-top" alt="Room 5">
-                    <div class="card-img-overlay d-flex align-items-end p-0">
-                        <div class="w-100 bg-success bg-opacity-75 text-white p-2 text-end fw-bold" style="font-size: 1.2rem;">
+                <div class="card h-100 shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
+                    <div class="position-relative">
+                        <img src="{{ asset('images/room1.jpg') }}" class="card-img-top" alt="Room 5" style="border-radius: 20px 20px 0 0; height: 180px; object-fit: cover;">
+                        <div class="position-absolute bottom-0 end-0 m-2 px-3 py-1 bg-success text-white fw-bold" style="border-radius: 8px; font-style: italic; font-size: 1.2rem;">
                             Price: ₱ 3,000
                         </div>
                     </div>
-                    <div class="card-body">
-                        <h5 class="card-title fw-semibold">Room 5</h5>
+                    <div class="card-body p-2">
+                        <h5 class="card-title mb-0" style="font-style: italic; color: #0b573d;">Room 5</h5>
                     </div>
                 </div>
             </div>
             <!-- Room 6 -->
             <div class="col-md-4">
-                <div class="card h-100 shadow-sm">
-                    <img src="{{ asset('images/room6.jpg') }}" class="card-img-top" alt="Room 6">
-                    <div class="card-img-overlay d-flex align-items-end p-0">
-                        <div class="w-100 bg-success bg-opacity-75 text-white p-2 text-end fw-bold" style="font-size: 1.2rem;">
+                <div class="card h-100 shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
+                    <div class="position-relative">
+                        <img src="{{ asset('images/room1.jpg') }}" class="card-img-top" alt="Room 6" style="border-radius: 20px 20px 0 0; height: 180px; object-fit: cover;">
+                        <div class="position-absolute bottom-0 end-0 m-2 px-3 py-1 bg-success text-white fw-bold" style="border-radius: 8px; font-style: italic; font-size: 1.2rem;">
                             Price: ₱ 3,000
                         </div>
                     </div>
-                    <div class="card-body">
-                        <h5 class="card-title fw-semibold">Room 6</h5>
+                    <div class="card-body p-2">
+                        <h5 class="card-title mb-0" style="font-style: italic; color: #0b573d;">Room 6</h5>
                     </div>
                 </div>
             </div>
@@ -180,96 +193,111 @@
     <!-- cottage section -->     
     <section>
     <div class="container text-center my-5">
-        <div class="position-relative py-5">
-            <div class="position-absolute top-0 bottom-0 start-0" style="width: 150px; background-color: #eaffcc; clip-path: polygon(0 0, 80% 0, 100% 100%, 0% 100%); z-index: 0;"></div>
-            <div class="position-relative bg-light-subtle">
-             <h1 class="fw-bold text-success display-5">ROOMS</h1>
-          </div>
-         <div class="position-absolute top-0 bottom-0 end-0" style="width: 150px; background-color: #eaffcc; clip-path: polygon(20% 0, 100% 0, 100% 100%, 0 100%); z-index: 0;"></div>
-          </div>
-          <p class="fst-italic text-success">Modern, clean, and comfortable spaces to rest and recharge!</p>
-        <div class="row g-4 mt-4">
+        <div class="py-5">
+            <div class="position-relative">
+                <!-- Main heading with enhanced styling -->
+                <div class="position-relative px-4 py-3" style="background-color: #eaffcc; border-radius: 15px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                    <h1 class="fw-bolder text-success display-5" style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); font-weight: 900;">
+                    COTTAGES
+                    </h1>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Subtitle with enhanced styling -->
+        <p class="fst-italic text-success mb-4" style="font-size: 1.2rem; letter-spacing: 0.5px;">
+        Stay close, enjoy hard—outdoor fun starts near your cottage room.
+        </p>
+        
+        <!-- Decorative line -->
+        <div class="d-flex justify-content-center align-items-center gap-3 mb-4">
+            <div style="height: 2px; width: 50px; background-color: #0b573d;"></div>
+            <i class="bi bi-star-fill text-success"></i>
+            <div style="height: 2px; width: 50px; background-color: #0b573d;"></div>
+        </div>
+        
+        <div class="row g-4">
             <!-- Room 1 -->
             <div class="col-md-4">
-                <div class="card h-100 shadow-sm">
-                    <img src="{{ asset('images/room1.jpg') }}" class="card-img-top" alt="Room 1">
-                    <div class="card-img-overlay d-flex align-items-end p-0">
-                        <div class="w-100 bg-success bg-opacity-75 text-white p-2 text-end fw-bold" style="font-size: 1.2rem;">
+                <div class="card h-100 shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
+                    <div class="position-relative">
+                        <img src="{{ asset('images/gwapo.jpg') }}" class="card-img-top" alt="Room 1" style="border-radius: 20px 20px 0 0; height: 180px; object-fit: cover;">
+                        <div class="position-absolute bottom-0 end-0 m-2 px-3 py-1 bg-success text-white fw-bold" style="border-radius: 8px; font-style: italic; font-size: 1.2rem;">
                             Price: ₱ 3,000
                         </div>
                     </div>
-                    <div class="card-body">
-                        <h5 class="card-title fw-semibold">Room 1</h5>
+                    <div class="card-body p-2">
+                        <h5 class="card-title mb-0" style="font-style: italic; color: #0b573d;">Cottage 1</h5>
                     </div>
                 </div>
             </div>
             <!-- Room 2 -->
             <div class="col-md-4">
-                <div class="card h-100 shadow-sm">
-                    <img src="{{ asset('images/room2.jpg') }}" class="card-img-top" alt="Room 2">
-                    <div class="card-img-overlay d-flex align-items-end p-0">
-                        <div class="w-100 bg-success bg-opacity-75 text-white p-2 text-end fw-bold" style="font-size: 1.2rem;">
+                <div class="card h-100 shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
+                    <div class="position-relative">
+                        <img src="{{ asset('images/gwapo.jpg') }}" class="card-img-top" alt="Room 2" style="border-radius: 20px 20px 0 0; height: 180px; object-fit: cover;">
+                        <div class="position-absolute bottom-0 end-0 m-2 px-3 py-1 bg-success text-white fw-bold" style="border-radius: 8px; font-style: italic; font-size: 1.2rem;">
                             Price: ₱ 3,000
                         </div>
                     </div>
-                    <div class="card-body">
-                        <h5 class="card-title fw-semibold">Room 2</h5>
+                    <div class="card-body p-2">
+                        <h5 class="card-title mb-0" style="font-style: italic; color: #0b573d;">Cottage 2</h5>
                     </div>
                 </div>
             </div>
             <!-- Room 3 -->
             <div class="col-md-4">
-                <div class="card h-100 shadow-sm">
-                    <img src="{{ asset('images/room3.jpg') }}" class="card-img-top" alt="Room 3">
-                    <div class="card-img-overlay d-flex align-items-end p-0">
-                        <div class="w-100 bg-success bg-opacity-75 text-white p-2 text-end fw-bold" style="font-size: 1.2rem;">
+                <div class="card h-100 shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
+                    <div class="position-relative">
+                        <img src="{{ asset('images/gwapo.jpg') }}" class="card-img-top" alt="Room 3" style="border-radius: 20px 20px 0 0; height: 180px; object-fit: cover;">
+                        <div class="position-absolute bottom-0 end-0 m-2 px-3 py-1 bg-success text-white fw-bold" style="border-radius: 8px; font-style: italic; font-size: 1.2rem;">
                             Price: ₱ 3,000
                         </div>
                     </div>
-                    <div class="card-body">
-                        <h5 class="card-title fw-semibold">Room 3</h5>
+                    <div class="card-body p-2">
+                        <h5 class="card-title mb-0" style="font-style: italic; color: #0b573d;">Cottage 3</h5>
                     </div>
                 </div>
             </div>
             <!-- Room 4 -->
             <div class="col-md-4">
-                <div class="card h-100 shadow-sm">
-                    <img src="{{ asset('images/room4.jpg') }}" class="card-img-top" alt="Room 4">
-                    <div class="card-img-overlay d-flex align-items-end p-0">
-                        <div class="w-100 bg-success bg-opacity-75 text-white p-2 text-end fw-bold" style="font-size: 1.2rem;">
+                <div class="card h-100 shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
+                    <div class="position-relative">
+                        <img src="{{ asset('images/gwapo.jpg') }}" class="card-img-top" alt="Room 4" style="border-radius: 20px 20px 0 0; height: 180px; object-fit: cover;">
+                        <div class="position-absolute bottom-0 end-0 m-2 px-3 py-1 bg-success text-white fw-bold" style="border-radius: 8px; font-style: italic; font-size: 1.2rem;">
                             Price: ₱ 3,000
                         </div>
                     </div>
-                    <div class="card-body">
-                        <h5 class="card-title fw-semibold">Room 4</h5>
+                    <div class="card-body p-2">
+                        <h5 class="card-title mb-0" style="font-style: italic; color: #0b573d;">Cottage 4</h5>
                     </div>
                 </div>
             </div>
             <!-- Room 5 -->
             <div class="col-md-4">
-                <div class="card h-100 shadow-sm">
-                    <img src="{{ asset('images/room5.jpg') }}" class="card-img-top" alt="Room 5">
-                    <div class="card-img-overlay d-flex align-items-end p-0">
-                        <div class="w-100 bg-success bg-opacity-75 text-white p-2 text-end fw-bold" style="font-size: 1.2rem;">
+                <div class="card h-100 shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
+                    <div class="position-relative">
+                        <img src="{{ asset('images/gwapo.jpg') }}" class="card-img-top" alt="Room 5" style="border-radius: 20px 20px 0 0; height: 180px; object-fit: cover;">
+                        <div class="position-absolute bottom-0 end-0 m-2 px-3 py-1 bg-success text-white fw-bold" style="border-radius: 8px; font-style: italic; font-size: 1.2rem;">
                             Price: ₱ 3,000
                         </div>
                     </div>
-                    <div class="card-body">
-                        <h5 class="card-title fw-semibold">Room 5</h5>
+                    <div class="card-body p-2">
+                        <h5 class="card-title mb-0" style="font-style: italic; color: #0b573d;">Cottage 5</h5>
                     </div>
                 </div>
             </div>
             <!-- Room 6 -->
             <div class="col-md-4">
-                <div class="card h-100 shadow-sm">
-                    <img src="{{ asset('images/room6.jpg') }}" class="card-img-top" alt="Room 6">
-                    <div class="card-img-overlay d-flex align-items-end p-0">
-                        <div class="w-100 bg-success bg-opacity-75 text-white p-2 text-end fw-bold" style="font-size: 1.2rem;">
+                <div class="card h-100 shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
+                    <div class="position-relative">
+                        <img src="{{ asset('images/gwapo.jpg') }}" class="card-img-top" alt="Room 6" style="border-radius: 20px 20px 0 0; height: 180px; object-fit: cover;">
+                        <div class="position-absolute bottom-0 end-0 m-2 px-3 py-1 bg-success text-white fw-bold" style="border-radius: 8px; font-style: italic; font-size: 1.2rem;">
                             Price: ₱ 3,000
                         </div>
                     </div>
-                    <div class="card-body">
-                        <h5 class="card-title fw-semibold">Room 6</h5>
+                    <div class="card-body p-2">
+                        <h5 class="card-title mb-0" style="font-style: italic; color: #0b573d;">Cottage 6</h5>
                     </div>
                 </div>
             </div>
@@ -277,7 +305,95 @@
     </div>
     </section>
 
+    <!--activity section -->  
+    <section>
+    <div class="container text-center my-5">
+        <div class="py-5">
+            <div class="position-relative">
+                <!-- Main heading with enhanced styling -->
+                <div class="position-relative px-4 py-3" style="background-color: #eaffcc; border-radius: 15px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                    <h1 class="fw-bolder text-success display-5" style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); font-weight: 900;">
+                    ACTIVITIES
+                    </h1>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Subtitle with enhanced styling -->
+        <p class="fst-italic text-success mb-4" style="font-size: 1.2rem; letter-spacing: 0.5px;">
+        Explore fun, engaging activities for all ages—whether you're into adventure or relaxation!
+        </p>
+        
+        <!-- Decorative line -->
+        <div class="d-flex justify-content-center align-items-center gap-3 mb-4">
+            <div style="height: 2px; width: 50px; background-color: #0b573d;"></div>
+            <i class="bi bi-star-fill text-success"></i>
+            <div style="height: 2px; width: 50px; background-color: #0b573d;"></div>
+        </div>
 
+<div class="row g-4 justify-content-center">
+    <!-- Activity 1 -->
+    <div class="col-md-5">
+        <div class="card h-100 shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
+            <div class="position-relative">
+                <img src="{{ asset('images/room1.jpg') }}" class="card-img-top" alt="Room 1" style="border-radius: 20px 20px 0 0; height: 180px; object-fit: cover;">
+                <div class="position-absolute bottom-0 end-0 m-2 px-3 py-1 bg-success text-white fw-bold" style="border-radius: 8px; font-style: italic; font-size: 1.2rem;">
+                    Price: ₱ 3,000
+                </div>
+            </div>
+            <div class="card-body p-2">
+                <h5 class="card-title mb-0" style="font-style: italic; color: #0b573d;">Activity 1</h5>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activity 2 -->
+    <div class="col-md-5">
+        <div class="card h-100 shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
+            <div class="position-relative">
+                <img src="{{ asset('images/campings.jpg') }}" class="card-img-top" alt="Room 1" style="border-radius: 20px 20px 0 0; height: 180px; object-fit: cover;">
+                <div class="position-absolute bottom-0 end-0 m-2 px-3 py-1 bg-success text-white fw-bold" style="border-radius: 8px; font-style: italic; font-size: 1.2rem;">
+                    Camping
+                </div>
+            </div>
+            <div class="card-body p-2">
+                <h5 class="card-title mb-0" style="font-style: italic; color: #0b573d;">Activity 2</h5>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activity 3 -->
+    <div class="col-md-5">
+        <div class="card h-100 shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
+            <div class="position-relative">
+                <img src="{{ asset('images/DSCF2729.jpg') }}" class="card-img-top" alt="Room 1" style="border-radius: 20px 20px 0 0; height: 180px; object-fit: cover;">
+                <div class="position-absolute bottom-0 end-0 m-2 px-3 py-1 bg-success text-white fw-bold" style="border-radius: 8px; font-style: italic; font-size: 1.2rem;">
+                    ATV
+                </div>
+            </div>
+            <div class="card-body p-2">
+                <h5 class="card-title mb-0" style="font-style: italic; color: #0b573d;">Activity 3</h5>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activity 4 -->
+    <div class="col-md-5">
+        <div class="card h-100 shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
+            <div class="position-relative">
+                <img src="{{ asset('images/swimming.jpg') }}" class="card-img-top" alt="Room 1" style="border-radius: 20px 20px 0 0; height: 180px; object-fit: cover;">
+                <div class="position-absolute bottom-0 end-0 m-2 px-3 py-1 bg-success text-white fw-bold" style="border-radius: 8px; font-style: italic; font-size: 1.2rem;">
+                    swimming
+                </div>
+            </div>
+            <div class="card-body p-2">
+                <h5 class="card-title mb-0" style="font-style: italic; color: #0b573d;">Activity 4</h5>
+            </div>
+        </div>
+    </div>
+</div>
+    
+    </section>
      <!-- footer section -->                                   
     <footer style="background-color: #0b573d; height: auto; padding: 20px;">
     <div class="container">
