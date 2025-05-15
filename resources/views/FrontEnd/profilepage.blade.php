@@ -39,9 +39,6 @@
                             style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#reviews">Review</a>
                     </li>
                 </ul>
-                <a href="{{ route('login') }}"
-                    class="me-3 text-color-2 fs-5 p-2 text-decoration-none fw-semibold text-uppercase text-underline-left-to-right"
-                    style="font-family: 'Josefin Sans', sans-serif;">Login</a>
                 <a class="navbar-brand d-none d-md-block" href="#">
                     <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort" id="logo" height="150" width="130">
                 </a>
@@ -147,175 +144,254 @@
     </div>
 
     <!-- Main Layout: Profile & Reservation Section -->
-    <div class="container mt-1 mt-n3 position-relative ms-0 ">
-        <div class="row justify-content-center">
+    <div class="container-fluid p-0">
+        <div class="row g-0">
             <!-- Profile Card -->
-            <div class="col-md-4">
-                <div class="p-4 shadow bg text-center text-white color-background8 h-100">
+            <div class="col-12 col-md-4 col-lg-2" style="background-color: #0b573d;">
+                <div class="p-4 text-white min-vh-100 d-flex flex-column">
                     <!-- Back Arrow -->
-                    <div class="d-flex justify-content-start align-items-start mb-3">
+                    <div class="d-flex justify-content-start align-items-start mb-4" style="z-index: 11">
                         <a href="{{ route('calendar') }}" class="text-decoration-none">
-                            <i class="text-color-1 fa-2x fa-circle-left fa-solid icon icon-hover color-3"></i>
+                            <i class="text-white fa-2x fa-circle-left fa-solid"></i>
                         </a>
                     </div>
 
                     <!-- Profile Image -->
-                    <div class="d-flex justify-content-center">
-                        <div class="rounded-circle border border-white overflow-hidden w-150px h-150px">
+                    <div class="text-center mb-3">
+                        <div class="rounded-circle border border-white overflow-hidden mx-auto"
+                            style="width: 200px; height: 200px;">
                             <img src="{{ $user->image ? url('storage/' . $user->image) : asset('images/default-profile.jpg') }}"
-                                alt="Profile Image" class="rounded-circle mx-auto p-3 w-100 h-100">
+                                alt="Profile Image" class="img-fluid rounded-circle w-100 h-100 object-fit-cover">
+                        </div>
+                        <!-- Edit Button -->
+                        <div class="mt-2">
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#editModal" class="text-decoration-none">
+                                <u class="text-white">Edit Profile</u>
+                            </a>
                         </div>
                     </div>
-                    <!-- User Info -->
-                    <div>
-                        <h1>Personal Details</h1>
-                    </div>
-                    <div class="text-center mt-3">
 
-                        <p class="fw-bold text-start"><i class="fa-solid fa-envelope"></i>&nbsp;{{ $user->email }}</p>
-                        <p class="fw-bold text-start"><i class="fa-solid fa-phone"></i>&nbsp;{{ $user->mobileNo }}</p>
-                        <p class="fw-bold text-start"><i class="fa-solid fa-location-dot"></i>&nbsp;{{ $user->address }}
-                        </p>
+                    <div class="mb-1">
+                        <hr style="height: 2px; background-color: white; opacity: 0.8;">
                     </div>
 
-                    <!-- Buttons: Logout & Edit -->
-                    <div class="d-flex justify-content-between mt-4 px-3">
-                        <a href="{{ route('logout.user') }}" data-bs-toggle="tooltip" title="Log out">
-                            <i class="text-white fa-solid fa-right-from-bracket fs-4 icon-hover mt-5"></i>
-                        </a>
-                        <a href="#" data-bs-toggle="modal" data-bs-target="#editModal" title="Edit your profile">
-                            <i class="text-white fa-solid fa-pen fs-4 icon-hover mt-5"></i>
+                    <div class="text-center mb-4">
+                        <h4 class="text-uppercase fw-bold">Personal Details</h4>
+                    </div>
+
+                    <div class="mt-2">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fa-solid fa-envelope fa-lg me-3"></i>
+                            <span style="font-size: 0.9rem;">{{ $user->email }}</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fa-solid fa-phone fa-lg me-3"></i>
+                            <span style="font-size: 0.9rem;">{{ $user->mobileNo }}</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fa-solid fa-location-dot fa-lg me-3"></i>
+                            <span style="font-size: 0.9rem;">{{ $user->address }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Buttons: Logout -->
+                    <div class="mt-auto text-end">
+                        <a href="{{ route('logout.user') }}" class="text-decoration-none">
+                            <u class="text-white">Log Out</u>
                         </a>
                     </div>
                 </div>
             </div>
 
-            <div class="col-md-8 mt-8 mt-md-10 mt-lg-12" style="margin-top: 8rem !important;">
+            <!-- Main Content -->
+            <div class="col-12 col-md-9 px-5 py-2" style="margin-top: 80px;">
                 <div>
                     <p class="fw-bold text-start display-4"><span class="text-white fs-1">Hello,<br></span><span
                             class="text-color-2">{{ $user->name }}</span></p>
                 </div>
-                <div class="p-4 shadow text-white background-color mt-5">
-                    <!-- Navigation Tabs -->
-                    <ul class="nav nav-tabs">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="#" id="reservation-tab"
-                                onclick="toggleTab(event, 'reservation-list-section', 'reservation-tab', 'history-tab')"
-                                style="background-color: #0b573d; color: white;">Reservation</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#" id="history-tab"
-                                onclick="toggleTab(event, 'history-section', 'history-tab', 'reservation-tab')"
-                                style="background-color: white; color: #0b573d;">History</a>
-                        </li>
-                    </ul>
 
-                    <script>
-                        function toggleTab(event, sectionToShow, activeTabId, inactiveTabId) {
-                            event.preventDefault();
+                <!-- Main Content Area -->
+                <div class="row">
+                    <!-- Reservation Section -->
+                    <div class="col-md-8">
+                        <div class="p-3 shadow text-white background-color mt-4">
+                            <!-- Navigation Tabs -->
+                            <ul class="nav nav-tabs">
+                                <li class="nav-item">
+                                    <a class="nav-link active" href="#" id="reservation-tab"
+                                        onclick="toggleTab(event, 'reservation-list-section', 'reservation-tab', 'history-tab')"
+                                        style="background-color: #0b573d; color: white;">Reservation</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#" id="history-tab"
+                                        onclick="toggleTab(event, 'history-section', 'history-tab', 'reservation-tab')"
+                                        style="background-color: white; color: #0b573d;">History</a>
+                                </li>
+                            </ul>
 
-                            // Toggle sections visibility
-                            document.getElementById('reservation-list-section').style.display = 'none';
-                            document.getElementById('history-section').style.display = 'none';
-                            document.getElementById(sectionToShow).style.display = 'block';
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function () {
+                                    // Set initial states
+                                    document.getElementById('reservation-list-section').style.display = 'block';
+                                    document.getElementById('history-section').style.display = 'none';
 
-                            // Toggle tab styles
-                            document.getElementById(activeTabId).style.backgroundColor = '#0b573d';
-                            document.getElementById(activeTabId).style.color = 'white';
-                            document.getElementById(inactiveTabId).style.backgroundColor = 'white';
-                            document.getElementById(inactiveTabId).style.color = '#0b573d';
-                        }
-                    </script>
+                                    // Auto-hide toasts after 5 seconds
+                                    const toasts = document.querySelectorAll('.toast');
+                                    toasts.forEach(toast => {
+                                        const bsToast = new bootstrap.Toast(toast);
+                                        bsToast.show();
+
+                                        setTimeout(() => {
+                                            bsToast.hide();
+                                        }, 5000);
+                                    });
+                                });
+
+                                function toggleTab(event, sectionToShow, activeTabId, inactiveTabId) {
+                                    event.preventDefault();
+
+                                    // Toggle sections visibility
+                                    document.getElementById('reservation-list-section').style.display = 'none';
+                                    document.getElementById('history-section').style.display = 'none';
+                                    document.getElementById(sectionToShow).style.display = 'block';
+
+                                    // Toggle tab styles
+                                    document.getElementById(activeTabId).style.backgroundColor = '#0b573d';
+                                    document.getElementById(activeTabId).style.color = 'white';
+                                    document.getElementById(inactiveTabId).style.backgroundColor = 'white';
+                                    document.getElementById(inactiveTabId).style.color = '#0b573d';
+                                }
+                            </script>
 
 
-                    <!-- Reservation List -->
-                    <section id="reservation-list-section">
-                        <h5 class="mb-4 fw-bold text-color-2 border-bottom pb-2">YOUR CURRENT RESERVATION</h5>
-                        @if ($latestReservation && $latestReservation->payment_status !== 'cancelled')
-                            <div class="row">
-                                <div class="col-12">
-                                    <div class="border-0 mb-4" style="background: transparent;">
-                                        <div class="fw-bold text-color-2">
-                                            <div class="d-flex align-items-center mb-3">
-                                                <p class="mb-0"><strong>Status:</strong></p>
-                                                <span class="badge ms-2 @if($latestReservation->payment_status == 'paid') bg-success 
-                                                @elseif($latestReservation->payment_status == 'pending') bg-warning 
-                                                @elseif($latestReservation->payment_status == 'booked') bg-primary
-                                                @else bg-danger @endif">
-                                                    {{ $latestReservation->payment_status }}
-                                                </span>
-                                            </div>
-                                            <div class="row mb-2">
-                                                <div class="col-4"><strong>Room Type</strong></div>
-                                                <div class="col-8">
-                                                    @foreach($accommodations as $accommodation) {{ $accommodation }}
-                                                    @endforeach
+                            <!-- Reservation List -->
+                            <section id="reservation-list-section">
+                                <h5 class="mb-4 fw-bold text-color-2 border-bottom pb-2">YOUR CURRENT RESERVATION
+                                </h5>
+                                @if ($latestReservation && $latestReservation->payment_status !== 'cancelled')
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="border-0 mb-4" style="background: transparent;">
+                                                <div class="fw-bold text-color-2">
+                                                    <div class="d-flex align-items-center mb-3">
+                                                        <p class="mb-0"><strong>Status:</strong></p>
+                                                        <span class="badge ms-2 @if($latestReservation->payment_status == 'paid') bg-success 
+                                                        @elseif($latestReservation->payment_status == 'pending') bg-warning 
+                                                            @elseif($latestReservation->payment_status == 'booked') bg-primary
+                                                                @else bg-danger @endif">
+                                                            {{ $latestReservation->payment_status }}
+                                                        </span>
+                                                    </div>
+                                                    <div class="row mb-2">
+                                                        <div class="col-4"><strong>Room Type</strong></div>
+                                                        <div class="col-8">
+                                                            @foreach($accommodations as $accommodation)
+                                                                {{ $accommodation }}
+                                                            @endforeach
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-2">
+                                                        <div class="col-4"><strong>Time Check-In</strong></div>
+                                                        <div class="col-8">
+                                                            {{ $latestReservation->reservation_check_in }} -
+                                                            {{ $latestReservation->reservation_check_out }}
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-2">
+                                                        <div class="col-4"><strong>Date Check-In</strong></div>
+                                                        <div class="col-8">
+                                                            {{ \Carbon\Carbon::parse($latestReservation->reservation_check_in_date)->format('F j, Y') }}
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-2">
+                                                        <div class="col-4"><strong>Special Request</strong></div>
+                                                        <div class="col-8">
+                                                            {{ $latestReservation->special_request ?? 'None' }}
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-4">
+                                                        <div class="col-4"><strong>Balance</strong></div>
+                                                        <div class="col-8">
+                                                            ₱{{ number_format($latestReservation->amount, 2) }}</div>
+                                                    </div>
+                                                    <div class="text-end ">
+                                                        <button class="btn btn-danger px-5 py-3" style="border-radius: 5;"
+                                                            onclick="openCancelModal({{ $latestReservation->id }})">
+                                                            <strong>Cancel Booking</strong>
+                                                        </button>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="row mb-2">
-                                                <div class="col-4"><strong>Time Check-In</strong></div>
-                                                <div class="col-8">{{ $latestReservation->reservation_check_in }} - {{ $latestReservation->reservation_check_out }}</div>
-                                            </div>
-                                            <div class="row mb-2">
-                                                <div class="col-4"><strong>Date Check-In</strong></div>
-                                                <div class="col-8">{{ \Carbon\Carbon::parse($latestReservation->reservation_check_in_date)->format('F j, Y') }}</div>
-                                            </div>
-                                            <div class="row mb-2">
-                                                <div class="col-4"><strong>Special Request</strong></div>
-                                                <div class="col-8">{{ $latestReservation->special_request ?? 'None' }}</div>
-                                            </div>
-                                            <div class="row mb-4">
-                                                <div class="col-4"><strong>Balance</strong></div>
-                                                <div class="col-8">₱{{ number_format($latestReservation->amount, 2) }}</div>
-                                            </div>
-                                            <div class="text-end">
-                                                <button class="btn btn-danger px-5 py-3" style="border-radius: 5;" onclick="openCancelModal({{ $latestReservation->id }})">
-                                                    Cancel Booking
-                                                </button>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                        @else
-                            <p class="text-center text-muted">No reservations yet.</p>
-                        @endif
-                    </section>
+                                @else
+                                    <p class="text-center text-muted">No reservations yet.</p>
+                                @endif
+                            </section>
 
-                    <!-- History Section -->
-                    <section id="history-section" style="display: none;">
-                        <h5 class="text-center mt-3">Your Reservation History</h5>
-                        @forelse ($pastReservations as $reservation)
-                            <div class="card mb-3 mt-4">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between">
-                                        <p><strong>Status:</strong>
-                                            <span
-                                                class="badge 
-                                                                                                                                                                                                                                                                @if(isset($reservation) && $reservation->payment_status == 'paid') bg-success 
-                                                                                                                                                                                                                                                                @elseif(isset($reservation) && $reservation->payment_status == 'pending') bg-warning 
-                                                                                                                                                                                                                                                                @elseif(isset($reservation) && $reservation->payment_status == 'booked') bg-primary 
-                                                                                                                                                                                                                                                                    @else bg-danger 
-                                                                                                                                                                                                                                                                @endif">
-                                                {{ isset($reservation) ? $reservation->payment_status : 'N/A' }}
-                                            </span>
-                                        </p>
+                            <section id="history-section" style="display: none;">
+                                <h5 class="text-center mt-3">Your Reservation History</h5>
+                                @forelse ($pastReservations as $reservation)
+                                    <div class="card mb-3 mt-4">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between">
+                                                <p><strong>Status:</strong>
+                                                    <span
+                                                        class="badge 
+                                                                                                                                                                                                                                                                                                @if(isset($reservation) && $reservation->payment_status == 'paid') bg-success 
+                                                                                                                                                                                                                                                                                                @elseif(isset($reservation) && $reservation->payment_status == 'pending') bg-warning 
+                                                                                                                                                                                                                                                                                                @elseif(isset($reservation) && $reservation->payment_status == 'booked') bg-primary 
+                                                                                                                                                                                                                                                                                                    @else bg-danger 
+                                                                                                                                                                                                                                                                                                @endif">
+                                                        {{ isset($reservation) ? $reservation->payment_status : 'N/A' }}
+                                                    </span>
+                                                </p>
+                                            </div>
+                                            <p><strong>Room Type:</strong> {{ $reservation->package_room_type ?? 'N/A' }}
+                                            </p>
+                                            <p><strong>Check-in:</strong> {{ $reservation->reservation_check_in }}</p>
+                                            <p><strong>Check-out:</strong> {{ $reservation->reservation_check_out }}</p>
+                                            <p><strong>Guests:</strong> {{ $reservation->package_max_guests }}</p>
+                                            <p><strong>Amount:</strong> {{ $reservation->amount }}</p>
+                                        </div>
                                     </div>
-                                    <p><strong>Room Type:</strong> {{ $reservation->package_room_type ?? 'N/A' }}</p>
-                                    <p><strong>Check-in:</strong> {{ $reservation->reservation_check_in }}</p>
-                                    <p><strong>Check-out:</strong> {{ $reservation->reservation_check_out }}</p>
-                                    <p><strong>Guests:</strong> {{ $reservation->package_max_guests }}</p>
-                                    <p><strong>Amount:</strong> {{ $reservation->amount }}</p>
-                                </div>
+                                @empty
+                                    <p class="text-center text-muted">No reservation history found.</p>
+                                @endforelse
+                            </section>
+                        </div>
+                    </div>
+                    <!-- Notifications Section -->
+                    <div class="col-md-4">
+                        <div class="card border-success mt-4">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0">
+                                    <i class="fa-solid fa-bell me-2"></i>
+                                    <i class="fa-solid fa-envelope me-2"></i>
+                                    NOTIFICATIONS
+                                </h5>
                             </div>
-                        @empty
-                            <p class="text-center text-muted">No reservation history found.</p>
-                        @endforelse
-                    </section>
+                            <div class="card-body" style="min-height: 200px;">
+                                @if(isset($notifications) && count($notifications) > 0)
+                                    @foreach($notifications as $notification)
+                                        <div class="notification-item mb-3">
+                                            <p class="mb-1">{{ $notification->message }}</p>
+                                            <small class="text-muted">{{ $notification->created_at->diffForHumans() }}</small>
+                                        </div>
+                                    @endforeach
+                                @else
+                                    <div class="text-center text-muted mt-4">
+                                        <p class="mb-0" style="color: #666;">No reminders and messages at the moment.</p>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
 
     <!-- Cancel Reservation Modal -->
     <div class="modal fade" id="cancelReservationModal" tabindex="-1" aria-labelledby="cancelReservationModalLabel"
