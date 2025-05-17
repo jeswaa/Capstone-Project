@@ -73,6 +73,11 @@
                     </ul>
                 </div>
 
+                <a href="{{ route ('DamageReport')}}"  class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
+                    <i class="fas fa-clipboard-list fs-5 icon-center"></i>
+                    <span class="nav-text ms-3 font-paragraph">Damage Report</span>
+                </a>
+
                 <a href="{{ route('logout') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
                     <i class="fas fa-sign-out-alt me-2 fs-5"></i> Logout
                 </a>

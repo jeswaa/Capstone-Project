@@ -106,7 +106,6 @@
                 @endforeach
             </div>
         </div>
-
         <!-- Accommodation Cards Container -->
         <div class="col-md-12 d-flex flex-column">
             <div class="form-group">
@@ -114,8 +113,8 @@
                     <div class="row g-4" id="accommodationContainer">
                         @foreach($accomodations as $accomodation)
                             <div class="col-md-4 accommodation-card " data-type="{{ $accomodation->accomodation_type }}">
-                                <div class="card select-accommodation" 
-                                     data-id="{{ $accomodation->accomodation_id }}" 
+                                <div class="card select-accommodation"
+                                     data-id="{{ $accomodation->accomodation_id }}"
                                      data-price="{{ $accomodation->accomodation_price }}"
                                      data-capacity="{{ $accomodation->accomodation_capacity }}">
                                     <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" class="card-img-top" alt="accommodation image" style="max-width: 100%; height: 250px; object-fit: cover;">
@@ -178,14 +177,14 @@
                                         <div class="d-flex justify-content-between align-items-center">
                                             <label for="number_of_adults">Adults <small style="font-size:10px;">(13 years old and above):</small></label>
                                         </div>
-                                        <input type="number" name="number_of_adults" id="number_of_adults" class="form-control p-2" min="0" oninput="calculateTotalGuest()">
+                                        <input type="number" name="number_of_adults" id="number_of_adults" class="form-control p-2" min="0" value="0" oninput="calculateTotalGuest()">
                                         
                                     </div>
                                     <div class="form-group mb-3">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <label for="number_of_children">Children <small style="font-size:10px;">(3 to 12 years old):</small></label>
                                         </div>
-                                        <input type="number" name="number_of_children" id="number_of_children" class="form-control p-2" min="0" oninput="calculateTotalGuest()">
+                                        <input type="number" name="number_of_children" id="number_of_children" class="form-control p-2" min="0" value="0" oninput="calculateTotalGuest()">
                                     </div>
                                     <div class="form-group">
                                         <label for="total_guests">Total Guests:</label>
@@ -200,20 +199,13 @@
                             <div class="col-md-6">
                                 <div class="card p-3 shadow-sm border-0">
                                     <h6 class="fw-bold mb-3 text-success">Time</h6>
-                                    <div class="form-group mb-3">
-                                        <label for="check_in">Session:</label>
-                                        <select id="session" name="session" class="form-control" onchange="updateSessionTimes()">
-                                            <option value="morning" {{ (isset($transactions->session) && $transactions->session == 'morning') ? 'selected' : '' }}>Morning Session</option>
-                                            <option value="evening" {{ (isset($transactions->session) && $transactions->session == 'evening') ? 'selected' : '' }}>Evening Session</option>
-                                        </select>
-                                    </div>
                                     <div class="form-group">
-                                        <label for="start_time">Start Time:</label>
-                                        <input type="time" id="start_time" name="reservation_check_in" class="form-control" value="{{ \Carbon\Carbon::createFromFormat('H:i:s', $transactions->start_time)->format('H:i') }}" required>
+                                        <label for="start_time">Check-in Time:</label>
+                                        <input type="time" id="start_time" name="reservation_check_in" class="form-control" value="14:00" readonly required>
                                     </div>
                                     <div class="form-group mt-3">
-                                        <label for="end_time">End Time:</label>
-                                        <input type="time" id="end_time" name="reservation_check_out" value="{{ \Carbon\Carbon::createFromFormat('H:i:s', $transactions->end_time)->format('H:i') }}" class="form-control" required>
+                                        <label for="end_time">Check-out Time:</label>
+                                        <input type="time" id="end_time" name="reservation_check_out" value="12:00" class="form-control" readonly required>
                                     </div>
                                 </div>
                             </div>
@@ -432,34 +424,6 @@
 });
 </script>
 <script>
-function updateSessionTimes() {
-    var session = document.getElementById('session').value;
-    fetch('/get-session-times-only?session=' + session)
-        .then(response => response.json())
-        .then(data => {
-            var startElem = document.getElementById('start_time');
-            var endElem = document.getElementById('end_time');
-            if (startElem && endElem && data.start_time && data.end_time) {
-                startElem.value = data.start_time.substring(0,5);
-                endElem.value = data.end_time.substring(0,5);
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching session times:', error);
-        });
-}
-
-document.addEventListener("DOMContentLoaded", function () {
-    // I-set agad ang tamang oras base sa default session
-    updateSessionTimes();
-    // I-update kapag nagbago ang session
-    var sessionSelect = document.getElementById('session');
-    if (sessionSelect) {
-        sessionSelect.addEventListener('change', updateSessionTimes);
-    }
-});
-</script>
-<script>
 document.addEventListener('DOMContentLoaded', function() {
     const typeButtons = document.querySelectorAll('.accommodation-type-btn');
     const cards = document.querySelectorAll('.accommodation-card');
@@ -502,5 +466,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+
 </body>
 </html>

@@ -202,17 +202,7 @@
 <body class="bg-light font-paragraph">
     <div class="container mt-5 px-3">
         <div class="d-flex justify-content-between align-items-center">
-            <a href="{{ route('selectPackage') }}" title="Go Back to Reservation Package" class="text-decoration-none">
-                <div class="rounded-circle bg-success d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                    <i class="fa-solid fa-arrow-left text-white" style="font-size: 30px;"></i>
-                </div>
-            </a>
-            <h1 class="text-center fw-bold" style="color: #e9ffcc; font-size: 2.5rem;">RESERVATION PAYMENT</h1>
-            <a href="{{ url('/') }}" title="Home" class="text-decoration-none">
-                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
-                    <img src="{{ asset('images/appicon.png') }}" alt="App Logo" class="img-fluid" style="max-width: 100%; height: auto;">
-                </div>
-            </a>
+            <h1 class="text-center fw-bold" style="color: #e9ffcc; font-size: 2.5rem; margin: 0 auto;">RESERVATION PAYMENT</h1>
         </div>
 
         <form id="paymentForm" action="{{ route('savePaymentProcess') }}" method="POST" enctype="multipart/form-data">
@@ -275,7 +265,7 @@
                             <div class="d-flex flex-column align-items-center">
                                 <input class="form-check-input d-none" type="radio" name="payment_method" id="gcash" value="gcash2">
                                 <div class="bg-secondary p-1 d-flex align-items-center justify-content-center rounded-2" style="width: 400px; height: 400px; background-image: url('{{ asset('images/logosheesh.png') }}'); background-size: cover; background-position: center;">
-                                    <img src="{{ asset('images/maya-qr.jpg') }}" alt="GCash QR Code 2" style="max-width: 80%; height: auto;">
+                                    <img src="{{ asset('images/qrcode.jpg') }}" alt="GCash QR Code 2" style="max-width: 80%; height: auto;">
                                 </div>
                                 <div class="text-center mt-3">
                                     <p class="fw-bold text-success mb-0">GCash Number:</p>
@@ -349,7 +339,7 @@
                         </div>
                         @if($totalEntranceFee > 0)
                         <div class="d-flex justify-content-between">
-                            <span class="fst-italic">Total Entrance Fee</span>
+                            <span class="fst-italic">Entrance Fee</span>
                             <input type="text" class="form-control text-end bg-secondary-subtle border-0 w-75" value="₱{{ number_format($totalEntranceFee, 2) }}" readonly>
                         </div>
                         @endif
@@ -404,10 +394,16 @@
                             <span class="fst-italic">Required 50% Downpayment</span>
                             <input type="text" id="downpayment-display" class="form-control text-end bg-secondary-subtle border-0" 
                                    style="max-width: 150px;" value="₱ {{ number_format($downpayment, 2) }}" readonly>
-                            <!-- Hidden input for raw downpayment value -->
                             <input type="hidden" name="downpayment" value="{{ $downpayment }}">
                         </div>
-                        <!-- Hidden input for raw balance value -->
+
+                        <div class="alert alert-info py-2 px-3 mt-1 mb-0" role="alert">
+                            <small class="fst-italic d-block text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                The required 50% downpayment includes the security deposit.
+                            </small>
+                        </div>
+                            <!-- Hidden input for raw balance value -->
                         <input type="hidden" name="balance" value="{{ $amount - $downpayment }}">
                         <div class="mt-3">
                             <label class="fw-bold">Upload Proof of Payment</label>

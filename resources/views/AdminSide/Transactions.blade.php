@@ -6,10 +6,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Anton&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <title>Transactions</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <!-- Add Chart.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <style>
     .fee-list::-webkit-scrollbar {
@@ -34,6 +33,60 @@
         transform: translateY(-2px);
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
+    .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    margin-top: 20px;
+}
+
+.pagination .page-item {
+    list-style: none;
+}
+
+.pagination .page-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #fff;
+    color: #0b573d;
+    border: 2px solid #0b573d;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.pagination .page-link:hover {
+    background-color: #0b573d;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(11, 87, 61, 0.2);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #0b573d;
+    color: #fff;
+    border-color: #0b573d;
+}
+
+.pagination .page-item.disabled .page-link {
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+    color: #6c757d;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Navigation arrows styling */
+.pagination .page-item:first-child .page-link,
+.pagination .page-item:last-child .page-link {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
 </style>
 <body style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
     @include('Alert.loginSucess')
@@ -75,6 +128,11 @@
                         <li><a class="dropdown-item" href="{{ route('activityLogs') }}">Activity Logs</a></li>
                     </ul>
                 </div>
+
+                <a href="{{ route ('DamageReport')}}"  class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
+                    <i class="fas fa-clipboard-list fs-5 icon-center"></i>
+                    <span class="nav-text ms-3 font-paragraph">Damage Report</span>
+                </a>
 
                 <a href="{{ route('logout') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
                     <i class="fas fa-sign-out-alt me-2 fs-5"></i> Logout
@@ -564,44 +622,85 @@
                     
                     
                     <!-- Table -->
-                    <div class="table-responsive">
-                        <table class="table table-hover bg-white shadow-lg rounded-4">
-                            <thead class="table-success">
-                                <tr>
-                                    <th scope="col" class="py-3">Guest Name</th>
-                                    <th scope="col" class="py-3">Amount Paid</th>
-                                    <th scope="col" class="py-3">Remaining Balance</th>
-                                    <th scope="col" class="py-3">Payment Mode</th>
-                                    <th scope="col" class="py-3">Date</th>
-                                    <th scope="col" class="py-3">Payment Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($reservationDetails as $transaction)
-                                    <tr>
-                                        <td class="py-3">{{ $transaction->name }}</td>
-                                        <td class="py-3">₱{{ number_format($transaction->amount, 2) }}</td>
-                                        <td class="py-3">₱{{ in_array($transaction->payment_status, ['paid', 'cancelled', 'checked-out']) ? '0.00' : number_format($transaction->balance, 2) }}</td>
-                                        <td class="py-3">{{ $transaction->payment_method }}</td>
-                                        <td class="py-3">{{ \Carbon\Carbon::parse($transaction->reservation_check_in_date)->format('M d, Y') }}</td>
-                                        <td class="py-3">
-                                            <span class="badge rounded-pill {{ $transaction->payment_status === 'paid' ? 'bg-success' : ($transaction->payment_status === 'pending' ? 'bg-warning' : ($transaction->payment_status === 'booked' ? 'bg-primary' : 'bg-danger')) }}">
-                                                {{ ucfirst($transaction->payment_status) }}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="6" class="text-center py-3">No transactions found</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                        
-                        <div class="d-flex justify-content-end mt-3">
-                            {{ $reservationDetails->links() }}
-                        </div>
-                    </div>
+<div class="card shadow-lg border-0 rounded-4">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-success">
+                    <tr>
+                        <th scope="col" class="py-3">Guest Name</th>
+                        <th scope="col" class="py-3">Amount Paid</th>
+                        <th scope="col" class="py-3">Remaining Balance</th>
+                        <th scope="col" class="py-3">Payment Mode</th>
+                        <th scope="col" class="py-3">Date</th>
+                        <th scope="col" class="py-3">Payment Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($reservationDetails as $transaction)
+                        <tr>
+                            <td class="py-3">{{ $transaction->name }}</td>
+                            <td class="py-3">₱{{ number_format($transaction->amount, 2) }}</td>
+                            <td class="py-3">₱{{ in_array($transaction->payment_status, ['paid', 'cancelled', 'checked-out']) ? '0.00' : number_format($transaction->balance, 2) }}</td>
+                            <td class="py-3">{{ $transaction->payment_method }}</td>
+                            <td class="py-3">{{ \Carbon\Carbon::parse($transaction->reservation_check_in_date)->format('M d, Y') }}</td>
+                            <td class="py-3">
+                                <span class="badge rounded-pill {{ $transaction->payment_status === 'paid' ? 'bg-success' : ($transaction->payment_status === 'pending' ? 'bg-warning' : ($transaction->payment_status === 'booked' ? 'bg-primary' : 'bg-danger')) }}">
+                                    {{ ucfirst($transaction->payment_status) }}
+                                </span>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="text-center py-3">No transactions found</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+            
+            <nav aria-label="Page navigation" class="d-flex justify-content-end mt-3">
+                <div class="pagination-container">
+                    <ul class="pagination">
+                        {{-- Previous Page Link --}}
+                        @if ($reservationDetails->onFirstPage())
+                            <li class="page-item disabled">
+                                <span class="page-link">&laquo;</span>
+                            </li>
+                        @else
+                            <li class="page-item">
+                                <a class="page-link" href="{{ $reservationDetails->previousPageUrl() }}" rel="prev">&laquo;</a>
+                            </li>
+                        @endif
+
+                        {{-- Pagination Elements --}}
+                        @foreach ($reservationDetails->getUrlRange(1, $reservationDetails->lastPage()) as $page => $url)
+                            @if ($page == $reservationDetails->currentPage())
+                                <li class="page-item active">
+                                    <span class="page-link">{{ $page }}</span>
+                                </li>
+                            @else
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                                </li>
+                            @endif
+                        @endforeach
+
+                        {{-- Next Page Link --}}
+                        @if ($reservationDetails->hasMorePages())
+                            <li class="page-item">
+                                <a class="page-link" href="{{ $reservationDetails->nextPageUrl() }}" rel="next">&raquo;</a>
+                            </li>
+                        @else
+                            <li class="page-item disabled">
+                                <span class="page-link">&raquo;</span>
+                            </li>
+                        @endif
+                    </ul>
+                </div>
+            </nav>
+        </div>
+    </div>
+</div>
                 </div>
          </div>
     </div>

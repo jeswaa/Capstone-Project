@@ -61,6 +61,10 @@
                     <i class="fas fa-users fs-5 icon-center"></i>
                     <span class="nav-text ms-3 font-paragraph">Guests</span>
                 </a>
+                <a href="{{ route ('staff.damageReport')}}" class="text-white text-decoration-none d-flex align-items-center p-2 rounded-2 {{ Request::routeIs('staff.guests') ? 'bg-white bg-opacity-10' : '' }} nav-link">
+                    <i class="fas fa-clipboard-list fs-5 icon-center"></i>
+                    <span class="nav-text ms-3 font-paragraph">Damage Report</span>
+                </a>
             </div>
         
             <div class="mt-auto mb-4 px-2">

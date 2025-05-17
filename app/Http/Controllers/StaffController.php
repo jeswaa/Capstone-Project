@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\WalkInGuest;
 use App\Models\Transaction;
 use App\Models\Notification;
+use App\Models\DamageReport;
+
 
 
 
@@ -186,7 +188,6 @@ public function dashboard()
             ->join('users', 'reservation_details.user_id', '=', 'users.id')
             ->where('reservation_details.payment_status', 'pending')
             ->where('reservation_details.reservation_status', 'pending')
-            ->whereDate('reservation_details.reservation_check_in_date', Carbon::today())
             ->select(
                 'users.name as guest_name',
                 'reservation_details.reservation_check_in_date',
@@ -349,6 +350,15 @@ public function reservations(Request $request)
         });
     }
 
+    // Add stay_type filter
+    if ($request->has('stay_type') && $request->stay_type !== '') {
+        if ($request->stay_type === 'overnight') {
+            $query->whereRaw('reservation_details.reservation_check_in_date <> reservation_details.reservation_check_out_date');
+        } elseif ($request->stay_type === 'one_day') {
+            $query->whereRaw('reservation_details.reservation_check_in_date = reservation_details.reservation_check_out_date');
+        }
+    }
+
     $reservations = $query->paginate(5)->withQueryString();
 
     $archivedReservations = DB::table('archived_reservations')->latest()->get();
@@ -385,6 +395,20 @@ public function reservations(Request $request)
                 ->where('accomodation_id', $accommodationIds)
                 ->pluck('accomodation_name')
                 ->toArray();
+        }
+
+        // --- Filter kung Overnight o One Day Stay ---
+        if (
+            isset($reservation->reservation_check_in_date) &&
+            isset($reservation->reservation_check_out_date)
+        ) {
+            if ($reservation->reservation_check_in_date == $reservation->reservation_check_out_date) {
+                $reservation->stay_type = 'One Day Stay';
+            } else {
+                $reservation->stay_type = 'Overnight';
+            }
+        } else {
+            $reservation->stay_type = 'Unknown';
         }
     }
     // Debugging: Log the fetched details
@@ -683,47 +707,45 @@ public function UpdateStatus(Request $request, $id)
 
     public function walkIn()
     {
+        // Get all transactions
         $transactions = DB::table('transaction')->get();
 
-        // Morning session fees
-        $morning_adult_fee = Transaction::where('type', 'adult')
-            ->where('session', 'Morning')
-            ->value('entrance_fee') ?? 0;
-        
-        $morning_child_fee = Transaction::where('type', 'kid')
-            ->where('session', 'Morning')
-            ->value('entrance_fee') ?? 0;
+        // Get latest adult and kid transactions (most recent entrance fees)
+        $adultTransaction = DB::table('transaction')
+            ->where('type', 'adult')
+            ->latest()
+            ->first();
 
-        // Evening session fees
-        $evening_adult_fee = Transaction::where('type', 'adult')
-            ->where('session', 'Evening')
-            ->value('entrance_fee') ?? 0;
-        
-        $evening_child_fee = Transaction::where('type', 'kid')
-            ->where('session', 'Evening')
-            ->value('entrance_fee') ?? 0;
+        $kidTransaction = DB::table('transaction')
+            ->where('type', 'kid')
+            ->latest()
+            ->first();
 
+        // Log latest transactions (for debugging)
+        \Log::info('Adult Transaction:', ['transaction' => $adultTransaction]);
+        \Log::info('Kid Transaction:', ['transaction' => $kidTransaction]);
+
+        // Extract first start_time and end_time from transactions
         $start_time = $transactions->pluck('start_time')->first();
         $end_time = $transactions->pluck('end_time')->first();
-        $entrance_fee = $transactions->pluck('entrance_fee')->first();
 
-        $adultTransaction = Transaction::where('type', 'adult')->first();
-        
-        $kidTransaction = Transaction::where('type', 'kid')->first();
-
-        // Join walkin_guests with accomodations to get accomodation_name
+        // Get walk-in guests with their accommodation name
         $walkinGuest = DB::table('walkin_guests')
             ->leftJoin('accomodations', 'walkin_guests.accomodation_id', '=', 'accomodations.accomodation_id')
             ->select('walkin_guests.*', 'accomodations.accomodation_name')
             ->paginate(5);
 
+        // Guest status counts
         $totalWalkInGuests = $walkinGuest->count();
         $totalCheckedInGuests = $walkinGuest->where('reservation_status', 'checked-in')->count();
         $totalCheckedOutGuests = $walkinGuest->where('reservation_status', 'checked-out')->count();
+
+        // Get available accommodations
         $accomodations = DB::table('accomodations')
             ->where('accomodation_status', 'available')
             ->get();
-            
+
+        // Return data to view
         return view('StaffSide.walkIn', compact(
             'transactions', 
             'accomodations', 
@@ -731,17 +753,13 @@ public function UpdateStatus(Request $request, $id)
             'totalWalkInGuests', 
             'totalCheckedInGuests', 
             'totalCheckedOutGuests', 
-            'kidTransaction', 
-            'adultTransaction', 
             'start_time', 
-            'end_time', 
-            'entrance_fee',
-            'morning_adult_fee',
-            'morning_child_fee',
-            'evening_adult_fee',
-            'evening_child_fee'
+            'end_time',
+            'adultTransaction',
+            'kidTransaction'
         ));
     }
+
     public function walkInAdd(Request $request)
     {
         try {
@@ -859,6 +877,53 @@ public function UpdateStatus(Request $request, $id)
             return back()->with('error', 'Error adding walk-in reservation: ' . $e->getMessage());
         }
     }
+    public function updateWalkInStatus(Request $request, $id)
+    {
+        try {
+            // Validate request
+            $request->validate([
+                'payment_status' => 'required',
+                'reservation_status' => 'required'
+            ]);
+
+            // Find the walk-in guest record
+            $walkInGuest = WalkInGuest::findOrFail($id);
+
+            // Store original values for activity log
+            $originalStatus = [
+                'payment' => $walkInGuest->payment_status,
+                'reservation' => $walkInGuest->reservation_status
+            ];
+
+            // Update the statuses
+            $walkInGuest->payment_status = $request->payment_status;
+            $walkInGuest->reservation_status = $request->reservation_status;
+            $walkInGuest->save();
+
+            // Get current staff info
+            $staffId = session()->get('StaffLogin');
+            $staff = Staff::find($staffId);
+
+            // Record the activity
+            $changes = [];
+            if ($originalStatus['payment'] != $request->payment_status) {
+                $changes[] = "payment status from '{$originalStatus['payment']}' to '{$request->payment_status}'";
+            }
+            if ($originalStatus['reservation'] != $request->reservation_status) {
+                $changes[] = "reservation status from '{$originalStatus['reservation']}' to '{$request->reservation_status}'";
+            }
+
+            if (!empty($changes)) {
+                $this->recordActivity($staff->username . ' updated walk-in guest #' . $id . ': ' . implode(', ', $changes));
+            }
+
+            return redirect()->back()->with('success', 'Walk-in guest status updated successfully');
+
+        } catch (\Exception $e) {
+            \Log::error('Error updating walk-in guest status: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to update walk-in guest status');
+        }
+    }
 
 
     public function getNotifications()
@@ -935,5 +1000,137 @@ public function UpdateStatus(Request $request, $id)
             'message' => 'Notification not found'
         ], 404);
     }
+    public function updatedSessionFees(Request $request)
+{
+    try {
+        // Validate the input to make sure 'session' is provided
+        $request->validate([
+            'session' => 'required|string'
+        ]);
+
+        $session = $request->input('session');
+
+        // Get entrance fee for adult
+        $adultFee = DB::table('transaction')
+            ->where('type', 'adult')
+            ->where('session', $session)
+            ->value('entrance_fee') ?? 0;
+
+        // Get entrance fee for kid
+        $childFee = DB::table('transaction')
+            ->where('type', 'kid')
+            ->where('session', $session)
+            ->value('entrance_fee') ?? 0;
+
+        return response()->json([
+            'success' => true,
+            'adult_fee' => number_format($adultFee, 2, '.', ''),
+            'child_fee' => number_format($childFee, 2, '.', '')
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error fetching entrance fees.',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+
+    public function DamageReport()
+    {
+        $damageReports = DamageReport::orderBy('created_at', 'desc')
+            ->paginate(5);
+
+        return view('StaffSide.StaffDamageReport', compact('damageReports'));
+    }
+    public function storeDamageReport(Request $request)
+    {
+        $request->validate([
+            'notes' => 'required|string|max:255',
+            'damage_description' => 'required|string',
+            'status' => 'required',
+            'damage_photos' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+        ]);
+
+        // Handle image upload
+        $photoPath = null;
+        if ($request->hasFile('damage_photos')) {
+            $photoPath = $request->file('damage_photos')->store('public/damage_photos');
+            $photoPath = str_replace('public/', '', $photoPath);
+        }
+
+        // Create the damage report
+        DamageReport::create([
+            'notes' => $request->notes,
+            'damage_description' => $request->damage_description,
+            'status' => $request->status,
+            'damage_photos' => $photoPath,
+        ]);
+
+        // Optionally, record activity
+        $this->recordActivity('Added a new damage report with notes: ' . $request->notes);
+
+        return redirect()->back()->with('success', 'Damage report submitted successfully!');
+    }
+    public function editDamageReport(Request $request, $id)
+{
+    try {
+        // Log the incoming request data
+        Log::info('Damage Report Update - Request Data:', [
+            'id' => $id,
+            'request_data' => $request->all()
+        ]);
+
+        // Validate the request
+        $request->validate([
+            'notes' => 'required|string',
+            'damage_description' => 'required|string',
+            'status' => 'required'
+        ]);
+
+        // Get the damage report
+        $damageReport = DamageReport::find($id);
+        if (!$damageReport) {
+            throw new \Exception('Damage report not found');
+        }
+
+        // Update the damage report
+        $updated = $damageReport->update([
+            'notes' => $request->notes,
+            'damage_description' => $request->damage_description,
+            'status' => $request->status,
+            'updated_at' => now()
+        ]);
+
+        // Log the update result
+        Log::info('Damage Report Update - Result:', [
+            'id' => $id,
+            'updated' => $updated
+        ]);
+
+        if ($updated) {
+            // Record the activity
+            $staffId = session()->get('StaffLogin');
+            $staff = Staff::find($staffId);
+            if ($staff) {
+                $this->recordActivity($staff->username . ' updated damage report #' . $id);
+            }
+
+            return redirect()->back()->with('success', 'Damage report updated successfully');
+        }
+
+        return redirect()->back()->with('error', 'No changes were made to the damage report');
+    } catch (\Exception $e) {
+        // Log the error
+        Log::error('Damage Report Update - Error:', [
+            'id' => $id,
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+        return redirect()->back()->with('error', 'Error updating damage report: ' . $e->getMessage());
+    }
+}
+    
 
 }

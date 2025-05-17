@@ -82,6 +82,6 @@ class GoogleAuthController extends Controller
         $user->update(['otp' => null, 'otp_expires_at' => null]);
         Auth::login($user);
         
-        return redirect()->route('calendar')->with('success', 'Login successful!');
+        return redirect()->route('homepage')->with('success', 'Login successful!');
     }
 }
