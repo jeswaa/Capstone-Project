@@ -33,43 +33,92 @@
             transform: translateX(10px);
         }
     }
+
+    .navbar-nav .nav-link {
+        color: #0b573d;
+        font-family: 'Josefin Sans', sans-serif;
+        transition: color 0.3s;
+    }
+
+    .navbar-nav .nav-link:hover {
+        color: white;
+    }
+
+
+
+    /* Hover for small screens */
+    @media (max-width: 991px) {
+        .navbar-nav {
+            flex-direction: column;
+            align-items: stretch;
+            background-color: rgba(11, 87, 61, 0.95);
+            padding: 0;
+            border-radius: 0.8rem;
+            width: 200px;
+            margin-left: auto;
+            margin-top: 0.5rem;
+            backdrop-filter: blur(8px);
+            overflow: hidden;
+        }
+
+        .navbar-nav .nav-item {
+            width: 100%;
+        }
+
+        .navbar-nav .nav-link {
+            color: white !important;
+            padding: 1rem;
+            width: 100%;
+            text-align: center;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+            margin: 0;
+            border-radius: 0;
+            border-bottom: 2px solid #e6f4e6; /* separator line */
+        }
+        .navbar-nav .nav-item:last-child .nav-link {
+            border-bottom: none; /* walang separator sa huli */
+        }
+    }
 </style>
 
 <body>
     <!-- ✅ Navbar (Fixed at the Top with z-index) -->
-    <nav class="navbar navbar-expand-lg  position-absolute top-0 w-100" style="z-index: 10;">
+    <nav class="navbar navbar-expand-lg position-absolute top-0 w-100" style="z-index: 10;">
         <div class="container">
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+            <!-- Logo - visible on all screens, aligned left -->
+            <a class="navbar-brand" href="#">
+                <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort" id="logo" height="150" width="130">
+            </a>
+
+            <!-- Navbar toggler - aligned right -->
+            <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse"
                 data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
                 aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+
+            <!-- Navbar content - aligned right -->
+            <div class="collapse navbar-collapse justify-content-end text-end mb-5" id="navbarSupportedContent">
+                <ul class="navbar-nav mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase text-underline-left-to-right me-4"
-                            style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#home">Home</a>
+                        <a class="nav-link fw-semibold text-uppercase text-decoration-none" href="#about">About Us</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase text-underline-left-to-right me-4"
-                            style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#about">About</a>
+                        <a class="nav-link fw-semibold text-uppercase text-decoration-none"
+                            href="#reviews">Review</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase text-underline-left-to-right me-4"
-                            style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#reviews">Review</a>
+                        <a href="{{ route('login') }}"
+                            class="nav-link fw-semibold text-uppercase text-decoration-none">Login</a>
                     </li>
                 </ul>
-                <a href="{{ route('login') }}"
-                    class="me-3 text-color-2 fs-5 p-2 text-decoration-none fw-semibold text-uppercase text-underline-left-to-right"
-                    style="font-family: 'Josefin Sans', sans-serif;">Login</a>
-                <a class="navbar-brand d-none d-md-block" href="#">
-                    <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort" id="logo" height="150" width="130">
-                </a>
             </div>
         </div>
     </nav>
+
     <!-- First Page -->
-    <section id="home">
+    <section>
         <div class="smoke"></div>
         <!-- Hero Section with Background -->
         <div class="hero vh-100 d-flex flex-column justify-content-center align-items-center text-center text-light position-relative"
@@ -118,98 +167,221 @@
     <section class="d-flex flex-column justify-content-center align-items-center py-5" style="background-color: white;">
         <div class="container">
             <div class="row align-items-center text-center">
-                <!-- Left Image (Hidden on small screens) -->
-                <div class="col-md-3 d-none d-md-block">
-                    <img src="{{ asset('images/DSCF2820.JPG') }}" alt="Left Image" class="img-fluid rounded"
-                        style="height: 200px; object-fit: cover; clip-path: polygon(0 0, 100% 0, 100% 100%, 0 calc(100% - 1.5rem));">
-                </div>
-                <!-- Center Text -->
-                <div class="col-md-6">
-                    <h2 class="fw-bold text-success text-uppercase text-center" style="font-size: calc(2rem + 1vw);">
-                        Relax & Unwind
-                    </h2>
-                    <p class="fst-italic text-secondary mt-2" style="font-size: 1.2rem;">
-                        at Lelo's Resort, where comfort and peace come together.
-                    </p>
-                </div>
-                <!-- Right Image (Hidden on small screens) -->
-                <div class="col-md-3 d-none d-md-block">
-                    <img src="{{ asset('images/DSCF2821.JPG') }}" alt="Right Image" class="img-fluid rounded"
-                        style="height: 200px; object-fit: cover; clip-path: polygon(0 calc(100% - 1.5rem), 100% 100%, 100% 0, 0 0);">
-                </div>
-            </div>
-        </div>
 
-        <!-- Lower Section with Text & Carousel -->
-        <div class="container mt-5">
-            <div class="row align-items-center text-center">
-                <!-- Left Text Section -->
-                <div class="col-lg-6 mb-4">
-                    <hr class="border-success mx-auto" style="width: 80%;">
-                    <p class="fst-italic text-success" style="font-size: 1.2rem;">
-                        Enjoy breathtakingly
-                    </p>
-                    <h1 class="fw-bold text-success text-uppercase"
-                        style="font-size: calc(1.8rem + 1vw); line-height: 1.2;">
-                        Beautiful Views <br>
-                        Great Amenities <br>
-                        & Friendly Service
-                    </h1>
-                    <div class="mt-3 p-3 rounded-pill" style="background-color: #E6F4E6; display: inline-block;">
-                        <p class="text-success m-0" style="font-size: 1.1rem;">
-                            <em>Booking your stay is quick and easy with our simple reservation system!</em>
-                        </p>
-                    </div>
-                    <hr class="border-dark mx-auto" style="width: 80%;">
-                </div>
-                <!-- Right Carousel Section -->
-                <div class="col-lg-6">
-                    <div id="carouselExampleInterval" class="carousel slide" data-bs-ride="carousel">
-                        <div class="carousel-inner">
-                            <div class="carousel-item active" data-bs-interval="5000">
-                                <img src="{{ asset('images/image1.JPG') }}" class="d-block w-100 rounded"
-                                    alt="Hotel Image 1">
-                            </div>
-                            <div class="carousel-item" data-bs-interval="5000">
-                                <img src="{{ asset('images/image5.JPG') }}" class="d-block w-100 rounded"
-                                    alt="Hotel Image 2">
-                            </div>
-                            <div class="carousel-item" data-bs-interval="5000">
-                                <img src="{{ asset('images/image8.jpg') }}" class="d-block w-100 rounded"
-                                    alt="Hotel Image 3">
-                            </div>
-                            <div class="carousel-item" data-bs-interval="5000">
-                                <img src="{{ asset('images/image10.jpg') }}" class="d-block w-100 rounded"
-                                    alt="Hotel Image 3">
-                            </div>
-                            <div class="carousel-item" data-bs-interval="5000">
-                                <img src="{{ asset('images/image3.jpg') }}" class="d-block w-100 rounded"
-                                    alt="Hotel Image 3">
-                            </div>
-                            <div class="carousel-item" data-bs-interval="5000">
-                                <img src="{{ asset('images/image9.jpg') }}" class="d-block w-100 rounded"
-                                    alt="Hotel Image 3">
-                            </div>
-                            <div class="carousel-item" data-bs-interval="5000">
-                                <img src="{{ asset('images/image2.jpg') }}" class="d-block w-100 rounded"
-                                    alt="Hotel Image 3">
+                <!-- Lower Section with Text & Carousel -->
+                <div class="container mt-5">
+                    <div class="row align-items-center text-center">
+                        <!-- Left Carousel Section -->
+                        <div class="col-lg-6">
+                            <div id="carouselExampleInterval" class="carousel slide" data-bs-ride="carousel">
+                                <div class="carousel-inner">
+                                    <div class="carousel-item active" data-bs-interval="5000">
+                                        <img src="{{ asset('images/image1.JPG') }}" class="d-block w-100 rounded"
+                                            alt="Hotel Image 1">
+                                    </div>
+                                    <div class="carousel-item" data-bs-interval="5000">
+                                        <img src="{{ asset('images/image5.JPG') }}" class="d-block w-100 rounded"
+                                            alt="Hotel Image 2">
+                                    </div>
+                                    <div class="carousel-item" data-bs-interval="5000">
+                                        <img src="{{ asset('images/image8.jpg') }}" class="d-block w-100 rounded"
+                                            alt="Hotel Image 3">
+                                    </div>
+                                    <div class="carousel-item" data-bs-interval="5000">
+                                        <img src="{{ asset('images/image10.jpg') }}" class="d-block w-100 rounded"
+                                            alt="Hotel Image 3">
+                                    </div>
+                                    <div class="carousel-item" data-bs-interval="5000">
+                                        <img src="{{ asset('images/image3.jpg') }}" class="d-block w-100 rounded"
+                                            alt="Hotel Image 3">
+                                    </div>
+                                    <div class="carousel-item" data-bs-interval="5000">
+                                        <img src="{{ asset('images/image9.jpg') }}" class="d-block w-100 rounded"
+                                            alt="Hotel Image 3">
+                                    </div>
+                                    <div class="carousel-item" data-bs-interval="5000">
+                                        <img src="{{ asset('images/image2.jpg') }}" class="d-block w-100 rounded"
+                                            alt="Hotel Image 3">
+                                    </div>
+                                </div>
+                                <button class="carousel-control-prev" type="button"
+                                    data-bs-target="#carouselExampleInterval" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Previous</span>
+                                </button>
+                                <button class="carousel-control-next" type="button"
+                                    data-bs-target="#carouselExampleInterval" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Next</span>
+                                </button>
                             </div>
                         </div>
-                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleInterval"
-                            data-bs-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Previous</span>
-                        </button>
-                        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleInterval"
-                            data-bs-slide="next">
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Next</span>
-                        </button>
+                        <!-- Right Text Section -->
+                        <div class="col-lg-6 mb-4">
+                            <hr class="border-success mx-auto" style="width: 80%;">
+                            <p class="fst-italic text-success" style="font-size: 1.2rem;">
+                                Relax & Unwind
+                            </p>
+                            <h1 class="fw-bold text-success text-uppercase"
+                                style="font-size: calc(1.8rem + 1vw); line-height: 1.2;">
+                                at Lelo's Resort, where comfort and peace come together.
+                            </h1>
+                            <hr class="border-dark mx-auto" style="width: 80%;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lower Section with Text & Carousel -->
+                <div class="container mt-5">
+                    <div class="row align-items-center text-center">
+                        <!-- Left Text Section -->
+                        <div class="col-lg-6 mb-4">
+                            <hr class="border-success mx-auto" style="width: 80%;">
+                            <p class="fst-italic text-success" style="font-size: 1.2rem;">
+                                Enjoy breathtakingly
+                            </p>
+                            <h1 class="fw-bold text-success text-uppercase"
+                                style="font-size: calc(1.8rem + 1vw); line-height: 1.2;">
+                                Beautiful Views <br>
+                                Great Amenities <br>
+                                & Friendly Service
+                            </h1>
+                            <div class="mt-3 p-3 rounded-pill"
+                                style="background-color: #E6F4E6; display: inline-block;">
+                                <p class="text-success m-0" style="font-size: 1.1rem;">
+                                    <em>Booking your stay is quick and easy with our simple reservation system!</em>
+                                </p>
+                            </div>
+                            <hr class="border-dark mx-auto" style="width: 80%;">
+                        </div>
+                        <!-- Right Carousel Section -->
+                        <div class="col-lg-6">
+                            <div id="carouselExampleInterval" class="carousel slide" data-bs-ride="carousel">
+                                <div class="carousel-inner">
+                                    <div class="carousel-item active" data-bs-interval="5000">
+                                        <img src="{{ asset('images/image1.JPG') }}" class="d-block w-100 rounded"
+                                            alt="Hotel Image 1">
+                                    </div>
+                                    <div class="carousel-item" data-bs-interval="5000">
+                                        <img src="{{ asset('images/image5.JPG') }}" class="d-block w-100 rounded"
+                                            alt="Hotel Image 2">
+                                    </div>
+                                    <div class="carousel-item" data-bs-interval="5000">
+                                        <img src="{{ asset('images/image8.jpg') }}" class="d-block w-100 rounded"
+                                            alt="Hotel Image 3">
+                                    </div>
+                                    <div class="carousel-item" data-bs-interval="5000">
+                                        <img src="{{ asset('images/image10.jpg') }}" class="d-block w-100 rounded"
+                                            alt="Hotel Image 3">
+                                    </div>
+                                    <div class="carousel-item" data-bs-interval="5000">
+                                        <img src="{{ asset('images/image3.jpg') }}" class="d-block w-100 rounded"
+                                            alt="Hotel Image 3">
+                                    </div>
+                                    <div class="carousel-item" data-bs-interval="5000">
+                                        <img src="{{ asset('images/image9.jpg') }}" class="d-block w-100 rounded"
+                                            alt="Hotel Image 3">
+                                    </div>
+                                    <div class="carousel-item" data-bs-interval="5000">
+                                        <img src="{{ asset('images/image2.jpg') }}" class="d-block w-100 rounded"
+                                            alt="Hotel Image 3">
+                                    </div>
+                                </div>
+                                <button class="carousel-control-prev" type="button"
+                                    data-bs-target="#carouselExampleInterval" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Previous</span>
+                                </button>
+                                <button class="carousel-control-next" type="button"
+                                    data-bs-target="#carouselExampleInterval" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Next</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    </section>
+
+    <!-- content Amenities -->
+    <section>
+        <div class="container text-center my-5">
+            <div class="py-5">
+                <div class="position-relative">
+                    <!-- Main heading with enhanced styling -->
+                    <div class="position-relative px-4 py-3 w-100"
+                        style="background-color: #E6F4E6; border-radius: 15px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                        <h1 class="fw-bolder text-success display-5"
+                            style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); font-weight: 900;">
+                            ANO LALAGAY KO DITO ETO YUNG PARANG MARKETING EH
+                        </h1>
                     </div>
                 </div>
             </div>
-        </div>
+
+            <!-- Subtitle with enhanced styling -->
+            <p class="fst-italic text-success mb-4" style="font-size: 1.2rem; letter-spacing: 0.5px;">
+                Stay close, enjoy hard—outdoor fun starts near your cottage room.
+            </p>
+
+            <!-- Decorative line -->
+            <div class="d-flex justify-content-center align-items-center gap-3 mb-4">
+                <div style="height: 2px; width: 50px; background-color: #0b573d;"></div>
+                <i class="bi bi-star-fill text-success"></i>
+                <div style="height: 2px; width: 50px; background-color: #0b573d;"></div>
+            </div>
+
+            <div class="row g-4">
+                <!-- Room 1 -->
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
+                        <div class="position-relative">
+                            <img src="{{ asset('images/room1.jpg') }}" class="card-img-top" alt="Room 1"
+                                style="border-radius: 20px 20px 0 0; height: 180px; object-fit: cover;">
+                            <div class="position-absolute bottom-0 end-0 m-2 px-3 py-1 bg-success text-white fw-bold"
+                                style="border-radius: 8px; font-style: italic; font-size: 1.2rem;">
+                                Price: ₱ 3,000
+                            </div>
+                        </div>
+                        <div class="card-body p-2">
+                            <h5 class="card-title mb-0" style="font-style: italic; color: #0b573d;">Room </h5>
+                        </div>
+                    </div>
+                </div>
+                <!-- Room 2 -->
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
+                        <div class="position-relative">
+                            <img src="{{ asset('images/room1.jpg') }}" class="card-img-top" alt="Room 2"
+                                style="border-radius: 20px 20px 0 0; height: 180px; object-fit: cover;">
+                            <div class="position-absolute bottom-0 end-0 m-2 px-3 py-1 bg-success text-white fw-bold"
+                                style="border-radius: 8px; font-style: italic; font-size: 1.2rem;">
+                                Price: ₱ 3,000
+                            </div>
+                        </div>
+                        <div class="card-body p-2">
+                            <h5 class="card-title mb-0" style="font-style: italic; color: #0b573d;">cottage</h5>
+                        </div>
+                    </div>
+                </div>
+                <!-- Room 3 -->
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
+                        <div class="position-relative">
+                            <img src="{{ asset('images/room3.jpg') }}" class="card-img-top" alt="Room 3"
+                                style="border-radius: 20px 20px 0 0; height: 180px; object-fit: cover;">
+                            <div class="position-absolute bottom-0 end-0 m-2 px-3 py-1 bg-success text-white fw-bold"
+                                style="border-radius: 8px; font-style: italic; font-size: 1.2rem;">
+                                Price: ₱ 3,000
+                            </div>
+                        </div>
+                        <div class="card-body p-2">
+                            <h5 class="card-title mb-0" style="font-style: italic; color: #0b573d;">cabin</h5>
+                        </div>
+                    </div>
+                </div>
     </section>
+
 
     <!-- Third Page -->
     <section id="about">
@@ -247,23 +419,6 @@
                                 Resort: Laur, Nueva Ecija, Philippines
                             </p>
                         </div>
-
-                        <div class="mt-4 text-start">
-                            <h5
-                                style="font-size: 2rem; color: white; font-family: 'Montserrat', sans-serif; font-weight: 600;">
-                                Contact & Social Media
-                            </h5>
-                            <p
-                                style="font-size: 1.2rem; color: white; font-family: 'Montserrat', sans-serif; margin-bottom: 0.8rem;">
-                                Facebook: <a href="https://www.facebook.com/lelosmountainresort"
-                                    class="text-decoration-none" target="_blank" style="color: #e6f4e6;">Lelo's Mountain
-                                    Resort</a>
-                            </p>
-                            <p
-                                style="font-size: 1.2rem; color: white; font-family: 'Montserrat', sans-serif; margin-bottom: 0.8rem;">
-                                Contact: +63 912 345 6789
-                            </p>
-                        </div>
                     </div>
                 </div>
 
@@ -289,18 +444,6 @@
                                         resorts offer stunning views, comfortable accommodations, and a perfect blend of
                                         nature and modern amenities.</p>
                                 </div>
-
-                                <div>
-                                    <h5
-                                        style="color: #0b573d; font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 1.8rem;">
-                                        Amenities</h5>
-                                    <p style="font-family: 'Montserrat', sans-serif; font-size: 1.2rem;">• Swimming
-                                        Pools</p>
-                                    <p style="font-family: 'Montserrat', sans-serif; font-size: 1.2rem;">• Function
-                                        Halls</p>
-                                    <p style="font-family: 'Montserrat', sans-serif; font-size: 1.2rem;">• Cottages &
-                                        Pavilions</p>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -309,9 +452,101 @@
         </div>
     </section>
 
+    <section>
+        <div class="container text-center my-5">
+            <div class="py-5">
+                <!-- ACTIVITIES SECTION (Nested inside Amenities) -->
+                <div class="py-5 mt-5">
+                    <div class="position-relative px-4 py-3"
+                        style="background-color: #E6F4E6; border-radius: 15px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                        <h1 class="fw-bolder text-success display-5"
+                            style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); font-weight: 900;">
+                            ACTIVITIES
+                        </h1>
+                    </div>
+                </div>
 
+                <p class="fst-italic text-success mb-4" style="font-size: 1.2rem; letter-spacing: 0.5px;">
+                    Explore fun, engaging activities for all ages—whether you're into adventure or relaxation!
+                </p>
 
+                <div class="d-flex justify-content-center align-items-center gap-3 mb-4">
+                    <div style="height: 2px; width: 50px; background-color: #0b573d;"></div>
+                    <i class="bi bi-star-fill text-success"></i>
+                    <div style="height: 2px; width: 50px; background-color: #0b573d;"></div>
+                </div>
 
+                <div class="row g-4 justify-content-center">
+                    <!-- Activity 1 -->
+                    <div class="col-md-5">
+                        <div class="card h-100 shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
+                            <div class="position-relative">
+                                <img src="{{ asset('images/room1.jpg') }}" class="card-img-top" alt="Activity 1"
+                                    style="border-radius: 20px 20px 0 0; height: 180px; object-fit: cover;">
+                                <div class="position-absolute bottom-0 end-0 m-2 px-3 py-1 bg-success text-white fw-bold"
+                                    style="border-radius: 8px; font-style: italic; font-size: 1.2rem;">
+                                    Nature Walk
+                                </div>
+                            </div>
+                            <div class="card-body p-2">
+                                <h5 class="card-title mb-0" style="font-style: italic; color: #0b573d;">Activity 1</h5>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Activity 2 -->
+                    <div class="col-md-5">
+                        <div class="card h-100 shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
+                            <div class="position-relative">
+                                <img src="{{ asset('images/campings.jpg') }}" class="card-img-top" alt="Camping"
+                                    style="border-radius: 20px 20px 0 0; height: 180px; object-fit: cover;">
+                                <div class="position-absolute bottom-0 end-0 m-2 px-3 py-1 bg-success text-white fw-bold"
+                                    style="border-radius: 8px; font-style: italic; font-size: 1.2rem;">
+                                    Camping
+                                </div>
+                            </div>
+                            <div class="card-body p-2">
+                                <h5 class="card-title mb-0" style="font-style: italic; color: #0b573d;">Activity 2</h5>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Activity 3 -->
+                    <div class="col-md-5">
+                        <div class="card h-100 shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
+                            <div class="position-relative">
+                                <img src="{{ asset('images/DSCF2729.jpg') }}" class="card-img-top" alt="ATV"
+                                    style="border-radius: 20px 20px 0 0; height: 180px; object-fit: cover;">
+                                <div class="position-absolute bottom-0 end-0 m-2 px-3 py-1 bg-success text-white fw-bold"
+                                    style="border-radius: 8px; font-style: italic; font-size: 1.2rem;">
+                                    ATV
+                                </div>
+                            </div>
+                            <div class="card-body p-2">
+                                <h5 class="card-title mb-0" style="font-style: italic; color: #0b573d;">Activity 3</h5>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Activity 4 -->
+                    <div class="col-md-5">
+                        <div class="card h-100 shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
+                            <div class="position-relative">
+                                <img src="{{ asset('images/swimming.jpg') }}" class="card-img-top" alt="Swimming"
+                                    style="border-radius: 20px 20px 0 0; height: 180px; object-fit: cover;">
+                                <div class="position-absolute bottom-0 end-0 m-2 px-3 py-1 bg-success text-white fw-bold"
+                                    style="border-radius: 8px; font-style: italic; font-size: 1.2rem;">
+                                    Swimming
+                                </div>
+                            </div>
+                            <div class="card-body p-2">
+                                <h5 class="card-title mb-0" style="font-style: italic; color: #0b573d;">Activity 4</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </section>
 
 
     <!-- Fourth Page -->
@@ -361,23 +596,29 @@
     <!-- footer section -->
     <footer style="background-color: #0b573d; height: auto; padding: 20px;">
         <div class="container">
-            <div class="row">
-                <!-- Left Side: Smaller App Icon -->
-                <div class="col-md-6 d-flex justify-content-start align-items-center">
-                    <img src="{{ asset('images/appicon.png') }}" class="img-fluid" alt="App Icon"
-                        style="height: 100px;">
+            <div class="row align-items-center">
+                <!-- Left: App Icon -->
+                <div class="col-md-2 d-flex justify-content-start align-items-center">
+                    <img src="{{ asset('images/appicon.png') }}" class="img-fluid" alt="App Icon" style="height: 90px;">
                 </div>
 
-                <!-- Right Side: Facebook Link -->
-                <div class="col-md-6 d-flex justify-content-end align-items-center">
+                <!-- Spacer or optional center -->
+                <div class="col-md-7"></div>
+
+                <!-- Right: Facebook + Contact -->
+                <div class="col-md-3 d-flex flex-column align-items-end text-white">
                     <a href="https://www.facebook.com/lelosmountainresort" target="_blank"
-                        class="text-white fs-6 text-center">
-                        <i style="color: #0a66c2" class="bi bi-facebook fs-3"></i>
+                        class="text-white d-flex align-items-center gap-2 mb-1">
+                        <i class="bi bi-facebook fs-4" style="color: #0a66c2;"></i>
+                        <span class="text-white">Lelo's Mountain Resort</span>
                     </a>
+                    <span>Contact: +63 912 345 6789</span>
                 </div>
             </div>
         </div>
     </footer>
+
+
 
 
 </body>
