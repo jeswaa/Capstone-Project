@@ -42,60 +42,11 @@
 <body style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
     <div class="container-fluid min-vh-100 d-flex p-0">
         @include('Alert.loginSuccessUser')
-        <!-- Side NavBar -->
-        <div class="col-md-3 col-lg-2 color-background8 text-white py-5 position-sticky" style="top: 0; height: 100vh;">
-            <div class="d-flex flex-column align-items-center">
-                <img src="{{ asset('images/default-profile.jpg') }}" alt="Profile Picture" class="rounded-circle w-50 mb-3 border border-5 border-white">
-                <p class="font-heading sidebar-text" data-bs-toggle="modal" data-bs-target="#editProfileModal" style="cursor: pointer;">Edit Profile</p>
-            </div>
-
-            <div class="d-flex flex-column px-4 mt-4">
-                <a href="{{ route('dashboard') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                    <i class="fas fa-tachometer-alt me-2 fs-5"></i> Dashboard
-                </a>
-                <a href="{{ route('reservations') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                    <i class="fas fa-calendar-alt me-2 fs-5"></i> Reservations
-                </a>
-                <a href="{{ route('guests') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                    <i class="fas fa-users me-2 fs-5"></i> Guests
-                </a>
-                <a href="{{ route('transactions') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                    <i class="fas fa-credit-card me-2 fs-5"></i> Transactions
-                </a>
-
-                <div class="dropdown py-2 mt-4">
-                    <a class="text-white text-decoration-none d-flex align-items-center dropdown-toggle" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-chart-line me-2 fs-5 text-underline-left-to-right"></i> Reports
-                    </a>
-                    <ul class="dropdown-menu " aria-labelledby="reportsDropdown">
-                        <li><a class="dropdown-item" href="{{ route('reports') }}">Summary Report</a></li>
-                        <li><a class="dropdown-item" href="{{ route('activityLogs') }}">Activity Logs</a></li>
-                    </ul>
-                </div>
-
-                <a href="{{ route ('DamageReport')}}"  class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                    <i class="fas fa-clipboard-list fs-5 icon-center"></i>
-                    <span class="nav-text ms-3 font-paragraph">Damage Report</span>
-                </a>
-
-                <a href="{{ route('logout') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                    <i class="fas fa-sign-out-alt me-2 fs-5"></i> Logout
-                </a>
-            </div>
-        </div>
+        @include('Navbar.sidenavbar')
         <!-- Main Content -->
         <div class="col-md-9 col-lg-10 py-4 px-4">
             <!-- Header -->
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <h1 class="fw-semibold fs-1" style="font-family: 'Anton', sans-serif; color: #0b573d; letter-spacing: 0.2em;">ROOM</h1>
-                <form class="d-flex w-50 ms-5" role="search">
-                    <div class="input-group">
-                        <input type="search" class="form-control rounded-start-5 border-3 border-secondary" style="background-color: transparent; height: 40px;" placeholder="Search" aria-label="Search">
-                        <button class="btn btn-secondary h-75 rounded-end-5" style="color: #e9ffcc;" type="submit">
-                            <i class="fa-solid fa-magnifying-glass" ></i>
-                        </button>
-                    </div>
-                </form>
+            <div class="d-flex justify-content-end align-items-center mb-2">
                 <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill me-3">
             </div>
 
@@ -108,7 +59,6 @@
             </div>
 
             <div>
-                <h1 class="text-color-2 fw-bold mt-3 ms-5" style="font-family: 'Anton', sans-serif; letter-spacing: 0.1em;">Overview</h1>
                 <!-- Cards Container -->
                 <div class="container mt-4 mb-4">
                     <div class="row g-4">
@@ -188,6 +138,7 @@
                                 <th scope="col">Room Type</th>
                                 <th scope="col">Description</th>
                                 <th scope="col">Room Capacity</th>
+                                <th scope="col">Quantity</th>
                                 <th scope="col">Price</th>
                                 <th scope="col">Status</th>
                                 <th scope="col">Actions</th>
@@ -204,6 +155,7 @@
                                 <td>{{ $accomodation->accomodation_type }}</td>
                                 <td>{{ $accomodation->accomodation_description}}</td>
                                 <td>{{ $accomodation->accomodation_capacity }}</td>
+                                <td>{{ $accomodation->quantity }}</td>
                                 <td>{{ $accomodation->accomodation_price }}</td>
                                 <td>{{ $accomodation->accomodation_status }}</td>
                                 <td>
@@ -339,61 +291,67 @@
 
     <!-- Add Room Modal -->
     <div class="modal fade" id="addRoomModal" tabindex="-1" aria-labelledby="addRoomModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addRoomModalLabel">Add Room</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content rounded-4 shadow">
+                <div class="modal-header border-0 bg-success text-white" style="background-color: #0b573d !important;">
+                    <h5 class="modal-title text-uppercase" id="addRoomModalLabel" style="font-family: 'Anton', sans-serif; letter-spacing: 0.1em;">Add Room</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body p-4">
                     <form method="POST" action="{{ route('addRoom') }}" enctype="multipart/form-data">
                         @csrf
-                        <div class="mb-3">
-                            <label for="accomodationImage" class="form-label">Image</label>
-                            <input type="file" class="form-control" id="accomodationImage" name="accomodation_image" accept="image/*"  required>
-                            @if ($errors->has('accomodation_image'))
-                                <span class="text-danger">{{ $errors->first('accomodation_image') }}</span>
-                            @endif
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label for="accomodationImage" class="form-label fw-semibold">Image</label>
+                                <input type="file" class="form-control border-2" id="accomodationImage" name="accomodation_image" accept="image/*" required>
+                                @if ($errors->has('accomodation_image'))
+                                    <span class="text-danger">{{ $errors->first('accomodation_image') }}</span>
+                                @endif
+                            </div>
+                            <div class="col-md-6">
+                                <label for="accomodationId" class="form-label fw-semibold">Room ID</label>
+                                <input type="text" class="form-control border-2" id="accomodationId" name="room_id" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="accomodationName" class="form-label fw-semibold">Name</label>
+                                <input type="text" class="form-control border-2" id="accomodationName" name="accomodation_name" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="accomodationType" class="form-label fw-semibold">Type</label>
+                                <select class="form-select border-2" id="accomodationType" name="accomodation_type" required>
+                                    <option value="" selected disabled>Select Type</option>
+                                    <option value="room">Room</option>
+                                    <option value="cottage">Cottage</option>
+                                    <option value="cabin">Cabin</option>    
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="accomodationStatus" class="form-label fw-semibold">Status</label>
+                                <select class="form-select border-2" id="accomodationStatus" name="accomodation_status" required>
+                                    <option value="" selected disabled>Select Status</option>
+                                    <option value="available">Available</option>
+                                    <option value="unavailable">Not Available</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label for="accomodationDescription" class="form-label fw-semibold">Description</label>
+                                <textarea class="form-control border-2" id="accomodationDescription" name="accomodation_description" rows="3"></textarea>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="accomodationCapacity" class="form-label fw-semibold">Capacity</label>
+                                <input type="number" class="form-control border-2" id="accomodationCapacity" name="accomodation_capacity" min="1" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="accomodationPrice" class="form-label fw-semibold">Price</label>
+                                <input type="number" class="form-control border-2" id="accomodationPrice" name="accomodation_price" min="0" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="accomodationQuantity" class="form-label fw-semibold">Quantity</label>
+                                <input type="number" class="form-control border-2" id="accomodationQuantity" name="quantity" min="1" value="1" required>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="accomodationId" class="form-label">Room ID</label>
-                            <input type="text" class="form-control" id="accomodationId" name="room_id" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="accomodationName" class="form-label">Name</label>
-                            <input type="text" class="form-control" id="accomodationName" name="accomodation_name" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="accomodationType" class="form-label">Type</label>
-                            <select class="form-select" id="accomodationType" name="accomodation_type" required>
-                                <option value="" selected disabled>Select Type</option>
-                                <option value="room">Room</option>
-                                <option value="cottage">Cottage</option>
-                                <option value="cabin">Cabin</option>    
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="accomodationDescription" class="form-label">Description</label>
-                            <textarea class="form-control" id="accomodationDescription" name="accomodation_description" rows="3"></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="accomodationCapacity" class="form-label">Capacity</label>
-                            <input type="number" class="form-control" id="accomodationCapacity" name="accomodation_capacity" min="1" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="accomodationPrice" class="form-label">Price</label>
-                            <input type="number" class="form-control" id="accomodationPrice" name="accomodation_price" min="0" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="accomodationStatus" class="form-label">Status</label>
-                            <select class="form-select" id="accomodationStatus" name="accomodation_status" required>
-                                <option value="" selected disabled>Select Status</option>
-                                <option value="available">Available</option>
-                                <option value="unavailable">Not Available</option>
-                            </select>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="submit" class="btn btn-primary">Add</button>
+                        <div class="modal-footer border-0 px-0 pb-0">
+                            <button type="submit" class="btn text-white px-4 py-2" style="background-color: #0b573d;">Add Room</button>
                         </div>
                     </form>
                 </div>

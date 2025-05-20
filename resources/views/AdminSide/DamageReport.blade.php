@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Anton&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -30,46 +31,7 @@
 
 
 <div class="container-fluid min-vh-100 d-flex p-0">
-    <!-- Sidebar -->
-    <div class="col-md-3 col-lg-2 color-background8 text-white py-5 position-sticky" style="top: 0; height: 100vh; background-color: #0b573d">
-        <div class="d-flex flex-column align-items-center">
-            <img src="{{ asset('images/appicon.png') }}" alt="Profile Picture" class="rounded-circle w-50 mb-3 border border-5 border-white">
-        </div>
-
-        <div class="d-flex flex-column px-4 mt-4">
-            <a href="{{ route('dashboard') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                <i class="fas fa-tachometer-alt me-2 fs-5"></i> Dashboard
-            </a>
-            <a href="{{ route('reservations') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                <i class="fas fa-calendar-alt me-2 fs-5"></i> Reservations
-            </a>
-            <a href="{{ route('guests') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                <i class="fas fa-users me-2 fs-5"></i> Guests
-            </a>
-            <a href="{{ route('transactions') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                <i class="fas fa-credit-card me-2 fs-5"></i> Transactions
-            </a>
-
-            <div class="dropdown py-2 mt-4">
-                <a class="text-white text-decoration-none d-flex align-items-center dropdown-toggle" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-chart-line me-2 fs-5"></i> Reports
-                </a>
-                <ul class="dropdown-menu " aria-labelledby="reportsDropdown">
-                    <li><a class="dropdown-item" href="{{ route('reports') }}">Summary Report</a></li>
-                    <li><a class="dropdown-item" href="{{ route('activityLogs') }}">Activity Logs</a></li>
-                </ul>
-            </div>
-
-            <a href="{{ route ('DamageReport')}}"  class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                <i class="fas fa-clipboard-list fs-5 icon-center"></i>
-                <span class="nav-text ms-3 font-paragraph">Damage Report</span>
-            </a>
-
-            <a href="{{ route('logout') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                <i class="fas fa-sign-out-alt me-2 fs-5"></i> Logout
-            </a>
-        </div>
-    </div>
+    @include('Navbar.sidenavbar')
      <!-- Main Content -->
      <div class="col-md-9 col-lg-10 py-4 px-4">
         <!-- Header -->
@@ -114,16 +76,16 @@
                             <td>{{ $report->damage_description }}</td>
                             <td>{{ $report->created_at->format('M d, Y h:i A') }}</td>
                             <td>
-                                <span class="badge {{ $report->status == 'pending' ? 'bg-warning' : ($report->status == 'in progress' ? 'bg-info' : 'bg-success') }}">
+                                <span class="badge text-capitalize {{ $report->status == 'pending' ? 'bg-warning' : ($report->status == 'in progress' ? 'bg-info' : 'bg-success') }}">
                                     {{ $report->status }}
                                 </span>
                             </td>
                             <td>
                                 <div class="d-flex gap-2">
-                                    <button class="btn btn-sm btn-primary rounded-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#editReportModal{{ $report->id }}" style="background-color: #0b573d; border: none; transition: background 0.2s;">
+                                    <button class="btn btn-sm color-background5 text-white rounded-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#editReportModal{{ $report->id }}" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background-color: #0b573d;">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-danger rounded-3 shadow-sm" onclick="deleteReport({{ $report->id }})" style="background-color: #d9534f; border: none; transition: background 0.2s;">
+                                    <button class="btn btn-sm btn-danger rounded-3 shadow-sm" onclick="deleteReport({{ $report->id }})" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </div>
@@ -172,6 +134,61 @@
         </div>
         @endforeach
 </div>
-    
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmationModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4" style="border: 2px solid #dc3545;">
+            <div class="modal-header bg-danger text-white rounded-top-4">
+                <h5 class="modal-title fw-bold" style="font-family: 'Poppins', sans-serif;">Confirm Deletion</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="fas fa-exclamation-triangle text-warning mb-3" style="font-size: 3rem;"></i>
+                <p class="mb-1 fw-semibold">Are you sure you want to delete this damage report?</p>
+                <p class="text-muted small">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let reportIdToDelete = null;
+
+function deleteReport(id) {
+    reportIdToDelete = id;
+    const modal = new bootstrap.Modal(document.getElementById('deleteConfirmationModal'));
+    modal.show();
+}
+
+document.getElementById('confirmDelete').addEventListener('click', function() {
+    if (reportIdToDelete) {
+        fetch(`/damage-report/delete/${reportIdToDelete}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.reload();
+            } else {
+                alert('Hindi matagumpay ang pagtanggal ng report');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('May naganap na error sa pagtanggal ng report');
+        });
+    }
+    const modal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmationModal'));
+    modal.hide();
+});
+</script>
 </body>
 </html>

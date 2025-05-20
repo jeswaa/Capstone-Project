@@ -303,21 +303,24 @@
             let children = parseInt(document.getElementById("number_of_children").value) || 0;
             let totalGuests = adults + children;
             
-            // Get selected accommodation capacity
-            let selectedAccommodation = document.querySelector('.select-accommodation.selected');
-            let maxCapacity = selectedAccommodation ? parseInt(selectedAccommodation.getAttribute('data-capacity')) : 0;
+            // Get total capacity from all selected rooms
+            let totalCapacity = 0;
+            document.querySelectorAll('.select-accommodation.selected').forEach(room => {
+                totalCapacity += parseInt(room.getAttribute('data-capacity')) || 0;
+            });
             
-            // Get the save button and error message elements
+            // Get elements
             let saveButton = document.querySelector('button[type="submit"]');
             let guestError = document.getElementById('guestError');
             let totalGuestsInput = document.getElementById("total_guests");
-
+        
             // Update total guests display
             totalGuestsInput.value = totalGuests;
-            
-            // Check if total guests exceeds capacity
-            if (totalGuests > maxCapacity && maxCapacity > 0) {
+        
+            // Check if total guests exceeds total capacity
+            if (totalGuests > totalCapacity && totalCapacity > 0) {
                 guestError.style.display = 'block';
+                guestError.textContent = `Exceeds maximum capacity of guests`;
                 saveButton.disabled = true;
                 saveButton.classList.add('opacity-50');
                 totalGuestsInput.style.color = 'red';
@@ -328,30 +331,30 @@
                 totalGuestsInput.style.color = 'black';
             }
             
-            // Kunin ang entrance fees
+            // Get entrance fees
             let adultFee = parseFloat(document.getElementById("adult_fee").textContent.trim().replace(/[₱,]/g, ''));
             let childFee = parseFloat(document.getElementById("child_fee").textContent.trim().replace(/[₱,]/g, ''));
             
-            // Kalkulahin ang total entrance fee
+            // Calculate total entrance fee
             let totalEntranceFee = (adults * adultFee) + (children * childFee);
             
-            // I-update ang display ng total guests at entrance fee
+            // Update total guests and entrance fee display
             document.getElementById("total_guests").value = totalGuests;
             document.getElementById("total_entrance_fee").textContent = totalEntranceFee.toFixed(2);
             
-            // I-save ang total entrance fee sa hidden input para ma-submit sa form
+            // Save total entrance fee in hidden input for form submission
             let hiddenInput = document.createElement('input');
             hiddenInput.type = 'hidden';
             hiddenInput.name = 'entrance_fee';
             hiddenInput.value = totalEntranceFee.toFixed(2);
             
-            // Tanggalin ang dating hidden input kung meron
+            // Remove existing hidden input if any
             let existingInput = document.querySelector('input[name="entrance_fee"]');
             if (existingInput) {
                 existingInput.remove();
             }
             
-            // Idagdag ang bagong hidden input sa form
+            // Add new hidden input to form
             document.querySelector('form').appendChild(hiddenInput);
         }
     function calculateTotalAmount() {

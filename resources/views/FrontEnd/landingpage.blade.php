@@ -27,33 +27,94 @@
             transform: translateX(10px);
         }
     }
+
+    .navbar-nav .nav-link {
+    color: #0b573d;
+    font-family: 'Josefin Sans', sans-serif;
+    transition: color 0.3s;
+}
+/* Hover for small screens */
+@media (max-width: 991px) {
+    .navbar-nav {
+        flex-direction: column;
+        align-items: stretch;
+        background-color: rgba(11, 87, 61, 0.95);
+        padding: 0;
+        border-radius: 0.8rem;
+        width: 200px;
+        margin-left: auto;
+        margin-top: 0.5rem;
+        backdrop-filter: blur(8px);
+        overflow: hidden;
+    }
+
+    .navbar-nav .nav-item {
+        width: 100%;
+    }
+
+    .navbar-nav .nav-link {
+        color: white !important;
+        padding: 1rem;
+        width: 100%;
+        text-align: center;
+        font-family: 'Poppins', sans-serif;
+        transition: all 0.3s ease;
+        margin: 0;
+        border-radius: 0;
+    }
+
+    .navbar-nav .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        width: 100%;
+    }
+
+    .navbar-toggler {
+        border: none;
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+    }
+
+    .navbar-toggler:focus {
+        box-shadow: none;
+        outline: none;
+    }
+}
 </style>
 <body>
     <!-- ✅ Navbar (Fixed at the Top with z-index) -->
-    <nav class="navbar navbar-expand-lg  position-absolute top-0 w-100" style="z-index: 10;">
+    <nav class="navbar navbar-expand-lg position-absolute top-0 w-100" style="z-index: 10;">
         <div class="container">
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <!-- Logo - visible on all screens, aligned left -->
+            <a class="navbar-brand" href="#">
+                <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort" id="logo" height="150" width="130">
+            </a>
+            
+            <!-- Navbar toggler - aligned right -->
+            <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+            
+            <!-- Navbar content - aligned right -->
+            <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+                <ul class="navbar-nav mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase text-underline-left-to-right me-4" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#home">Home</a>
+                        <a class="nav-link fw-semibold text-uppercase text-decoration-none" href="#home">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase text-underline-left-to-right me-4" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#about">About</a>
+                        <a class="nav-link fw-semibold text-uppercase text-decoration-none" href="#about">About</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase text-underline-left-to-right me-4" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#reviews">Review</a>
+                        <a class="nav-link fw-semibold text-uppercase text-decoration-none" href="#reviews">Review</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('login') }}" class="nav-link fw-semibold text-uppercase text-decoration-none">Login</a>
                     </li>
                 </ul>
-                <a href="{{ route('login') }}" class="me-3 text-color-2 fs-5 p-2 text-decoration-none fw-semibold text-uppercase text-underline-left-to-right" style="font-family: 'Josefin Sans', sans-serif;">Login</a>
-                <a class="navbar-brand d-none d-md-block" href="#">
-                    <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort" id="logo" height="150" width="130">
-                </a>
             </div>
         </div>
     </nav>
+
     <!-- First Page -->
     <section id="home">
         <div class="smoke"></div>
@@ -328,4 +389,4 @@
 
 
 </body>
-</html> 
+</html>
