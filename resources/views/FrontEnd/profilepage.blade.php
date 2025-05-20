@@ -14,6 +14,7 @@
 </head>
 <style>
 </style>
+</style>
 
 <body
     style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
@@ -116,9 +117,13 @@
                             <label for="name" class="form-label">Name</label>
                             <input type="text" class="form-control" id="name" name="name" value="{{ $user->name }}"
                                 required>
+                            <input type="text" class="form-control" id="name" name="name" value="{{ $user->name }}"
+                                required>
                         </div>
                         <div class="mb-3">
                             <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" value="{{ $user->email }}"
+                                required>
                             <input type="email" class="form-control" id="email" name="email" value="{{ $user->email }}"
                                 required>
                         </div>
@@ -126,9 +131,13 @@
                             <label for="mobileNo" class="form-label">Mobile Number</label>
                             <input type="number" class="form-control" id="mobileNo" name="mobileNo"
                                 value="{{ $user->mobileNo }}" required>
+                            <input type="number" class="form-control" id="mobileNo" name="mobileNo"
+                                value="{{ $user->mobileNo }}" required>
                         </div>
                         <div class="mb-3">
                             <label for="address" class="form-label">Address</label>
+                            <input type="text" class="form-control" id="address" name="address"
+                                value="{{ $user->address }}" required>
                             <input type="text" class="form-control" id="address" name="address"
                                 value="{{ $user->address }}" required>
                         </div>
@@ -336,11 +345,11 @@
                                                 <p><strong>Status:</strong>
                                                     <span
                                                         class="badge 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                @if(isset($reservation) && $reservation->payment_status == 'paid') bg-success 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                @elseif(isset($reservation) && $reservation->payment_status == 'pending') bg-warning 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                @elseif(isset($reservation) && $reservation->payment_status == 'booked') bg-primary 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @else bg-danger 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                @endif">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @if(isset($reservation) && $reservation->payment_status == 'paid') bg-success 
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @elseif(isset($reservation) && $reservation->payment_status == 'pending') bg-warning 
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @elseif(isset($reservation) && $reservation->payment_status == 'booked') bg-primary 
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @else bg-danger 
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @endif">
                                                         {{ isset($reservation) ? $reservation->payment_status : 'N/A' }}
                                                     </span>
                                                 </p>

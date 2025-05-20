@@ -16,7 +16,9 @@ use App\Models\Reservation;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\TransactionsExport;
+use App\Exports\ReportsExport;
 use Illuminate\Support\Facades\Log;
+use App\Models\DamageReport;
 
 
 class AdminSideController extends Controller
@@ -288,6 +290,21 @@ public function reports(Request $request)
         ? round(($cancelledBookings / $totalBookings) * 100, 2) 
         : 0;
 
+    // Get checked out count
+    $checkedOutCount = DB::table('reservation_details')
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereMonth('reservation_check_in_date', $selectedMonth)
+        ->where('reservation_status', 'checked-out')
+        ->count();
+
+    // Get early checked out count
+    $earlyCheckedOutCount = DB::table('reservation_details')
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereMonth('reservation_check_in_date', $selectedMonth)
+        ->where('reservation_status', 'early-checked-out')
+        ->whereRaw('DATE(updated_at) < reservation_check_out_date')
+        ->count();
+
     // Get monthly income data
     $monthlyIncome = DB::table('reservation_details')
         ->whereYear('reservation_check_in_date', $selectedYear)
@@ -323,6 +340,36 @@ public function reports(Request $request)
 
     $dates = $monthlyIncome->pluck('date')->toArray();
     $income = $monthlyIncome->pluck('daily_total')->toArray();
+
+    // Add export functionality
+    if ($request->has('export')) {
+        $data = [
+            'confirmedBookings' => $confirmedBookings,
+            'adultGuests' => $adultGuests,
+            'childGuests' => $childGuests,
+            'dailyBookings' => $dailyBookings,
+            'mostBookedRoomType' => $mostBookedRoomType,
+            'cancelledBookings' => $cancelledBookings,
+            'cancellationPercentage' => $cancellationPercentage,
+            'totalBookings' => $totalBookings,
+            'monthlyIncome' => $monthlyIncome,
+            'paymentStatusData' => $paymentStatusData,
+            'selectedMonth' => $selectedMonth,
+            'selectedYear' => $selectedYear,
+            'checkedOutCount' => $checkedOutCount,
+            'earlyCheckedOutCount' => $earlyCheckedOutCount
+        ];
+
+        if ($request->export === 'pdf') {
+            $pdf = PDF::loadView('exports.reports-pdf', $data);
+            return $pdf->download('monthly-report-' . $monthYear . '.pdf');
+        }
+
+        if ($request->export === 'excel') {
+            return Excel::download(new TransactionsExport($data), 'monthly-report-' . $monthYear . '.xlsx');
+        }
+    }
+
     return view('AdminSide.Reports', compact(
         'selectedMonth',
         'selectedYear', 
@@ -336,7 +383,9 @@ public function reports(Request $request)
         'totalBookings',
         'dates',
         'income',
-        'paymentStatusData'
+        'paymentStatusData',
+        'checkedOutCount',
+        'earlyCheckedOutCount'
     ));
 }
 
@@ -407,33 +456,124 @@ public function login(Request $request) {
     // Get selected year from request or use current year
     $selectedYear = request()->input('year', date('Y'));
     
-    // Total Reservations - Daily (for selected year)
-    $dailyReservations = DB::table('reservation_details')
-        ->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as total'))
-        ->whereYear('created_at', $selectedYear)
-        ->groupBy('date')
+    $dailyReservations = DB::table('reservation_details AS rd')
+        ->select(
+            DB::raw('DATE(rd.created_at) as date'),
+            DB::raw('count(*) as total'),
+            // Gamitin ang pipe '|' bilang separator sa GROUP_CONCAT
+            DB::raw('GROUP_CONCAT(rd.accomodation_id SEPARATOR \'|\') as accomodation_ids')
+        )
+        ->whereYear('rd.created_at', $selectedYear)
+        ->groupBy(DB::raw('DATE(rd.created_at)'))
         ->orderBy('date', 'asc')
-        ->get();
+        ->get()
+        ->map(function($reservation) {
+            // I-explode ang string gamit ang pipe separator
+            $rawJsonStrings = explode('|', $reservation->accomodation_ids);
+            $allAccommodationIds = [];
 
-    // Weekly Reservations (for selected year)
-    $weeklyReservations = DB::table('reservation_details')
-        ->select(DB::raw('YEARWEEK(created_at, 1) as week'), DB::raw('count(*) as total'))
-        ->whereYear('created_at', $selectedYear)
+            foreach ($rawJsonStrings as $jsonString) {
+                // I-decode ang bawat JSON string (na dapat ay array ng IDs)
+                $decoded = json_decode($jsonString, true);
+                if (is_array($decoded)) {
+                    // I-merge ang mga IDs sa isang flat array
+                    $allAccommodationIds = array_merge($allAccommodationIds, $decoded);
+                }
+                // Hindi na kailangan ang else block dahil inaasahan natin na JSON array string ang format
+            }
+
+            // Alisin ang mga null o empty values
+            $allAccommodationIds = array_filter($allAccommodationIds);
+
+            // Fetch room names
+            $roomTypes = DB::table('accomodations')
+                ->whereIn('accomodation_id', $allAccommodationIds)
+                ->pluck('accomodation_name')
+                ->toArray();
+
+            return [
+                'date' => $reservation->date,
+                'total' => $reservation->total,
+                'rooms' => $roomTypes
+            ];
+        });
+        $weeklyReservations = DB::table('reservation_details AS rd')
+        ->select(
+            DB::raw('YEARWEEK(rd.created_at, 1) as week'),
+            DB::raw('count(*) as total'),
+            // Baguhin din ang separator dito kung pareho ang isyu
+            DB::raw('GROUP_CONCAT(rd.accomodation_id SEPARATOR \'|\') as accomodation_ids')
+        )
+        ->whereYear('rd.created_at', $selectedYear)
         ->groupBy('week')
         ->orderBy('week', 'asc')
-        ->get();
+        ->get()
+        ->map(function($reservation) {
+            // I-explode gamit ang pipe
+            $rawJsonStrings = explode('|', $reservation->accomodation_ids);
+            $allAccommodationIds = [];
+    
+            foreach ($rawJsonStrings as $jsonString) {
+                $decoded = json_decode($jsonString, true);
+                if (is_array($decoded)) {
+                    $allAccommodationIds = array_merge($allAccommodationIds, $decoded);
+                }
+            }
+    
+            $roomTypes = DB::table('accomodations')
+                ->whereIn('accomodation_id', $allAccommodationIds)
+                ->pluck('accomodation_name')
+                ->toArray();
+    
+            return [
+                'week' => $reservation->week,
+                'total' => $reservation->total,
+                'rooms' => $roomTypes
+            ];
+        });
 
-    // Monthly Reservations (for selected year)
-    $monthlyReservations = DB::table('reservation_details')
+        $monthlyReservations = DB::table('reservation_details AS rd')
         ->select(
-            DB::raw('DATE_FORMAT(reservation_check_in_date, "%b %Y") as month'), 
-            DB::raw('count(*) as total')
+            DB::raw('DATE_FORMAT(rd.reservation_check_in_date, "%b %Y") as month'),
+            DB::raw('count(*) as total'),
+            // Baguhin ang separator sa GROUP_CONCAT para sa monthly view
+            DB::raw('GROUP_CONCAT(rd.accomodation_id SEPARATOR \'|\') as accomodation_ids')
         )
-        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereYear('rd.reservation_check_in_date', $selectedYear)
         ->groupBy('month')
-        ->orderBy(DB::raw('MIN(reservation_check_in_date)'), 'asc')
-        ->get();
-
+        ->orderBy(DB::raw('MIN(rd.reservation_check_in_date)'), 'asc')
+        ->get()
+        ->map(function($reservation) {
+            // I-explode ang string gamit ang pipe separator
+            $rawJsonStrings = explode('|', $reservation->accomodation_ids);
+            $allAccommodationIds = [];
+    
+            foreach ($rawJsonStrings as $jsonString) {
+                // I-decode ang bawat JSON string (na dapat ay array ng IDs)
+                $decoded = json_decode($jsonString, true);
+                if (is_array($decoded)) {
+                    // I-merge ang mga IDs sa isang flat array
+                    $allAccommodationIds = array_merge($allAccommodationIds, $decoded);
+                }
+            }
+    
+            // Alisin ang mga null o empty values
+            $allAccommodationIds = array_filter($allAccommodationIds);
+    
+            // Fetch room names
+            $roomTypes = DB::table('accomodations')
+                ->whereIn('accomodation_id', $allAccommodationIds)
+                ->pluck('accomodation_name')
+                ->toArray();
+    
+            return [
+                'month' => $reservation->month,
+                'total' => $reservation->total,
+                'rooms' => $roomTypes
+            ];
+        });
+    
+    
     // Booking Trends - Last 12 months (regardless of year selection)
     $bookingTrends = DB::table('reservation_details')
         ->select(DB::raw("CONCAT(MONTHNAME(reservation_check_in_date), '-', YEAR(reservation_check_in_date)) as date"), DB::raw('count(*) as total'))
@@ -600,6 +740,27 @@ public function login(Request $request) {
 
         $currentDate->addDay();
     }
+    $roomColors = [];
+    $allRoomTypes = DB::table('accomodations')
+        ->select('accomodation_name')
+        ->distinct()
+        ->get();
+    
+    $colorPalette = [
+        'rgba(255, 99, 132, 0.5)',   // Pink
+        'rgba(75, 192, 192, 0.5)',   // Teal
+        'rgba(255, 206, 86, 0.5)',   // Yellow
+        'rgba(153, 102, 255, 0.5)',  // Purple
+        'rgba(255, 159, 64, 0.5)',   // Orange
+        'rgba(54, 162, 235, 0.5)',   // Blue
+        'rgba(201, 203, 207, 0.5)',  // Gray
+        'rgba(255, 127, 80, 0.5)'    // Coral
+    ];
+
+    foreach ($allRoomTypes as $index => $room) {
+        $colorIndex = $index % count($colorPalette);
+        $roomColors[$room->accomodation_name] = $colorPalette[$colorIndex];
+    }
     // Pass the data to the view
     return view('AdminSide.Dashboard', [
         'adminCredentials' => $adminCredentials,
@@ -611,7 +772,7 @@ public function login(Request $request) {
         'availableYears' => $availableYears,
         'selectedYear' => $selectedYear,
         'selectedYearCalendar' => $selectedYearCalendar,
-        'selectedReservations' => $selectedReservations ,
+        'selectedReservations' => $selectedReservations,
         'bookingTrends' => $bookingTrends,
         'reservationStatusCounts' => $reservationStatusCounts,
         'checkInReservations' => $checkInReservations,
@@ -622,7 +783,8 @@ public function login(Request $request) {
         'roomTypeUtilization' => $roomTypeUtilization,
         'roomAvailability' => $roomAvailability,
         'todayIncome' => $todayIncome,
-        'calendarData' => $calendarData // Add calendar data to view
+        'calendarData' => $calendarData,
+        'roomColors' => $roomColors // Add room colors to view data
     ]);
 }
     // Export to Excel
@@ -635,6 +797,75 @@ public function login(Request $request) {
             return redirect()->route('transactions')->with('error', 'Failed to export Excel file. Please try again.');
         }
     }
+
+public function exportExcelReports(Request $request)
+{
+    // Get the month and year from request
+    $monthYear = $request->input('month_year', date('Y-m'));
+    list($selectedYear, $selectedMonth) = explode('-', $monthYear);
+
+    // Get the data for the selected month
+    $confirmedBookings = DB::table('reservation_details')
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereMonth('reservation_check_in_date', $selectedMonth)
+        ->where('payment_status', 'paid')
+        ->count();
+
+    $adultGuests = DB::table('reservation_details')
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereMonth('reservation_check_in_date', $selectedMonth)
+        ->where('payment_status', 'paid')
+        ->sum('number_of_adults');
+
+    $childGuests = DB::table('reservation_details')
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereMonth('reservation_check_in_date', $selectedMonth)
+        ->where('payment_status', 'paid')
+        ->sum('number_of_children');
+
+    $cancelledBookings = DB::table('reservation_details')
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereMonth('reservation_check_in_date', $selectedMonth)
+        ->where('payment_status', 'cancelled')
+        ->count();
+
+    $totalBookings = DB::table('reservation_details')
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereMonth('reservation_check_in_date', $selectedMonth)
+        ->count();
+
+    $cancellationPercentage = $totalBookings > 0 ? ($cancelledBookings / $totalBookings) * 100 : 0;
+
+    // Get checked out count
+    $checkedOutCount = DB::table('reservation_details')
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereMonth('reservation_check_in_date', $selectedMonth)
+        ->where('reservation_status', 'checked-out')
+        ->count();
+
+    // Get early checked out count 
+    $earlyCheckedOutCount = DB::table('reservation_details')
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereMonth('reservation_check_in_date', $selectedMonth)
+        ->where('reservation_status', 'early-checked-out')
+        ->whereRaw('DATE(updated_at) < reservation_check_out_date')
+        ->count();
+
+    // Pass all data to the Excel view
+    $data = [
+        'selectedMonth' => $selectedMonth,
+        'selectedYear' => $selectedYear,
+        'confirmedBookings' => $confirmedBookings,
+        'adultGuests' => $adultGuests,
+        'childGuests' => $childGuests,
+        'cancelledBookings' => $cancelledBookings,
+        'cancellationPercentage' => $cancellationPercentage,
+        'checkedOutCount' => $checkedOutCount,
+        'earlyCheckedOutCount' => $earlyCheckedOutCount
+    ];
+
+    return Excel::download(new ReportsExport($data), 'monthly-report-' . $monthYear . '.xlsx');
+}
     // Export to PDF
     public function exportPDF(Request $request)
     {
@@ -661,6 +892,91 @@ public function login(Request $request) {
             return redirect()->route('transactions')->with('error', 'Failed to export PDF. Please try again.');
         }
     }
+
+public function exportPDFReports(Request $request)
+{
+    $monthYear = $request->input('month_year', date('Y-m'));
+    list($selectedYear, $selectedMonth) = explode('-', $monthYear);
+
+    // Get confirmed bookings count
+    $confirmedBookings = DB::table('reservation_details')
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereMonth('reservation_check_in_date', $selectedMonth)
+        ->where('payment_status', 'paid')
+        ->count();
+
+    // Get guest counts
+    $adultGuests = DB::table('reservation_details')
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereMonth('reservation_check_in_date', $selectedMonth)
+        ->where('payment_status', 'paid')
+        ->sum('number_of_adults');
+
+    $childGuests = DB::table('reservation_details')
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereMonth('reservation_check_in_date', $selectedMonth)
+        ->where('payment_status', 'paid')
+        ->sum('number_of_children');
+
+    $totalBookings = DB::table('reservation_details')
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereMonth('reservation_check_in_date', $selectedMonth)
+        ->count();
+
+    // Get cancelled bookings count and calculate percentage
+    $cancelledBookings = DB::table('reservation_details')
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereMonth('reservation_check_in_date', $selectedMonth)
+        ->where('reservation_status', 'cancelled')
+        ->count();
+
+    $cancellationPercentage = $totalBookings > 0 
+        ? round(($cancelledBookings / $totalBookings) * 100, 2) 
+        : 0;
+
+    // Get checked out count
+    $checkedOutCount = DB::table('reservation_details')
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereMonth('reservation_check_in_date', $selectedMonth)
+        ->where('reservation_status', 'checked-out')
+        ->count();
+
+    // Get early checked out count
+    $earlyCheckedOutCount = DB::table('reservation_details')
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereMonth('reservation_check_in_date', $selectedMonth)
+        ->where('reservation_status', 'early-checked-out')
+        ->whereRaw('DATE(updated_at) < reservation_check_out_date')
+        ->count();
+
+    // Get payment status breakdown
+    $paymentStatusBreakdown = DB::table('reservation_details')
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereMonth('reservation_check_in_date', $selectedMonth)
+        ->select('payment_status', DB::raw('count(*) as count'))
+        ->whereIn('payment_status', ['paid', 'pending', 'partial','unpaid','cancelled'])
+        ->groupBy('payment_status')
+        ->get()
+        ->pluck('count', 'payment_status')
+        ->toArray();
+
+    $data = [
+        'confirmedBookings' => $confirmedBookings,
+        'adultGuests' => $adultGuests,
+        'childGuests' => $childGuests,
+        'totalBookings' => $totalBookings,
+        'cancelledBookings' => $cancelledBookings,
+        'cancellationPercentage' => $cancellationPercentage,
+        'checkedOutCount' => $checkedOutCount,
+        'earlyCheckedOutCount' => $earlyCheckedOutCount,
+        'paymentStatusData' => $paymentStatusBreakdown,
+        'selectedMonth' => $selectedMonth,
+        'selectedYear' => $selectedYear
+    ];
+
+    $pdf = PDF::loadView('exports.reports-pdf', $data);
+    return $pdf->download('monthly-report-' . $monthYear . '.pdf');
+}
     public function editPrice(Request $request)
     {
         // Get available years from reservation data
@@ -731,7 +1047,7 @@ public function login(Request $request) {
         // Get filtered and paginated results
         $reservationDetails = $query
             ->orderBy('reservation_details.created_at', 'desc')
-            ->paginate(10)
+            ->paginate(5)
             ->withQueryString();
 
         // Handle case when no results found
@@ -773,6 +1089,124 @@ public function login(Request $request) {
             'transactions' => $transactions,
         ]);
     }
+public function printReport(Request $request)
+{
+    // Get the month and year from request
+    $monthYear = $request->input('month_year', date('Y-m'));
+    list($selectedYear, $selectedMonth) = explode('-', $monthYear);
+
+    // Get total bookings count
+    $totalBookings = DB::table('reservation_details')
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereMonth('reservation_check_in_date', $selectedMonth)
+        ->count();
+
+    // Reuse the same data collection logic from the reports method
+    $confirmedBookings = DB::table('reservation_details')
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereMonth('reservation_check_in_date', $selectedMonth)
+        ->where('payment_status', 'paid')
+        ->count();
+
+    $adultGuests = DB::table('reservation_details')
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereMonth('reservation_check_in_date', $selectedMonth)
+        ->where('payment_status', 'paid')
+        ->sum('number_of_adults');
+
+    $childGuests = DB::table('reservation_details')
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereMonth('reservation_check_in_date', $selectedMonth)
+        ->where('payment_status', 'paid')
+        ->sum('number_of_children');
+
+    // Get checked out count
+    $checkedOutCount = DB::table('reservation_details')
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereMonth('reservation_check_in_date', $selectedMonth)
+        ->where('reservation_status', 'checked-out')
+        ->count();
+
+    // Get early checked out count
+    $earlyCheckedOutCount = DB::table('reservation_details')
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereMonth('reservation_check_in_date', $selectedMonth)
+        ->where('reservation_status', 'early-checked-out')
+        ->whereRaw('DATE(updated_at) < reservation_check_out_date')
+        ->count();
+
+    // Get cancelled bookings count
+    $cancelledBookings = DB::table('reservation_details')
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereMonth('reservation_check_in_date', $selectedMonth)
+        ->where('reservation_status', 'cancelled')
+        ->count();
+
+    // Calculate cancellation percentage
+    $cancellationPercentage = $totalBookings > 0 
+        ? round(($cancelledBookings / $totalBookings) * 100, 2)
+        : 0;
+
+    // Get most booked room type
+    $mostBookedRoomType = DB::table('reservation_details')
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereMonth('reservation_check_in_date', $selectedMonth)
+        ->where('payment_status', 'paid')
+        ->whereNotNull('accomodation_id')
+        ->get()
+        ->flatMap(function($reservation) {
+            $accomodationIds = json_decode($reservation->accomodation_id, true);
+            if (!is_array($accomodationIds)) {
+                $accomodationIds = explode(',', $reservation->accomodation_id);
+            }
+            return array_filter($accomodationIds);
+        })
+        ->map(function($id) {
+            $accommodation = DB::table('accomodations')
+                ->where('accomodation_id', $id)
+                ->first();
+            return $accommodation ? $accommodation->accomodation_name : null;
+        })
+        ->filter()
+        ->unique()
+        ->first();
+
+    // Get payment status breakdown
+    $paymentStatusBreakdown = DB::table('reservation_details')
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereMonth('reservation_check_in_date', $selectedMonth)
+        ->select('payment_status', DB::raw('count(*) as count'))
+        ->whereIn('payment_status', ['paid', 'pending', 'partial','unpaid','cancelled'])
+        ->groupBy('payment_status')
+        ->get()
+        ->pluck('count', 'payment_status')
+        ->toArray();
+
+    // Ensure all payment statuses have a value
+    $paymentStatusData = [
+        'paid' => $paymentStatusBreakdown['paid'] ?? 0,
+        'pending' => $paymentStatusBreakdown['pending'] ?? 0,
+        'partial' => $paymentStatusBreakdown['partial'] ?? 0,
+        'unpaid' => $paymentStatusBreakdown['unpaid'] ?? 0,
+        'cancelled' => $paymentStatusBreakdown['cancelled'] ?? 0
+    ];
+
+    return view('exports.reports-print', compact(
+        'selectedMonth',
+        'selectedYear',
+        'confirmedBookings',
+        'adultGuests', 
+        'childGuests',
+        'totalBookings',
+        'cancelledBookings',
+        'cancellationPercentage',
+        'paymentStatusData',
+        'mostBookedRoomType',
+        'checkedOutCount',
+        'earlyCheckedOutCount'
+    ));
+}
+
 public function updatePrice(Request $request)
 {
     \Log::info('Update Price Request:', $request->all());
@@ -1447,6 +1881,52 @@ public function updateUser(Request $request, $id)
         return redirect()->route('userAccountRoles')->with('success', 'User account updated successfully!');
     } catch (\Exception $e) {
         return redirect()->route('userAccountRoles')->with('error', 'Failed to update user account. Please try again.');
+    }
+}
+    public function DamageReport(){
+        $damageReports = DamageReport::orderBy('created_at', 'desc')
+            ->paginate(5);
+
+        return view ('AdminSide.DamageReport', compact('damageReports'));
+    }
+    public function editDamageReport(Request $request, $id)
+{
+    try {
+        // Log the incoming request data
+        Log::info('Damage Report Update - Request Data:', [
+            'id' => $id,
+            'request_data' => $request->all()
+        ]);
+
+        // Validate the request
+        $request->validate([
+            'notes' => 'required|string',
+            'damage_description' => 'required|string',
+            'status' => 'required'  // Ensure these match your database enum values
+        ]);
+
+        // Update the damage report
+        $updated = DB::table('damage_reports')
+            ->where('id', $id)
+            ->update([
+                'notes' => $request->notes,
+                'damage_description' => $request->damage_description,
+                'status' => $request->status,
+                'updated_at' => now()
+            ]);
+
+        if ($updated) {
+            return redirect()->back()->with('success', 'Damage report updated successfully');
+        }
+
+        return redirect()->back()->with('error', 'No changes were made to the damage report');
+    } catch (\Exception $e) {
+        Log::error('Damage Report Update - Error:', [
+            'id' => $id,
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+        return redirect()->back()->with('error', 'Error updating damage report: ' . $e->getMessage());
     }
 }
 

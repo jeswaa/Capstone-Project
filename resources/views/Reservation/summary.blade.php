@@ -40,119 +40,162 @@
 
         <div class="row g-4">
             <!-- Left Column -->
-            <div class="col-md-8">
-    <div class="p-4 border rounded">
-        @if(isset($reservationDetails))
-        <div class="mb-3">
-            <!-- Each row for label-value pair -->
-            <div class="row mb-2">
-                <div class="col-4 fw-bold text-success">Name:</div>
-                <div class="col-8">{{ $reservationDetails->name }}</div>
-            </div>
-            <div class="row mb-2">
-                <div class="col-4 fw-bold text-success">Email:</div>
-                <div class="col-8">{{ $reservationDetails->email }}</div>
-            </div>
-            <div class="row mb-2">
-                <div class="col-4 fw-bold text-success">Mobile No:</div>
-                <div class="col-8">{{ $reservationDetails->mobileNo }}</div>
-            </div>
-            <div class="row mb-2">
-                <div class="col-4 fw-bold text-success">Guests:</div>
-                <div class="col-8">{{ $reservationDetails->total_guest ?? $reservationDetails->package_max_guests }}</div>
-            </div>
-            <div class="row mb-2">
-                <div class="col-4 fw-bold text-success">Room:</div>
-                <div class="col-8">
-                    @if(!empty($reservationDetails->package_room_type))
-                        {{ implode(', ', $roomNames) }}
+            <div class="col-md-8 order-md-1 order-1">
+                <div class="p-4 border rounded">
+                    @if(isset($reservationDetails))
+                    <div class="mb-3">
+                        <!-- Each row for label-value pair -->
+                        <div class="row mb-2">
+                            <div class="col-4 fw-bold text-success">Name:</div>
+                            <div class="col-8">{{ $reservationDetails->name }}</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-4 fw-bold text-success">Email:</div>
+                            <div class="col-8">{{ $reservationDetails->email }}</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-4 fw-bold text-success">Mobile No:</div>
+                            <div class="col-8">{{ $reservationDetails->mobileNo }}</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-4 fw-bold text-success">Guests:</div>
+                            <div class="col-8">{{ $reservationDetails->total_guest ?? $reservationDetails->package_max_guests }}</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-4 fw-bold text-success">Room:</div>
+                            <div class="col-8">
+                                @if(!empty($reservationDetails->package_room_type))
+                                    {{ implode(', ', $roomNames) }}
+                                @else
+                                    {{ implode(', ', $accommodations) }}
+                                @endif
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-4 fw-bold text-success">Activities:</div>
+                            <div class="col-8">{{ $reservationDetails->package_activities ?? implode(', ', $activities) }}</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-4 fw-bold text-success">Date:</div>
+                            <div class="col-8">{{ \Carbon\Carbon::parse($reservationDetails->reservation_check_in_date)->format('l, F jS, Y') }}</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-4 fw-bold text-success">Check-in:</div>
+                            <div class="col-8">{{ date('h:i A', strtotime($reservationDetails->reservation_check_in)) }}</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-4 fw-bold text-success">Check-out:</div>
+                            <div class="col-8">{{ date('h:i A', strtotime($reservationDetails->reservation_check_out)) }}</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-4 fw-bold text-success">Special Request:</div>
+                            <div class="col-8">{{ $reservationDetails->special_request ?? 'None' }}</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-4 fw-bold text-success">Payment Method:</div>
+                            <div class="col-8">{{ $reservationDetails->payment_method }}</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-4 fw-bold text-success">Amount:</div>
+                            <div class="col-8">₱{{ number_format($reservationDetails->amount, 2) }}</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-4 fw-bold text-success">Balance:</div>
+                            <div class="col-8">₱{{ number_format($reservationDetails->balance, 2) }}</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-4 fw-bold text-success">Reference No:</div>
+                            <div class="col-8">{{ $reservationDetails->reference_num }}</div>
+                        </div>
+                        @if (!empty($reservationDetails->upload_payment))
+                        <div class="row mb-2">
+                            <div class="col-4 fw-bold text-success">Payment Proof:</div>
+                            <div class="col-8">
+                                <a href="{{ route('payment.proof', ['filename' => basename($reservationDetails->upload_payment)]) }}" 
+                                   target="_blank" 
+                                   class="text-decoration-none text-success">
+                                    View Proof
+                                </a>
+                            </div>
+                        </div>
+                        @endif
+                    </div>
                     @else
-                        {{ implode(', ', $accommodations) }}
+                    <div class="alert alert-warning">No reservations found</div>
                     @endif
                 </div>
             </div>
-            <div class="row mb-2">
-                <div class="col-4 fw-bold text-success">Activities:</div>
-                <div class="col-8">{{ $reservationDetails->package_activities ?? implode(', ', $activities) }}</div>
-            </div>
-            <div class="row mb-2">
-                <div class="col-4 fw-bold text-success">Date:</div>
-                <div class="col-8">{{ \Carbon\Carbon::parse($reservationDetails->reservation_check_in_date)->format('l, F jS, Y') }}</div>
-            </div>
-            <div class="row mb-2">
-                <div class="col-4 fw-bold text-success">Check-in:</div>
-                <div class="col-8">{{ $reservationDetails->reservation_check_in }}</div>
-            </div>
-            <div class="row mb-2">
-                <div class="col-4 fw-bold text-success">Check-out:</div>
-                <div class="col-8">{{ $reservationDetails->reservation_check_out }}</div>
-            </div>
-            <div class="row mb-2">
-                <div class="col-4 fw-bold text-success">Special Request:</div>
-                <div class="col-8">{{ $reservationDetails->special_request ?? 'None' }}</div>
-            </div>
-            <div class="row mb-2">
-                <div class="col-4 fw-bold text-success">Payment Method:</div>
-                <div class="col-8">{{ $reservationDetails->payment_method }}</div>
-            </div>
-            <div class="row mb-2">
-                <div class="col-4 fw-bold text-success">Amount:</div>
-                <div class="col-8">₱{{ number_format($reservationDetails->amount, 2) }}</div>
-            </div>
-            <div class="row mb-2">
-                <div class="col-4 fw-bold text-success">Reference No:</div>
-                <div class="col-8">{{ $reservationDetails->reference_num }}</div>
-            </div>
-            @if (!empty($reservationDetails->upload_payment))
-            <div class="row mb-2">
-                <div class="col-4 fw-bold text-success">Payment Proof:</div>
-                <div class="col-8">
-                    <a href="{{ route('payment.proof', ['filename' => basename($reservationDetails->upload_payment)]) }}" 
-                       target="_blank" 
-                       class="text-decoration-none text-success">
-                        View Proof
-                    </a>
-                </div>
-            </div>
-            @endif
-        </div>
-        @else
-        <div class="alert alert-warning">No reservations found</div>
-        @endif
-    </div>
-</div>
 
             <!-- Right Column -->
-            <div class="col-md-4">
+            <div class="col-md-4 order-md-2 order-2">
                 <div class="p-4 border rounded">
+                    <!-- Status Section -->
                     <div class="d-flex align-items-center mb-4">
-                        <h5 class="mb-0">Status:</h5>
+                        <h5 class="mb-0 me-2">Status:</h5>
                         <span class="badge 
-                            @if($reservationDetails->payment_status == 'paid') bg-success 
-                            @elseif($reservationDetails->payment_status == 'pending') bg-warning
-                            @elseif($reservationDetails->payment_status == 'booked') bg-primary
+                            @if($reservationDetails->reservation_status == 'checked-in') bg-success 
+                            @elseif($reservationDetails->reservation_status == 'pending') bg-warning
+                            @elseif($reservationDetails->reservation_status == 'reserved') bg-primary
                             @else bg-danger 
                             @endif text-white">
-                            {{ ucfirst($reservationDetails->payment_status) }}
+                            {{ ucfirst($reservationDetails->reservation_status) }}
                         </span>
                     </div>
 
+                    <!-- Instructions Section -->
+                    <div class="mb-3">
+                        <h6 class="text-success mb-2">Instructions:</h6>
+                        <div class="alert alert-info " style="font-size: 0.9rem;">
+                            <ol class="mb-0 ps-2 pe-2">
+                                <li class="mb-1">Download your QR code by clicking the button below</li>
+                                <li class="">Present this QR code upon check-in at our resort</li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <!-- QR Code Section -->
                     <div class="text-center">
-                        <button class="btn btn-dark w-100 mb-3" onclick="generateQRCode()">
-                            <i class="fa-solid fa-qrcode me-2"></i>GENERATE QR
-                        </button>
                         <canvas id="qr-code" class="mb-3"></canvas>
-                        <button id="download-qr" class="btn btn-success w-100" style="display: none;" onclick="downloadQRCode()">
+                        <button id="download-qr" class="btn btn-success w-100" onclick="downloadQRCode()">
                             <i class="fa-solid fa-download me-2"></i>DOWNLOAD QR
                         </button>
                     </div>
                 </div>
             </div>
+
+            <!-- Thank You Message - Will move to bottom on mobile -->
+            <div class="col-12 order-md-3 order-3 mt-n3">
+                <div class="p-4 bg-success text-white text-center rounded">
+                    <h3 class="mb-2">Thank You for Choosing Lelo's Resort!</h3>
+                    <p class="mb-0">We look forward to providing you with an exceptional experience during your stay.</p>
+                </div>
+            </div>
         </div>
     </div>
     <div class="pb-5"></div> <!-- Add padding at the bottom -->
-
 <script>
+    // Generate QR code on page load
+    window.onload = function() {
+        let email = '{{ $reservationDetails->email ?? '' }}';
+        if (email) {
+            let qr = new QRious({
+                element: document.getElementById('qr-code'),
+                value: `Email: ${email}`,
+                size: 200  // Reduced size from 300 to 200
+            });
+
+            // Center the QR code
+            let qrCodeContainer = document.getElementById('qr-code').parentElement;
+            qrCodeContainer.style.display = 'flex';
+            qrCodeContainer.style.flexDirection = 'column';
+            qrCodeContainer.style.justifyContent = 'center';
+            qrCodeContainer.style.alignItems = 'center';
+
+            // Show download button
+            document.getElementById('download-qr').style.display = 'inline-block';
+        }
+    };
+
     function generateQRCode() {
         let email = '{{ $reservationDetails->email ?? '' }}';
 
@@ -161,11 +204,10 @@
             return;
         }
 
-        // Generate QR Code
         let qr = new QRious({
             element: document.getElementById('qr-code'),
             value: `Email: ${email}`,
-            size: 300
+            size: 300  // Reduced size from 300 to 200
         });
 
         // Center the QR code

@@ -41,6 +41,11 @@
                     </ul>
                 </div>
 
+                <a href="{{ route ('DamageReport')}}"  class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
+                    <i class="fas fa-clipboard-list fs-5 icon-center"></i>
+                    <span class="nav-text ms-3 font-paragraph">Damage Report</span>
+                </a>
+
                 <a href="{{ route('logout') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
                     <i class="fas fa-sign-out-alt me-2 fs-5"></i> Logout
                 </a>
@@ -68,6 +73,45 @@
             <div>
                 <h1 class="text-uppercase mt-5 ms-3" style="font-family: 'Anton', sans-serif; color: #0b573d; letter-spacing: 0.2em; font-size: 3rem;" >Reservation Summary</h1>
                 <!-- Total Bookings Section -->
+                <div class="d-flex justify-content-end mb-3">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-download me-2"></i>Export
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="{{ route('export.excel', ['month_year' => request('month_year', date('Y-m'))]) }}">
+                                    <i class="fas fa-file-excel me-2"></i>Excel
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ route('export.pdf', ['month_year' => request('month_year', date('Y-m'))]) }}">
+                                    <i class="fas fa-file-pdf me-2"></i>PDF
+                                </a>
+                            </li>
+                            <li>
+                            <a class="dropdown-item" href="#" onclick="printReport()">
+                                <i class="fas fa-print me-2"></i>Print
+                            </a>
+                            <script>
+                            function printReport() {
+                                // Get the current month/year from the input
+                                const monthYearInput = document.getElementById('bookingMonth');
+                                const monthYear = monthYearInput.value;
+                                
+                                // Open print view in new window with parameters
+                                const printWindow = window.open(`/admin/reports/print?month_year=${monthYear}`, '_blank');
+                                
+                                // Automatically trigger print when loaded
+                                printWindow.onload = function() {
+                                    printWindow.print();
+                                };
+                            }
+                            </script>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
                 <div class="card shadow-sm mb-4 mt-4">
                     <div class="card-header">
                         <h5 class="card-title mb-0 font-paragraph fw-semibold pt-2 pb-2">Reports Overview</h5>
@@ -144,7 +188,7 @@
                     </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-3">
                             <div class="card shadow-sm h-100">
                                 <div class="card-header">
                                     <h6 class="card-title mb-0 font-paragraph fw-semibold p-2">Most Booked Room Type</h6>
@@ -171,7 +215,53 @@
                         </div>
 
                         <!-- Add Cancelled Bookings Card -->
-                        <div class="col-md-6">
+                        <div class="col-md-3">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-header">
+                                    <h6 class="card-title mb-0 font-paragraph fw-semibold p-2">Checked-out Bookings</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="text-center">
+                                        <h2 class="display-5 fw-bold text-danger">
+                                            {{ $checkedOutCount ?? 0 }}
+                                        </h2>
+                                        <p class="mb-0 font-paragraph">Checked-out</p>
+                                        <p class="text-muted mb-2">
+                                            {{ isset($selectedMonth) && isset($selectedYear) 
+                                                ? date('F Y', mktime(0, 0, 0, (int)$selectedMonth, 1, (int)$selectedYear)) 
+                                                : 'Select a date and apply filter' }}
+                                        </p>
+                                        <div class="badge bg-secondary">
+                                            {{ number_format($checkedOutCount ?? 0, 1) }}% Check-out Rate
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-header">
+                                    <h6 class="card-title mb-0 font-paragraph fw-semibold p-2">Early Checked-out Bookings</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="text-center">
+                                        <h2 class="display-5 fw-bold text-danger">
+                                            {{ $earlyCheckedOutCount ?? 0 }}
+                                        </h2>
+                                        <p class="mb-0 font-paragraph">Early Checked-out Bookings</p>
+                                        <p class="text-muted mb-2">
+                                            {{ isset($selectedMonth) && isset($selectedYear) 
+                                                ? date('F Y', mktime(0, 0, 0, (int)$selectedMonth, 1, (int)$selectedYear)) 
+                                                : 'Select a date and apply filter' }}
+                                        </p>
+                                        <div class="badge bg-secondary">
+                                            {{ number_format(($earlyCheckedOutCount / ($confirmedBookings ?: 1)) * 100, 1) }}% Early Check-out Rate
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
                             <div class="card shadow-sm h-100">
                                 <div class="card-header">
                                     <h6 class="card-title mb-0 font-paragraph fw-semibold p-2">Cancelled Bookings</h6>
@@ -199,7 +289,7 @@
 
             <!-- Additional Reports Section (Initially Hidden) -->
             <div class="mt-5">
-                <h1 class="text-uppercase ms-3" style="font-family: 'Anton', sans-serif; color: #0b573d; letter-spacing: 0.2em; font-size: 3rem;">Revenue Reports</h1>
+                <h1 class="text-uppercase ms-3" style="font-family: 'Anton', sans-serif; color: #0b573d; letter-spacing: 0.2em; font-size: 3rem;">Sales Reports</h1>
                 <div class="row mt-4">
                     <!-- Add your additional report cards here -->
                     <div class="col-md-8 mt-1 mb-4">

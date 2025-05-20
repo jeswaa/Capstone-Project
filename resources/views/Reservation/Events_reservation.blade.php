@@ -80,7 +80,52 @@
             font-size: 0.9rem;
             padding: 10px 0;
             border-radius: 25px !important;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-group .btn.active {
+            transform: scale(1.05) !important;
+            background-color: #1a8d44 !important;
+            box-shadow: 0 0 15px rgba(46, 204, 113, 0.6) !important;
+            border: 2px solid #fff !important;
+            font-weight: bold !important;
+            letter-spacing: 1px !important;
+        }
+
+        .btn-group .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4);
+            background-color: #27ae60;
+        }
+
+        .btn-group .btn:hover::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            animation: ripple 0.6s ease-out;
+        }
+
+        @keyframes ripple {
+            from {
+                transform: scale(0);
+                opacity: 1;
+            }
+            to {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+
+        .btn-group .btn.active {
+            transform: scale(0.97);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+            background-color: #219653;
         }
 
         /* Mobile Modal Adjustments */
@@ -276,29 +321,6 @@
         </div>
     </div>
 
-    <!-- Event Details Modal -->
-    <div class="modal fade" id="eventModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title">Booking Details</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p><strong>Guest:</strong> <span id="event-name"></span></p>
-                    <p><strong>Dates:</strong> <span id="event-date"></span></p>
-                    <p><strong>Check-in:</strong> <span id="event-check_in"></span></p>
-                    <p><strong>Check-out:</strong> <span id="event-check_out"></span></p>
-                    <p><strong>Rooms:</strong> <span id="event-accommodations"></span></p>
-                    <p><strong>Activities:</strong> <span id="event-activities"></span></p>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary w-100" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const calendarEl = document.getElementById('calendar');
@@ -482,7 +504,7 @@ document.addEventListener('DOMContentLoaded', function() {
         checkInDate = date;
         checkOutDate = date;
         Swal.fire({
-            title: 'Day Pass Selected',
+            title: 'Check in Date Selected',
             text: `Date: ${new Date(date).toLocaleDateString()}`,
             icon: 'success'
         }).then(() => {
@@ -493,23 +515,71 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleStayIn(date) {
         if(!checkInDate) {
             checkInDate = date;
-            Swal.fire('Check-in Set', new Date(date).toLocaleDateString(), 'success');
+            Swal.fire({
+                title: 'Check-in Date Selected',
+                text: 'Please select your Check-out Date',
+                html: `Check-in Date: ${new Date(date).toLocaleDateString()}<br><br>
+                       <strong>Please select Check-out Date on the calendar</strong>`,
+                icon: 'info',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#2ecc71'
+            });
         } else if(!checkOutDate && date > checkInDate) {
             checkOutDate = date;
-            Swal.fire({
-                title: 'Dates Selected',
-                html: `Check-in: ${new Date(checkInDate).toLocaleDateString()}<br>
-                      Check-out: ${new Date(checkOutDate).toLocaleDateString()}`,
-                icon: 'success'
-            }).then(() => {
-                window.location.href = `{{ route('selectPackageCustom') }}?checkIn=${checkInDate}&checkOut=${checkOutDate}`;
-            });
+            
+            // Check availability for each accommodation type
+            fetch(`/check-accommodation-availability?checkIn=${checkInDate}&checkOut=${checkOutDate}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data && data.available_accommodations && data.available_accommodations.length > 0) {
+                        Swal.fire({
+                            title: 'Selected Dates',
+                            html: `<strong>Check-in:</strong> ${new Date(checkInDate).toLocaleDateString()}<br>
+                                  <strong>Check-out:</strong> ${new Date(checkOutDate).toLocaleDateString()}`,
+                            icon: 'success',
+                            confirmButtonColor: '#2ecc71'
+                        }).then(() => {
+                            window.location.href = `{{ route('selectPackageCustom') }}?checkIn=${checkInDate}&checkOut=${checkOutDate}`;
+                        });
+                    } else {
+                        throw new Error('No accommodations available');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        title: 'Error',
+                        text: error.message || 'Failed to check availability',
+                        icon: 'error',
+                        confirmButtonColor: '#e74c3c'
+                    });
+                    checkInDate = null;
+                    checkOutDate = null;
+                    highlightSelectedDates();
+                });
         } else if(date <= checkInDate) {
-            Swal.fire('Invalid', 'Check-out must be after check-in', 'error');
+            Swal.fire({
+                title: 'Invalid Date',
+                text: 'Check-out date must be after the Check-in date',
+                icon: 'error',
+                confirmButtonColor: '#e74c3c'
+            });
         } else {
             checkInDate = date;
             checkOutDate = null;
-            Swal.fire('New Check-in', new Date(date).toLocaleDateString(), 'info');
+            Swal.fire({
+                title: 'New Check-in Date',
+                text: 'Please select a new Check-out Date',
+                html: `New Check-in Date: ${new Date(date).toLocaleDateString()}<br><br>
+                       <strong>Please select Check-out Date on the calendar</strong>`,
+                icon: 'info',
+                confirmButtonColor: '#2ecc71'
+            });
         }
     }
 

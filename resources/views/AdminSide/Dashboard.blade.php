@@ -18,64 +18,19 @@
             @include('Alert.loginSucess')
 
             <div class="container-fluid min-vh-100 d-flex p-0">
-                <!-- Sidebar -->
-                <div class="col-md-3 col-lg-2 color-background8 text-white py-5 position-sticky" style="top: 0; height: 100vh; background-color: #0b573d">
-                    <div class="d-flex flex-column align-items-center">
-                        <img src="{{ asset('images/default-profile.jpg') }}" alt="Profile Picture" class="rounded-circle w-50 mb-3 border border-5 border-white">
-                        <p class="font-heading sidebar-text" data-bs-toggle="modal" data-bs-target="#editProfileModal" style="cursor: pointer;">Edit Profile</p>
-                    </div>
-
-                    <div class="d-flex flex-column px-4 mt-4">
-                        <a href="{{ route('dashboard') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                            <i class="fas fa-tachometer-alt me-2 fs-5"></i> Dashboard
-                        </a>
-                        <a href="{{ route('reservations') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                            <i class="fas fa-calendar-alt me-2 fs-5"></i> Reservations
-                        </a>
-                        <a href="{{ route('guests') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                            <i class="fas fa-users me-2 fs-5"></i> Guests
-                        </a>
-                        <a href="{{ route('transactions') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                            <i class="fas fa-credit-card me-2 fs-5"></i> Transactions
-                        </a>
-
-                        <div class="dropdown py-2 mt-4">
-                            <a class="text-white text-decoration-none d-flex align-items-center dropdown-toggle" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-chart-line me-2 fs-5"></i> Reports
-                            </a>
-                            <ul class="dropdown-menu " aria-labelledby="reportsDropdown">
-                                <li><a class="dropdown-item" href="{{ route('reports') }}">Summary Report</a></li>
-                                <li><a class="dropdown-item" href="{{ route('activityLogs') }}">Activity Logs</a></li>
-                            </ul>
-                        </div>
-
-                        <a href="{{ route('logout') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                            <i class="fas fa-sign-out-alt me-2 fs-5"></i> Logout
-                        </a>
-                    </div>
-                </div>
-
+                @include('Navbar.sidenavbar')
             <!-- Main Content -->
             <div class="col-md-9 col-lg-10 py-4 px-4">
                 <!-- Heading and Search Bar -->
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h1 class="fw-semibold" style="font-family: 'Anton', sans-serif; color: #0b573d; letter-spacing: 0.2em;">DASHBOARD</h1>
-                    <form class="d-flex w-50 ms-5" role="search">
-                        <div class="input-group">
-                            <input type="search" class="form-control rounded-start-5 border-3 border-secondary" style="background-color: transparent; height: 40px;" placeholder="Search" aria-label="Search">
-                            <button class="btn btn-secondary h-75 rounded-end-5" style="color: #e9ffcc;" type="submit">
-                                <i class="fa-solid fa-magnifying-glass" ></i>
-                            </button>
-                        </div>
-                    </form>
+                <div class="d-flex justify-content-end  mb-2">
                     <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill me-3">
                 </div>
 
                 <hr class="border-5">
                 <!-- Add your additional main content here -->
-                <div>
-                    <p class="text-color-1 fs-1 ms-4" style="font-family: 'Anton', sans-serif; letter-spacing: 0.2em;">Hello</p>
-                    <h1 class="fw-semibold text-capitalize ms-3" style="font-size: 100px; letter-spacing: 1px; color: #0b573d; margin-top: -30px; font-family: 'Anton', sans-serif; letter-spacing: .1em;">{{ $adminCredentials->username }}!</h1>
+                <div class="d-flex align-items-center">
+                    <p class="text-color-1 fs-1 ms-4 mb-0" style="font-family: 'Anton', sans-serif; letter-spacing: 0.2em;">Hello</p>
+                    <h1 class="fw-semibold text-capitalize ms-3 mb-0 fs-1" style="letter-spacing: 1px; color: #0b573d; font-family: 'Anton', sans-serif; letter-spacing: 0.2em;">{{ $adminCredentials->username }}!</h1>
                 </div>
                 <!-- Container -->
                 <div class="container my-4">
@@ -179,54 +134,8 @@
                             </div>
                         </div>
 
-                        <!-- Navigation Buttons -->
-                        <div class="d-flex justify-content-between mt-3">
-                            <button id="prevChart" class="btn" style="background-color: #0b573d; color: white; transition: all 0.2s ease-in-out;" data-bs-toggle="tooltip" data-bs-placement="top" title="Previous Chart" onmouseover="this.style.backgroundColor='#0a4c33'" onmouseout="this.style.backgroundColor='#0b573d'"><i class="fas fa-chevron-left"></i></button>
-                            <button id="nextChart" class="btn" style="background-color: #0b573d; color: white; transition: all 0.2s ease-in-out;" data-bs-toggle="tooltip" data-bs-placement="top" title="Next Chart" onmouseover="this.style.backgroundColor='#0a4c33'" onmouseout="this.style.backgroundColor='#0b573d'"><i class="fas fa-chevron-right"></i></button>
-                        </div>
-
-                        <!-- Charts -->
+                        <!-- Remove navigation buttons section and keep Chart Section 1 -->
                         <div id="chartSection1" class="chart-section">
-                            <div class="shadow-lg rounded-4 p-4 bg-white mt-4">
-                                <div class="d-flex justify-content-between align-items-center mb-4">
-                                    <h3 class="text-color-1 font-paragraph fw-bold mb-0">Availability Calendar</h3>
-                                    
-                                    <!-- Year filter dropdown -->
-                                    <div class="d-flex align-items-center">
-                                        <label for="calendarYearFilter" class="form-label mb-0 me-2 font-paragraph fw-semibold">Year:</label>
-                                        <select id="calendarYearFilter" class="form-control" style="width: 120px;">
-                                            @foreach($availableYears as $year)
-                                                <option value="{{ $year }}" {{ $year == $selectedYear ? 'selected' : '' }}>{{ $year }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <div class="d-flex align-items-center">
-                                        <!-- Calendar navigation is handled by FullCalendar -->
-                                    </div>
-                                    <div class="d-flex align-items-center">
-                                        <div class="d-flex align-items-center me-3">
-                                            <div class="bg-success rounded-circle me-2" style="width: 15px; height: 15px;"></div>
-                                            <small>Available</small>
-                                        </div>
-                                        <div class="d-flex align-items-center me-3">
-                                            <div class="bg-warning rounded-circle me-2" style="width: 15px; height: 15px;"></div>
-                                            <small>Partially Booked</small>
-                                        </div>
-                                        <div class="d-flex align-items-center">
-                                            <div class="bg-danger rounded-circle me-2" style="width: 15px; height: 15px;"></div>
-                                            <small>Fully Booked</small>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- FullCalendar container -->
-                                <div id="calendar" style="height: 500px;"></div>
-                            </div>
-                        </div>
-                        <div id="chartSection2" class="chart-section d-none">
                             <div class="d-flex justify-content-between align-items-center mt-5">
                                 <h1 class="text-color-1 font-paragraph fw-bold" style="font-size: 50px;">Reservation Overview</h1>
 
@@ -242,62 +151,44 @@
                                         </select>
                                     </div>
 
-                                        <!-- Year -->
-                                        <div class="d-flex align-items-center">
-                                            <label for="yearFilter" class="form-label mb-0 me-2 font-paragraph fw-semibold">Year:</label>
-                                            <select id="yearFilter" class="form-control" style="min-width: 150px; height: 50px;">
-                                            @foreach($availableYears as $year)
-                                                <option value="{{ $year }}" {{ $year == $selectedYear ? 'selected' : '' }}>{{ $year }}</option>
-                                            @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Chart Container with Floating Effect and Side-by-Side Layout -->
-                                <div class="row g-0 mt-4">
-                                    <!-- Status Chart -->
-                                    <div class="col-md-6 p-0 w-25">
-                                        <div class="shadow-lg rounded-4 p-3 bg-white floating-effect h-100 d-flex justify-content-center align-items-center">
-                                            <canvas id="statusChart" width="350" style="max-width: 500px;"></canvas>
-                                        </div>
-                                    </div>
-
-                                    <!-- Reservation Chart -->
-                                    <div class="col-md-6 p-0 d-flex flex-column justify-content-start ms-3" style="width: 73%;">
-                                        <div class="shadow-lg rounded-4 p-3 bg-white floating-effect" style="height: 100%;">
-                                            <canvas id="reservationChart" class="w-100" height="100" style="height: 100%;"></canvas>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row mt-5">
-                                    <div class="col-12">
-                                        <h1 class="text-color-1 font-paragraph fw-bold">Reservation Activity</h1>
-                                    </div>
-
-                                <div class="col-md-8 mt-4 w-100">
-                                    <div class="shadow-lg rounded-4 p-3 bg-white">
-                                        <canvas id="bookingTrendsChart" height="100"></canvas>
+                                    <!-- Year -->
+                                    <div class="d-flex align-items-center">
+                                        <label for="yearFilter" class="form-label mb-0 me-2 font-paragraph fw-semibold">Year:</label>
+                                        <select id="yearFilter" class="form-control" style="min-width: 150px; height: 50px;">
+                                        @foreach($availableYears as $year)
+                                            <option value="{{ $year }}" {{ $year == $selectedYear ? 'selected' : '' }}>{{ $year }}</option>
+                                        @endforeach
+                                        </select>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div id="chartSection3" class="chart-section d-none">
-                            <div class="d-flex justify-content-between align-items-center mt-5">
-                                <h1 class="text-color-1 font-paragraph fw-semibold" style="font-size: 30px;">What Guests Book the Most?</h1>
+                            <!-- Chart Container with Floating Effect and Side-by-Side Layout -->
+                            <div class="row g-0 mt-4">
+                                <div class="col-md-6 p-0 w-25">
+                                    <div class="shadow-lg rounded-4 p-3 bg-white floating-effect h-100 d-flex justify-content-center align-items-center">
+                                        <canvas id="statusChart" width="350" style="max-width: 500px;"></canvas>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 p-0 d-flex flex-column justify-content-start ms-3" style="width: 73%;">
+                                    <div class="shadow-lg rounded-4 p-3 bg-white floating-effect" style="height: 100%;">
+                                        <canvas id="reservationChart" class="w-100" height="100" style="height: 100%;"></canvas>
+                                    </div>
+                                </div>
                             </div>
-                            <!-- Most Booked Rooms -->
+
+                            <div class="row mt-5">
+                                <div class="col-12">
+                                    <h1 class="text-color-1 font-paragraph fw-bold">Reservation Activity</h1>
+                                </div>
+
                             <div class="col-md-8 mt-4 w-100">
                                 <div class="shadow-lg rounded-4 p-3 bg-white">
-                                    <canvas id="roomTypeChart" height="100"></canvas>
+                                    <canvas id="bookingTrendsChart" height="100"></canvas>
                                 </div>
                             </div>
-                            <!-- Availability of Rooms -->
                         </div>
-
-
                     </div>
                 </div>
             </div>
@@ -323,25 +214,67 @@
     // Build Chart Function
     function buildChart(data, label, labelKey) {
         if (chart) chart.destroy();
-
+    
         if (data.labels.length === 0) {
             data = {
                 labels: ['No Data Available'],
-                data: [0]
+                data: [0],
+                rooms: ['No Rooms']
             };
         }
-
+    
+        // Format the labels based on the type of view
+        const formattedLabels = data.labels.map(dateStr => {
+            if (labelKey === 'date') {
+                const date = new Date(dateStr);
+                return date.toLocaleDateString('en-US', { weekday: 'long' });
+            } else if (labelKey === 'week') {
+                return `Week ${dateStr}`;
+            }
+            return dateStr;
+        });
+    
+        const datasets = [];
+        
+        // Dataset para sa total reservations
+        datasets.push({
+            label: 'Total Reservations',
+            data: data.data,
+            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1,
+            order: 1
+        });
+    
+        // Datasets para sa bawat uri ng room
+        if (data.rooms && data.rooms.length > 0) {
+            const roomTypes = [...new Set(data.rooms.flat().filter(room => room !== 'No room information'))];
+            const roomColors = @json($roomColors);
+        
+            roomTypes.forEach(roomType => {
+                const roomData = data.labels.map((_, index) => {
+                    const rooms = data.rooms[index];
+                    return Array.isArray(rooms) ? 
+                        rooms.filter(room => room === roomType).length : 
+                        0;
+                });
+        
+                datasets.push({
+                    label: roomType,
+                    data: roomData,
+                    backgroundColor: roomColors[roomType] || 'rgba(201, 203, 207, 0.5)',
+                    borderColor: roomColors[roomType]?.replace('0.5', '1') || 'rgba(201, 203, 207, 1)',
+                    borderWidth: 1,
+                    order: 2
+                });
+            });
+        }
+    
         chart = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: data.labels,
-                datasets: [{
-                    label: label,
-                    data: data.data,
-                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1
-                }]
+                labels: formattedLabels,
+                datasets: datasets
             },
             options: {
                 responsive: true,
@@ -356,17 +289,20 @@
                     x: {
                         title: {
                             display: true,
-                            text: labelKey === 'date' ? 'Date' : labelKey === 'week' ? 'Week' : 'Month'
+                            text: labelKey === 'date' ? 'Petsa' : labelKey === 'week' ? 'Linggo' : 'Buwan'
                         }
                     }
                 },
                 plugins: {
-                    legend: { display: true },
+                    legend: { 
+                        display: true,
+                        position: 'top'
+                    },
                     tooltip: {
                         callbacks: {
                             label: function(context) {
                                 if (context.label === 'No Data Available') {
-                                    return 'No reservations for selected period';
+                                    return 'Walang reservations sa napiling panahon';
                                 }
                                 return `${context.dataset.label}: ${context.raw}`;
                             }
@@ -381,6 +317,7 @@
     function generateAllMonthsData(selectedYear) {
         const allMonths = [];
         const allMonthLabels = [];
+        const allRooms = [];
 
         for (let month = 0; month < 12; month++) {
             const monthDate = new Date(selectedYear, month, 1);
@@ -398,11 +335,13 @@
             });
 
             allMonths.push(foundMonth ? foundMonth.total : 0);
+            allRooms.push(foundMonth ? foundMonth.rooms : []);
         }
 
         return {
             labels: allMonthLabels,
-            data: allMonths
+            data: allMonths,
+            rooms: allRooms
         };
     }
 
@@ -410,21 +349,23 @@
     function generateAllWeeksData(selectedYear, filteredData) {
         const allWeeks = Array.from({ length: 52 }, (_, i) => i + 1);
         const weekDataMap = {};
+        const weekRoomsMap = {};
 
-        // Store totals in a map by week number
+        // Store totals and rooms in maps by week number
         filteredData.forEach(item => {
             const weekNum = parseInt(String(item.week).slice(-2));
             weekDataMap[weekNum] = item.total;
+            weekRoomsMap[weekNum] = item.rooms || [];
         });
 
         const allWeekData = [];
         const allWeekLabels = [];
+        const allRooms = [];
 
         allWeeks.forEach(week => {
-            // Get the Monday of that week in the selected year
             const firstDayOfYear = new Date(selectedYear, 0, 1);
-            const day = firstDayOfYear.getDay(); // Sunday = 0, Monday = 1, ...
-            const diff = (day <= 4 ? day - 1 : day - 8); // Adjust for ISO weeks
+            const day = firstDayOfYear.getDay();
+            const diff = (day <= 4 ? day - 1 : day - 8);
             const monday = new Date(firstDayOfYear.setDate(firstDayOfYear.getDate() - diff + (week - 1) * 7));
 
             const label = monday.toLocaleDateString('en-US', {
@@ -435,16 +376,13 @@
 
             allWeekLabels.push(label);
             allWeekData.push(weekDataMap[week] || 0);
-        });
-
-        console.log("Generated weeks data:", {
-            labels: allWeekLabels,
-            data: allWeekData
+            allRooms.push(weekRoomsMap[week] || []);
         });
 
         return {
             labels: allWeekLabels,
-            data: allWeekData
+            data: allWeekData,
+            rooms: allRooms
         };
     }
 
@@ -468,7 +406,8 @@
 
             return {
                 labels: filteredData.map(item => new Date(item.date).toLocaleDateString()),
-                data: filteredData.map(item => item.total)
+                data: filteredData.map(item => item.total),
+                rooms: filteredData.map(item => item.rooms || 'No room information')
             };
         } 
         
@@ -580,7 +519,7 @@
                 },
                 title: {
                     display: true,
-                    text: 'Reservation Status Breakdown'
+                    text: 'Payment Status Breakdown'
                 }
             }
         }
@@ -748,39 +687,6 @@ buildBookingTrendsChart(bookingTrendsData);
             }
         }
     });
-</script>
-
-<!-- Script for Showing next Chart -->
-<script>
-    let currentChartIndex = 0;
-    const chartSections = document.querySelectorAll('.chart-section');
-
-    function showChartSection(index) {
-        chartSections.forEach((section, i) => {
-            section.classList.toggle('d-none', i !== index);
-        });
-
-        // Disable buttons if at ends
-        document.getElementById('prevChart').disabled = index === 0;
-        document.getElementById('nextChart').disabled = index === chartSections.length - 1;
-    }
-
-    document.getElementById('prevChart').addEventListener('click', () => {
-        if (currentChartIndex > 0) {
-            currentChartIndex--;
-            showChartSection(currentChartIndex);
-        }
-    });
-
-    document.getElementById('nextChart').addEventListener('click', () => {
-        if (currentChartIndex < chartSections.length - 1) {
-            currentChartIndex++;
-            showChartSection(currentChartIndex);
-        }
-    });
-
-    // Initial display
-    showChartSection(currentChartIndex);
 </script>
 <!-- Calendar Widget Script -->
 <script>

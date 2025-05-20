@@ -61,7 +61,6 @@
                         <table class="table table-hover">
                             <thead class="table-success">
                                 <tr>
-                                    <th>Guest ID</th>
                                     <th>Name</th>
                                     <th>Email</th>
                                     <th>Phone Number</th>
@@ -72,22 +71,72 @@
                             <tbody>
                                 @foreach($guests as $guest)
                                 <tr>
-                                    <td>{{ $guest->id }}</td>
                                     <td>{{ $guest->name }}</td>
                                     <td>{{ $guest->email }}</td>
                                     <td>{{ $guest->mobileNo }}</td>
                                     <td>{{ $guest->address }}</td>
                                     <td>
                                         <div class="btn-group" role="group">
-                                            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#viewGuest{{ $guest->id }}">
-                                                <i class="fas fa-eye"></i>
+                                            <button type="button" class="btn btn-sm" style="background-color:#0b573d;"data-bs-toggle="modal" data-bs-target="#viewReservations{{ $guest->id }}">
+                                                <i class="fas fa-eye text-white"></i>
                                             </button>
-                                            <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editGuest{{ $guest->id }}">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteGuest{{ $guest->id }}">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
+                                        </div>
+
+                                        <!-- View Guest Reservations Modal -->
+                                        <div class="modal fade" id="viewReservations{{ $guest->id }}" tabindex="-1" aria-labelledby="viewReservationsLabel{{ $guest->id }}" aria-hidden="true">
+                                            <div class="modal-dialog modal-lg">
+                                                <div class="modal-content">
+                                                    <div class="modal-header text-white" style="background-color: #0b573d;">
+                                                        <h5 class="modal-title" id="viewReservationsLabel{{ $guest->id }}">Reservations for {{ $guest->name }}</h5>
+                                                        <button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        @if($guest->reservations->count() > 0)
+                                                            <div class="table-responsive">
+                                                                <table class="table table-striped">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th>Reservation ID</th>
+                                                                            <th>Check-in Date</th>
+                                                                            <th>Check-out Date</th>
+                                                                            <th>Status</th>
+                                                                            <th>Total Amount</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        @foreach($guest->reservations as $reservation)
+                                                                            <tr>
+                                                                                <td>{{ $reservation->id }}</td>
+                                                                                <td>{{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('M d, Y') }}</td>
+                                                                                <td>{{ \Carbon\Carbon::parse($reservation->reservation_check_out_date)->format('M d, Y') }}</td>
+                                                                                <td>
+                                                                                    <span class="badge {{ $reservation->reservation_status === 'checked-in' ? 'bg-success' : ($reservation->reservation_status === 'pending' ? 'bg-warning' : 'bg-danger') }}">
+                                                                                        {{ ucfirst($reservation->reservation_status) }}
+                                                                                    </span>
+                                                                                </td>
+                                                                                <td>₱{{ number_format($reservation->amount, 2) }}</td>
+                                                                            </tr>
+                                                                        @endforeach
+                                                                    </tbody>
+                                                                </table>
+
+                                                                <div class="d-flex justify-content-between align-items-center mt-4 mb-2">
+                                                                    <div class="text-muted">
+                                                                        Showing {{ $guest->reservations->firstItem() ?? 0 }} to {{ $guest->reservations->lastItem() ?? 0 }} of {{ $guest->reservations->total() }} results
+                                                                    </div>
+                                                                    <nav aria-label="Reservation pagination">
+                                                                        <div class="pagination pagination-sm">
+                                                                            {{ $guest->reservations->links('pagination::bootstrap-4') }}
+                                                                        </div>
+                                                                    </nav>
+                                                                </div>
+                                                            </div>
+                                                        @else
+                                                            <p class="text-center">No reservations found for this guest.</p>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>
@@ -101,29 +150,12 @@
                         </div>
                         @endif
 
-                        <div class="d-flex justify-content-end mt-4">
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <div class="text-muted">
+                                Showing {{ $guests->firstItem() ?? 0 }} to {{ $guests->lastItem() ?? 0 }} of {{ $guests->total() }} entries
+                            </div>
                             <div class="pagination-container">
-                                <style>
-                                    .pagination-container .pagination {
-                                        --bs-pagination-color: #0b573d;
-                                        --bs-pagination-active-bg: #0b573d;
-                                        --bs-pagination-active-border-color: #0b573d;
-                                        --bs-pagination-hover-color: #0b573d;
-                                        gap: 5px;
-                                    }
-                                    .pagination-container .page-link {
-                                        border-radius: 5px;
-                                        transition: all 0.3s ease;
-                                    }
-                                    .pagination-container .page-link:hover {
-                                        background-color: #e9ecef;
-                                        transform: translateY(-2px);
-                                    }
-                                    .pagination-container .page-item.active .page-link {
-                                        box-shadow: 0 2px 5px rgba(11, 87, 61, 0.2);
-                                    }
-                                </style>
-                                {{ $guests->links() }}
+                                {{ $guests->links('pagination::bootstrap-4') }}
                             </div>
                         </div>
                     </div>

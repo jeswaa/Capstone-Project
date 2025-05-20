@@ -4,54 +4,109 @@ namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
-use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Concerns\WithMapping;
+use Illuminate\Support\Collection;
 
-class TransactionsExport implements FromCollection, WithHeadings
+class TransactionsExport implements FromCollection, WithHeadings, WithMapping
 {
-    protected $request;
+    protected $data;
 
-    public function __construct($request)
+    public function __construct($data)
     {
-        $this->request = $request;
+        $this->data = $data;
     }
 
     public function collection()
     {
-        $query = DB::table('reservation_details')
-            ->join('users', 'reservation_details.user_id', '=', 'users.id')
-            ->select(
-                'users.name',
-                'reservation_details.reservation_check_in_date',
-                'reservation_details.reservation_check_out_date',
-                'reservation_details.amount',
-                'reservation_details.payment_status',
-                'reservation_details.created_at'
-            );
+        $reportData = [];
 
-        // Apply filters if they exist
-        if ($this->request->filled('start_date') && $this->request->filled('end_date')) {
-            $query->whereBetween('reservation_check_in_date', [
-                $this->request->start_date,
-                $this->request->end_date
-            ]);
+        // Monthly Overview
+        if (isset($this->data['totalBookings'])) {
+            $reportData[] = [
+                'Section' => 'Monthly Overview',
+                'Metric' => 'Total Bookings',
+                'Value' => $this->data['totalBookings']
+            ];
+        }
+        
+        if (isset($this->data['confirmedBookings'])) {
+            $reportData[] = [
+                'Section' => 'Monthly Overview',
+                'Metric' => 'Confirmed Bookings',
+                'Value' => $this->data['confirmedBookings']
+            ];
+        }
+        
+        if (isset($this->data['adultGuests'])) {
+            $reportData[] = [
+                'Section' => 'Monthly Overview',
+                'Metric' => 'Adult Guests',
+                'Value' => $this->data['adultGuests']
+            ];
+        }
+        
+        if (isset($this->data['childGuests'])) {
+            $reportData[] = [
+                'Section' => 'Monthly Overview',
+                'Metric' => 'Child Guests',
+                'Value' => $this->data['childGuests']
+            ];
         }
 
-        if ($this->request->filled('payment_status')) {
-            $query->where('payment_status', $this->request->payment_status);
+        // Booking Statistics
+        if (isset($this->data['mostBookedRoomType'])) {
+            $reportData[] = [
+                'Section' => 'Booking Statistics',
+                'Metric' => 'Most Booked Room Type',
+                'Value' => $this->data['mostBookedRoomType']
+            ];
+        }
+        
+        if (isset($this->data['cancelledBookings'])) {
+            $reportData[] = [
+                'Section' => 'Booking Statistics',
+                'Metric' => 'Cancelled Bookings',
+                'Value' => $this->data['cancelledBookings']
+            ];
+        }
+        
+        if (isset($this->data['cancellationPercentage'])) {
+            $reportData[] = [
+                'Section' => 'Booking Statistics',
+                'Metric' => 'Cancellation Rate',
+                'Value' => $this->data['cancellationPercentage'] . '%'
+            ];
         }
 
-        return $query->get();
+        // Payment Status Breakdown
+        if (isset($this->data['paymentStatusData'])) {
+            foreach ($this->data['paymentStatusData'] as $status => $count) {
+                $reportData[] = [
+                    'Section' => 'Payment Status',
+                    'Metric' => ucfirst($status),
+                    'Value' => $count
+                ];
+            }
+        }
+
+        return new Collection($reportData);
     }
 
     public function headings(): array
     {
         return [
-            'Guest Name',
-            'Check In Date',
-            'Check Out Date',
-            'Amount',
-            'Payment Status',
-            'Reservation Date'
+            'Section',
+            'Metric',
+            'Value'
+        ];
+    }
+
+    public function map($row): array
+    {
+        return [
+            $row['Section'],
+            $row['Metric'],
+            $row['Value']
         ];
     }
 }

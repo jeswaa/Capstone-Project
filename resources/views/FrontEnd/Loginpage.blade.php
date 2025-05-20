@@ -20,13 +20,14 @@
         
         body::after {
             content: "";
-            position: absolute;
+            position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            height: 20vh; /* Adjust height as needed */
-            background: linear-gradient(to top, rgba(0, 93, 59, 0.8), transparent); /* Dark green smoke effect */
+            height: 30vh;
+            background: linear-gradient(to top, rgba(0, 93, 59, 0.8), transparent);
             pointer-events: none;
+            z-index: -1;
         }
 
         .login-form {
@@ -67,19 +68,32 @@
         }
 
         .login-button {
-            background-color: #0B5D3B; /* Dark Green */
+            background-color: #0B5D3B;
             color: white;
             font-weight: bold;
             font-size: 0.8rem;
-            padding: 5px 10px;
+            padding: 5px 15px;
             border: none;
-            border-radius: 50px; /* Makes it pill-shaped */
+            border-radius: 50px;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 150px; /* Adjust width as needed */
+            width: 200px; /* Increased width to accommodate loading text */
             cursor: pointer;
             margin: 0 auto;
+            height: 40px;
+            transition: all 0.3s ease;
+        }
+
+        .login-button .loading-text {
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .login-button .loading-text i {
+            color: white;
+            font-size: 1rem;
         }
 
         .login-button .arrow {
@@ -118,7 +132,7 @@
 <body>
     @include('Alert.errorLogin')
     <!-- Validations -->
-    <div class="position-absolute top-0 end-0 mt-3 me-5" style="z-index: 9999;">
+    <div class="position-fixed top-0 end-0 mt-3 me-5" style="z-index: 9999;">
         @if (session('success'))
             <div class="toast show align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
                 <div class="d-flex">
@@ -144,19 +158,22 @@
         @endif
     </div>
 
-    <div class="position-absolute top-0 start-0 mt-5 ms-5">
-        <a href="{{ url('/') }}" class="d-flex align-items-center justify-content-center rounded-circle shadow"
-        style="width: 45px; height: 45px; background-color: #0B5D3B; text-decoration: none;">
-            <i class="fa-solid fa-arrow-left text-white fs-4"></i>
+    <!-- Header with Back Button and Logo -->
+    <div class="w-100 d-flex justify-content-between align-items-center p-3">
+        <!-- Back Button -->
+        <a href="{{ url('/') }}" class="d-flex align-items-center justify-content-center rounded-circle shadow ms-3"
+           style="width: 50px; height: 50px; background-color: #0B5D3B; text-decoration: none;">
+            <i class="fa-solid fa-arrow-left text-white"></i>
+        </a>
+
+        <!-- Logo -->
+        <a class="text-decoration-none">
+            <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" class="rounded-pill" style="width: 100px; height: auto;">
         </a>
     </div>
 
-    <div class="position-absolute top-0 end-0 mt-3 me-5">
-        <a href="{{ url('/') }}" class="text-decoration-none">
-            <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="120" class="rounded-pill">
-        </a>
-    </div>
-<div class="d-flex justify-content-center align-items-center vh-100">
+    <!-- Main Content Container -->
+    <div class="d-flex justify-content-center align-items-center">
     <div class="container p-4 shadow-lg rounded-4 bg-white" style="max-width: 1000px;">
         <div class="row align-items-center">
             
@@ -215,7 +232,7 @@
                     }
                     </script>
 
-                    <div class="text-end">
+                    <div class="text-start mb-3">
                         <a data-bs-toggle="modal" data-bs-target="#forgotPasswordModal" 
                            class="text-decoration-none text-color-1 font-paragraph text-underline-left-to-right"
                            style="cursor: pointer; font-size: 0.85rem;">Forgot Password?</a>
@@ -238,16 +255,7 @@
                     </div>
                     </div>
 
-
-                    <button id="loginButton" type="submit" class="login-button d-flex align-items-center justify-content-center">
-                        LOG IN 
-                        <span class="arrow d-flex align-items-center justify-content-center rounded-circle" style="width: 20px; height: 20px; margin-left: 10px;">
-                            &rsaquo;
-                        </span>
-                    </button>
-
-
-                    <div class="form-check text-start mt-3">
+                    <div class="form-check text-start mt-2 mb-2">
                         <input class="form-check-input" type="checkbox" id="agreeTerms" required>
                         <label class="form-check-label text-color-1 font-paragraph" for="agreeTerms" style="font-size: 0.9rem;">
                             I agree to the  
@@ -255,6 +263,13 @@
                         </label>
                     </div>
 
+                    <button id="loginButton" type="submit" class="login-button">
+                        <span id="loginText" class="fw-bold">LOG IN</span>
+                        <span id="loadingText" class="d-none">
+                            <i class="fas fa-spinner fa-spin me-2"></i>
+                            <span id="dynamicLoadingText">Please wait...</span>
+                        </span>
+                    </button>
                     <!-- Privacy Policy Modal -->
                     <div class="modal fade" id="privacyPolicyModal" tabindex="-1" aria-labelledby="privacyPolicyLabel" aria-hidden="true">
                         <div class="modal-dialog modal-lg" style="margin-top: 8vh;"> <!-- Adjust margin-top as needed -->
@@ -267,15 +282,80 @@
                             </div>
 
                             <!-- Body -->
-                            <div class="modal-body d-flex justify-content-center align-items-center px-4 py-3">
-                                <div style="text-align: center;">
-                                <p class="mb-3" style="font-size: 1rem; font-weight: bold;">
-                                    We collect and store your email and password securely for authentication purposes. Your data is protected and will not be shared without your consent. Please note that all payments are non-refundable. By using our service, you agree to our terms. 
-                                </p>
-                                <p style="font-size: 1rem; font-weight: bold;">
-                                    For more details, contact us at 
-                                    <a href="mailto:lelosresort@gmail.com" class="text-decoration-none fw-bold text-success">lelosresort@gmail.com</a>.
-                                </p>
+                            <div class="modal-body d-flex flex-column px-4 py-3" style="max-height: 70vh; overflow-y: auto;">
+                                <div class="text-start">
+                                    <h5 class="fw-bold text-success mb-4">Terms and Conditions</h5>
+                                    
+                                    <div class="mb-4">
+                                        <p class="fw-bold mb-2">Reservation Agreement</p>
+                                        <p>By confirming a reservation, guests acknowledge and agree to all terms and conditions set by Lelo's Resort management.</p>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <p class="fw-bold mb-2">Payment Policy</p>
+                                        <ul class="list-unstyled ps-3">
+                                            <li>• Full payment is required in advance to secure the reservation.</li>
+                                            <li>• All payments are strictly non-refundable, regardless of:</li>
+                                            <ul class="ps-4">
+                                                <li>- Cancellations</li>
+                                                <li>- Date changes</li>
+                                                <li>- Late arrivals</li>
+                                                <li>- Early departures</li>
+                                                <li>- No-shows</li>
+                                                <li>- Weather disturbances</li>
+                                                <li>- Any other unforeseen events</li>
+                                            </ul>
+                                        </ul>
+                                        <p class="mt-2">Guests are strongly advised to finalize their plans before confirming a reservation.</p>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <p class="fw-bold mb-2">Security Deposit</p>
+                                        <ul class="list-unstyled ps-3">
+                                            <li>• A security deposit equivalent to 50% of the total booking amount must be provided upon check-in.</li>
+                                            <li>• This deposit covers:</li>
+                                            <ul class="ps-4">
+                                                <li>- Potential damages to resort property</li>
+                                                <li>- Loss of items</li>
+                                                <li>- Violations of resort rules</li>
+                                            </ul>
+                                            <li>• The deposit is fully refundable upon check-out if no issues are found after inspection.</li>
+                                            <li>• Deductions will be made for any damages or violations, and excess charges will be billed to the guest.</li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <p class="fw-bold mb-2">Check-in/Check-out Policy</p>
+                                        <ul class="list-unstyled ps-3">
+                                            <li>• Guests must follow scheduled check-in and check-out times.</li>
+                                            <li>• Early check-in or late check-out is subject to availability and may incur additional charges.</li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <p class="fw-bold mb-2">Guest Conduct</p>
+                                        <ul class="list-unstyled ps-3">
+                                            <li>• Guests must behave responsibly and follow all resort guidelines.</li>
+                                            <li>• Respect towards other guests and staff is expected at all times.</li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <p class="fw-bold mb-2">Right to Refuse Service</p>
+                                        <ul class="list-unstyled ps-3">
+                                            <li>• Lelo's Resort reserves the right to refuse service or evict any guest who:</li>
+                                            <ul class="ps-4">
+                                                <li>- Violates the terms and conditions</li>
+                                                <li>- Engages in disruptive or inappropriate behavior</li>
+                                            </ul>
+                                            <li>• No refund will be given in such cases.</li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="text-center mt-4">
+                                        <p class="fw-bold mb-1">Contact Information</p>
+                                        <p>For more details, contact us at <a href="mailto:lelosresort@gmail.com" class="text-decoration-none fw-bold text-success">lelosresort@gmail.com</a></p>
+                                    </div>
                                 </div>
                             </div>
 
@@ -429,7 +509,7 @@
                     <div class="d-flex">
                         <div class="position-relative w-100">
                             <input type="number" class="form-control me-2" name="otp" id="otp" placeholder="Enter OTP" required maxlength="6" oninput="validateOTP(this.value)">
-                            <div id="otpValidationMessage" class="position-absolute" style="top: 100%; left: 0; font-size: 0.8rem;"></div>
+                            <div id="otpValidationMessage" class="position-absolute" style="top: 100%; left: 0; font-size: 0.8rem;" hidden></div>
                         </div>
                         <button type="button" id="sendOTPBtn" class="btn btn-success text-center mx-auto d-block ms-2" style="font-size: 10px; height: 50px;" onclick="sendOTP()">Send OTP</button>
                     </div>
@@ -512,7 +592,7 @@
             </div>
         </div>
     </div>
-
+<!-- Reset pass -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const newPassword = document.getElementById('newPassword');
@@ -572,54 +652,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
-
-<!-- Bootstrap JS (Add before your custom scripts) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    function validateOTP(value) {
-        const otpValidationMessage = document.getElementById('otpValidationMessage');
-        const passwordFields = document.getElementById('passwordFields');
-        
-        // Check kung 6 digits ang input
-        if (!/^\d{6}$/.test(value)) {
-            otpValidationMessage.textContent = 'The OTP must be 6 digits.';
-            otpValidationMessage.style.color = '#dc3545';
-            passwordFields.style.display = 'none';
-            return;
-        }
-
-        // Dito mo ilalagay ang AJAX call para i-verify ang OTP
-        fetch('/verify-otp', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-            },
-            body: JSON.stringify({
-                otp: value,
-                email: document.getElementById('email').value
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.valid) {
-                otpValidationMessage.textContent = 'Correct OTP!';
-                otpValidationMessage.style.color = '#198754';
-                passwordFields.style.display = 'block';
-                passwordFields.style.opacity = '1';
-            } else {
-                otpValidationMessage.textContent = 'Wrong OTP. Try Again.';
-                otpValidationMessage.style.color = '#dc3545';
-                passwordFields.style.display = 'none';
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            otpValidationMessage.textContent = 'Error verfying OTP. Try Again.';
-            otpValidationMessage.style.color = '#dc3545';
-        });
-    }
-</script>
+<!-- Forgot password Modal -->
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         let modalElement = document.getElementById("forgotPasswordModal");
@@ -766,13 +799,13 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Validate required fields
             if (!userCredential || !password) {
-                alert('Mangyaring punan ang lahat ng kinakailangang fields.');
+                alert('Fill up all the fields.');
                 return;
             }
 
             // Check if terms are agreed
             if (!agreeTerms) {
-                alert('Mangyaring tanggapin ang Terms and Conditions para magpatuloy.');
+                alert('Check the box to agree to the terms.');
                 return;
             }
             
@@ -781,6 +814,12 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (isEmail) {
                 try {
+                    // Update button text and disable it
+                    const loginButton = document.getElementById('loginButton');
+                    const loginText = loginButton.querySelector('span');
+                    loginButton.disabled = true;
+                    loginText.textContent = 'SENDING OTP PLEASE WAIT';
+
                     // Send OTP request
                     const response = await fetch('{{ route("send-login-otp") }}', {
                         method: 'POST',
@@ -802,9 +841,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     } else {
                         alert(data.message || 'Hindi matagumpay ang pagpapadala ng OTP. Pakisubukan muli.');
                     }
+
+                    // Reset button after response
+                    loginButton.disabled = false;
+                    loginText.textContent = 'LOG IN';
                 } catch (error) {
                     console.error('Error:', error);
                     alert('May naganap na error. Pakisubukan muli.');
+                    
+                    // Reset button on error
+                    const loginButton = document.getElementById('loginButton');
+                    const loginText = loginButton.querySelector('span');
+                    loginButton.disabled = false;
+                    loginText.textContent = 'LOG IN';
                 }
             } else {
                 // Para sa username login, direct submit
@@ -832,7 +881,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const data = await response.json();
 
                 if (data.success) {
-                    alert('Matagumpay na naipadala ang bagong OTP sa iyong email.');
+                    alert('OTP has been sent succesfully.');
                     
                     // Start countdown
                     this.disabled = true;
@@ -850,11 +899,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     }, 1000);
                 } else {
-                    alert(data.message || 'Hindi matagumpay ang muling pagpapadala ng OTP.');
+                    alert(data.message || 'Failed to send OTP.');
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('May naganap na error sa muling pagpapadala ng OTP.');
+                alert('Error sending OTP.Please try again.');
             }
         });
     }
@@ -998,19 +1047,18 @@ document.addEventListener('DOMContentLoaded', function() {
 <!-- Verfication Modal After clicking the Login Button-->
 <script>
 document.getElementById('login-form').addEventListener('submit', function(e) {
-    e.preventDefault();
+    const loginText = document.getElementById('loginText');
+    const loadingText = document.getElementById('loadingText');
+    const dynamicLoadingText = document.getElementById('dynamicLoadingText');
+    const userCredential = document.getElementById('userCredential').value;
     
-    const loginIdentifier = document.getElementById('login_identifier').value;
-    const password = document.getElementById('password').value;
+    loginText.classList.add('d-none');
+    loadingText.classList.remove('d-none');
     
-    // Check kung email o username ang ginamit
-    const isEmail = loginIdentifier.includes('@');
-    
-    if (!isEmail) {
-        // Kung username, direct login
-        this.submit();
-        return;
-    }
+    // Check if input is email using regex and set loading text
+    dynamicLoadingText.textContent = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userCredential) 
+        ? 'Sending OTP...' 
+        : 'Please wait...';
     
     // Kung email, ipakita ang OTP verification
     const modalBody = document.querySelector('#otpModal .modal-body');
@@ -1022,7 +1070,7 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
     function sendLoginOTP(email, password) {
         const sendingAlert = document.createElement('div');
         sendingAlert.className = 'alert alert-info text-center';
-        sendingAlert.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sending OTP to your email...';
+        sendingAlert.innerHTML = '<span id="loadingText" class="loading-text">Sending OTP please wait... <i class="fas fa-circle-notch fa-spin"></i></span>';
         
         const modalBody = document.querySelector('#otpVerificationModal .modal-body');
         modalBody.insertBefore(sendingAlert, modalBody.firstChild);
@@ -1091,56 +1139,64 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
     }
     
     // OTP verification form submission
-    const otpVerificationForm = document.getElementById('otpVerificationForm');
-    otpVerificationForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(otpVerificationForm);
-        const submitButton = otpVerificationForm.querySelector('button[type="submit"]');
-        
-        // Disable button and show loading state
-        submitButton.disabled = true;
-        submitButton.innerHTML = `
-            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-            Verifying...
-        `;
-        
-        fetch('{{ route("verify-login-otp") }}', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Show success message
-                const successDiv = document.createElement('div');
-                successDiv.className = 'alert alert-success text-center mb-3';
-                successDiv.innerHTML = 'OTP verified successfully! Redirecting...';
-                otpVerificationForm.insertBefore(successDiv, otpVerificationForm.firstChild);
-                
-                // Redirect after short delay
-                setTimeout(() => {
-                    window.location.href = '{{ route("calendar") }}';
-                }, 1500);
-            } else {
+    const otpForm = document.getElementById('otpForm');
+    if (otpForm) {
+        otpForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const submitButton = this.querySelector('button[type="submit"]');
+            
+            // Disable button and show loading state
+            submitButton.disabled = true;
+            submitButton.innerHTML = `
+                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Verifying...
+            `;
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Show success message
+                    const successDiv = document.createElement('div');
+                    successDiv.className = 'alert alert-success text-center mb-3';
+                    successDiv.innerHTML = 'OTP verified successfully! Redirecting...';
+                    this.insertBefore(successDiv, this.firstChild);
+                    
+                    // Redirect after short delay
+                    setTimeout(() => {
+                        window.location.href = data.redirect || '/dashboard';
+                    }, 1500);
+                } else {
+                    // Reset button state
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = 'Verify OTP';
+                    alert(data.message || 'Invalid OTP. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error verifying OTP:', error);
                 // Reset button state
                 submitButton.disabled = false;
                 submitButton.innerHTML = 'Verify OTP';
-                alert(data.message || 'Invalid OTP. Please try again.');
-            }
-        })
-        .catch(error => {
-            console.error('Error verifying OTP:', error);
-            // Reset button state
-            submitButton.disabled = false;
-            submitButton.innerHTML = 'Verify OTP';
-            alert('An error occurred while verifying OTP. Please try again.');
+                alert('An error occurred while verifying OTP. Please try again.');
+            });
         });
-    });
-});
 // Add resend OTP functionality
 let resendTimer;
 let resendCountdown = 60;

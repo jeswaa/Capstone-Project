@@ -60,9 +60,15 @@ Route::middleware(['isAdmin'])->group(function () {
     Route::post('/transactions/add-price', [AdminSideController::class, 'addPrice'])->name('addPrice');
     Route::post('/transactions/update-entrance-fee', [AdminSideController::class, 'updatePrice'])->name('updatePrice');
     Route::get('reports', [AdminSideController::class, 'reports'])->name('reports');
+    Route::get('/export-excel-reports', [AdminSideController::class, 'exportExcelReports'])->name('export.excel');
+    Route::get('/admin/reports/export-pdf', [AdminSideController::class, 'exportPDFReports'])->name('admin.reports.export-pdf');
+    Route::get('/admin/reports/print', [AdminSideController::class, 'printReport'])->name('reports.print');
+    Route::get('/export-pdf-reports/{id?}', [AdminSideController::class, 'exportPDFReports'])->name('export.pdf');
     Route::get('/activity-logs', [AdminSideController::class, 'activityLogs'])->name('activityLogs');
     Route::get('/user-account-roles', [AdminSideController::class, 'UserAccountRoles'])->name('userAccountRoles');
     Route::post('/add-user', [AdminSideController::class, 'addUser'])->name('addUser');
+    Route::get('/damage-report',[AdminSideController::class, 'DamageReport'])->name('DamageReport');
+    Route::post('/damage-report/update/{id}', [AdminSideController::class, 'editDamageReport'])->name('editDamageReport');
     Route::put('/update-user/{id}', [AdminSideController::class, 'updateUser'])->name('updateUser');
     Route::get('/admin/settings', [AdminSideController::class, 'showForm'])->name('admin.settings');
     Route::post('/admin/settings/update', [AdminSideController::class, 'updateEmail'])->name('admin.settings.update');
@@ -87,6 +93,8 @@ Route::post('/signup/send-otp', [SignUpController::class, 'sendOTP'])->name('sig
 Route::post('/signup/verify-otp', [SignUpController::class, 'verifyOTP'])->name('signup.verifyOTP');
 /*Landing page/index */
 Route::get('/', [LandingPageController::class, 'index'])->name('landingpage');
+/*homepage*/
+Route::get('/homepage', [LandingPageController::class, 'homepage'])->name('homepage');
 
 
 Route::get('/profile', [HomePageController::class, 'profilepage'])->name('profile');
@@ -103,6 +111,7 @@ Route::get('/get-available-accommodations', [ReservationController::class, 'getA
 Route::get('/reservation', [ReservationController::class, 'reservation'])->name('reservation');
 Route::get('/reservation/fetch-accomodation-data', [ReservationController::class, 'fetchAccomodationData'])->name('selectPackage');
 Route::get('/reservation/select-package-custom', [ReservationController::class, 'selectPackageCustom'])->name('selectPackageCustom');
+Route::get('/check-accommodation-availability', [ReservationController::class, 'checkAccommodationAvailability']);
 Route::get('/reservation/fetch-addons', [ReservationController::class, 'fetchAddons'])->name('fetchAddons');
 Route::get('/reservation/payment-process', [ReservationController::class, 'paymentProcess'])->name('paymentProcess');
 Route::get('/reservation/display-summary', [ReservationController::class, 'displayReservationSummary'])->name('summary');
@@ -158,8 +167,15 @@ Route::post('/login/admin/authenticate', [AdminSideController::class, 'login'])-
 Route::get('/login/staff', [StaffController::class, 'StaffLogin'])->name('staff.login');
 Route::post('/login/staff/authenticate', [StaffController::class, 'authenticate'])->name('staff.authenticate');
 Route::get('/staff/dashboard', [StaffController::class, 'dashboard'])->name('staff.dashboard');
+Route::get('/staff/notifications', [StaffController::class, 'getNotifications']);
+Route::post('/staff/notifications/{id}/mark-as-read', [StaffController::class, 'markNotificationAsRead']);
 Route::get('/staff/reservation-details', [StaffController::class, 'reservations'])->name('staff.reservation');
 Route::get('/staff/accomodations', [StaffController::class, 'accomodations'])->name('staff.accomodations');
+Route::get('/staff/walk-in-guest', [StaffController::class, 'walkIn'])->name('staff.walkIn');
+Route::get('/staff/walk-in-guest/add', [StaffController::class, 'walkInAdd'])->name('staff.walkin.create');
+Route::post('/staff/walk-in-guest/add', [StaffController::class, 'storeWalkInGuest'])->name('staff.walkin.store');
+Route::post('/staff/walk-in-guest/update-status/{id}', [StaffController::class, 'updateWalkInStatus'])->name('staff.updateWalkInStatus');
+Route::post('/get-session-fees', [StaffController::class, 'updatedSessionFees'])->name('session.fees');
 Route::put('/staff/edit-room/{id}', [StaffController::class, 'editRoom'])->name('staff.editRoom');
 Route::post('/staff/book-room', [StaffController::class, 'bookRoom'])->name('staff.bookRoom');
 Route::post('/staff/cancel-reservation/{id}', [StaffController::class, 'cancelReservation'])->name('staff.cancelReservation');
@@ -167,6 +183,9 @@ Route::get('/staff/check-new-reservations', [StaffController::class, 'checkNewRe
 Route::post('/staff/transactions/update-payment-status/{id}', [StaffController::class, 'UpdateStatus'])->name('staff.updateStatus');
 Route::get('/staff/transactions', [StaffController::class, 'transactions'])->name('staff.transactions');
 Route::post('/staff/send-email', [StaffController::class, 'sendEmail'])->name('staff.sendEmail');
+Route::get('/staff/damage-report', [StaffController::class, 'damageReport'])->name('staff.damageReport');
+Route::post('/staff/damage-report', [StaffController::class, 'storeDamageReport'])->name('staff.storeDamageReport');
+Route::post('/staff/damage-report/edit/{id}', [StaffController::class, 'editDamageReport'])->name('staff.editDamageReport');
 Route::get('/staff/guests', [StaffController::class, 'guests'])->name('staff.guests');
 Route::get('/staff/logout', [StaffController::class, 'logout'])->name('staff.logout');
 

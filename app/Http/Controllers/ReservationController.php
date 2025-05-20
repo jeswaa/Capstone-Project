@@ -27,16 +27,63 @@ class ReservationController extends Controller
         $addons = DB::table('addons')->get();
         return view('Reservation.addons', ['addons' => $addons]);
     }
+    public function checkAccommodationAvailability(Request $request)
+{
+    try {
+        $checkIn = $request->query('checkIn');
+        $checkOut = $request->query('checkOut');
+        
+        // Validate dates
+        if (!$checkIn || !$checkOut) {
+            return response()->json([
+                'error' => 'Missing check-in or check-out date'
+            ], 400);
+        }
 
+        // Get all accommodation types
+        $accommodationTypes = DB::table('accomodations')
+            ->select('accomodation_type')
+            ->distinct()
+            ->get();
+
+        $availableAccommodations = [];
+
+        foreach ($accommodationTypes as $type) {
+            $available = Accomodation::where('accomodation_type', $type->accomodation_type)
+                ->whereDoesntHave('reservations', function($query) use ($checkIn, $checkOut) {
+                    $query->where(function($q) use ($checkIn, $checkOut) {
+                        $q->whereBetween('reservation_check_in_date', [$checkIn, $checkOut])
+                          ->orWhereBetween('reservation_check_out_date', [$checkIn, $checkOut]);
+                    });
+                })
+                ->exists();
+
+            if ($available) {
+                $availableAccommodations[] = $type->accomodation_type;
+            }
+        }
+
+        return response()->json([
+            'available_accommodations' => $availableAccommodations,
+            'checkIn' => $checkIn,
+            'checkOut' => $checkOut
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'Server error: ' . $e->getMessage()
+        ], 500);
+    }
+}
     public function selectPackageCustom()
     {
-        $accomodations = DB::table('accomodations')->get();
+        $accomodations = DB::table('accomodations')->where('accomodation_status', 'available')->get();
         $activities = DB::table('activitiestbl')->get();
         $transactions = DB::table('transaction')->first();
-
+    
         return view('Reservation.selectPackageCustom', [
-            'accomodations' => $accomodations, 
-            'activities' => $activities, 
+            'accomodations' => $accomodations,
+            'activities' => $activities,
             'transactions' => $transactions,
         ]);
     }
@@ -346,6 +393,7 @@ class ReservationController extends Controller
 
 public function savePaymentProcess(Request $request)
 {
+    
     // Retrieve reservation details from session instead of database
     $reservationDetails = session('reservation_details');
 
@@ -440,6 +488,11 @@ public function savePaymentProcess(Request $request)
 
     public function displayReservationSummary()
     {
+        // Check if user is authenticated
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Please login to view your reservation summary.');
+        }
+
         $userId = Auth::user()->id;
 
         // Fetch latest reservation
@@ -449,7 +502,7 @@ public function savePaymentProcess(Request $request)
         ->select(
             'reservation_details.*',
             'packagestbl.package_name',
-            'packagestbl.package_room_type', // palitan mo ito ng package_room_type
+            'packagestbl.package_room_type',
             'packagestbl.package_max_guests',
             'packagestbl.package_activities'
         )
