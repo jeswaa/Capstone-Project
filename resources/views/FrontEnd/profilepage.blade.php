@@ -17,27 +17,11 @@
 
 <body
     style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
-    <nav class="navbar navbar-expand-lg  position-absolute top-0 w-100" style="z-index: 10;">
+    <nav class="navbar navbar-expand-lg position-absolute top-0 w-100" style="z-index: 0;">
         <div class="container">
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
-                aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase text-underline-left-to-right me-4"
-                            style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#home">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase text-underline-left-to-right me-4"
-                            style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#about">About</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase text-underline-left-to-right me-4"
-                            style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#reviews">Review</a>
-                    </li>
+
                 </ul>
                 <a class="navbar-brand d-none d-md-block" href="#">
                     <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort" id="logo" height="150" width="130">
@@ -110,11 +94,23 @@
                         @csrf
                         <div class="mb-3">
                             <label for="image" class="form-label">Image</label>
-                            <input type="file" class="form-control" name="image" id="image" accept="image/*">
-                            @if ($user->image)
-                                <img src="{{ asset('storage/' . $user->image) }}" alt="Profile Image" width="150"
-                                    class="img-fluid mt-2" required>
-                            @endif
+                            <div class="row g-3 align-items-center">
+                                <div class="col-12 col-md-8">
+                                    <div class="input-group">
+                                        <input type="file" class="form-control" name="image" id="image"
+                                            accept="image/*">
+                                    </div>
+                                </div>
+                                @if ($user->image)
+                                    <div class="col-12 col-md-4">
+                                        <div class="d-flex justify-content-center justify-content-md-start">
+                                            <img src="{{ asset('storage/' . $user->image) }}" alt="Profile Image"
+                                                class="img-fluid rounded shadow-sm"
+                                                style="width: 100%; height: 120px; object-fit: cover;" required>
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label for="name" class="form-label">Name</label>
@@ -147,10 +143,10 @@
     <div class="container-fluid p-0">
         <div class="row g-0">
             <!-- Profile Card -->
-            <div class="col-12 col-md-4 col-lg-2" style="background-color: #0b573d;">
-                <div class="p-4 text-white min-vh-100 d-flex flex-column">
+            <div class="col-12 col-md-4 col-lg-3" style="background-color: #0b573d; min-height: 100vh;">
+                <div class="p-4 text-white d-flex flex-column">
                     <!-- Back Arrow -->
-                    <div class="d-flex justify-content-start align-items-start mb-4" style="z-index: 11">
+                    <div class="d-flex justify-content-start align-items-start mb-4">
                         <a href="{{ route('calendar') }}" class="text-decoration-none">
                             <i class="text-white fa-2x fa-circle-left fa-solid"></i>
                         </a>
@@ -159,7 +155,7 @@
                     <!-- Profile Image -->
                     <div class="text-center mb-3">
                         <div class="rounded-circle border border-white overflow-hidden mx-auto"
-                            style="width: 200px; height: 200px;">
+                            style="width: 150px; height: 150px;">
                             <img src="{{ $user->image ? url('storage/' . $user->image) : asset('images/default-profile.jpg') }}"
                                 alt="Profile Image" class="img-fluid rounded-circle w-100 h-100 object-fit-cover">
                         </div>
@@ -182,29 +178,30 @@
                     <div class="mt-2">
                         <div class="d-flex align-items-center mb-3">
                             <i class="fa-solid fa-envelope fa-lg me-3"></i>
-                            <span style="font-size: 0.9rem;">{{ $user->email }}</span>
+                            <span style="font-size: 1.1rem;">{{ $user->email }}</span>
                         </div>
                         <div class="d-flex align-items-center mb-3">
                             <i class="fa-solid fa-phone fa-lg me-3"></i>
-                            <span style="font-size: 0.9rem;">{{ $user->mobileNo }}</span>
+                            <span style="font-size: 1.1rem;">{{ $user->mobileNo }}</span>
                         </div>
                         <div class="d-flex align-items-center mb-3">
                             <i class="fa-solid fa-location-dot fa-lg me-3"></i>
-                            <span style="font-size: 0.9rem;">{{ $user->address }}</span>
+                            <span style="font-size: 1.1rem;">{{ $user->address }}</span>
                         </div>
                     </div>
 
                     <!-- Buttons: Logout -->
-                    <div class="mt-auto text-end">
+                    <div class="mt-5 text-end">
                         <a href="{{ route('logout.user') }}" class="text-decoration-none">
-                            <u class="text-white">Log Out</u>
+                            <u class="text-white">Log Out <i
+                                    class="fa-solid fa-right-from-bracket ms-2 text-white"></i></u>
                         </a>
                     </div>
                 </div>
             </div>
 
             <!-- Main Content -->
-            <div class="col-12 col-md-9 px-5 py-2" style="margin-top: 80px;">
+            <div class="col-12 col-md-8 col-lg-9 px-5 py-3" style="margin-top: 80px;">
                 <div>
                     <p class="fw-bold text-start display-4"><span class="text-white fs-1">Hello,<br></span><span
                             class="text-color-2">{{ $user->name }}</span></p>
@@ -228,6 +225,7 @@
                                         style="background-color: white; color: #0b573d;">History</a>
                                 </li>
                             </ul>
+
 
                             <script>
                                 document.addEventListener('DOMContentLoaded', function () {
@@ -338,11 +336,11 @@
                                                 <p><strong>Status:</strong>
                                                     <span
                                                         class="badge 
-                                                                                                                                                                                                                                                                                                @if(isset($reservation) && $reservation->payment_status == 'paid') bg-success 
-                                                                                                                                                                                                                                                                                                @elseif(isset($reservation) && $reservation->payment_status == 'pending') bg-warning 
-                                                                                                                                                                                                                                                                                                @elseif(isset($reservation) && $reservation->payment_status == 'booked') bg-primary 
-                                                                                                                                                                                                                                                                                                    @else bg-danger 
-                                                                                                                                                                                                                                                                                                @endif">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                @if(isset($reservation) && $reservation->payment_status == 'paid') bg-success 
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                @elseif(isset($reservation) && $reservation->payment_status == 'pending') bg-warning 
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                @elseif(isset($reservation) && $reservation->payment_status == 'booked') bg-primary 
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @else bg-danger 
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                @endif">
                                                         {{ isset($reservation) ? $reservation->payment_status : 'N/A' }}
                                                     </span>
                                                 </p>
@@ -362,16 +360,20 @@
                         </div>
                     </div>
                     <!-- Notifications Section -->
-                    <div class="col-md-4">
-                        <div class="card border-success mt-4">
-                            <div class="card-header bg-success text-white">
-                                <h5 class="mb-0">
-                                    <i class="fa-solid fa-bell me-2"></i>
-                                    <i class="fa-solid fa-envelope me-2"></i>
-                                    NOTIFICATIONS
+                    <div class="col-12 col-md-4 d-flex" style="min-height: 400px; max-width: 100vw;">
+                        <div class="background-color mt-4 flex-fill d-flex flex-column"
+                            style="border: 5px solid #198754; min-height: 50%; height: 80%; padding: 1rem 0.5rem;">
+                            <div class="card-header ms-3">
+                                <h5 class="mb-0 mt-1">
+                                    <i class="fa-solid fa-bell me-2 text-color-2" style="cursor: pointer"></i>
+                                    <i class="fa-solid fa-envelope me-2 text-color-2" style="cursor: pointer"></i>
                                 </h5>
+                                <h5 class="mt-2 text-color-2 fw-bold">Notifications</h5>
                             </div>
-                            <div class="card-body" style="min-height: 200px;">
+                            <div>
+                                <hr class="mt-3 mx-auto" style="background-color: #198754; opacity: 0.8; width: 90%;">
+                            </div>
+                            <div class="card-body flex-grow-1" style="min-height: 120px; overflow-y: auto;">
                                 @if(isset($notifications) && count($notifications) > 0)
                                     @foreach($notifications as $notification)
                                         <div class="notification-item mb-3">
@@ -381,7 +383,8 @@
                                     @endforeach
                                 @else
                                     <div class="text-center text-muted mt-4">
-                                        <p class="mb-0" style="color: #666;">No reminders and messages at the moment.</p>
+                                        <p class="mb-0 mt-5" style="color: #666;">No reminders and <br> messages at the
+                                            moment.</p>
                                     </div>
                                 @endif
                             </div>
@@ -459,3 +462,86 @@
 </body>
 
 </html>
+
+<style>
+    @media (max-width: 767.98px) {
+        .col-12 {
+            position: static !important;
+            height: auto !important;
+        }
+
+        .offset-md-4 {
+            margin-left: 0 !important;
+        }
+
+        .offset-lg-3 {
+            margin-left: 0 !important;
+        }
+
+        .px-5 {
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Set initial states
+        document.getElementById('reservation-list-section').style.display = 'block';
+        document.getElementById('history-section').style.display = 'none';
+
+        // Auto-hide toasts after 5 seconds
+        const toasts = document.querySelectorAll('.toast');
+        toasts.forEach(toast => {
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+
+            setTimeout(() => {
+                bsToast.hide();
+            }, 5000);
+        });
+    });
+
+    function toggleTab(event, sectionToShow, activeTabId, inactiveTabId) {
+        event.preventDefault();
+
+        // Toggle sections visibility
+        document.getElementById('reservation-list-section').style.display = 'none';
+        document.getElementById('history-section').style.display = 'none';
+        document.getElementById(sectionToShow).style.display = 'block';
+
+        // Toggle tab styles
+        document.getElementById(activeTabId).style.backgroundColor = '#0b573d';
+        document.getElementById(activeTabId).style.color = 'white';
+        document.getElementById(inactiveTabId).style.backgroundColor = 'white';
+        document.getElementById(inactiveTabId).style.color = '#0b573d';
+    }
+
+    // Profile menu toggle functionality
+    const profileToggleBtn = document.querySelector('[data-bs-target="#profileContent"]');
+    const profileContent = document.getElementById('profileContent');
+
+    // Toggle menu when clicking the burger icon
+    profileToggleBtn.addEventListener('click', function () {
+        const bsCollapse = bootstrap.Collapse.getInstance(profileContent);
+        if (!bsCollapse) {
+            // Initialize collapse if not yet initialized
+            new bootstrap.Collapse(profileContent);
+        } else {
+            bsCollapse.toggle();
+        }
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', function (event) {
+        if (!profileContent.contains(event.target) &&
+            !profileToggleBtn.contains(event.target) &&
+            profileContent.classList.contains('show')) {
+            const bsCollapse = bootstrap.Collapse.getInstance(profileContent);
+            if (bsCollapse) {
+                bsCollapse.hide();
+            }
+        }
+    });
+</script>
