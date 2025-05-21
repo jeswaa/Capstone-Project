@@ -47,42 +47,7 @@
 <body style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
     @include('Alert.loginSucess')
     <div class="container-fluid min-vh-100 d-flex p-0">
-                <!-- Sidebar -->
-                <div class="col-md-3 col-lg-2 color-background8 text-white py-5 position-sticky" style="top: 0; height: 100vh;">
-                    <div class="d-flex flex-column align-items-center">
-                        <img src="{{ asset('images/default-profile.jpg') }}" alt="Profile Picture" class="rounded-circle w-50 mb-3 border border-5 border-white">
-                        <p class="font-heading sidebar-text" data-bs-toggle="modal" data-bs-target="#editProfileModal" style="cursor: pointer;">Edit Profile</p>
-                    </div>
-
-                    <div class="d-flex flex-column px-4 mt-4">
-                        <a href="{{ route('dashboard') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                            <i class="fas fa-tachometer-alt me-2 fs-5"></i> Dashboard
-                        </a>
-                        <a href="{{ route('reservations') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                            <i class="fas fa-calendar-alt me-2 fs-5"></i> Reservations
-                        </a>
-                        <a href="{{ route('guests') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                            <i class="fas fa-users me-2 fs-5"></i> Guests
-                        </a>
-                        <a href="{{ route('transactions') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                            <i class="fas fa-credit-card me-2 fs-5"></i> Transactions
-                        </a>
-
-                        <div class="dropdown py-2 mt-4">
-                            <a class="text-white text-decoration-none d-flex align-items-center dropdown-toggle" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-chart-line me-2 fs-5"></i> Reports
-                            </a>
-                            <ul class="dropdown-menu " aria-labelledby="reportsDropdown">
-                                <li><a class="dropdown-item" href="{{ route('reports') }}">Summary Report</a></li>
-                                <li><a class="dropdown-item" href="{{ route('activityLogs') }}">Activity Logs</a></li>
-                            </ul>
-                        </div>
-
-                        <a href="{{ route('logout') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                            <i class="fas fa-sign-out-alt me-2 fs-5"></i> Logout
-                        </a>
-                    </div>
-                </div>
+                @include('Navbar.sidenavbar')
                 <!-- Main Content -->
                 <div class="col-md-9 col-lg-10 py-4 px-4">
                     <!-- Heading and Search Bar -->
@@ -142,34 +107,61 @@
                                     <div class="modal fade" id="editUser{{ $user->id }}" tabindex="-1" aria-hidden="true">
                                         <div class="modal-dialog">
                                             <div class="modal-content">
-                                                <div class="modal-header">
+                                                <div class="modal-header bg-success text-white">
                                                     <h5 class="modal-title">Edit User</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
                                                 <form action="{{ route('updateUser', $user->id) }}" method="POST">
                                                     @csrf
                                                     @method('PUT')
                                                     <div class="modal-body">
                                                         <div class="mb-3">
-                                                            <label class="form-label">Username</label>
-                                                            <input type="text" class="form-control" name="username" value="{{ $user->username }}" required>
+                                                            <label class="form-label text-success fw-bold">Username</label>
+                                                            <input type="text" class="form-control border-success" name="username" value="{{ $user->username }}" required>
                                                         </div>
                                                         <div class="mb-3">
-                                                            <label class="form-label">Status</label>
-                                                            <select class="form-select" name="status" required>
+                                                            <label class="form-label text-success fw-bold">Password</label>
+                                                            <div class="input-group">
+                                                                <input type="password" class="form-control border-success" name="password" id="password{{ $user->id }}" placeholder="Enter new password">
+                                                                <button class="btn btn-outline-success" type="button" onclick="togglePassword('password{{ $user->id }}')" style="height: 50px;">
+                                                                    <i class="fas fa-eye" id="eye{{ $user->id }}"></i>
+                                                                </button>
+                                                            </div>
+                                                            <small class="text-muted">Leave blank to keep current password</small>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label text-success fw-bold">Status</label>
+                                                            <select class="form-select border-success" name="status" required>
                                                                 <option value="active" {{ $user->status === 'active' ? 'selected' : '' }}>Active</option>
                                                                 <option value="inactive" {{ $user->status === 'inactive' ? 'selected' : '' }}>Inactive</option>
                                                             </select>
                                                         </div>
                                                     </div>
                                                     <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                                                        <button type="button" class="btn btn-outline-success" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="submit" class="btn btn-success">Save Changes</button>
                                                     </div>
                                                 </form>
                                             </div>
                                         </div>
                                     </div>
+
+                                    <script>
+                                        function togglePassword(inputId) {
+                                            const passwordInput = document.getElementById(inputId);
+                                            const eyeIcon = document.getElementById('eye' + inputId.replace('password', ''));
+                                            
+                                            if (passwordInput.type === 'password') {
+                                                passwordInput.type = 'text';
+                                                eyeIcon.classList.remove('fa-eye');
+                                                eyeIcon.classList.add('fa-eye-slash');
+                                            } else {
+                                                passwordInput.type = 'password';
+                                                eyeIcon.classList.remove('fa-eye-slash');
+                                                eyeIcon.classList.add('fa-eye');
+                                            }
+                                        }
+                                    </script>
                                     @endforeach
                                 </tbody>
                             </table>

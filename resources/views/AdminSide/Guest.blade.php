@@ -41,55 +41,11 @@
 <body style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
     <div class="container-fluid min-vh-100 d-flex p-0">
     @include('Alert.loginSuccessUser')
-        <!-- Side Navbar -->
-        <div class="col-md-3 col-lg-2 color-background8 text-white py-5 position-sticky" style="top: 0; height: 100vh;">
-            <div class="d-flex flex-column align-items-center">
-                <img src="{{ asset('images/default-profile.jpg') }}" alt="Profile Picture" class="rounded-circle w-50 mb-3 border border-5 border-white">
-                <p class="font-heading sidebar-text" data-bs-toggle="modal" data-bs-target="#editProfileModal" style="cursor: pointer;">Edit Profile</p>
-            </div>
-
-            <div class="d-flex flex-column px-4 mt-4">
-                <a href="{{ route('dashboard') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                    <i class="fas fa-tachometer-alt me-2 fs-5"></i> Dashboard
-                </a>
-                <a href="{{ route('reservations') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                    <i class="fas fa-calendar-alt me-2 fs-5"></i> Reservations
-                </a>
-                <a href="{{ route('guests') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                    <i class="fas fa-users me-2 fs-5"></i> Guests
-                </a>
-                <a href="{{ route('transactions') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                    <i class="fas fa-credit-card me-2 fs-5"></i> Transactions
-                </a>
-
-                <div class="dropdown py-2 mt-4">
-                    <a class="text-white text-decoration-none d-flex align-items-center dropdown-toggle" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-chart-line me-2 fs-5 text-underline-left-to-right"></i> Reports
-                    </a>
-                    <ul class="dropdown-menu " aria-labelledby="reportsDropdown">
-                        <li><a class="dropdown-item" href="{{ route('reports') }}">Summary Report</a></li>
-                        <li><a class="dropdown-item" href="{{ route('activityLogs') }}">Activity Logs</a></li>
-                    </ul>
-                </div>
-
-                <a href="{{ route('logout') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                    <i class="fas fa-sign-out-alt me-2 fs-5"></i> Logout
-                </a>
-            </div>
-        </div>
+        @include('Navbar.sidenavbar')
         <!-- Main Content -->
         <div class="col-md-9 col-lg-10 py-4 px-4">
             <!-- Header -->
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <h1 class="fw-semibold fs-1" style="font-family: 'Anton', sans-serif; color: #0b573d; letter-spacing: 0.2em;">GUEST</h1>
-                <form class="d-flex w-50 ms-5" role="search">
-                    <div class="input-group">
-                        <input type="search" class="form-control rounded-start-5 border-3 border-secondary" style="background-color: transparent; height: 40px;" placeholder="Search" aria-label="Search">
-                        <button class="btn btn-secondary h-75 rounded-end-5" style="color: #e9ffcc;" type="submit">
-                            <i class="fa-solid fa-magnifying-glass" ></i>
-                        </button>
-                    </div>
-                </form>
+            <div class="d-flex justify-content-end align-items-center mb-2">
                 <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill me-3">
             </div>
 

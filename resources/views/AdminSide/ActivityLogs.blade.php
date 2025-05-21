@@ -48,48 +48,12 @@
     @include('Alert.loginSucess')
 
     <div class="container-fluid min-vh-100 d-flex p-0">
-                <!-- Sidebar -->
-                <div class="col-md-3 col-lg-2 color-background8 text-white py-5 position-sticky" style="top: 0; height: 100vh;">
-                    <div class="d-flex flex-column align-items-center">
-                        <img src="{{ asset('images/default-profile.jpg') }}" alt="Profile Picture" class="rounded-circle w-50 mb-3 border border-5 border-white">
-                        <p class="font-heading sidebar-text" data-bs-toggle="modal" data-bs-target="#editProfileModal" style="cursor: pointer;">Edit Profile</p>
-                    </div>
-
-                    <div class="d-flex flex-column px-4 mt-4">
-                        <a href="{{ route('dashboard') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                            <i class="fas fa-tachometer-alt me-2 fs-5"></i> Dashboard
-                        </a>
-                        <a href="{{ route('reservations') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                            <i class="fas fa-calendar-alt me-2 fs-5"></i> Reservations
-                        </a>
-                        <a href="{{ route('guests') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                            <i class="fas fa-users me-2 fs-5"></i> Guests
-                        </a>
-                        <a href="{{ route('transactions') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                            <i class="fas fa-credit-card me-2 fs-5"></i> Transactions
-                        </a>
-
-                        <div class="dropdown py-2 mt-4">
-                            <a class="text-white text-decoration-none d-flex align-items-center dropdown-toggle" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-chart-line me-2 fs-5"></i> Reports
-                            </a>
-                            <ul class="dropdown-menu " aria-labelledby="reportsDropdown">
-                                <li><a class="dropdown-item" href="{{ route('reports') }}">Summary Report</a></li>
-                                <li><a class="dropdown-item" href="{{ route('activityLogs') }}">Activity Logs</a></li>
-                            </ul>
-                        </div>
-
-                        <a href="{{ route('logout') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                            <i class="fas fa-sign-out-alt me-2 fs-5"></i> Logout
-                        </a>
-                    </div>
-                </div>
+                @include('Navbar.sidenavbar')
 
                 <!-- Main Content -->
                  <div class="col-md-9 col-lg-10 py-4 px-4">
                     <!-- Heading and Search Bar -->
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h1 class="fw-semibold" style="font-family: 'Anton', sans-serif; color: #0b573d; letter-spacing: 0.2em;">ACTIVITY LOGS</h1>
+                    <div class="d-flex justify-content-end align-items-center mb-2">
                         <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill me-3">
                     </div>
 
@@ -99,109 +63,91 @@
                         <a href="{{ route('activityLogs') }}" class="text-color-2 text-decoration-none me-5 fancy-link active" style="font-family: 'Anton', sans-serif; letter-spacing: 0.1em;"><h1 class="fs-1 text-uppercase">Activity Logs</h1></a>
                         <a href="{{ route('userAccountRoles') }}" class="text-color-2 me-5 text-decoration-none fancy-link" style="font-family: 'Anton', sans-serif; letter-spacing: 0.1em;"><h1 class="fs-1 text-uppercase">Account Creation</h1></a>
                     </div>
-                    <!-- Filter Form -->
-                    <form action="{{ route('activityLogs') }}" method="GET" class="d-flex justify-content-center align-items-center gap-3 mb-4">
-                        <div class="d-flex align-items-center">
-                            <div class="input-group">
-                                <input type="date" name="start_date" class="form-control" value="{{ request('start_date') }}" style="width: 150px; height: 38px;">
-                                <span class="input-group-text" style="height: 38px;">to</span>
-                                <input type="date" name="end_date" class="form-control" value="{{ request('end_date') }}" style="width: 150px; height: 38px;">
-                            </div>
-                        </div>
-                        
-                        <div class="d-flex align-items-center mb-3">
-                            <select name="role" class="form-select" style="width: 120px; height: 38px;">
-                                <option value="">All Roles</option>
-                                @foreach($roles as $role)
-                                    <option value="{{ $role }}" {{ request('role') == $role ? 'selected' : '' }}>
-                                        {{ ucfirst($role) }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                    
-                        <div class="d-flex align-items-center">
-                            <div class="input-group">
-                                <input type="search" name="search" class="form-control" placeholder="Search activity..." value="{{ request('search') }}" style="width: 200px; height: 38px;">
-                                <button class="btn btn-secondary" type="submit" style="height: 38px;">
-                                    <i class="fa-solid fa-magnifying-glass"></i>
-                                </button>
-                            </div>
-                        </div>
-                    
-                        @if(request()->hasAny(['start_date', 'end_date', 'role', 'search']))
-                            <div class="d-flex align-items-center">
-                                <a href="{{ route('activityLogs') }}" class="btn btn-outline-secondary" style="height: 38px;">
-                                    <i class="fas fa-times"></i> Clear
-                                </a>
-                            </div>
-                        @endif
-                    </form>
-                    <!-- Table -->
-                    <div>
-                        <div class="container-fluid">
-                            <div class="card shadow-sm border-0 rounded-4">
-                                <div class="card-body p-4">
-                                    <div class="table-responsive">
-                                        <table class="table table-hover align-middle">
-                                            <thead class="table-light">
-                                                <tr>
-                                                    <th class="py-3 text-secondary" style="width: 200px;">
-                                                        <i class="fas fa-calendar-alt me-2"></i>Date & Time
-                                                    </th>
-                                                    <th class="py-3 text-secondary" style="width: 150px;">
-                                                        <i class="fas fa-user me-2"></i>User
-                                                    </th>
-                                                    <th class="py-3 text-secondary" style="width: 100px;">
-                                                        <i class="fas fa-user-tag me-2"></i>Role
-                                                    </th>
-                                                    <th class="py-3 text-secondary" style="width: 400px;">
-                                                        <i class="fas fa-clipboard-list me-2"></i>Activity
-                                                    </th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach($activityLogs as $log)
-                                                <tr class="border-bottom">
-                                                    <td class="py-3" style="width: 200px;">
-                                                        {{ \Carbon\Carbon::parse($log->date . ' ' . $log->time)->format('F j, Y g:i A') }}
-                                                    </td>
-                                                    <td class="py-3" style="width: 150px;">{{ $log->user }}</td>
-                                                    <td class="py-3" style="width: 100px;">
-                                                        <span class="badge bg-success rounded-pill px-3">{{ $log->role }}</span>
-                                                    </td>
-                                                    <td class="py-3" style="width: 400px;">{{ $log->activity }}</td>
-                                                </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
+                    <!-- Filter Card -->
+                    <!-- Filter Card -->
+                    <div class="card shadow-sm border-0 rounded-4 mb-4">
+                        <div class="card-body p-4">
+                            <form action="{{ route('activityLogs') }}" method="GET" class="d-flex justify-content-between align-items-center gap-3">
+                                <!-- Date Range Filter -->
+                                <div class="d-flex align-items-center">
+                                    <div class="input-group">
+                                        <input type="date" name="start_date" class="form-control" value="{{ request('start_date') }}" style="width: 150px; height: 38px;">
+                                        <span class="input-group-text" style="height: 38px;">to</span>
+                                        <input type="date" name="end_date" class="form-control" value="{{ request('end_date') }}" style="width: 150px; height: 38px;">
                                     </div>
-                                    
-                                    <!-- Pagination -->
-                                    <div class="d-flex justify-content-center mt-4">
-                                        <nav aria-label="Activity logs pagination">
-                                            <div class="pagination pagination-sm">
-                                                {{ $activityLogs->links('pagination::bootstrap-5') }}
-                                            </div>
-                                        </nav>
+                                </div>
+                                
+                                <!-- Role Filter -->
+                                <div class="d-flex align-items-center">
+                                    <select name="role" class="form-select" style="width: 150px; height: 38px; margin-top:-15px;">
+                                        <option value="">All Roles</option>
+                                        @foreach($roles as $role)
+                                            <option value="{{ $role }}" {{ request('role') == $role ? 'selected' : '' }}>
+                                                {{ ucfirst($role) }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            
+                                <!-- Search Bar -->
+                                <div class="d-flex align-items-center flex-grow-1">
+                                    <div class="input-group">
+                                        <input type="search" name="search" class="form-control" placeholder="Search activity..." value="{{ request('search') }}" style="height: 38px;">
+                                        <button class="btn btn-success" type="submit" style="height: 38px;">
+                                            <i class="fa-solid fa-magnifying-glass"></i>
+                                        </button>
                                     </div>
-                                    <style>
-                                        .pagination .page-item.active .page-link {
-                                            background-color: #0b573d;
-                                            border-color: #0b573d;
-                                        }
-                                        .pagination .page-link {
-                                            color: #0b573d;
-                                            padding: 0.5rem 1rem;
-                                            border-radius: 0.25rem;
-                                            margin: 0 2px;
-                                        }
-                                        .pagination .page-link:hover {
-                                            background-color: #e9ecef;
-                                            border-color: #dee2e6;
-                                            color: #0b573d;
-                                        }
-                                    </style>
+                                </div>
+                            
+                                <!-- Clear Filter Button -->
+                                @if(request()->hasAny(['start_date', 'end_date', 'role', 'search']))
+                                    <div class="d-flex align-items-center">
+                                        <a href="{{ route('activityLogs') }}" class="btn btn-outline-secondary" style="height: 38px;">
+                                            <i class="fas fa-times"></i> Clear
+                                        </a>
+                                    </div>
+                                @endif
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Table Container -->
+                    <div class="container-fluid px-0">
+                        <div class="card shadow-sm border-0 rounded-4">
+                            <div class="card-body p-4">
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th class="py-3 text-secondary" style="width: 20%;">
+                                                    <i class="fas fa-calendar-alt me-2"></i>Date & Time
+                                                </th>
+                                                <th class="py-3 text-secondary" style="width: 20%;">
+                                                    <i class="fas fa-user me-2"></i>User
+                                                </th>
+                                                <th class="py-3 text-secondary" style="width: 15%;">
+                                                    <i class="fas fa-user-tag me-2"></i>Role
+                                                </th>
+                                                <th class="py-3 text-secondary" style="width: 45%;">
+                                                    <i class="fas fa-clipboard-list me-2"></i>Activity
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($activityLogs as $log)
+                                            <tr class="border-bottom">
+                                                <td class="py-3" style="width: 200px;">
+                                                    {{ \Carbon\Carbon::parse($log->date . ' ' . $log->time)->format('F j, Y g:i A') }}
+                                                </td>
+                                                <td class="py-3" style="width: 150px;">{{ $log->user }}</td>
+                                                <td class="py-3" style="width: 100px;">
+                                                    <span class="badge bg-success rounded-pill px-3">{{ $log->role }}</span>
+                                                </td>
+                                                <td class="py-3" style="width: 400px;">{{ $log->activity }}</td>
+                                            </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>

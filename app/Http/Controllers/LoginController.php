@@ -303,7 +303,7 @@ public function verifyLoginOTP(Request $request)
         session()->flash('success', 'OTP verified successfully.');
         
         // Return with success message and redirect
-        return redirect()->route('calendar')->with('success', 'Login successful!');
+        return redirect()->route('homepage')->with('success', 'Login successful!');
     }
     
     // Return with error message

@@ -214,17 +214,7 @@
 <body class="bg-light font-paragraph">
     <div class="container mt-5 px-3">
         <div class="d-flex justify-content-between align-items-center">
-            <a href="{{ route('selectPackage') }}" title="Go Back to Reservation Package" class="text-decoration-none">
-                <div class="rounded-circle bg-success d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                    <i class="fa-solid fa-arrow-left text-white" style="font-size: 30px;"></i>
-                </div>
-            </a>
-            <h1 class="text-center fw-bold" style="color: #e9ffcc; font-size: 2.5rem;">RESERVATION PAYMENT</h1>
-            <a href="{{ url('/') }}" title="Home" class="text-decoration-none">
-                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
-                    <img src="{{ asset('images/appicon.png') }}" alt="App Logo" class="img-fluid" style="max-width: 100%; height: auto;">
-                </div>
-            </a>
+            <h1 class="text-center fw-bold" style="color: #e9ffcc; font-size: 2.5rem; margin: 0 auto;">RESERVATION PAYMENT</h1>
         </div>
 
         <form id="paymentForm" action="{{ route('savePaymentProcess') }}" method="POST" enctype="multipart/form-data">
@@ -259,7 +249,7 @@
                         <!-- GCash 1 Content -->
                         <div class="tab-pane fade show active" id="gcash1-content" role="tabpanel" aria-labelledby="gcash1-tab">
                             <div class="d-flex flex-column align-items-center">
-                                <input class="form-check-input d-none" type="radio" name="payment_method" id="gcash1" value="gcash1" checked>
+                                <input class="form-check-input d-none" type="radio" name="payment_method" id="gcash1" value="gcash" checked>
                                 <div class="bg-secondary p-1 d-flex align-items-center justify-content-center rounded-2" style="width: 400px; height: 400px; background-image: url('{{ asset('images/logosheesh.png') }}'); background-size: cover; background-position: center;">
                                     <img src="{{ asset('images/qrcode.jpg') }}" alt="GCash QR Code 1" style="max-width: 80%; height: auto;">
                                 </div>
@@ -274,6 +264,8 @@
                                         <li>Double check the amount before confirming the transaction</li>
                                         <li>Save your reference number and screenshot of payment</li>
                                         <li>Payment confirmation may take up to 24 hours</li>
+                                        <li>No Refund Policy</li>
+                                        <li>Required security deposit. "Follow up will be done after done the reservation"</li>
                                         <li>For assistance, contact our support team</li>
                                     </ul>
                                 </div>
@@ -283,9 +275,9 @@
                         <!-- GCash 2 Content -->
                         <div class="tab-pane fade" id="gcash2-content" role="tabpanel" aria-labelledby="gcash2-tab">
                             <div class="d-flex flex-column align-items-center">
-                                <input class="form-check-input d-none" type="radio" name="payment_method" id="gcash2" value="gcash2">
+                                <input class="form-check-input d-none" type="radio" name="payment_method" id="gcash" value="gcash2">
                                 <div class="bg-secondary p-1 d-flex align-items-center justify-content-center rounded-2" style="width: 400px; height: 400px; background-image: url('{{ asset('images/logosheesh.png') }}'); background-size: cover; background-position: center;">
-                                    <img src="{{ asset('images/maya-qr.jpg') }}" alt="GCash QR Code 2" style="max-width: 80%; height: auto;">
+                                    <img src="{{ asset('images/qrcode.jpg') }}" alt="GCash QR Code 2" style="max-width: 80%; height: auto;">
                                 </div>
                                 <div class="text-center mt-3">
                                     <p class="fw-bold text-success mb-0">GCash Number:</p>
@@ -298,6 +290,8 @@
                                         <li>Double check the amount before confirming the transaction</li>
                                         <li>Save your reference number and screenshot of payment</li>
                                         <li>Payment confirmation may take up to 24 hours</li>
+                                        <li>No Refund Policy</li>
+                                        <li>Required security deposit. "Follow up will be done after done the reservation"</li>
                                         <li>For assistance, contact our support team</li>
                                     </ul>
                                 </div>
@@ -307,7 +301,7 @@
                         <!-- GCash 3 Content -->
                         <div class="tab-pane fade" id="gcash3-content" role="tabpanel" aria-labelledby="gcash3-tab">
                             <div class="d-flex flex-column align-items-center">
-                                <input class="form-check-input d-none" type="radio" name="payment_method" id="gcash3" value="gcash3">
+                                <input class="form-check-input d-none" type="radio" name="payment_method" id="gcash3" value="gcash">
                                 <div class="bg-secondary p-1 d-flex align-items-center justify-content-center rounded-2" style="width: 400px; height: 400px; background-image: url('{{ asset('images/logosheesh.png') }}'); background-size: cover; background-position: center;">
                                     <img src="{{ asset('images/qrcode.jpg') }}" alt="GCash QR Code 3" style="max-width: 80%; height: auto;">
                                 </div>
@@ -322,6 +316,8 @@
                                         <li>Double check the amount before confirming the transaction</li>
                                         <li>Save your reference number and screenshot of payment</li>
                                         <li>Payment confirmation may take up to 24 hours</li>
+                                        <li>No Refund Policy</li>
+                                        <li>Required security deposit. "Follow up will be done after done the reservation"</li>
                                         <li>For assistance, contact our support team</li>
                                     </ul>
                                 </div>
@@ -338,25 +334,36 @@
                             <p id="duration-text">Stay Duration</p>
                         </div>
 
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="fst-italic">Room:</span>
+                        @php
+                            // Calculate stay duration from check-in and check-out dates
+                            $checkInDate = new DateTime($reservationDetails['reservation_check_in_date'] ?? '');
+                            $checkOutDate = new DateTime($reservationDetails['reservation_check_out_date'] ?? '');
+                            $stayDuration = $checkInDate && $checkOutDate ? $checkOutDate->diff($checkInDate)->days : 1;
+                            if ($stayDuration < 1) $stayDuration = 1;
+                        @endphp
+
+                        <div class="d-flex justify-content-between ">
+                            <span class="fst-italic">Room</span>
                             <ul class="list-unstyled text-end" id="accommodation-list">
                                 @foreach ($accomodations as $accomodation)
-                                <li data-price="{{ $accomodation->accomodation_price }}">
-                                    {{ $accomodation->accomodation_name }} - ₱{{ number_format($accomodation->accomodation_price, 2) }}
-                                </li>
+                                @php
+                                    $quantity = session('reservation_details.quantity') ?? 1;
+                                    $pricePerRoom = floatval($accomodation->accomodation_price) ?? 0;
+                                    $roomTotalPrice = $pricePerRoom * $quantity;
+                                    $totalPrice = $roomTotalPrice * $stayDuration;
+                                @endphp
+                                <p>
+                                {{ $accomodation->accomodation_name }}({{$quantity}}x) - ₱{{ number_format(floatval($accomodation->accomodation_price) ?? 0, 2) }}  
+                                </p>
                                 @endforeach
                             </ul>
                         </div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="fst-italic">Total Room Price</span>
-                            <input type="text" class="form-control text-end bg-secondary-subtle border-0" id="total-accommodation" 
-                                   value="₱{{ number_format($accomodations->sum('accomodation_price'), 2) }}" readonly>
+                        @if($totalEntranceFee > 0)
+                        <div class="d-flex justify-content-between">
+                            <span class="fst-italic">Entrance Fee</span>
+                            <input type="text" class="form-control text-end bg-secondary-subtle border-0 w-75" value="₱{{ number_format($totalEntranceFee, 2) }}" readonly>
                         </div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="fst-italic">Total Entrance Fee</span>
-                            <input type="text" class="form-control text-end bg-secondary-subtle border-0" value="₱{{ number_format($totalEntranceFee, 2) }}" readonly>
-                        </div>
+                        @endif
 
                         @if (isset($reservationDetails->package_id))
                             @php
@@ -386,35 +393,48 @@
                             if ($stayDuration < 1) $stayDuration = 1;
                             
                             // Calculate total room price with correct duration
-                            $totalRoomPrice = $accomodations->sum('accomodation_price') * $stayDuration;
+                            $quantity = session('reservation_details.quantity') ?? 0;
+                            $totalPrice = 0;
+                            foreach ($accomodations as $accomodation) {
+                                $pricePerRoom = ($accomodation->accomodation_price);
+                                $roomTotalPrice = $pricePerRoom * $quantity;
+                                $totalPrice += $roomTotalPrice * $stayDuration;
+                            }
                             
-                           
+                            // Calculate final amount including entrance fee
+                            $amount = $totalPrice + ($totalEntranceFee ?? 0);
                             
-                            // Calculate final amount
-                            $amount = $totalRoomPrice + $totalEntranceFee;
-                            $downpayment = $amount * 0.15;
+                            // Calculate downpayment (50% of total amount)
+                            $downpayment = $amount * 0.50;
                         @endphp
 
                         <div class="d-flex justify-content-between align-items-center">
-                            <h5 class="fw-bold text-success">Total Amount to Pay</h5>
+                            <h5 class="fw-bold text-success">Amount to Pay</h5>
                             <input type="text" class="form-control text-center bg-secondary-subtle border-0 fw-bold fs-5" 
                                    id="amount-display" style="max-width: 150px;" 
-                                   value="₱{{ number_format($amount, 2) }}" readonly>
-                            <input type="hidden" name="amount">
+                                   value="₱{{ number_format($amount, 2) }}" 
+                                   readonly>
+                            <input type="hidden" name="amount" value="{{ $amount }}">
                         </div>
                         
                         <div class="d-flex justify-content-between align-items-center mt-3">
-                            <span class="fst-italic">Required 15% Downpayment</span>
+                            <span class="fst-italic">Required 50% Downpayment</span>
                             <input type="text" id="downpayment-display" class="form-control text-end bg-secondary-subtle border-0" 
                                    style="max-width: 150px;" value="₱ {{ number_format($downpayment, 2) }}" readonly>
-                            <!-- Hidden input for raw downpayment value -->
                             <input type="hidden" name="downpayment" value="{{ $downpayment }}">
                         </div>
-                        <!-- Hidden input for raw balance value -->
+
+                        <div class="alert alert-info py-2 px-3 mt-1 mb-0" role="alert">
+                            <small class="fst-italic d-block text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                The required 50% downpayment includes the security deposit.
+                            </small>
+                        </div>
+                            <!-- Hidden input for raw balance value -->
                         <input type="hidden" name="balance" value="{{ $amount - $downpayment }}">
                         <div class="mt-3">
                             <label class="fw-bold">Upload Proof of Payment</label>
-                            <input type="file" class="form-control bg-secondary-subtle border-0" name="upload_payment" id="upload_payment" required>
+                            <input type="file" class="form-control bg-secondary-subtle border-0" name="upload_payment" id="upload_payment" accept="image/*" required>
                         </div>
                         
                         <div class="mt-3">

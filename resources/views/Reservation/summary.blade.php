@@ -81,11 +81,11 @@
                         </div>
                         <div class="row mb-2">
                             <div class="col-4 fw-bold text-success">Check-in:</div>
-                            <div class="col-8">{{ $reservationDetails->reservation_check_in }}</div>
+                            <div class="col-8">{{ date('h:i A', strtotime($reservationDetails->reservation_check_in)) }}</div>
                         </div>
                         <div class="row mb-2">
                             <div class="col-4 fw-bold text-success">Check-out:</div>
-                            <div class="col-8">{{ $reservationDetails->reservation_check_out }}</div>
+                            <div class="col-8">{{ date('h:i A', strtotime($reservationDetails->reservation_check_out)) }}</div>
                         </div>
                         <div class="row mb-2">
                             <div class="col-4 fw-bold text-success">Special Request:</div>
@@ -98,6 +98,10 @@
                         <div class="row mb-2">
                             <div class="col-4 fw-bold text-success">Amount:</div>
                             <div class="col-8">₱{{ number_format($reservationDetails->amount, 2) }}</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-4 fw-bold text-success">Balance:</div>
+                            <div class="col-8">₱{{ number_format($reservationDetails->balance, 2) }}</div>
                         </div>
                         <div class="row mb-2">
                             <div class="col-4 fw-bold text-success">Reference No:</div>
@@ -127,24 +131,24 @@
                 <div class="p-4 border rounded">
                     <!-- Status Section -->
                     <div class="d-flex align-items-center mb-4">
-                        <h5 class="mb-0">Status:</h5>
+                        <h5 class="mb-0 me-2">Status:</h5>
                         <span class="badge 
-                            @if($reservationDetails->payment_status == 'paid') bg-success 
-                            @elseif($reservationDetails->payment_status == 'pending') bg-warning
-                            @elseif($reservationDetails->payment_status == 'booked') bg-primary
+                            @if($reservationDetails->reservation_status == 'checked-in') bg-success 
+                            @elseif($reservationDetails->reservation_status == 'pending') bg-warning
+                            @elseif($reservationDetails->reservation_status == 'reserved') bg-primary
                             @else bg-danger 
                             @endif text-white">
-                            {{ ucfirst($reservationDetails->payment_status) }}
+                            {{ ucfirst($reservationDetails->reservation_status) }}
                         </span>
                     </div>
 
                     <!-- Instructions Section -->
                     <div class="mb-3">
                         <h6 class="text-success mb-2">Instructions:</h6>
-                        <div class="alert alert-info p-2" style="font-size: 0.9rem;">
-                            <ol class="mb-0 ps-2">
+                        <div class="alert alert-info " style="font-size: 0.9rem;">
+                            <ol class="mb-0 ps-2 pe-2">
                                 <li class="mb-1">Download your QR code by clicking the button below</li>
-                                <li class="mb-1">Present this QR code upon check-in at our resort</li>
+                                <li class="">Present this QR code upon check-in at our resort</li>
                             </ol>
                         </div>
                     </div>

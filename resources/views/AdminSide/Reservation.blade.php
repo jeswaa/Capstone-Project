@@ -8,6 +8,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>Reservation</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -100,56 +107,12 @@
 <body style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
     
     <div class="container-fluid min-vh-100 d-flex p-0">
-        <!-- Sidebar -->
-        <div class="col-md-3 col-lg-2 color-background8 text-white py-5 position-sticky" style="top: 0; height: 100vh;">
-            <div class="d-flex flex-column align-items-center">
-                <img src="{{ asset('images/default-profile.jpg') }}" alt="Profile Picture" class="rounded-circle w-50 mb-3 border border-5 border-white">
-                <p class="font-heading sidebar-text" data-bs-toggle="modal" data-bs-target="#editProfileModal" style="cursor: pointer;">Edit Profile</p>
-            </div>
-
-            <div class="d-flex flex-column px-4 mt-4">
-                <a href="{{ route('dashboard') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                    <i class="fas fa-tachometer-alt me-2 fs-5"></i> Dashboard
-                </a>
-                <a href="{{ route('reservations') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                    <i class="fas fa-calendar-alt me-2 fs-5"></i> Reservations
-                </a>
-                <a href="{{ route('guests') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                    <i class="fas fa-users me-2 fs-5"></i> Guests
-                </a>
-                <a href="{{ route('transactions') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                    <i class="fas fa-credit-card me-2 fs-5"></i> Transactions
-                </a>
-
-                <div class="dropdown py-2 mt-4">
-                    <a class="text-white text-decoration-none d-flex align-items-center dropdown-toggle" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-chart-line me-2 fs-5 text-underline-left-to-right"></i> Reports
-                    </a>
-                    <ul class="dropdown-menu " aria-labelledby="reportsDropdown">
-                        <li><a class="dropdown-item" href="{{ route('reports') }}">Summary Report</a></li>
-                        <li><a class="dropdown-item" href="{{ route('activityLogs') }}">Activity Logs</a></li>
-                    </ul>
-                </div>
-
-                <a href="{{ route('logout') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                    <i class="fas fa-sign-out-alt me-2 fs-5"></i> Logout
-                </a>
-            </div>
-        </div>
+        @include('Navbar.sidenavbar')
 
         <!-- Main Content -->
         <div class="col-md-9 col-lg-10 py-4 px-4">
             <!-- Header -->
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <h1 class="fw-semibold" style="font-family: 'Anton', sans-serif; color: #0b573d; letter-spacing: 0.2em;">RESERVATIONS</h1>
-                <form class="d-flex w-50 ms-5" role="search">
-                    <div class="input-group">
-                        <input type="search" class="form-control rounded-start-5 border-3 border-secondary" style="background-color: transparent; height: 40px;" placeholder="Search" aria-label="Search">
-                        <button class="btn btn-secondary h-75 rounded-end-5" style="color: #e9ffcc;" type="submit">
-                            <i class="fa-solid fa-magnifying-glass" ></i>
-                        </button>
-                    </div>
-                </form>
+            <div class="d-flex justify-content-end mb-2">
                 <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill me-3">
             </div>
 
@@ -162,7 +125,7 @@
                 <a href="{{ route('addActivities') }}" class="text-color-2 text-decoration-none fancy-link" style="font-family: 'Anton', sans-serif; letter-spacing: 0.1em;"><h1 class="fs-1 text-uppercase">Activities</h1></a>
             </div>
 
-            <div class="mt-5 ms-4">
+            <div class="mt-5">
                 <h1 class="text-color-2" style="font-family: 'Anton', sans-serif;"> Calendar</h1>
                 <div id="calendar-container" class="shadow-lg rounded-4 p-3 bg-white floating-effect">
                     <div id="calendar" class="mb-5"></div>
@@ -187,8 +150,8 @@
                         <tr>
                             <th scope="col" class="small">Guest Name</th>
                             <th scope="col" class="small">Dates(In-Out)</th>
-                            <th scope="col" class="small">Room Type</th>
                             <th scope="col" class="small">Time(In-Out)</th>
+                            <th scope="col" class="small">Room Type</th>
                             <th scope="col" class="small">Mobile Number</th>
                             <th scope="col" class="small">Reference Number</th>
                             <th scope="col" class="small">Payment Status</th>
@@ -201,6 +164,7 @@
                             <tr class="align-middle">
                                 <td class="fw-semibold">{{ $reservation->name }}</td>
                                 <td>{{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('M j, Y') }}-{{ \Carbon\Carbon::parse($reservation->reservation_check_out_date)->format('M j, Y') }}</td>
+                                <td>{{ \Carbon\Carbon::parse($reservation->reservation_check_in)->format('h:i A') }}-{{ \Carbon\Carbon::parse($reservation->reservation_check_out)->format('h:i A') }}</td>
                                 <td>
                                     @if(!empty($reservation->accomodation_names))
                                         {{ implode(', ', $reservation->accomodation_names) }}
@@ -208,7 +172,6 @@
                                         <span class="text-muted">No Accommodation</span>
                                     @endif
                                 </td>
-                                <td>{{ \Carbon\Carbon::parse($reservation->reservation_check_in)->format('h:i A') }}-{{ \Carbon\Carbon::parse($reservation->reservation_check_out)->format('h:i A') }}</td>
                                 <td>{{$reservation->mobileNo}}</td>
                                 <td>{{ $reservation->reference_num}}</td>
                                 <td>
@@ -223,7 +186,18 @@
                                         {{ ucfirst($reservation->payment_status) }}
                                     </span>
                                 </td>
-                                <td>{{ $reservation->reservation_status}}</td>
+                                <td>
+                                    <span class="badge 
+                                        @if($reservation->reservation_status == 'confirmed') bg-success
+                                        @elseif($reservation->reservation_status == 'pending') bg-warning text-dark
+                                        @elseif($reservation->reservation_status == 'cancelled') bg-danger
+                                        @else bg-secondary
+                                        @endif
+                                        px-3 py-2 rounded-pill text-uppercase fw-medium"
+                                    >
+                                        {{ ucfirst($reservation->reservation_status) }}
+                                    </span>
+                                </td>
                                 <td>₱{{ number_format($reservation->amount, 2) }}</td>
                             </tr>
                         @endforeach
@@ -292,17 +266,74 @@
             initialView: 'dayGridMonth',
             height: 'auto',
             contentHeight: 600,
-            events: @json($events), // Inject events from the controller
-            eventColor: '#0b573d', // ✅ Change event color here
+            events: @json($events),
+            eventColor: '#0b573d',
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',
                 right: 'dayGridMonth,timeGridWeek,timeGridDay'
             },
             eventClick: function(info) {
-                alert('Reservation Details:\n' + info.event.title + 
-                      '\nStart: ' + info.event.start.toLocaleString() +
-                      '\nEnd: ' + info.event.end.toLocaleString());
+                // Enhanced event details display
+                const event = info.event;
+                const startDate = moment(event.start).format('MMMM D, YYYY');
+                const endDate = event.end ? moment(event.end).format('MMMM D, YYYY') : null;
+                
+                // Split the description into reserved and available rooms
+                const description = event.extendedProps.description;
+                const [reservedRooms, availableRooms] = description.split('\n');
+                
+                const detailsHtml = `
+                    <div class="p-4">
+                        <h5 class="text-center mb-4" style="font-family: 'Anton', sans-serif; color: #0b573d; letter-spacing: 0.1em;">RESERVATION DETAILS</h5>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <div class="card border-0 shadow-sm">
+                                    <div class="card-body" style="background-color: #f8f9fa; border-radius: 10px;">
+                                        <h6 class="card-subtitle mb-2" style="color: #0b573d; font-family: 'Poppins', sans-serif;">Reservation Date</h6>
+                                        <p class="card-text fw-semibold">${startDate}${endDate ? ' - ' + endDate : ''}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="card border-0 shadow-sm">
+                                    <div class="card-body" style="background-color: #0b573d; border-radius: 10px;">
+                                        <h6 class="card-subtitle mb-2 text-white" style="font-family: 'Poppins', sans-serif;">Reserved Rooms</h6>
+                                        <p class="card-text text-white fw-semibold">${reservedRooms.replace('Reserved Rooms: ', '')}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="card border-0 shadow-sm">
+                                    <div class="card-body" style="background-color: #127656; border-radius: 10px;">
+                                        <h6 class="card-subtitle mb-2 text-white" style="font-family: 'Poppins', sans-serif;">Available Rooms</h6>
+                                        <p class="card-text text-white fw-semibold">${availableRooms.replace('Available Rooms: ', '')}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            
+                Swal.fire({
+                    title: '',
+                    html: detailsHtml,
+                    showCloseButton: true,
+                    showConfirmButton: false,
+                    width: '32rem',
+                    padding: '0',
+                    background: '#ffffff',
+                    customClass: {
+                        popup: 'rounded-4 shadow-lg',
+                        closeButton: 'btn btn-lg btn-outline-secondary rounded-circle p-2 position-absolute end-0 top-0 m-3'
+                    }
+                });
+            },
+            dayMaxEvents: true,
+            eventTimeFormat: {
+                hour: 'numeric',
+                minute: '2-digit',
+                meridiem: 'short'
             }
         });
 

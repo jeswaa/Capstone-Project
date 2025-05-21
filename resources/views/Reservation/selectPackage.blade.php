@@ -41,48 +41,42 @@
     
     .select-accommodation {
         cursor: pointer;
-        transition: transform 0.3s, box-shadow 0.3s;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .select-accommodation.selected {
-        background-color: #718355 !important;  
-        border: 2px solid #414141 !important;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        transform: scale(1.05);
+        transform: translateY(-5px);
+    }
+
+    .select-accommodation.selected::before {
+        content: '✓ Selected';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        padding: 10px;
+        background-color: #198754;
+        color: white;
+        text-align: center;
+        font-weight: bold;
+        z-index: 1;
+    }
+
+    .select-accommodation.selected img {
+        filter: brightness(0.8);
+    }
+
+    .select-accommodation.selected .card-body {
+        background-color: #e8f5e9 !important;
+        border-top: 3px solid #198754;
     }
 
     .select-accommodation:hover {
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 16px 32px rgba(0, 0, 0, 0.1);
         transform: translateY(-5px);
-    }
-    .accommodation-type-btn {
-    transition: all 0.3s ease;
-    border: 2px solid white;
-    font-weight: bold;
-    letter-spacing: 1px;
-    padding: 10px 20px;
-    }
-
-    .accommodation-type-btn:hover {
-        background-color: rgba(255, 255, 255, 0.2);
-        transform: translateY(-2px);
-    }
-
-    .accommodation-type-btn.active {
-        background-color: white;
-        color: #0b573d !important;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .accommodation-card {
-        transition: opacity 0.3s ease, transform 0.3s ease;
-    }
-
-    .accommodation-card.hidden {
-        display: none;
-        opacity: 0;
-        transform: scale(0.95);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     }
 </style>
 
@@ -129,20 +123,6 @@
                 <i class="fas fa-calendar-check me-2"></i>Booking Details
             </button>
         </div>
-        <!-- Accommodation Type Selection -->
-        <div class="mb-4">
-            <div class="btn-group w-100" role="group" aria-label="Accommodation Types">
-                @php
-                    $types = $accomodations->pluck('accomodation_type')->unique();
-                @endphp
-                
-                @foreach($types as $type)
-                    <button type="button" class="btn btn-outline-light accommodation-type-btn text-uppercase" data-type="{{ $type }}">
-                        {{ ucfirst($type) }}s
-                    </button>
-                @endforeach
-            </div>
-        </div>
 
         <!-- Accommodation Cards Container -->
         <div class="col-md-12 d-flex flex-column">
@@ -150,7 +130,7 @@
                 <div class="container">
                     <div class="row g-4" id="accommodationContainer">
                         @foreach($accomodations as $accomodation)
-                            <div class="col-md-4 accommodation-card " data-type="{{ $accomodation->accomodation_type }}">
+                            <div class="col-md-4">
                                 <div class="card select-accommodation" 
                                      data-id="{{ $accomodation->accomodation_id }}" 
                                      data-price="{{ $accomodation->accomodation_price }}"
@@ -259,22 +239,34 @@
                                     </div>
                                 </div>
 
-                                <!-- DATE SELECTION -->
-                                <div class="col-md-12">
+                                <!-- DATE SELECTION AND QUANTITY -->
+                                <div class="col-md-6">
                                     <div class="card p-3 shadow-sm border-0">
                                         <h6 class="fw-bold mb-3 text-success">Select Date</h6>
                                         <div class="row g-3">
-                                            <div class="col-md-6">
+                                            <div class="col-md-12"> {{-- Changed from col-md-6 to col-md-12 to make date inputs full width within this card --}}
                                                 <label for="reservation_date">Check-in Date:</label>
                                                 <input type="date" id="reservation_date" name="reservation_check_in_date" class="form-control" required readonly>
                                             </div>
-                                            <div class="col-md-6">
+                                            <div class="col-md-12"> {{-- Changed from col-md-6 to col-md-12 --}}
                                                 <label for="check_out_date" class="form-label">Check-out Date:</label>
                                                 <input type="date" id="check_out_date" name="reservation_check_out_date" class="form-control" readonly>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+                               
+                                <div class="col-md-6"> 
+                                    <div class="card p-3 shadow-sm border-0"> 
+                                        <h6 class="fw-bold mb-3 text-success">Quantity</h6>
+                                        <div class="form-group">
+                                            <label for="quantity">Number of Rooms:</label> {{-- Updated label text --}}
+                                            <input type="number" id="quantity" name="quantity" class="form-control" min="1" value="1" required oninput="calculateTotalGuest()"> {{-- Added oninput event --}}
+                                            <small class="text-muted" style="font-size: 10px;">Number of rooms to reserve</small>
+                                        </div>
+                                    </div>
+                                </div>
+
 
                                 <!-- SPECIAL REQUEST -->
                                 <div class="col-md-12">
@@ -339,75 +331,89 @@
             let adults = parseInt(document.getElementById("number_of_adults").value) || 0;
             let children = parseInt(document.getElementById("number_of_children").value) || 0;
             let totalGuests = adults + children;
-            
-            // Get selected accommodation capacity
-            let selectedAccommodation = document.querySelector('.select-accommodation.selected');
-            let maxCapacity = selectedAccommodation ? parseInt(selectedAccommodation.getAttribute('data-capacity')) : 0;
-            
-            // Get the save button and error message elements
+
+            // Get total capacity from the selected room and multiply by quantity
+            let totalCapacity = 0;
+            const selectedCard = document.querySelector('.select-accommodation.selected');
+            const quantityInput = document.getElementById('quantity');
+            const quantity = parseInt(quantityInput.value) || 1; // Default quantity to 1 if input is empty or invalid
+
+            if (selectedCard) {
+                let roomCapacity = parseInt(selectedCard.getAttribute('data-capacity')) || 0;
+                totalCapacity = roomCapacity * quantity; // Multiply capacity by quantity
+            }
+
+            // Get elements
             let saveButton = document.querySelector('button[type="submit"]');
             let guestError = document.getElementById('guestError');
             let totalGuestsInput = document.getElementById("total_guests");
 
             // Update total guests display
             totalGuestsInput.value = totalGuests;
-            
-            // Check if total guests exceeds capacity
-            if (totalGuests > maxCapacity && maxCapacity > 0) {
+
+            // Check if total guests is 0 or exceeds total capacity
+            if (totalGuests === 0) { // Disable if total guests is 0
+                guestError.style.display = 'none'; // Hide error if guests is 0
+                saveButton.disabled = true;
+                saveButton.classList.add('opacity-50');
+                totalGuestsInput.style.color = 'black'; // Keep color black if 0
+            } else if (totalGuests > totalCapacity && totalCapacity > 0) { // Disable if exceeds capacity
                 guestError.style.display = 'block';
+                guestError.textContent = `Exceeds maximum capacity of ${totalCapacity} guests`; // Update error message with calculated capacity
                 saveButton.disabled = true;
                 saveButton.classList.add('opacity-50');
                 totalGuestsInput.style.color = 'red';
-            } else {
+            } else { // Enable if guests > 0 and within capacity
                 guestError.style.display = 'none';
                 saveButton.disabled = false;
                 saveButton.classList.remove('opacity-50');
                 totalGuestsInput.style.color = 'black';
             }
-            
-            // Kunin ang entrance fees
+
+            // Get entrance fees
             let adultFee = parseFloat(document.getElementById("adult_fee").textContent.trim().replace(/[₱,]/g, ''));
             let childFee = parseFloat(document.getElementById("child_fee").textContent.trim().replace(/[₱,]/g, ''));
-            
-            // Kalkulahin ang total entrance fee
+
+            // Calculate total entrance fee
             let totalEntranceFee = (adults * adultFee) + (children * childFee);
-            
-            // I-update ang display ng total guests at entrance fee
+
+            // Update total guests and entrance fee display
             document.getElementById("total_guests").value = totalGuests;
             document.getElementById("total_entrance_fee").textContent = totalEntranceFee.toFixed(2);
-            
-            // I-save ang total entrance fee sa hidden input para ma-submit sa form
+
+            // Save total entrance fee in hidden input for form submission
             let hiddenInput = document.createElement('input');
             hiddenInput.type = 'hidden';
             hiddenInput.name = 'entrance_fee';
             hiddenInput.value = totalEntranceFee.toFixed(2);
-            
-            // Tanggalin ang dating hidden input kung meron
+
+            // Remove existing hidden input if any
             let existingInput = document.querySelector('input[name="entrance_fee"]');
             if (existingInput) {
                 existingInput.remove();
             }
-            
-            // Idagdag ang bagong hidden input sa form
+
+            // Add new hidden input to form
             document.querySelector('form').appendChild(hiddenInput);
         }
     function calculateTotalAmount() {
         // Kunin ang total entrance fee
         let totalEntranceFee = parseFloat(document.getElementById("total_entrance_fee").textContent) || 0;
-        
-        // Kunin ang total ng mga napiling accommodation
+
+        // Kunin ang total ng napiling accommodation (ngayon isa lang)
         let accommodationTotal = 0;
-        document.querySelectorAll('.select-accommodation.selected').forEach(card => {
-            let price = parseFloat(card.getAttribute("data-price")) || 0;
-            accommodationTotal += price;
-        });
-    
+        const selectedCard = document.querySelector('.select-accommodation.selected');
+        if (selectedCard) {
+            let price = parseFloat(selectedCard.getAttribute("data-price")) || 0;
+            accommodationTotal = price;
+        }
+
         // I-add ang total entrance fee at accommodation total
         let totalAmount = totalEntranceFee + accommodationTotal;
-    
+
         // I-update ang hidden input para sa total amount
-        document.getElementById("total_amount").value = totalAmount.toFixed(2);
-        value = totalAmount;
+            document.getElementById("total_amount").value = totalAmount.toFixed(2);
+        // value = totalAmount; // This line seems incorrect, removed it.
     }
 
     document.addEventListener("DOMContentLoaded", function () {

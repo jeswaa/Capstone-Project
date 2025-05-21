@@ -44,42 +44,7 @@
 <body style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
     <div class="container-fluid min-vh-100 d-flex p-0">
     @include('Alert.loginSuccessUser')
-        <!-- Side NavBar -->
-        <div class="col-md-3 col-lg-2 color-background8 text-white py-5 position-sticky" style="top: 0; height: 100vh;">
-            <div class="d-flex flex-column align-items-center">
-                <img src="{{ asset('images/default-profile.jpg') }}" alt="Profile Picture" class="rounded-circle w-50 mb-3 border border-5 border-white">
-                <p class="font-heading sidebar-text" data-bs-toggle="modal" data-bs-target="#editProfileModal" style="cursor: pointer;">Edit Profile</p>
-            </div>
-
-            <div class="d-flex flex-column px-4 mt-4">
-                <a href="{{ route('dashboard') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                    <i class="fas fa-tachometer-alt me-2 fs-5"></i> Dashboard
-                </a>
-                <a href="{{ route('reservations') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                    <i class="fas fa-calendar-alt me-2 fs-5"></i> Reservations
-                </a>
-                <a href="{{ route('guests') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                    <i class="fas fa-users me-2 fs-5"></i> Guests
-                </a>
-                <a href="{{ route('transactions') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                    <i class="fas fa-credit-card me-2 fs-5"></i> Transactions
-                </a>
-
-                <div class="dropdown py-2 mt-4">
-                    <a class="text-white text-decoration-none d-flex align-items-center dropdown-toggle" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-chart-line me-2 fs-5 text-underline-left-to-right"></i> Reports
-                    </a>
-                    <ul class="dropdown-menu " aria-labelledby="reportsDropdown">
-                        <li><a class="dropdown-item" href="{{ route('reports') }}">Summary Report</a></li>
-                        <li><a class="dropdown-item" href="{{ route('activityLogs') }}">Activity Logs</a></li>
-                    </ul>
-                </div>
-
-                <a href="{{ route('logout') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                    <i class="fas fa-sign-out-alt me-2 fs-5"></i> Logout
-                </a>
-            </div>
-        </div>
+        @include('Navbar.sidenavbar')
 
         <!--  Main Content -->
           <div class="col-md-9 col-lg-10 py-4 px-4">
@@ -113,37 +78,39 @@
                     </div>
 
                     <!-- Add Activity Modal -->
-                    <div class="modal fade" id="addActivityModal" tabindex="-1" aria-labelledby="addActivityModalLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="addActivityModalLabel">Add New Activity</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <form action="{{ route('storeActivity') }}" method="POST" enctype="multipart/form-data">
-                                        @csrf
-                                        <div class="form-group">
-                                            <label for="activity_name">Activity Name</label>
-                                            <input type="text" class="form-control" id="activity_name" name="activity_name" required>
-                                        </div>
-                                        <div class="form-group mt-3">
-                                            <label for="activity_image">Activity Image</label>
-                                            <input type="file" class="form-control" id="activity_image" name="activity_image" required>
-                                        </div>
-                                        <div class="form-group mt-3">
-                                            <label for="activity_status">Activity Status</label>
-                                            <select class="form-select" id="activity_status" name="activity_status" required>
-                                                <option value="Available">Available</option>
-                                                <option value="Unavailable">Unavailable</option>
-                                            </select>
-                                        </div>
-                                        <button type="submit" class="btn btn-primary mt-3">Add Activity</button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
+<div class="modal fade" id="addActivityModal" tabindex="-1" aria-labelledby="addActivityModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content border-0">
+            <div class="modal-header border-0" style="background-color: #0b573d;">
+                <h5 class="modal-title text-white fw-bold" id="addActivityModalLabel" style="font-family: 'Poppins', sans-serif;">Add New Activity</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form action="{{ route('storeActivity') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="form-group mb-3">
+                        <label for="activity_name" class="form-label fw-semibold" style="font-family: 'Poppins', sans-serif;">Activity Name</label>
+                        <input type="text" class="form-control border-2" id="activity_name" name="activity_name" required>
                     </div>
+                    <div class="form-group mb-3">
+                        <label for="activity_image" class="form-label fw-semibold" style="font-family: 'Poppins', sans-serif;">Activity Image</label>
+                        <input type="file" class="form-control border-2" id="activity_image" name="activity_image" required>
+                    </div>
+                    <div class="form-group mb-4">
+                        <label for="activity_status" class="form-label fw-semibold" style="font-family: 'Poppins', sans-serif;">Activity Status</label>
+                        <select class="form-select border-2" id="activity_status" name="activity_status" required>
+                            <option value="Available">Available</option>
+                            <option value="Unavailable">Unavailable</option>
+                        </select>
+                    </div>
+                    <div class="text-end">
+                        <button type="submit" class="btn text-white px-4 py-2" style="background-color: #0b573d;">Add Activity</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
                     <!-- End Add Activity Modal -->
 
                     <!-- Table -->

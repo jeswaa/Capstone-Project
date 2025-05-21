@@ -21,4 +21,11 @@ class Accomodation extends Model
         'accomodation_capacity',
         'accomodation_price',
     ];
+
+    
+    public function reservations()
+    {
+        return $this->hasMany(Reservation::class, 'accomodation_id');
+    }
+
 }
