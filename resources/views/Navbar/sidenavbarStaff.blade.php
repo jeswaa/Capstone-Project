@@ -51,9 +51,9 @@
                         <i class="fas fa-chevron-down nav-text ms-auto"></i>
                     </a>
                     <ul class="dropdown-menu w-100 border-0 shadow" style="background-color: #0d6e4c !important;">
-                        <li><a class="nav-link text-white p-2 font-paragraph" href="{{ route('staff.reservation') }}">Reservations</a></li>
+                        <li><a class="nav-link text-white p-2 font-paragraph" href="{{ route('staff.reservation') }}">Online Reservations</a></li>
+                        <li><a class="nav-link text-white p-2 font-paragraph" href="{{ route('staff.walkIn')}}">Walk In Reservations</a></li>
                         <li><a class="nav-link text-white p-2 font-paragraph" href="{{ route('staff.accomodations')}}">Room Availability</a></li>
-                        <li><a class="nav-link text-white p-2 font-paragraph" href="{{ route('staff.walkIn')}}">Walk In</a></li>
                     </ul>
                 </div>
             

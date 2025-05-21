@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Custom Package</title>
+    <title>Stay In</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -13,55 +13,48 @@
 <style>
       .select-accommodation {
         cursor: pointer;
-        transition: transform 0.3s, box-shadow 0.3s;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.05);
-        border-radius: 10px; /* Added border-radius */
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .select-accommodation.selected {
-        background-color: #718355 !important;  
-        border: 2px solid #414141 !important;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        transform: scale(1.05);
+        transform: translateY(-5px);
+    }
+
+    .select-accommodation.selected::before {
+        content: '✓ Selected';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        padding: 10px;
+        background-color: #198754;
+        color: white;
+        text-align: center;
+        font-weight: bold;
+        z-index: 1;
+    }
+
+    .select-accommodation.selected img {
+        filter: brightness(0.8);
+    }
+
+    .select-accommodation.selected .card-body {
+        background-color: #e8f5e9 !important;
+        border-top: 3px solid #198754;
     }
 
     .select-accommodation:hover {
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 16px 32px rgba(0, 0, 0, 0.1);
         transform: translateY(-5px);
-    }
-    .accommodation-type-btn {
-    transition: all 0.3s ease;
-    border: 2px solid white;
-    font-weight: bold;
-    letter-spacing: 1px;
-    padding: 10px 20px;
-    }
-
-    .accommodation-type-btn:hover {
-        background-color: rgba(255, 255, 255, 0.2);
-        transform: translateY(-2px);
-    }
-
-    .accommodation-type-btn.active {
-        background-color: white;
-        color: #0b573d !important;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .accommodation-card {
-        transition: opacity 0.3s ease, transform 0.3s ease;
-    }
-
-    .accommodation-card.hidden {
-        display: none;
-        opacity: 0;
-        transform: scale(0.95);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     }
 </style>
 
-<body class="bg-light font-paragraph" style="background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('{{ asset('images/packagebg.jpg') }}') no-repeat center center fixed; background-size: cover;">
+<body class="bg-light font-paragraph" style="background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.8)), url('{{ asset('images/packagebg.jpg') }}') no-repeat center center fixed; background-size: cover;">
     <div class="d-flex align-items-center ms-5 mt-5">
-        <a href="{{ route('calendar') }}"><i class="color-3 fa-2x fa-circle-left fa-solid icon icon-hover ms-4"></i></a><h1 class="text-white text-uppercase font-heading ms-3">Reservation</h1>
+        <a href="{{ route('calendar') }}"><i class="color-3 fa-2x fa-circle-left fa-solid icon icon-hover ms-4"></i></a><h1 class="text-white text-uppercase font-heading ms-3"> Stay In Reservation</h1>
     </div>
     @if ($errors->any())
     <div class="alert alert-danger mt-3">
@@ -94,28 +87,15 @@
                 disabled>
                 <i class="fas fa-calendar-check me-2"></i>Booking Details
             </button>
-        </div>
-        <!-- Accommodation Type Selection -->
-        <div class="mb-4">
-            <div class="btn-group w-100" role="group" aria-label="Accommodation Types">
-                @php
-                    $types = $accomodations->pluck('accomodation_type')->unique();
-                @endphp
-                
-                @foreach($types as $type)
-                    <button type="button" class="btn btn-outline-light accommodation-type-btn text-uppercase" data-type="{{ $type }}">
-                        {{ ucfirst($type) }}s
-                    </button>
-                @endforeach
             </div>
-        </div>
+    
         <!-- Accommodation Cards Container -->
         <div class="col-md-12 d-flex flex-column">
             <div class="form-group">
                 <div class="container">
                     <div class="row g-4" id="accommodationContainer">
                         @foreach($accomodations as $accomodation)
-                            <div class="col-md-4 accommodation-card " data-type="{{ $accomodation->accomodation_type }}">
+                            <div class="col-md-4 accommodation-card">
                                 <div class="card select-accommodation"
                                      data-id="{{ $accomodation->accomodation_id }}"
                                      data-price="{{ $accomodation->accomodation_price }}"
@@ -199,7 +179,7 @@
                                 </div>
                             </div>
                         
-                            <div class="col-md-6">
+                            <div class="col-md-6 mb-4">
                                 <div class="card p-3 shadow-sm border-0">
                                     <h6 class="fw-bold mb-3 text-success">Time</h6>
                                     <div class="form-group">
@@ -211,7 +191,14 @@
                                         <input type="time" id="end_time" name="reservation_check_out" value="12:00" class="form-control" readonly required>
                                     </div>
                                 </div>
+                                <div class="card p-2 shadow-sm border-0 mt-2">
+                                    <label for="quantity">Quantity:</label>
+                                    <input type="number" id="quantity" name="quantity" class="form-control" min="1" value="1" required>
+                                    <small class="text-muted" style="font-size: 10px;">Number of rooms to reserve</small>
+                                </div>
                             </div>
+                            </div>
+                            
                         
                             <!-- DATE SELECTION -->
                             <div class="col-md-12">
@@ -242,9 +229,10 @@
                         <input type="hidden" name="total_amount" id="total_amount">
                     
                         <!-- SUBMIT BUTTON -->
-                        <div class="text-center mt-4">
+                        <div class="text-center mt-2 mb-3">
                             <button type="submit" class="btn btn-success fw-bold px-5 py-2 shadow-sm">
-                                Save and Continue
+                                Continue to payment
+                                <i class="fas fa-arrow-right ms-2"></i>
                             </button>
                         </div>
                     </div>
@@ -292,25 +280,29 @@
             let adults = parseInt(document.getElementById("number_of_adults").value) || 0;
             let children = parseInt(document.getElementById("number_of_children").value) || 0;
             let totalGuests = adults + children;
+            let quantity = parseInt(document.getElementById("quantity").value) || 1;
             
-            // Get all selected accommodations and calculate total capacity
-            let selectedAccommodations = document.querySelectorAll('.select-accommodation.selected');
+            // Kunin ang selected accommodation at calculate ang total capacity base sa quantity
+            let selectedAccommodation = document.querySelector('.select-accommodation.selected');
             let totalCapacity = 0;
-            selectedAccommodations.forEach(accommodation => {
-                totalCapacity += parseInt(accommodation.getAttribute('data-capacity')) || 0;
-            });
             
-            // Get the save button and error message elements
+            if (selectedAccommodation) {
+                let roomCapacity = parseInt(selectedAccommodation.getAttribute('data-capacity')) || 0;
+                totalCapacity = roomCapacity * quantity;
+            }
+            
+            // Kunin ang save button at error message elements
             let saveButton = document.querySelector('button[type="submit"]');
             let guestError = document.getElementById('guestError');
             let totalGuestsInput = document.getElementById("total_guests");
             
-            // Update total guests display
+            // I-update ang total guests display
             totalGuestsInput.value = totalGuests;
             
-            // Check if total guests exceeds total capacity
+            // I-check kung ang total guests ay lumampas sa total capacity
             if (totalGuests > totalCapacity && totalCapacity > 0) {
                 guestError.style.display = 'block';
+                guestError.textContent = `Exceeds maximum capacity! (Maximum: ${totalCapacity} guests)`;
                 saveButton.disabled = true;
                 saveButton.classList.add('opacity-50');
                 totalGuestsInput.style.color = 'red';
@@ -332,47 +324,57 @@
 
         // Function para i-update ang estado ng button
         function updateProceedButton() {
-            const selectedAccommodations = document.querySelectorAll(".select-accommodation.selected");
-            proceedButton.disabled = selectedAccommodations.length === 0;
+            const selectedAccommodation = document.querySelector(".select-accommodation.selected");
+            proceedButton.disabled = !selectedAccommodation;
         }
 
-        // Function para i-update ang hidden inputs ng selected accommodations
-        function updateSelectedAccommodations() {
-            // Tanggalin muna lahat ng existing accommodation inputs
+        // Function para i-update ang hidden input ng selected accommodation
+        function updateSelectedAccommodation() {
+            // Tanggalin muna ang existing accommodation input
             mainForm.querySelectorAll('input[name="accomodation_id[]"]').forEach(input => input.remove());
             
-            // Magdagdag ng bagong input para sa bawat selected accommodation
-            document.querySelectorAll(".select-accommodation.selected").forEach(card => {
+            // Magdagdag ng bagong input para sa selected accommodation
+            const selectedCard = document.querySelector(".select-accommodation.selected");
+            if (selectedCard) {
                 const input = document.createElement("input");
                 input.type = "hidden";
                 input.name = "accomodation_id[]";
-                input.value = card.getAttribute("data-id");
+                input.value = selectedCard.getAttribute("data-id");
                 mainForm.appendChild(input);
-            });
+            }
         }
 
         // Magdagdag ng click event listener sa bawat accommodation card
         accommodationCards.forEach(card => {
             card.addEventListener("click", function () {
-                this.classList.toggle("selected");
+                // Alisin muna ang selected class sa lahat ng cards
+                accommodationCards.forEach(c => c.classList.remove("selected"));
+                
+                // I-toggle ang selected class sa clinick na card
+                this.classList.add("selected");
+                
                 updateProceedButton();
                 calculateTotalGuest();
-                updateSelectedAccommodations();
+                updateSelectedAccommodation();
             });
         });
 
         // I-handle ang form submission
         mainForm.addEventListener("submit", function (e) {
-            const selectedAccommodations = document.querySelectorAll(".select-accommodation.selected");
+            const selectedAccommodation = document.querySelector(".select-accommodation.selected");
             
-            if (selectedAccommodations.length === 0) {
+            if (!selectedAccommodation) {
                 e.preventDefault();
-                alert("Mangyaring pumili ng kahit isang accommodation.");
+                Swal.fire({
+                    title: "Walang Napiling Room",
+                    text: "Mangyaring pumili ng isang room para makapagpatuloy.",
+                    icon: "warning"
+                });
                 return;
             }
             
-            // I-update muna ang hidden inputs bago mag-submit
-            updateSelectedAccommodations();
+            // I-update muna ang hidden input bago mag-submit
+            updateSelectedAccommodation();
         });
     });
 </script>
@@ -469,6 +471,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
-
 </body>
 </html>
+

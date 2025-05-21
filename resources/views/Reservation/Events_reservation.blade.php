@@ -18,15 +18,27 @@
             background-size: cover;
             overflow-x: hidden;
         }
+        .container-fluid {
+            display: flex;
+            padding: 20px;
+            gap: 20px;
+        }
 
         #calendar {
-            width: 95vw !important;
-            height: 70vh !important;
-            padding: 10px;
-            margin: 10px auto;
+            width: 100% !important;
+            height: 85vh !important;
+            margin: 0;
             background: white;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .reservation-controls {
+            width: 35%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
         }
 
         .fc-toolbar {
@@ -289,9 +301,9 @@
     @endif
     <!-- Navigation -->
     <div class="container d-flex justify-content-between mt-3 mt-md-5 px-4">
-        <a href="{{ route('profile') }}" class="text-decoration-none">
+        <a href="{{ route('homepage') }}" class="text-decoration-none">
             <div class="profile-icon">
-                <i class="fa-solid fa-user"></i>
+                <i class="fa-solid fa-arrow-left"></i>
             </div>
         </a>
         <a href="{{ url('/') }}" class="text-decoration-none">
@@ -301,25 +313,61 @@
 
     <!-- Main Content -->
     <div class="container-fluid py-3 py-md-4">
-        <div class="row justify-content-center">
-            <div class="col-12 col-lg-8 col-md-10">
-                <!-- Reservation Type Toggle -->
-                <div class="text-center mb-4">
-                    <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-success active" id="stayinBtn">
-                            OVERNIGHT STAY
-                        </button>
-                        <button type="button" class="btn btn-success" id="daytourBtn">
-                            ONE DAY STAY
-                        </button>
-                    </div>
+    <div class="calendar-container">
+        <div id="calendar"></div>
+    </div>
+    <div class="reservation-controls">
+        <!-- Reservation Type Toggle -->
+        <div class="btn-group gap-3" role="group">
+            <button type="button" class="btn btn-success active" id="stayinBtn">
+                OVERNIGHT STAY
+            </button>
+            <button type="button" class="btn btn-success" id="daytourBtn">
+                ONE DAY STAY
+            </button>
+        </div>
+        <!-- Selected Dates Display -->
+        <div class="selected-dates bg-light p-4 rounded-3 shadow-sm mb-3" id="selectedDatesBox" style="border: 2px solid #198754; width: 100%;">
+            <h5 class="text-center mb-3" style="color: #198754;">Chosen Dates:</h5>
+            <div class="d-flex justify-content-around">
+                <div class="text-center">
+                    <strong>Check-in:</strong>
+                    <div id="selectedCheckIn">-</div>
                 </div>
-
-                <!-- Calendar Container -->
-                <div id="calendar"></div>
+                <div class="text-center">
+                    <strong>Check-out:</strong>
+                    <div id="selectedCheckOut">-</div>
+                </div>
             </div>
         </div>
+        <!-- Instructions for Overnight Stay -->
+        <div class="instructions-box p-4 bg-light rounded-3 shadow-sm mb-3" id="overnightInstructions" style="border: 2px solid #198754;">
+            <h5 class="text-center mb-3" style="color: #198754;">How to Book an Overnight Stay</h5>
+            <ol class="mb-0" style="color: #333;">
+                <li class="mb-2">Select your Check-in Date</li>
+                <li class="mb-2">Then select your Check-out Date
+                    <ul class="mt-1">
+                        <li>Check-out must be after Check-in</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+    
+        <!-- Instructions for Day Tour -->
+        <div class="instructions-box p-4 bg-light rounded-3 shadow-sm mb-3" id="daytourInstructions" style="border: 2px solid #198754; display: none;">
+            <h5 class="text-center mb-3" style="color: #198754;">How to Book a Day Tour</h5>
+            <ol class="mb-0" style="color: #333;">
+                <li class="mb-2">Select your preferred date</li>
+                <li class="mb-2">Note:
+                    <ul class="mt-1">
+                        <li>Past dates cannot be selected</li>
+                    </ul>
+                </li>
+                <li>Once selected, we'll check availability and show package options</li>
+            </ol>
+        </div>
     </div>
+</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -342,6 +390,21 @@ document.addEventListener('DOMContentLoaded', function() {
             checkInDate = null;
             checkOutDate = null;
             highlightSelectedDates();
+            
+            // Toggle visibility of selected dates box
+            const selectedDatesBox = document.getElementById('selectedDatesBox');
+            const overnightInstructions = document.getElementById('overnightInstructions');
+            const daytourInstructions = document.getElementById('daytourInstructions');
+            
+            if (reservationType === 'daytour') {
+                selectedDatesBox.style.display = 'none';
+                overnightInstructions.style.display = 'none';
+                daytourInstructions.style.display = 'block';
+            } else {
+                selectedDatesBox.style.display = 'block';
+                overnightInstructions.style.display = 'block';
+                daytourInstructions.style.display = 'none';
+            }
         });
     });
 
@@ -515,17 +578,23 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleStayIn(date) {
         if(!checkInDate) {
             checkInDate = date;
+            // Update the selected dates display
+            document.getElementById('selectedCheckIn').textContent = new Date(date).toLocaleDateString();
+            document.getElementById('selectedCheckOut').textContent = '-';
+            
             Swal.fire({
-                title: 'Check-in Date Selected',
-                text: 'Please select your Check-out Date',
+                title: 'Check-in Date na Napili',
+                text: 'Mangyaring pumili ng Check-out Date',
                 html: `Check-in Date: ${new Date(date).toLocaleDateString()}<br><br>
-                       <strong>Please select Check-out Date on the calendar</strong>`,
+                       <strong>Pumili ng Check-out Date sa calendar</strong>`,
                 icon: 'info',
                 confirmButtonText: 'OK',
                 confirmButtonColor: '#2ecc71'
             });
         } else if(!checkOutDate && date > checkInDate) {
             checkOutDate = date;
+            // Update the selected dates display
+            document.getElementById('selectedCheckOut').textContent = new Date(date).toLocaleDateString();
             
             // Check availability for each accommodation type
             fetch(`/check-accommodation-availability?checkIn=${checkInDate}&checkOut=${checkOutDate}`)
@@ -602,5 +671,41 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+<script>
+// Add this after your existing button click handlers
+document.addEventListener('DOMContentLoaded', function() {
+    const stayinBtn = document.getElementById('stayinBtn');
+    const daytourBtn = document.getElementById('daytourBtn');
+    const overnightInstructions = document.getElementById('overnightInstructions');
+    const daytourInstructions = document.getElementById('daytourInstructions');
+
+    stayinBtn.addEventListener('click', function() {
+        overnightInstructions.style.display = 'block';
+        daytourInstructions.style.display = 'none';
+    });
+
+    daytourBtn.addEventListener('click', function() {
+        overnightInstructions.style.display = 'none';
+        daytourInstructions.style.display = 'block';
+    });
+});
+</script>
+<script>
+    // Add function to reset selected dates display
+function resetSelectedDates() {
+    document.getElementById('selectedCheckIn').textContent = '-';
+    document.getElementById('selectedCheckOut').textContent = '-';
+}
+
+// Update the reservation type toggle to reset dates
+[stayinBtn, daytourBtn].forEach(btn => {
+    btn.addEventListener('click', function() {
+        resetSelectedDates();
+    });
+});
+</script>
 </body>
 </html>
+
+
+

@@ -99,124 +99,20 @@
 
     <div class="container-fluid min-vh-100 d-flex p-0">
         <!-- Sidebar -->
-        <div class="col-md-3 col-lg-2 color-background8 text-white py-5 position-sticky" style="top: 0; height: 100vh;">
-            <div class="d-flex flex-column align-items-center">
-                <img src="{{ asset('images/default-profile.jpg') }}" alt="Profile Picture" class="rounded-circle w-50 mb-3 border border-5 border-white">
-                <p class="font-heading sidebar-text" data-bs-toggle="modal" data-bs-target="#editProfileModal" style="cursor: pointer;">Edit Profile</p>
-            </div>
-
-            <div class="d-flex flex-column px-4 mt-4">
-                <a href="{{ route('dashboard') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                    <i class="fas fa-tachometer-alt me-2 fs-5"></i> Dashboard
-                </a>
-                <a href="{{ route('reservations') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                    <i class="fas fa-calendar-alt me-2 fs-5"></i> Reservations
-                </a>
-                <a href="{{ route('guests') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                    <i class="fas fa-users me-2 fs-5"></i> Guests
-                </a>
-                <a href="{{ route('transactions') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                    <i class="fas fa-credit-card me-2 fs-5"></i> Transactions
-                </a>
-
-                <div class="dropdown py-2 mt-4">
-                    <a class="text-white text-decoration-none d-flex align-items-center dropdown-toggle" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-chart-line me-2 fs-5 text-underline-left-to-right"></i> Reports
-                    </a>
-                    <ul class="dropdown-menu " aria-labelledby="reportsDropdown">
-                        <li><a class="dropdown-item" href="{{ route('reports') }}">Summary Report</a></li>
-                        <li><a class="dropdown-item" href="{{ route('activityLogs') }}">Activity Logs</a></li>
-                    </ul>
-                </div>
-
-                <a href="{{ route ('DamageReport')}}"  class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                    <i class="fas fa-clipboard-list fs-5 icon-center"></i>
-                    <span class="nav-text ms-3 font-paragraph">Damage Report</span>
-                </a>
-
-                <a href="{{ route('logout') }}" class="text-white text-decoration-none py-2 d-flex align-items-center mt-4 text-underline-left-to-right">
-                    <i class="fas fa-sign-out-alt me-2 fs-5"></i> Logout
-                </a>
-            </div>
-        </div>
+        @include('Navbar.sidenavbar')
         <!-- Main Content -->
          <div class="col-md-9 col-lg-10 py-4 px-4">
                 <!-- Heading and Search Bar -->
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h1 class="fw-semibold" style="font-family: 'Anton', sans-serif; color: #0b573d; letter-spacing: 0.2em;">TRANSACTION</h1>
-                    <form class="d-flex w-50 ms-5" role="search">
-                        <div class="input-group">
-                            <input type="search" class="form-control rounded-start-5 border-3 border-secondary" style="background-color: transparent; height: 40px;" placeholder="Search" aria-label="Search">
-                            <button class="btn btn-secondary h-75 rounded-end-5" style="color: #e9ffcc;" type="submit">
-                                <i class="fa-solid fa-magnifying-glass" ></i>
-                            </button>
-                        </div>
-                    </form>
+                <div class="d-flex justify-content-end align-items-center mb-2">
                     <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill me-3">
                 </div>
 
                 <hr class="border-5">
-                <!-- Content Bar Graph -->
-                <div>
-                    <h1 class="fw-semibold text-capitalize ms-3 mt-5" style="font-size: 50px; letter-spacing: 1px; color: #0b573d;  font-family: 'Anton', sans-serif; letter-spacing: .1em;">Income Overview</h1>
-                    <!-- Filterization by Year -->
-                    <div class="d-flex justify-content-end mb-4">
-                        <form action="{{ route('transactions') }}" method="GET" class="d-flex align-items-center">
-                            <label for="year" class="me-2">Filter by Year:</label>
-                            <select name="year" id="year" class="form-select" style="width: 150px;" onchange="this.form.submit()">
-                                @foreach($availableYears as $year)
-                                    <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>
-                                        {{ $year }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </form>
-                    </div>
-                    <!-- Bar Graph for the Income -->
-                    <div class="container mt-4 shadow-lg rounded-4 p-3 bg-white">
-                        <canvas id="incomeChart" width="400" height="200"></canvas>
-                    </div>
-                </div>
-
-                <!-- Pending Payments -->
-                <div class="mt-5">
-                    <h1 class="fw-semibold text-uppercase ms-3" style="font-size: 40px; color: #0b573d; font-family: 'Anton', sans-serif; letter-spacing: 0.2em;">PENDING PAYMENTS</h1>
-                    
-                    <div class="row mt-4">
-                        @if(isset($pendingPayments) && count($pendingPayments) > 0)
-                            @foreach($pendingPayments as $payment)
-                                <div class="col-md-6 mb-4">
-                                    <div class="card border-0 rounded-4 shadow" style="background-color: #0b573d;">
-                                        <div class="card-body text-white p-4">
-                                            <h3 class="fs-2 fw-bold">{{ $payment->name ?? 'Guest' }}</h3>
-                                            <p class="mb-1 fst-italic">
-                                                <i class="fas fa-envelope me-2"></i>
-                                                {{ $payment->email ?? 'No email provided' }}
-                                            </p>
-                                            <p class="mb-0">
-                                                <i class="fas fa-calendar me-2"></i>
-                                                {{ \Carbon\Carbon::parse($payment->reservation_check_in_date)->format('F j, Y') }}, {{ \Carbon\Carbon::parse($payment->reservation_check_in)->format('h:i A') }}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-                        @else
-                            <div class="col-12">
-                                <div class="alert alert-info">
-                                    No pending payments found.
-                                </div>
-                            </div>
-                        @endif
-                    </div>
-                </div>
-
                 <!-- Payment Table -->
                 <div>
-                    
-                    <h1 class="fw-semibold text-uppercase ms-3 mt-5" style="font-size: 40px; color: #0b573d; font-family: 'Anton', sans-serif; letter-spacing: 0.2em;">Transactions Management</h1>
-                    <!-- Export Buttons -->
-                    <div class="d-flex justify-content-end mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h1 class="fw-semibold text-uppercase mb-0" style="font-size: 40px; color: #0b573d; font-family: 'Anton', sans-serif; letter-spacing: 0.2em;">Transactions Management</h1>
+                        
                         <div class="btn-group">
                             <a href="{{ route('transactions.export.excel') }}" class="btn btn-success btn-sm me-2 rounded-2" style="font-size: 14px; transition: all 0.3s ease;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
                                 <i class="fas fa-file-excel"></i> Excel
@@ -227,6 +123,11 @@
                             <button onclick="printContent()" class="btn btn-primary btn-sm rounded-2" style="font-size: 14px; background-color: #0b573d; transition: all 0.3s ease;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
                                 <i class="fas fa-print"></i> Print
                             </button>
+                        </div>
+                    </div>
+                    <!-- Export Buttons -->
+                    <div class="d-flex justify-content-end mb-3">
+                        <div class="btn-group">
 
                             <script>
                                 function printContent() {
@@ -249,7 +150,7 @@
                                                 text-align: left;
                                             }
                                             th {
-                                                background-color: #198754;
+                                                background-color: #0b573d;
                                                 color: white;
                                             }
                                             .badge {
@@ -261,6 +162,10 @@
                                             .bg-warning { background-color: #ffc107; }
                                             .bg-primary { background-color: #0d6efd; }
                                             .bg-danger { background-color: #dc3545; }
+                                            /* Hide pagination when printing */
+                                            .pagination, nav[aria-label="Page navigation"] {
+                                                display: none !important;
+                                            }
                                             @media print {
                                                 body { print-color-adjust: exact; }
                                             }
@@ -622,85 +527,64 @@
                     
                     
                     <!-- Table -->
-<div class="card shadow-lg border-0 rounded-4">
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead class="table-success">
-                    <tr>
-                        <th scope="col" class="py-3">Guest Name</th>
-                        <th scope="col" class="py-3">Amount Paid</th>
-                        <th scope="col" class="py-3">Remaining Balance</th>
-                        <th scope="col" class="py-3">Payment Mode</th>
-                        <th scope="col" class="py-3">Date</th>
-                        <th scope="col" class="py-3">Payment Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($reservationDetails as $transaction)
-                        <tr>
-                            <td class="py-3">{{ $transaction->name }}</td>
-                            <td class="py-3">₱{{ number_format($transaction->amount, 2) }}</td>
-                            <td class="py-3">₱{{ in_array($transaction->payment_status, ['paid', 'cancelled', 'checked-out']) ? '0.00' : number_format($transaction->balance, 2) }}</td>
-                            <td class="py-3">{{ $transaction->payment_method }}</td>
-                            <td class="py-3">{{ \Carbon\Carbon::parse($transaction->reservation_check_in_date)->format('M d, Y') }}</td>
-                            <td class="py-3">
-                                <span class="badge rounded-pill {{ $transaction->payment_status === 'paid' ? 'bg-success' : ($transaction->payment_status === 'pending' ? 'bg-warning' : ($transaction->payment_status === 'booked' ? 'bg-primary' : 'bg-danger')) }}">
-                                    {{ ucfirst($transaction->payment_status) }}
-                                </span>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="text-center py-3">No transactions found</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-            
-            <nav aria-label="Page navigation" class="d-flex justify-content-end mt-3">
-                <div class="pagination-container">
-                    <ul class="pagination">
-                        {{-- Previous Page Link --}}
-                        @if ($reservationDetails->onFirstPage())
-                            <li class="page-item disabled">
-                                <span class="page-link">&laquo;</span>
-                            </li>
-                        @else
-                            <li class="page-item">
-                                <a class="page-link" href="{{ $reservationDetails->previousPageUrl() }}" rel="prev">&laquo;</a>
-                            </li>
-                        @endif
+                    <div class="card shadow-lg border-0 rounded-4">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead>
+                                        <tr class="text-white" style="background-color: #0b573d;">
+                                            <th scope="col" class="py-3 px-4">Guest Name</th>
+                                            <th scope="col" class="py-3 px-4">Rooms Booked</th>
+                                            <th scope="col" class="py-3 px-4">Amount Paid</th>
+                                            <th scope="col" class="py-3 px-4">Remaining Balance</th>
+                                            <th scope="col" class="py-3 px-4">Reference Number</th>
+                                            <th scope="col" class="py-3 px-4">Payment Mode</th>
+                                            <th scope="col" class="py-3 px-4">Check In - Out Date</th>
+                                            <th scope="col" class="py-3 px-4">Payment Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($reservationDetails as $transaction)
+                                            <tr class="align-middle border-bottom">
+                                                <td class="py-3 px-4">{{ $transaction->name }}</td>
+                                                <td class="py-3 px-4">{{ $transaction->accomodation_name }}</td>
+                                                <td class="py-3 px-4">₱{{ number_format($transaction->amount, 2) }}</td>
+                                                <td class="py-3 px-4">₱{{ in_array($transaction->payment_status, ['paid', 'cancelled', 'checked-out']) ? '0.00' : number_format($transaction->balance, 2) }}</td>
+                                                <td class="py-3 px-4">{{ $transaction->reference_num }}</td>
+                                                <td class="py-3 px-4">{{ $transaction->payment_method }}</td>
+                                                <td class="py-3 px-4">
+                                                    {{ \Carbon\Carbon::parse($transaction->reservation_check_in_date)->format('M d, Y') }} - 
+                                                    {{ \Carbon\Carbon::parse($transaction->reservation_check_out_date)->format('M d, Y') }}
+                                                </td>
+                                                <td class="py-3 px-4">
+                                                    <span class="badge rounded-pill {{ $transaction->payment_status === 'paid' ? 'bg-success' : ($transaction->payment_status === 'pending' ? 'bg-warning text-dark' : ($transaction->payment_status === 'booked' ? 'bg-primary' : 'bg-danger')) }}">
+                                                        {{ ucfirst($transaction->payment_status) }}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="8" class="text-center py-4 text-muted">No transactions found</td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                
+                                <!-- Pagination -->
+                                <div class="d-flex justify-content-between align-items-center mt-4 border-top pt-3">
+                                    <div class="text-muted small">
+                                        Showing <strong>{{ $reservationDetails->firstItem() ?? 0 }}</strong> to 
+                                        <strong>{{ $reservationDetails->lastItem() ?? 0 }}</strong> of 
+                                        <strong>{{ $reservationDetails->total() ?? 0 }}</strong> entries
+                                    </div>
+                                    <nav>
+                                        {{ $reservationDetails->links('pagination::bootstrap-4') }}
+                                    </nav>
+                                </div>
 
-                        {{-- Pagination Elements --}}
-                        @foreach ($reservationDetails->getUrlRange(1, $reservationDetails->lastPage()) as $page => $url)
-                            @if ($page == $reservationDetails->currentPage())
-                                <li class="page-item active">
-                                    <span class="page-link">{{ $page }}</span>
-                                </li>
-                            @else
-                                <li class="page-item">
-                                    <a class="page-link" href="{{ $url }}">{{ $page }}</a>
-                                </li>
-                            @endif
-                        @endforeach
-
-                        {{-- Next Page Link --}}
-                        @if ($reservationDetails->hasMorePages())
-                            <li class="page-item">
-                                <a class="page-link" href="{{ $reservationDetails->nextPageUrl() }}" rel="next">&raquo;</a>
-                            </li>
-                        @else
-                            <li class="page-item disabled">
-                                <span class="page-link">&raquo;</span>
-                            </li>
-                        @endif
-                    </ul>
-                </div>
-            </nav>
-        </div>
-    </div>
-</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
          </div>
     </div>

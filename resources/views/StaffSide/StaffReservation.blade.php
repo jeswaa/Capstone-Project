@@ -293,77 +293,8 @@
             
             <!-- Checked-out Guest -->
             <div>
-                <!-- Modal for Checked Out Guests -->
-                <div class="modal fade" id="checkedOutGuestsModal" tabindex="-1" aria-labelledby="checkedOutGuestsModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="checkedOutGuestsModalLabel">Checked Out Guests</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="table-responsive">
-                                    <table class="table table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th>Name</th>
-                                                <th>Check-in Date</th>
-                                                <th>Check-out Date</th>
-                                                <th>Room</th>
-                                                <th>Total Amount</th>
-                                                <th>Reservation Status</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($reservations as $reservation)
-                                                @if($reservation->reservation_status == 'checked-out' || $reservation->reservation_status == 'cancelled')
-                                                <tr>
-                                                    <td>{{ $reservation->name }}</td>
-                                                    <td>{{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('F j, Y') }}</td>
-                                                    <td>{{ \Carbon\Carbon::parse($reservation->reservation_check_out_date)->format('F j, Y') }}</td>
-                                                    <td>
-                                                    @php
-                                                        $roomTypeIds = json_decode($reservation->package_room_type, true);
-                                                        $roomNames = is_array($roomTypeIds) ? DB::table('accomodations')
-                                                            ->whereIn('accomodation_id', $roomTypeIds)
-                                                            ->pluck('accomodation_name')
-                                                            ->toArray() : [];
-                                                        $accommodationNames = is_array($reservation->accommodations) ? $reservation->accommodations : [];
-                                                    @endphp
-                                                    {{ count($roomNames) > 0 ? implode(', ', $roomNames) : '' }}
-                                                    {{ count($accommodationNames) > 0 ? ', ' . implode(', ', $accommodationNames) : '' }}
-                                                    </td>
-                                                    <td>₱{{ number_format($reservation->amount, 2) }}</td>
-                                                    <td>
-                                                        <span class="badge bg-secondary">Checked Out</span>
-                                                    </td>
-                                                </tr>
-                                                @endif
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Buttons Container -->
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <!-- Button to trigger modal -->
-                    <button type="button" 
-                            class="btn btn-primary w-25" 
-                            style="background-color: #0b573d; color: white; transition: all 0.3s ease;"
-                            onmouseover="this.style.backgroundColor='#083d2a'; this.style.transform='scale(1.05)'" 
-                            onmouseout="this.style.backgroundColor='#0b573d'; this.style.transform='scale(1)'"
-                            data-bs-toggle="modal" 
-                            data-bs-target="#checkedOutGuestsModal">
-                        <i class="fas fa-history me-2"></i>View Checked Out Guests
-                    </button>
-                    
                     <!-- QR Scanner Button -->
                     <div class="ms-auto" style="width: 25%;">
                     <button type="button" id="qrScannerBtn" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#qrScannerModal" style="background-color: #0b573d">
@@ -434,7 +365,14 @@
                     style="{{ request('status') == 'checked-in' ? 'background-color: #0b573d; border: 1px solid #0b573d; color: white;' : 'background-color: transparent; border: 1px solid #0b573d; color: black;' }}">
                         Checked-in
                     </a>
-                    <a href="{{ route('staff.reservation', ['status' => 'early-checked-out']) }}" 
+                    {{-- Add Checked-out filter button --}}
+                    <a href="{{ route('staff.reservation', ['status' => 'checked-out']) }}"
+                    class="btn w-100 filter-btn fw-semibold"
+                    style="{{ request('status') == 'checked-out' ? 'background-color: #0b573d; border: 1px solid #0b573d; color: white;' : 'background-color: transparent; border: 1px solid #0b573d; color: black;' }}">
+                        Checked-out
+                    </a>
+                    {{-- Add Early Checked-out filter button --}}
+                    <a href="{{ route('staff.reservation', ['status' => 'early-checked-out']) }}"
                     class="btn w-100 filter-btn fw-semibold"
                     style="{{ request('status') == 'early-checked-out' ? 'background-color: #0b573d; border: 1px solid #0b573d; color: white;' : 'background-color: transparent; border: 1px solid #0b573d; color: black;' }}">
                         Early Checked-out
@@ -465,7 +403,7 @@
                     </thead>
                     <tbody>
                         @foreach ($reservations as $reservation)
-                            @if(in_array($reservation->reservation_status, ['pending', 'reserved', 'checked-in']))
+                            @if(in_array($reservation->reservation_status, ['pending', 'reserved', 'checked-in','checked-out','early-checked-out']))
                             <tr>
                                 <td class="text-center align-middle" style="font-size: x-small;">{{ $reservation->name }}</td>
                                 <td class="text-center align-middle" style="font-size: x-small;">{{ $reservation->email }}</td>
@@ -473,16 +411,10 @@
                                 <td class="text-center align-middle" style="font-size: x-small;">{{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('F j, Y') }}</td>
                                 <td class="text-center align-middle" style="font-size: x-small;">{{ \Carbon\Carbon::parse($reservation->reservation_check_in)->format('g:i A') }}-{{ \Carbon\Carbon::parse($reservation->reservation_check_out)->format('g:i A') }}</td>
                                 <td class="text-center align-middle" style="font-size: x-small;">
-                                    @php
-                                        $roomTypeIds = json_decode($reservation->package_room_type, true);
-                                        $roomNames = is_array($roomTypeIds) ? DB::table('accomodations')
-                                            ->whereIn('accomodation_id', $roomTypeIds)
-                                            ->pluck('accomodation_name')
-                                            ->toArray() : [];
-                                        $accommodationNames = is_array($reservation->accommodations) ? $reservation->accommodations : [];
-                                    @endphp
-                                    {{ count($roomNames) > 0 ? implode(', ', $roomNames) : '' }}
-                                    {{ count($accommodationNames) > 0 ? ', ' . implode(', ', $accommodationNames) : '' }}
+                                @php
+                                    $accommodationNames = is_array($reservation->accommodations) ? $reservation->accommodations : [];
+                                @endphp
+                                {{ implode(', ', $accommodationNames) }}
                                 </td>
                                 <td class="text-center align-middle" style="font-size: x-small;">{{ $reservation->reference_num }}</td>
                                 <td class="text-center align-middle" style="font-size: x-small;">₱{{ number_format($reservation->amount ?? 0, 2)  }}</td>
@@ -659,16 +591,10 @@
                                 </div>
                                 <div class="card-body">
                                     <p class="mb-1"><strong>Room Type:</strong>
-                                        @php
-                                            $roomTypeIds = json_decode($reservation->package_room_type, true);
-                                            $roomNames = is_array($roomTypeIds) ? DB::table('accomodations')
-                                                ->whereIn('accomodation_id', $roomTypeIds)
-                                                ->pluck('accomodation_name')
-                                                ->toArray() : [];
-                                            $accommodationNames = is_array($reservation->accommodations) ? $reservation->accommodations : [];
-                                        @endphp
-                                        {{ count($roomNames) > 0 ? implode(', ', $roomNames) : '' }}
-                                        {{ count($accommodationNames) > 0 ? ', ' . implode(', ', $accommodationNames) : '' }}
+                                    @php
+                                                        $accommodationNames = is_array($reservation->accommodations) ? $reservation->accommodations : [];
+                                                    @endphp
+                                                    {{ implode(', ', $accommodationNames) }}
                                     </p>
                                 </div>
                             </div>

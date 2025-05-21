@@ -67,9 +67,10 @@ Route::middleware(['isAdmin'])->group(function () {
     Route::get('/activity-logs', [AdminSideController::class, 'activityLogs'])->name('activityLogs');
     Route::get('/user-account-roles', [AdminSideController::class, 'UserAccountRoles'])->name('userAccountRoles');
     Route::post('/add-user', [AdminSideController::class, 'addUser'])->name('addUser');
+    Route::put('/update-user/{id}', [AdminSideController::class, 'updateUser'])->name('updateUser');
     Route::get('/damage-report',[AdminSideController::class, 'DamageReport'])->name('DamageReport');
     Route::post('/damage-report/update/{id}', [AdminSideController::class, 'editDamageReport'])->name('editDamageReport');
-    Route::put('/update-user/{id}', [AdminSideController::class, 'updateUser'])->name('updateUser');
+    Route::delete('/damage-report/delete/{id}', [AdminSideController::class, 'destroy'])->name('deleteDamageReport');
     Route::get('/admin/settings', [AdminSideController::class, 'showForm'])->name('admin.settings');
     Route::post('/admin/settings/update', [AdminSideController::class, 'updateEmail'])->name('admin.settings.update');
     Route::get('/logout', [AdminSideController::class, 'logout'])->name('logout');
@@ -123,6 +124,7 @@ Route::get('/get-session-times', [ReservationController::class, 'getSessionTimes
 Route::get('/get-session-times-only', [ReservationController::class, 'SessionTimeOnly']);
 Route::post('/reservation/select-package-details', [ReservationController::class, 'StayInPackages'])->name('savePackageSelection');
 Route::post('/reservation/select-fix-package-details', [ReservationController::class, 'OnedayStay'])->name('fixPackagesSelection');
+Route::post('/homepage/reservation', [ReservationController::class, 'homepageReservation'])->name('homepageReservation');
 Route::post('/reservation/save-payment-process', [ReservationController::class, 'savePaymentProcess'])->name('savePaymentProcess');
 Route::get('/reservation/display-packages', [ReservationController::class, 'displayPackageSelection'])->name('authenticatedPackages');
 // Route for testing file access

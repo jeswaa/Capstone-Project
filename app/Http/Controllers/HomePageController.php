@@ -28,14 +28,10 @@ public function profilepage()
     }
 
     $latestReservation = DB::table('reservation_details')
-        ->leftJoin('packagestbl', 'reservation_details.package_id', '=', 'packagestbl.id')
-        ->leftJoin('activitiestbl', 'reservation_details.activity_id', '=', 'packagestbl.id')
+        ->leftJoin('activitiestbl', 'reservation_details.activity_id', '=', 'activitiestbl.id') // Corrected join condition
         ->where('reservation_details.user_id', $userId)
         ->select(
-            'reservation_details.*', 
-            'packagestbl.package_name', 
-            'packagestbl.package_room_type', 
-            'packagestbl.package_max_guests',
+            'reservation_details.*',
             'activitiestbl.activity_name',
             'activitiestbl.id as activity_id',
         )
@@ -46,13 +42,13 @@ public function profilepage()
     $accommodations = [];
     if ($latestReservation && $latestReservation->accomodation_id) {
         $accommodationIds = json_decode($latestReservation->accomodation_id, true);
-        
+
         if (is_array($accommodationIds) && count($accommodationIds) > 0) {
             $accommodations = DB::table('accomodations')
                 ->whereIn('accomodation_id', $accommodationIds)
                 ->pluck('accomodation_name')
                 ->toArray();
-        } elseif (is_numeric($accommodationIds)) { 
+        } elseif (is_numeric($accommodationIds)) {
             $accommodations = DB::table('accomodations')
                 ->where('accomodation_id', $accommodationIds)
                 ->pluck('accomodation_name')
@@ -64,9 +60,8 @@ public function profilepage()
     $pastReservations = [];
     if ($latestReservation) {
         $pastReservations = DB::table('reservation_details')
-            ->join('packagestbl', 'reservation_details.package_id', '=', 'packagestbl.id')
             ->where('reservation_details.user_id', $userId)
-            ->where('reservation_details.id', '!=', $latestReservation->id) 
+            ->where('reservation_details.id', '!=', $latestReservation->id)
             ->orderBy('reservation_details.reservation_check_in_date', 'desc')
             ->get();
     }

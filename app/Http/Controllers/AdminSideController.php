@@ -58,7 +58,7 @@ class AdminSideController extends Controller
         }
     
         // Paginate the results
-        $reservations = $query->paginate(10);
+        $reservations = $query->paginate(5);
 
     
         // Fetch accommodation names for each reservation
@@ -80,11 +80,33 @@ class AdminSideController extends Controller
         // Fetch calendar data
         $events = [];
         foreach ($reservations as $reservation) {
+            // Get all rooms
+            $allRooms = DB::table('accomodations')
+                ->where('accomodation_status', 'available')
+                ->pluck('accomodation_name')
+                ->toArray();
+
+            // Get reserved room IDs for this reservation
+            $reservedRoomIds = json_decode($reservation->accomodation_id, true);
+            if (!is_array($reservedRoomIds)) {
+                $reservedRoomIds = explode(',', $reservation->accomodation_id);
+            }
+
+            // Get reserved room names
+            $reservedRooms = DB::table('accomodations')
+                ->whereIn('accomodation_id', $reservedRoomIds)
+                ->pluck('accomodation_name')
+                ->toArray();
+
+            // Get available rooms by removing reserved rooms from all rooms
+            $availableRooms = array_diff($allRooms, $reservedRooms);
+
             $events[] = [
                 'title' => 'Reservation',
                 'start' => $reservation->reservation_check_in_date,
                 'end' => $reservation->reservation_check_out_date,
-                'description' => 'Reserved Room: ' . implode(', ', $reservation->accomodation_names),
+                'description' => 'Reserved Rooms: ' . implode(', ', $reservedRooms) . 
+                               "\nAvailable Rooms: " . implode(', ', $availableRooms),
             ];
         }
     
@@ -1048,9 +1070,27 @@ public function exportPDFReports(Request $request)
         $reservationDetails = $query
             ->orderBy('reservation_details.created_at', 'desc')
             ->paginate(5)
-            ->withQueryString();
+            ->withQueryString()
+            ->through(function ($reservation) {
+                // Decode the JSON string of accommodation IDs
+                $accomodationIds = json_decode($reservation->accomodation_id, true);
+                if (!is_array($accomodationIds)) {
+                    $accomodationIds = explode(',', $reservation->accomodation_id);
+                }
+                
+                // Get accommodation names
+                $accomodationNames = DB::table('accomodations')
+                    ->whereIn('accomodation_id', $accomodationIds)
+                    ->pluck('accomodation_name')
+                    ->toArray();
+                
+                // Add accommodation names to the reservation object
+                $reservation->accomodation_name = implode(', ', $accomodationNames);
+                
+                return $reservation;
+            });
 
-        // Handle case when no results found
+        // Handle case when no results found with accommodation names
         if ($reservationDetails->isEmpty()) {
             $reservationDetails = DB::table('reservation_details')
                 ->join('users', 'reservation_details.user_id', '=', 'users.id')
@@ -1061,7 +1101,23 @@ public function exportPDFReports(Request $request)
                     'users.mobileNo'
                 )
                 ->orderBy('reservation_details.created_at', 'desc')
-                ->paginate(10);
+                ->paginate(10)
+                ->through(function ($reservation) {
+                    // Same accommodation name processing for empty results
+                    $accomodationIds = json_decode($reservation->accomodation_id, true);
+                    if (!is_array($accomodationIds)) {
+                        $accomodationIds = explode(',', $reservation->accomodation_id);
+                    }
+                    
+                    $accomodationNames = DB::table('accomodations')
+                        ->whereIn('accomodation_id', $accomodationIds)
+                        ->pluck('accomodation_name')
+                        ->toArray();
+                    
+                    $reservation->accomodation_name = implode(', ', $accomodationNames);
+                    
+                    return $reservation;
+                });
         }
 
         // Get pending payments (limit to 4)
@@ -1402,57 +1458,59 @@ public function packages()
     return view('AdminSide.packages', compact('packages', 'accomodations'));
 }
 
-    public function addRoom(Request $request)
-    {
-        $request->validate([
-            'accomodation_image' => 'required|image|mimes:jpeg,png,jpg,gif',
-            'accomodation_name' => 'required|string|max:255',
-            'accomodation_type' => 'required|in:room,cottage,cabin',
-            'accomodation_capacity' => 'required|numeric|min:1',
-            'accomodation_price' => 'required|numeric|min:0',
-            'accomodation_status' => 'required|in:available,unavailable',
-            'room_id' => 'required|numeric',
-            'accomodation_description' => 'nullable|string'
-        ]);
+public function addRoom(Request $request)
+{
+    $request->validate([
+        'accomodation_image' => 'required|image|mimes:jpeg,png,jpg,gif',
+        'accomodation_name' => 'required|string|max:255',
+        'accomodation_type' => 'required|in:room,cottage,cabin',
+        'accomodation_capacity' => 'required|numeric|min:1',
+        'accomodation_price' => 'required|numeric|min:0',
+        'accomodation_status' => 'required|in:available,unavailable',
+        'room_id' => 'required|numeric',
+        'accomodation_description' => 'nullable|string',
+        'quantity' => 'required|numeric|min:1' // Added quantity validation
+    ]);
 
-        // Attempt to store the image
-        $imagePath = $request->file('accomodation_image')->store('accomodations', 'public');
+    // Attempt to store the image
+    $imagePath = $request->file('accomodation_image')->store('accomodations', 'public');
 
-        // Check if the image was successfully saved
-        if (!$imagePath) {
-            return redirect()->back()->with('error', 'Failed to upload image. Please try again.');
-        }
-
-        // Ensure the accomodation_type value is a valid string
-        $accomodationType = in_array($request->accomodation_type, ['room', 'cottage', 'cabin']) 
-                            ? $request->accomodation_type 
-                            : null;
-
-        if (!$accomodationType) {
-            return redirect()->back()->with('error', 'Invalid accommodation type. Please select a valid type.');
-        }
-
-        // Save the data into the database
-        $inserted = DB::table('accomodations')->insert([
-            'accomodation_image' => $imagePath,
-            'accomodation_name' => $request->accomodation_name,
-            'accomodation_type' => $request->accomodation_type,
-            'accomodation_capacity' => $request->accomodation_capacity,
-            'accomodation_price' => $request->accomodation_price,
-            'accomodation_status' => $request->accomodation_status,
-            'room_id' => $request->room_id,
-            'accomodation_description' => $request->accomodation_description,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        // Check if database insert was successful
-        if (!$inserted) {
-            return redirect()->back()->with('error', 'Failed to save accommodation. Please try again.');
-        }
-
-        return redirect()->route('rooms')->with('success', 'Accommodation added successfully!');
+    // Check if the image was successfully saved
+    if (!$imagePath) {
+        return redirect()->back()->with('error', 'Failed to upload image. Please try again.');
     }
+
+    // Ensure the accomodation_type value is a valid string
+    $accomodationType = in_array($request->accomodation_type, ['room', 'cottage', 'cabin']) 
+                        ? $request->accomodation_type 
+                        : null;
+
+    if (!$accomodationType) {
+        return redirect()->back()->with('error', 'Invalid accommodation type. Please select a valid type.');
+    }
+
+    // Save the data into the database
+    $inserted = DB::table('accomodations')->insert([
+        'accomodation_image' => $imagePath,
+        'accomodation_name' => $request->accomodation_name,
+        'accomodation_type' => $request->accomodation_type,
+        'accomodation_capacity' => $request->accomodation_capacity,
+        'accomodation_price' => $request->accomodation_price,
+        'accomodation_status' => $request->accomodation_status,
+        'room_id' => $request->room_id,
+        'accomodation_description' => $request->accomodation_description,
+        'quantity' => $request->quantity, // Added quantity field
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    // Check if database insert was successful
+    if (!$inserted) {
+        return redirect()->back()->with('error', 'Failed to save accommodation. Please try again.');
+    }
+
+    return redirect()->route('rooms')->with('success', 'Accommodation added successfully!');
+}
 
 
     public function updateRoom(Request $request, $accomodation_id)
@@ -1541,21 +1599,35 @@ public function packages()
         // Get total accommodation count
         $count = count($accomodations);
 
-        // Get total available slots (only for accommodations marked as 'available')
-        $countAvailableRoom = DB::table('accomodations')
-            ->where('accomodation_status', 'available')
-            ->count();
-        $accomodations = Accomodation::paginate(10);
-        $countReservedRoom = DB::table('accomodations')
-        ->where('accomodation_status', 'unavailable') // ✅ Get only unavailable accommodations
-        ->count();
-    
-            
+        // Get paginated accommodations
+        $accomodations = Accomodation::paginate(5);
 
-        // Merge accommodations with available slots calculation
+        // Para sa bawat accommodation, kalkulahin ang available rooms
         foreach ($accomodations as $accomodation) {
-            $accomodation->available_rooms = $accomodation->accomodation_status == 'available' ? 1 : 0;
+            // Kunin ang original quantity ng room
+            $originalQuantity = $accomodation->quantity;
+            
+            // Kunin ang total reserved quantity para sa room na ito
+            $reservedQuantity = DB::table('reservation_details')
+                ->whereRaw("JSON_CONTAINS(accomodation_id, CONCAT('[', ?, ']'))", [$accomodation->accomodation_id])
+                ->whereIn('reservation_status', ['reserved', 'checked-in']) // Count only active reservations
+                ->sum('quantity');
+            
+            // Kalkulahin ang actual available rooms
+            $availableRooms = max(0, $originalQuantity - $reservedQuantity);
+            
+            // I-update ang accommodation object
+            $accomodation->available_rooms = $availableRooms;
+            $accomodation->accomodation_status = $availableRooms > 0 ? 'available' : 'unavailable';
         }
+
+        // Kunin ang total available at reserved rooms
+        // Sum the original quantity of all accommodations
+        $countAvailableRoom = $accomodations->sum('available_rooms'); // Changed from 'available_rooms' to 'quantity'
+
+        $countReservedRoom = DB::table('reservation_details')
+            ->whereIn('reservation_status', ['reserved', 'checked-in'])
+            ->sum('quantity');
 
         return view('AdminSide.addRoom', [
             'accomodations' => $accomodations,
@@ -1609,21 +1681,31 @@ public function packages()
             'activity_image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
         ]);
 
-        // Attempt to store the image
-        $imagePath = $request->file('activity_image')->store('activities', 'public');
+        // Find the activity first
+        $activity = Activities::find($id);
+        if (!$activity) {
+            return redirect()->back()->with('error', 'Activity not found.');
+        }
 
-        // Check if the image was successfully saved
-        if ($imagePath) {
-            // Delete the previous image
-            $activity = Activities::find($id);
-            Storage::delete($activity->activity_image);
+        // Initialize image path
+        $imagePath = $activity->activity_image; // Keep existing image by default
+
+        // Handle image upload if a new file is provided
+        if ($request->hasFile('activity_image')) {
+            // Store the new image
+            $imagePath = $request->file('activity_image')->store('activities', 'public');
+            
+            // Delete the old image if it exists
+            if ($activity->activity_image) {
+                Storage::delete($activity->activity_image);
+            }
         }
 
         // Use Eloquent to update the activity
-        Activities::where('id', $id)->update([
+        $activity->update([
             'activity_name' => $request->activity_name,
             'activity_status' => $request->activity_status,
-            'activity_image' => $imagePath ?: $request->hidden_image,
+            'activity_image' => $imagePath,
         ]);
 
         return redirect()->route('addActivities')->with('success', 'Activity updated successfully!');
@@ -1929,6 +2011,23 @@ public function updateUser(Request $request, $id)
         return redirect()->back()->with('error', 'Error updating damage report: ' . $e->getMessage());
     }
 }
+    public function destroy($id)
+    {
+        try {
+            $report = DamageReport::findOrFail($id);
+            
+            // Delete the image if it exists
+            if ($report->damage_photos) {
+                Storage::delete($report->damage_photos);
+            }
+            
+            $report->delete();
+            
+            return response()->json(['success' => true, 'message' => 'Operation completed successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
 
     
 }
