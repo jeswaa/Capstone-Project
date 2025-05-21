@@ -98,9 +98,6 @@ Route::get('/', [LandingPageController::class, 'index'])->name('landingpage');
 /*homepage*/
 Route::get('/homepage', [LandingPageController::class, 'homepage'])->name('homepage');
 
-/*homepage*/
-Route::get('/homepage', [FrontendController::class, 'homepage']);
-
 
 Route::get('/profile', [HomePageController::class, 'profilepage'])->name('profile');
 Route::get('/profile/edit', [HomePageController::class, 'editProfile'])->name('editProfile');

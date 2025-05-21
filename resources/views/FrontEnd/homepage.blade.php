@@ -38,39 +38,82 @@
     .room-card, .room-card * {
         user-select: none;
     }
+
+    .navbar-nav .nav-link {
+        color: #0b573d;
+        font-family: 'Josefin Sans', sans-serif;
+        transition: color 0.3s;
+    }
+
+    .navbar-nav .nav-link:hover {
+        color: white;
+    }
+
+    /* Hover for small screens */
+    @media (max-width: 991px) {
+        .navbar-nav {
+            flex-direction: column;
+            align-items: stretch;
+            background-color: rgba(11, 87, 61, 0.95);
+            padding: 0;
+            border-radius: 0.8rem;
+            width: 200px;
+            margin-left: auto;
+            backdrop-filter: blur(8px);
+            overflow: hidden;
+        }
+
+        .navbar-nav .nav-item {
+            width: 100%;
+        }
+
+        .navbar-nav .nav-link {
+            color: white !important;
+            padding: 1rem;
+            width: 100%;
+            text-align: center;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+            margin: 0;
+            border-radius: 0;
+            border-bottom: 2px solid #e6f4e6; /* separator line */
+        }
+        .navbar-nav .nav-item:last-child .nav-link {
+            border-bottom: none; /* walang separator sa huli */
+        }
+    }
 </style>
 <body>
-    <nav class="navbar navbar-expand-lg  position-absolute top-0 w-100 mt-5" style="z-index: 10;">
+    <nav class="navbar navbar-expand-lg position-absolute top-0 w-100 mt-4" style="z-index: 10;">
         <div class="container">
+            <a href="{{ route('profile') }}" class="text-decoration-none me-auto">
+                <div class="profile-icon d-flex align-items-center justify-content-center" 
+                     style="width: 45px; 
+                            height: 45px; 
+                            background-color: #0b573d;
+                            border-radius: 50%;
+                            transition: all 0.3s ease;
+                            box-shadow: 0 2px 5px rgba(0,0,0,0.2);"
+                     onmouseover="this.style.transform='scale(1.1)'; this.style.backgroundColor='#0d6a4a';" 
+                     onmouseout="this.style.transform='scale(1)'; this.style.backgroundColor='#0b573d';">
+                    <i class="fa-solid fa-user fa-lg" style="color: #ffffff;"></i>
+                </div>
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase me-4 text-underline-left-to-right" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#rooms">Rooms</a>
+                        <a class="nav-link fw-semibold text-uppercase text-decoration-none" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif; transition: color 0.3s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#0b573d'" href="#rooms">Rooms</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase me-4 text-underline-left-to-right" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#activities">Activities</a>
+                        <a class="nav-link fw-semibold text-uppercase text-decoration-none" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif; transition: color 0.3s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#0b573d'" href="#activities">Activities</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase me-4 text-underline-left-to-right" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#">Reservations</a>
+                        <a class="nav-link fw-semibold text-uppercase text-decoration-none" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif; transition: color 0.3s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#0b573d'" href="#">Reservations</a>
                     </li>
                 </ul>
-                <a href="{{ route('profile') }}" class="text-decoration-none">
-                    <div class="profile-icon d-flex align-items-center justify-content-center" 
-                         style="width: 45px; 
-                                height: 45px; 
-                                background-color: #0b573d;
-                                border-radius: 50%;
-                                transition: all 0.3s ease;
-                                box-shadow: 0 2px 5px rgba(0,0,0,0.2);"
-                         onmouseover="this.style.transform='scale(1.1)'; this.style.backgroundColor='#0d6a4a';" 
-                         onmouseout="this.style.transform='scale(1)'; this.style.backgroundColor='#0b573d';">
-                        <i class="fa-solid fa-user fa-lg" style="color: #ffffff;"></i>
-                    </div>
-                </a>
-                </a>
             </div>
         </div>
     </nav>
@@ -113,6 +156,77 @@
 
         </div>
     </section>
+
+
+    <section id="about">
+
+        <div class="container">
+            <h1 class="fw-bold text-uppercase text-start mt-4"
+                style="font-size: calc(2rem + 1vw); color: #0b573d; font-family: 'Anton', sans-serif; letter-spacing: 0.1em;">
+                ABOUT</h1>
+        </div>
+
+
+        <div class="container py-4">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="p-4 h-100" style="background: #0b573d; border-radius: 10px;">
+                        <h5 class="text-center mb-4"
+                            style="font-size: 2.5rem; color: white; font-family: 'Montserrat', sans-serif; font-weight: 600;">
+                            Lelo's Resort Location
+                        </h5>
+                        <div class="map-container"
+                            style="position: relative; overflow: hidden; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                            <iframe
+                                src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d961.0491022967285!2d121.15607442205169!3d15.527598132646467!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x339733007d27d00d%3A0xb261c522c057f04f!2sLelo&#39;s%20Peak!5e0!3m2!1sen!2sus!4v1746511741643!5m2!1sen!2sus"
+                                width="100%" height="350" style="border: none;" allowfullscreen="" loading="lazy"
+                                referrerpolicy="no-referrer-when-downgrade">
+                            </iframe>
+                        </div>
+                        <div class=" text-start">
+                            <h5
+                                style="font-size: 2rem; color: white; font-family: 'Montserrat', sans-serif; font-weight: 600;">
+                                Our Locations
+                            </h5>
+                            <p
+                                style="font-size: 1.2rem; color: white; font-family: 'Montserrat', sans-serif; margin-bottom: 0.8rem;">
+                                Resort: Laur, Nueva Ecija, Philippines
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <!-- Second section content -->
+                    <div class="p-4 h-100">
+                        <div class="d-flex flex-column h-100">
+                            <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" class="img-fluid mb-4"
+                                style="height: 150px; width: auto; margin: -20px auto; display: block;">
+
+                            <div class="text-start">
+                                <h3 class="mb-4"
+                                    style="color: #0b573d; font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 2.5rem;">
+                                    About Lelo's Resort</h3>
+
+                                <div class="mb-4">
+                                    <h5
+                                        style="color: #0b573d; font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 1.8rem;">
+                                        Our Story</h5>
+                                    <p style="font-family: 'Montserrat', sans-serif; font-size: 1.2rem; color: #333;">
+                                        Established in 2020, Lelo's Resort has been providing a serene mountain getaway
+                                        experience for families and friends. Nestled in the heart of Nueva Ecija, our
+                                        resorts offer stunning views, comfortable accommodations, and a perfect blend of
+                                        nature and modern amenities.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
     <!-- Accommodations Section -->
     <section id="rooms">
         <div class="container text-center my-5">
@@ -388,24 +502,31 @@
             </div>
         </div>
     </section>
-     <!-- footer section -->                                   
+    <!-- footer section -->
     <footer style="background-color: #0b573d; height: auto; padding: 20px;">
-    <div class="container">
-        <div class="row">
-            <!-- Left Side: Smaller App Icon -->
-            <div class="col-md-6 d-flex justify-content-start align-items-center">
-                <img src="{{ asset('images/appicon.png') }}" class="img-fluid" alt="App Icon" style="height: 100px;">
-            </div>
+        <div class="container">
+            <div class="row align-items-center">
+                <!-- Left: App Icon -->
+                <div class="col-md-2 d-flex justify-content-start align-items-center">
+                    <img src="{{ asset('images/appicon.png') }}" class="img-fluid" alt="App Icon" style="height: 90px;">
+                </div>
 
-            <!-- Right Side: Facebook Link -->
-            <div class="col-md-6 d-flex justify-content-end align-items-center">
-                <a href="https://www.facebook.com/lelosmountainresort" target="_blank" class="text-white fs-6 text-center">
-                    <i style="color: #0a66c2" class="bi bi-facebook fs-3"></i>
-                </a>
+                <!-- Spacer or optional center -->
+                <div class="col-md-7"></div>
+
+                <!-- Right: Facebook + Contact -->
+                <div class="col-md-3 d-flex flex-column align-items-end text-white">
+                    <a href="https://www.facebook.com/lelosmountainresort" target="_blank"
+                        class="text-white d-flex align-items-center gap-2 mb-1">
+                        <i class="bi bi-facebook fs-4" style="color: #0a66c2;"></i>
+                        <span class="text-white">Lelo's Mountain Resort</span>
+                    </a>
+                    <span>Contact: +63 912 345 6789</span>
+                </div>
             </div>
         </div>
-    </div>
-</footer>
+    </footer>
+
 <script>
 function incrementQuantity() {
     var input = document.getElementById('modalRoomQty');

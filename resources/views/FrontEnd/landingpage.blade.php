@@ -87,7 +87,7 @@
         <div class="container">
             <!-- Logo - visible on all screens, aligned left -->
             <a class="navbar-brand" href="#">
-                <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort" id="logo" height="150" width="130">
+                <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort" id="logo" height="90" width="80">
             </a>
 
             <!-- Navbar toggler - aligned right -->
@@ -557,8 +557,6 @@
             </div>
         </div>
     </footer>
-
-
 
 
 </body>
