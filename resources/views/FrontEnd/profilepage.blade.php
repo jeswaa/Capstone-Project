@@ -275,11 +275,11 @@
                                                 <div class="fw-bold text-color-2">
                                                     <div class="d-flex align-items-center mb-3">
                                                         <p class="mb-0"><strong>Status:</strong></p>
-                                                        <span class="badge ms-2 @if($latestReservation->payment_status == 'paid') bg-success 
-                                                        @elseif($latestReservation->payment_status == 'pending') bg-warning 
-                                                            @elseif($latestReservation->payment_status == 'booked') bg-primary
+                                                        <span class=" text-capitalize badge ms-2 @if($latestReservation->reservation_status == 'checked-in') bg-success
+                                                        @elseif($latestReservation->reservation_status == 'pending') bg-warning
+                                                            @elseif($latestReservation->reservation_status == 'reserved') bg-primary
                                                                 @else bg-danger @endif">
-                                                            {{ $latestReservation->payment_status }}
+                                                            {{ $latestReservation->reservation_status }}
                                                         </span>
                                                     </div>
                                                     <div class="row mb-2">
@@ -338,11 +338,11 @@
                                                 <p><strong>Status:</strong>
                                                     <span
                                                         class="badge 
-                                                                                                                                                                                                                                                                                                @if(isset($reservation) && $reservation->payment_status == 'paid') bg-success 
-                                                                                                                                                                                                                                                                                                @elseif(isset($reservation) && $reservation->payment_status == 'pending') bg-warning 
-                                                                                                                                                                                                                                                                                                @elseif(isset($reservation) && $reservation->payment_status == 'booked') bg-primary 
-                                                                                                                                                                                                                                                                                                    @else bg-danger 
-                                                                                                                                                                                                                                                                                                @endif">
+                                                            @if(isset($reservation) && $reservation->payment_status == 'paid') bg-success 
+                                                            @elseif(isset($reservation) && $reservation->payment_status == 'pending') bg-warning 
+                                                            @elseif(isset($reservation) && $reservation->payment_status == 'booked') bg-primary 
+                                                                @else bg-danger 
+                                                            @endif">
                                                         {{ isset($reservation) ? $reservation->payment_status : 'N/A' }}
                                                     </span>
                                                 </p>
@@ -351,7 +351,7 @@
                                             </p>
                                             <p><strong>Check-in:</strong> {{ $reservation->reservation_check_in }}</p>
                                             <p><strong>Check-out:</strong> {{ $reservation->reservation_check_out }}</p>
-                                            <p><strong>Guests:</strong> {{ $reservation->package_max_guests }}</p>
+                                            <p><strong>Guests:</strong> {{ $reservation->total_guest }}</p>
                                             <p><strong>Amount:</strong> {{ $reservation->amount }}</p>
                                         </div>
                                     </div>

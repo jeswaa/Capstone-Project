@@ -326,7 +326,20 @@
                 ONE DAY STAY
             </button>
         </div>
-    
+        <!-- Selected Dates Display -->
+        <div class="selected-dates bg-light p-4 rounded-3 shadow-sm mb-3" id="selectedDatesBox" style="border: 2px solid #198754; width: 100%;">
+            <h5 class="text-center mb-3" style="color: #198754;">Chosen Dates:</h5>
+            <div class="d-flex justify-content-around">
+                <div class="text-center">
+                    <strong>Check-in:</strong>
+                    <div id="selectedCheckIn">-</div>
+                </div>
+                <div class="text-center">
+                    <strong>Check-out:</strong>
+                    <div id="selectedCheckOut">-</div>
+                </div>
+            </div>
+        </div>
         <!-- Instructions for Overnight Stay -->
         <div class="instructions-box p-4 bg-light rounded-3 shadow-sm mb-3" id="overnightInstructions" style="border: 2px solid #198754;">
             <h5 class="text-center mb-3" style="color: #198754;">How to Book an Overnight Stay</h5>
@@ -337,7 +350,6 @@
                         <li>Check-out must be after Check-in</li>
                     </ul>
                 </li>
-                <li>After selecting dates, we'll check room availability</li>
             </ol>
         </div>
     
@@ -378,6 +390,21 @@ document.addEventListener('DOMContentLoaded', function() {
             checkInDate = null;
             checkOutDate = null;
             highlightSelectedDates();
+            
+            // Toggle visibility of selected dates box
+            const selectedDatesBox = document.getElementById('selectedDatesBox');
+            const overnightInstructions = document.getElementById('overnightInstructions');
+            const daytourInstructions = document.getElementById('daytourInstructions');
+            
+            if (reservationType === 'daytour') {
+                selectedDatesBox.style.display = 'none';
+                overnightInstructions.style.display = 'none';
+                daytourInstructions.style.display = 'block';
+            } else {
+                selectedDatesBox.style.display = 'block';
+                overnightInstructions.style.display = 'block';
+                daytourInstructions.style.display = 'none';
+            }
         });
     });
 
@@ -551,17 +578,23 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleStayIn(date) {
         if(!checkInDate) {
             checkInDate = date;
+            // Update the selected dates display
+            document.getElementById('selectedCheckIn').textContent = new Date(date).toLocaleDateString();
+            document.getElementById('selectedCheckOut').textContent = '-';
+            
             Swal.fire({
-                title: 'Check-in Date Selected',
-                text: 'Please select your Check-out Date',
+                title: 'Check-in Date na Napili',
+                text: 'Mangyaring pumili ng Check-out Date',
                 html: `Check-in Date: ${new Date(date).toLocaleDateString()}<br><br>
-                       <strong>Please select Check-out Date on the calendar</strong>`,
+                       <strong>Pumili ng Check-out Date sa calendar</strong>`,
                 icon: 'info',
                 confirmButtonText: 'OK',
                 confirmButtonColor: '#2ecc71'
             });
         } else if(!checkOutDate && date > checkInDate) {
             checkOutDate = date;
+            // Update the selected dates display
+            document.getElementById('selectedCheckOut').textContent = new Date(date).toLocaleDateString();
             
             // Check availability for each accommodation type
             fetch(`/check-accommodation-availability?checkIn=${checkInDate}&checkOut=${checkOutDate}`)
@@ -657,7 +690,22 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+<script>
+    // Add function to reset selected dates display
+function resetSelectedDates() {
+    document.getElementById('selectedCheckIn').textContent = '-';
+    document.getElementById('selectedCheckOut').textContent = '-';
+}
+
+// Update the reservation type toggle to reset dates
+[stayinBtn, daytourBtn].forEach(btn => {
+    btn.addEventListener('click', function() {
+        resetSelectedDates();
+    });
+});
+</script>
 </body>
 </html>
+
 
 

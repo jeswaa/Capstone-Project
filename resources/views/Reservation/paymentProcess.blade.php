@@ -322,20 +322,29 @@
                             <p id="duration-text">Stay Duration</p>
                         </div>
 
+                        @php
+                            // Calculate stay duration from check-in and check-out dates
+                            $checkInDate = new DateTime($reservationDetails['reservation_check_in_date'] ?? '');
+                            $checkOutDate = new DateTime($reservationDetails['reservation_check_out_date'] ?? '');
+                            $stayDuration = $checkInDate && $checkOutDate ? $checkOutDate->diff($checkInDate)->days : 1;
+                            if ($stayDuration < 1) $stayDuration = 1;
+                        @endphp
+
                         <div class="d-flex justify-content-between ">
                             <span class="fst-italic">Room</span>
                             <ul class="list-unstyled text-end" id="accommodation-list">
                                 @foreach ($accomodations as $accomodation)
-                                <li data-price="{{ $accomodation->accomodation_price }}">
-                                    {{ $accomodation->accomodation_name }} - ₱{{ number_format($accomodation->accomodation_price, 2) }}
-                                </li>
+                                @php
+                                    $quantity = session('reservation_details.quantity') ?? 1;
+                                    $pricePerRoom = floatval($accomodation->accomodation_price) ?? 0;
+                                    $roomTotalPrice = $pricePerRoom * $quantity;
+                                    $totalPrice = $roomTotalPrice * $stayDuration;
+                                @endphp
+                                <p>
+                                {{ $accomodation->accomodation_name }}({{$quantity}}x) - ₱{{ number_format(floatval($accomodation->accomodation_price) ?? 0, 2) }}  
+                                </p>
                                 @endforeach
                             </ul>
-                        </div>
-                        <div class="d-flex justify-content-between ">
-                            <span class="fst-italic">Room Price</span>
-                            <input type="text" class="form-control text-end bg-secondary-subtle border-0 w-75" id="total-accommodation" 
-                                   value="₱{{ number_format($accomodations->sum('accomodation_price'), 2) }}" readonly>
                         </div>
                         @if($totalEntranceFee > 0)
                         <div class="d-flex justify-content-between">
@@ -372,10 +381,16 @@
                             if ($stayDuration < 1) $stayDuration = 1;
                             
                             // Calculate total room price with correct duration
-                            $totalRoomPrice = $accomodations->sum('accomodation_price') * $stayDuration;
+                            $quantity = session('reservation_details.quantity') ?? 0;
+                            $totalPrice = 0;
+                            foreach ($accomodations as $accomodation) {
+                                $pricePerRoom = ($accomodation->accomodation_price);
+                                $roomTotalPrice = $pricePerRoom * $quantity;
+                                $totalPrice += $roomTotalPrice * $stayDuration;
+                            }
                             
                             // Calculate final amount including entrance fee
-                            $amount = $totalRoomPrice + ($totalEntranceFee ?? 0);
+                            $amount = $totalPrice + ($totalEntranceFee ?? 0);
                             
                             // Calculate downpayment (50% of total amount)
                             $downpayment = $amount * 0.50;

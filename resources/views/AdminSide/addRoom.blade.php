@@ -155,7 +155,7 @@
                                 <td>{{ $accomodation->accomodation_type }}</td>
                                 <td>{{ $accomodation->accomodation_description}}</td>
                                 <td>{{ $accomodation->accomodation_capacity }}</td>
-                                <td>{{ $accomodation->quantity }}</td>
+                                <td>{{ $accomodation->quantity}}</td>
                                 <td>{{ $accomodation->accomodation_price }}</td>
                                 <td>{{ $accomodation->accomodation_status }}</td>
                                 <td>

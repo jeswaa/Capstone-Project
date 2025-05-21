@@ -58,7 +58,7 @@ class AdminSideController extends Controller
         }
     
         // Paginate the results
-        $reservations = $query->paginate(10);
+        $reservations = $query->paginate(5);
 
     
         // Fetch accommodation names for each reservation
@@ -1599,23 +1599,35 @@ public function addRoom(Request $request)
         // Get total accommodation count
         $count = count($accomodations);
 
-        // Get total available slots (only for accommodations marked as 'available')
-        $countAvailableRoom = DB::table('accomodations')
-            ->sum('quantity'); // Get total quantity of all rooms
+        // Get paginated accommodations
         $accomodations = Accomodation::paginate(5);
-        $countReservedRoom = DB::table('reservation_details')
-        ->join('accomodations', function($join) {
-            $join->whereRaw("JSON_CONTAINS(reservation_details.accomodation_id, CONCAT('[', accomodations.accomodation_id, ']'))");
-        })
-        ->where('reservation_details.reservation_status', 'reserved')
-        ->sum('reservation_details.quantity');
-    
-            
 
-        // Merge accommodations with available slots calculation
+        // Para sa bawat accommodation, kalkulahin ang available rooms
         foreach ($accomodations as $accomodation) {
-            $accomodation->available_rooms = $accomodation->accomodation_status == 'available' ? 1 : 0;
+            // Kunin ang original quantity ng room
+            $originalQuantity = $accomodation->quantity;
+            
+            // Kunin ang total reserved quantity para sa room na ito
+            $reservedQuantity = DB::table('reservation_details')
+                ->whereRaw("JSON_CONTAINS(accomodation_id, CONCAT('[', ?, ']'))", [$accomodation->accomodation_id])
+                ->whereIn('reservation_status', ['reserved', 'checked-in']) // Count only active reservations
+                ->sum('quantity');
+            
+            // Kalkulahin ang actual available rooms
+            $availableRooms = max(0, $originalQuantity - $reservedQuantity);
+            
+            // I-update ang accommodation object
+            $accomodation->available_rooms = $availableRooms;
+            $accomodation->accomodation_status = $availableRooms > 0 ? 'available' : 'unavailable';
         }
+
+        // Kunin ang total available at reserved rooms
+        // Sum the original quantity of all accommodations
+        $countAvailableRoom = $accomodations->sum('available_rooms'); // Changed from 'available_rooms' to 'quantity'
+
+        $countReservedRoom = DB::table('reservation_details')
+            ->whereIn('reservation_status', ['reserved', 'checked-in'])
+            ->sum('quantity');
 
         return view('AdminSide.addRoom', [
             'accomodations' => $accomodations,
@@ -1669,21 +1681,31 @@ public function addRoom(Request $request)
             'activity_image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
         ]);
 
-        // Attempt to store the image
-        $imagePath = $request->file('activity_image')->store('activities', 'public');
+        // Find the activity first
+        $activity = Activities::find($id);
+        if (!$activity) {
+            return redirect()->back()->with('error', 'Activity not found.');
+        }
 
-        // Check if the image was successfully saved
-        if ($imagePath) {
-            // Delete the previous image
-            $activity = Activities::find($id);
-            Storage::delete($activity->activity_image);
+        // Initialize image path
+        $imagePath = $activity->activity_image; // Keep existing image by default
+
+        // Handle image upload if a new file is provided
+        if ($request->hasFile('activity_image')) {
+            // Store the new image
+            $imagePath = $request->file('activity_image')->store('activities', 'public');
+            
+            // Delete the old image if it exists
+            if ($activity->activity_image) {
+                Storage::delete($activity->activity_image);
+            }
         }
 
         // Use Eloquent to update the activity
-        Activities::where('id', $id)->update([
+        $activity->update([
             'activity_name' => $request->activity_name,
             'activity_status' => $request->activity_status,
-            'activity_image' => $imagePath ?: $request->hidden_image,
+            'activity_image' => $imagePath,
         ]);
 
         return redirect()->route('addActivities')->with('success', 'Activity updated successfully!');

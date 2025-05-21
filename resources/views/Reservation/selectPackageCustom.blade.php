@@ -85,7 +85,7 @@
                 disabled>
                 <i class="fas fa-calendar-check me-2"></i>Booking Details
             </button>
-        </div>
+            </div>
     
         <!-- Accommodation Cards Container -->
         <div class="col-md-12 d-flex flex-column">

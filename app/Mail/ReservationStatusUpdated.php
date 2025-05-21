@@ -26,8 +26,6 @@ class ReservationStatusUpdated extends Mailable
         // Convert JSON string to array (IDs)
         $accommodationIds = $reservation->accomodation_id ? json_decode($reservation->accomodation_id, true) : [];
         $activityIds = $reservation->activity_id ? json_decode($reservation->activity_id, true) : [];
-        $packageIds = $reservation->package_id ? json_decode($reservation->package_id, true) : [];
-
         // Fetch accommodation names from the database
         $this->accomodations = Accomodation::whereIn('accomodation_id', $accommodationIds)
             ->pluck('accomodation_name')
@@ -37,15 +35,6 @@ class ReservationStatusUpdated extends Mailable
         $this->activities = Activities::whereIn('id', $activityIds)
             ->pluck('activity_name')
             ->implode(', ');
-
-        // Fetch package names from the database
-        $this->packages = is_array($packageIds) && count($packageIds) > 0 
-            ? DB::table('packagestbl')
-                ->whereIn('id', $packageIds)
-                ->pluck('package_name')
-                ->implode(', ')
-            : '';
-
         // Compute balance
         $amount = floatval(preg_replace('/[^\d.]/', '', $reservation->amount));
         $paymentStatus = strtolower($reservation->payment_status);
@@ -63,7 +52,6 @@ class ReservationStatusUpdated extends Mailable
                         'balance' => $this->balance,
                         'accomodations' => $this->accomodations,
                         'activities' => $this->activities,
-                        'packages' => $this->packages,
                     ]);
     }
 

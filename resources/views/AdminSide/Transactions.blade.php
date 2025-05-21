@@ -571,12 +571,17 @@
                                 </table>
                 
                                 <!-- Pagination -->
-                                <div class="d-flex justify-content-between align-items-center mt-4">
-                                    <div class="text-muted">
-                                        Showing {{ $reservationDetails->firstItem() ?? 0 }} to {{ $reservationDetails->lastItem() ?? 0 }} of {{ $reservationDetails->total() ?? 0 }} entries
+                                <div class="d-flex justify-content-between align-items-center mt-4 border-top pt-3">
+                                    <div class="text-muted small">
+                                        Showing <strong>{{ $reservationDetails->firstItem() ?? 0 }}</strong> to 
+                                        <strong>{{ $reservationDetails->lastItem() ?? 0 }}</strong> of 
+                                        <strong>{{ $reservationDetails->total() ?? 0 }}</strong> entries
                                     </div>
-                                    {{ $reservationDetails->links() }}
+                                    <nav>
+                                        {{ $reservationDetails->links('pagination::bootstrap-4') }}
+                                    </nav>
                                 </div>
+
                             </div>
                         </div>
                     </div>

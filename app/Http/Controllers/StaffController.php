@@ -64,8 +64,8 @@ public function guests(Request $request)
             ->select(
                 'reservation_details.id',
                 'reservation_details.user_id',
-                'reservation_details.accomodation_id', 
-                'reservation_details.package_id',
+                'reservation_details.accomodation_id',
+                // ... existing code ...
                 'reservation_details.activity_id',
                 'reservation_details.reservation_check_in_date',
                 'reservation_details.reservation_check_out_date',
@@ -80,7 +80,7 @@ public function guests(Request $request)
                 'reservation_details.id',
                 'reservation_details.user_id',
                 'reservation_details.accomodation_id',
-                'reservation_details.package_id', 
+                // ... existing code ...
                 'reservation_details.activity_id',
                 'reservation_details.reservation_check_in_date',
                 'reservation_details.reservation_check_out_date',
@@ -324,15 +324,12 @@ public function reservations(Request $request)
     
     // Define the query builder
     $query = DB::table('reservation_details')
-        ->leftJoin('accomodations', 'reservation_details.accomodation_id', '=', 'accomodations.accomodation_id')
-        ->leftJoin('packagestbl', 'reservation_details.package_id', '=', 'packagestbl.id')
+        ->leftJoin('accomodations', function($join) {
+            $join->whereRaw("JSON_CONTAINS(reservation_details.accomodation_id, CONCAT('\"', accomodations.accomodation_id, '\"'))");
+        })
         ->select(
             'reservation_details.*',
-            'accomodations.accomodation_name',
-            'packagestbl.package_name',
-            'packagestbl.package_activities',
-            'packagestbl.package_room_type',
-            'reservation_details.activity_id'
+            'accomodations.accomodation_name'
         )
         ->orderByDesc('reservation_details.created_at');
 
@@ -360,9 +357,6 @@ public function reservations(Request $request)
     }
 
     $reservations = $query->paginate(5)->withQueryString();
-
-    $archivedReservations = DB::table('archived_reservations')->latest()->get();
-
     // Process each reservation
     foreach ($reservations as $reservation) {
         // --- Handle Activities ---
@@ -411,6 +405,7 @@ public function reservations(Request $request)
             $reservation->stay_type = 'Unknown';
         }
     }
+
     // Debugging: Log the fetched details
     \Log::info('All Reservations:', ['reservations' => $reservations]);
     \Log::info('Pending Reservations Count:', ['count' => $pendingCount]);
@@ -419,8 +414,7 @@ public function reservations(Request $request)
     \Log::info('Total Reservations Count:', ['count' => $totalCount]);
 
     return view('StaffSide.StaffReservation', compact(
-        'reservations', 
-        'archivedReservations', 
+        'reservations',
         'pendingCount',
         'checkedInCount',
         'checkedOutCount',
@@ -624,18 +618,26 @@ public function UpdateStatus(Request $request, $id)
     $originalPaymentStatus = $reservation->payment_status;
     $originalReservationStatus = $reservation->reservation_status;
 
-    // Extract accommodation IDs
-    $accommodationIds = json_decode($reservation->accomodation_id, true) ?? [];
-
-    if (empty($accommodationIds) && !empty($reservation->package_id)) {
-        $packageRooms = DB::table('packagestbl')
-            ->where('id', $reservation->package_id)
-            ->value('package_room_type');
-
-        $accommodationIds = json_decode($packageRooms, true) ?? [];
+    // Fetch reservation details BEFORE update to compare statuses
+    $reservationBeforeUpdate = DB::table('reservation_details')->where('id', $id)->first();
+    if (!$reservationBeforeUpdate) {
+        return redirect()->back()->with('error', 'Reservation not found.');
     }
 
-    // Update payment and reservation status independently
+    // Store original status values for activity log
+    $originalPaymentStatus = $reservationBeforeUpdate->payment_status;
+    $originalReservationStatus = $reservationBeforeUpdate->reservation_status;
+
+    // Extract accommodation IDs from the reservation BEFORE update
+    $accommodationIdsBeforeUpdate = json_decode($reservationBeforeUpdate->accomodation_id, true) ?? [];
+    if (empty($accommodationIdsBeforeUpdate) && !empty($reservationBeforeUpdate->package_id)) {
+        $packageRoomsBeforeUpdate = DB::table('packagestbl')
+            ->where('id', $reservationBeforeUpdate->package_id)
+            ->value('package_room_type');
+        $accommodationIdsBeforeUpdate = json_decode($packageRoomsBeforeUpdate, true) ?? [];
+    }
+
+    // Update payment and reservation status
     DB::table('reservation_details')->where('id', $id)->update([
         'payment_status' => $request->payment_status,
         'reservation_status' => $request->reservation_status,
@@ -643,18 +645,64 @@ public function UpdateStatus(Request $request, $id)
         'updated_at' => now(),
     ]);
 
-    // Refresh reservation data after update
+    // Refresh reservation data AFTER update
     $updatedReservation = DB::table('reservation_details')->where('id', $id)->first();
 
-    // Update accommodation status based on reservation status
-    if ($request->reservation_status === 'checked-in') {
-        DB::table('accomodations')
-            ->whereIn('accomodation_id', $accommodationIds)
-            ->update(['accomodation_status' => 'unavailable']);
-    } elseif (in_array($request->reservation_status, ['checked-out', 'cancelled'])) {
-        DB::table('accomodations')
-            ->whereIn('accomodation_id', $accommodationIds)
-            ->update(['accomodation_status' => 'available']);
+    // Extract accommodation IDs from the reservation AFTER update
+    $accommodationIdsAfterUpdate = json_decode($updatedReservation->accomodation_id, true) ?? [];
+    if (empty($accommodationIdsAfterUpdate) && !empty($updatedReservation->package_id)) {
+        $packageRoomsAfterUpdate = DB::table('packagestbl')
+            ->where('id', $updatedReservation->package_id)
+            ->value('package_room_type');
+        $accommodationIdsAfterUpdate = json_decode($packageRoomsAfterUpdate, true) ?? [];
+    }
+
+    // --- Adjust Accommodation Quantities and Statuses ---
+    $oldStatus = $originalReservationStatus;
+    $newStatus = $request->reservation_status;
+
+    // If status changed TO 'reserved' or 'checked-in' from a non-active status
+    if (in_array($newStatus, ['reserved', 'checked-in']) && !in_array($oldStatus, ['reserved', 'checked-in'])) {
+        if (!empty($accommodationIdsAfterUpdate)) {
+            foreach ($accommodationIdsAfterUpdate as $accomodationId) {
+                // Decrement quantity for each room type in the reservation
+                // Assuming quantity in reservation_details is the number of rooms of this type, default to 1 if not present
+                $decrementQuantity = $updatedReservation->quantity ?? 1;
+                 DB::table('accomodations')
+                    ->where('accomodation_id', $accomodationId)
+                    ->decrement('quantity', $decrementQuantity);
+            }
+        }
+    }
+    // If status changed FROM 'reserved' or 'checked-in' to 'checked-out' or 'cancelled' or 'early-checked-out'
+    elseif (in_array($oldStatus, ['reserved', 'checked-in']) && in_array($newStatus, ['checked-out', 'cancelled', 'early-checked-out'])) {
+         if (!empty($accommodationIdsBeforeUpdate)) {
+            foreach ($accommodationIdsBeforeUpdate as $accomodationId) {
+                // Increment quantity for each room type in the reservation
+                // Assuming quantity in reservation_details is the number of rooms of this type, default to 1 if not present
+                $incrementQuantity = $reservationBeforeUpdate->quantity ?? 1;
+                 DB::table('accomodations')
+                    ->where('accomodation_id', $accomodationId)
+                    ->increment('quantity', $incrementQuantity);
+            }
+        }
+    }
+
+    // After adjusting quantities, update accommodation status based on the NEW quantity
+    $allInvolvedAccommodationIds = array_unique(array_merge($accommodationIdsBeforeUpdate, $accommodationIdsAfterUpdate));
+
+    if (!empty($allInvolvedAccommodationIds)) {
+        foreach ($allInvolvedAccommodationIds as $accomodationId) {
+             $currentQuantity = DB::table('accomodations')
+                                ->where('accomodation_id', $accomodationId)
+                                ->value('quantity');
+
+            $newAccomodationStatus = $currentQuantity > 0 ? 'available' : 'unavailable';
+
+            DB::table('accomodations')
+                ->where('accomodation_id', $accomodationId)
+                ->update(['accomodation_status' => $newAccomodationStatus]);
+        }
     }
 
     // Record the status update activity
