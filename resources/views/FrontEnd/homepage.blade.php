@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css">
     <link href="https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -269,7 +270,8 @@
                                  data-room="{{ $accommodation->accomodation_name }}"
                                  data-roomid="{{ $accommodation->accomodation_id }}"
                                  data-roomimg="{{ asset('storage/' . $accommodation->accomodation_image) }}"
-                                 data-roomprice="{{ number_format($accommodation->accomodation_price, 2) }}">
+                                 data-roomprice="{{ number_format($accommodation->accomodation_price, 2) }}"
+                                 data-roomcapacity="{{ $accommodation->accomodation_capacity }}">
                                 <div class="position-relative">
                                     <img src="{{ asset('storage/' . $accommodation->accomodation_image) }}" 
                                          class="card-img-top" 
@@ -334,7 +336,7 @@
                 @endif
                 
                 <div class="modal-body">
-                    <div class="row g-4 align-items-center">
+                        <div class="row g-4 align-items-center">
                         <!-- Column 1: Room Info -->
                         <div class="col-md-4 text-center">
                             <img id="modalRoomImg" src="" alt="Room Image" class="img-fluid rounded mb-3" style="max-height: 200px; border-radius: 20px; object-fit: cover; border: 2px solid #0b573d;">
@@ -345,7 +347,7 @@
                                 </span>
                             </div>
                             <div class="mb-3">
-                                <label for="modalRoomQty" class="form-label" style="color: #0b573d;">Quantity</label>
+                                <label for="modalRoomQty" class="form-label" style="color: #0b573d;">Quantity</label>   
                                 <div class="input-group" style="width: 150px; margin: 0 auto;">
                                     <button type="button" class="btn btn-success" onclick="decrementQuantity()" style="background-color: #0b573d; height: 38px;">
                                         <i class="fas fa-minus"></i>
@@ -355,6 +357,11 @@
                                         <i class="fas fa-plus"></i>
                                     </button>
                                 </div>
+                            </div>
+                            <div class="mb-3">
+                                <span class="badge" style="background-color: #0b573d; font-size: 1.2rem; padding: 10px 18px;">
+                                    Amount to pay: ₱<span id="totalAmount"></span>
+                                </span>
                             </div>
                             <input type="hidden" id="modalRoomId" name="accomodation_id">
                         </div>
@@ -392,17 +399,30 @@
                                 </div>
                                 <div class="mb-3" id="checkOutDateGroup" style="display: none;">
                                   <label for="checkOutDate" class="form-label" style="color: #0b573d;">Check-out Date</label>
-                                  <input type="date" class="form-control border-success" id="checkOutDate" name="reservation_check_out_date" required>
+                                  <input type="date" class="form-control border-success" id="checkOutDate" name="reservation_check_out_date">
                                 </div>
                                 <div class="mb-3">
                                   <label for="checkInTime" class="form-label" style="color: #0b573d;">Check-in Time</label>
-                                  <input type="time" class="form-control border-success" id="checkInTime" name="reservation_check_in" required>
-
-                                </div>
-                                <div class="mb-3">
+                                  <select class="form-control border-success" id="checkInTime" name="reservation_check_in" required>
+                                      @php
+                                          $uniqueStartTimes = $transactions->unique('start_time');
+                                      @endphp
+                                      @foreach($uniqueStartTimes as $transaction)
+                                          <option value="{{ $transaction->start_time }}">{{ date('h:i A', strtotime($transaction->start_time)) }}</option>
+                                      @endforeach
+                                  </select>
+                              </div>
+                              <div class="mb-3">
                                   <label for="checkOutTime" class="form-label" style="color: #0b573d;">Check-out Time</label>
-                                  <input type="time" class="form-control border-success" id="checkOutTime" name="reservation_check_out" required>
-                                </div>
+                                  <select class="form-control border-success" id="checkOutTime" name="reservation_check_out" required>
+                                      @php
+                                          $uniqueEndTimes = $transactions->unique('end_time');
+                                      @endphp
+                                      @foreach($uniqueEndTimes as $transaction)
+                                          <option value="{{ $transaction->end_time }}">{{ date('h:i A', strtotime($transaction->end_time)) }}</option>
+                                      @endforeach
+                                  </select>
+                              </div>
                             </div>
                         </div>
                         <!-- Activities Section - Updated Design -->
@@ -439,8 +459,8 @@
                         <h5 class="card-title mb-0" style="font-style: italic; color: #0b573d;">Cottage 6</h5>
                     </div>
                 </div>
-                <div class="modal-footer" style="border-bottom-left-radius: 24px; border-bottom-right-radius: 24px;">
-                    <button type="submit" class="btn btn-light px-4 fw-bold" style="border-radius: 25px; color: #0b573d; border: 2px solid #0b573d;">Reserve</button>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success" id="reserveButton" style="background-color: #0b573d;">Reserve</button>
                 </div>
             </form>
         </div>
@@ -541,113 +561,186 @@ function decrementQuantity() {
 }
 </script>
 <script>
+let roomCapacity = 0;
+
 document.addEventListener('DOMContentLoaded', function() {
-    var reservationModal = document.getElementById('reservationModal');
-    var reservationForm = document.getElementById('reservationForm');
-    var reservationTypeSelect = document.getElementById('reservationType');
-
-    // Initial set on modal show
-    reservationModal.addEventListener('show.bs.modal', function (event) {
-        var card = event.relatedTarget;
+    // Reservation Modal Event Handler
+    $('#reservationModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var roomName = button.data('room');
+        var roomId = button.data('roomid');
+        var roomImg = button.data('roomimg');
+        var roomPrice = button.data('roomprice');
+        roomCapacity = button.data('roomcapacity');
         
-        // Para sa input fields (hidden)
-        var accommodationId = card.getAttribute('data-roomid');
-        document.getElementById('modalRoomId').name = 'accomodation_id';
-        document.getElementById('modalRoomId').value = accommodationId;
+        // Update modal content
+        var modal = $(this);
+        modal.find('#modalRoomName').text(roomName);
+        modal.find('#modalRoomId').val(roomId);
+        modal.find('#modalRoomImg').attr('src', roomImg);
+        modal.find('#modalRoomPrice').text('₱ ' + roomPrice);
         
-        // Para sa ibang fields
-        document.getElementById('modalRoomImg').src = card.getAttribute('data-roomimg');
-        document.getElementById('modalRoomQty').value = 1;
-        document.getElementById('modalRoomName').textContent = card.getAttribute('data-room');
-        document.getElementById('modalRoomPrice').textContent = '₱ ' + card.getAttribute('data-roomprice');
-        
-        // Reset all form fields
-        document.getElementById('reservationType').value = 'one_day';
-        document.getElementById('checkInDate').value = '';
-        document.getElementById('checkInTime').value = '';
-        document.getElementById('checkOutDate').value = '';
-        document.getElementById('checkOutTime').value = '';
-        document.getElementById('checkOutDateGroup').style.display = 'none';
-        document.getElementById('checkOutTimeGroup').style.display = 'none';
-        
-        updateFormAction();
+        // Reset form values
+        modal.find('#modalRoomQty').val(1);
+        modal.find('#numAdults').val(1);
+        modal.find('#numChildren').val(0);
+        updateTotalGuests();
     });
 
-    // Logic para sa reservation type at form action
-    reservationTypeSelect.addEventListener('change', function() {
-        var type = this.value;
-        var checkOutDateGroup = document.getElementById('checkOutDateGroup');
-        var checkOutTimeGroup = document.getElementById('checkOutTimeGroup');
-        var checkIn = document.getElementById('checkInDate');
-        var checkOut = document.getElementById('checkOutDate');
-        var checkOutTime = document.getElementById('checkOutTime');
+    // Function para sa pag-update ng total guests
+    function updateTotalGuests() {
+        var adults = parseInt($('#numAdults').val()) || 0;
+        var children = parseInt($('#numChildren').val()) || 0;
+        var quantity = parseInt($('#modalRoomQty').val()) || 1;
+        var totalCapacity = roomCapacity * quantity;
+        var totalGuests = adults + children;
         
-        if(type === 'overnight') {
-            checkOutDateGroup.style.display = 'block';
-            checkOutTimeGroup.style.display = 'block';
-            checkOut.required = true;
-            checkOutTime.required = true;
+        $('#totalGuest').val(totalGuests);
+        
+        var errorDiv = $('#capacityError');
+        if (!errorDiv.length) {
+            $('#totalGuest').after('<div id="capacityError" class="text-danger mt-2"></div>');
+            errorDiv = $('#capacityError');
+        }
+        
+        if (totalGuests > totalCapacity) {
+            errorDiv.text(`Exceeded maximum capacity of ${totalCapacity} guests!`);
+            $('#reserveButton').prop('disabled', true);
         } else {
-            checkOutDateGroup.style.display = 'none';
-            checkOutTimeGroup.style.display = 'none';
-            checkOut.value = checkIn.value;
-            checkOutTime.value = document.getElementById('checkInTime').value;
-            checkOut.required = false;
-            checkOutTime.required = false;
+            errorDiv.text('');
+            $('#reserveButton').prop('disabled', false);
         }
-        
-        updateFormAction();
-    });
-
-    // Kapag nagbago ang check-in date at one day lang, auto set check-out date
-    document.getElementById('checkInDate').addEventListener('change', function() {
-        var type = document.getElementById('reservationType').value;
-        if(type === 'one_day') {
-            document.getElementById('checkOutDate').value = this.value;
-        }
-    });
-
-    // Kapag nagbago ang check-in time at one day lang, auto set check-out time
-    document.getElementById('checkInTime').addEventListener('change', function() {
-        var type = document.getElementById('reservationType').value;
-        if(type === 'one_day') {
-            document.getElementById('checkOutTime').value = this.value;
-        }
-    });
-
-    // Auto-calculate total guest
-    function calculateTotalGuest() {
-        const adults = parseInt(document.getElementById('numAdults').value) || 0;
-        const children = parseInt(document.getElementById('numChildren').value) || 0;
-        document.getElementById('totalGuest').value = adults + children;
     }
 
-    // Add event listeners for changes
-    document.getElementById('numAdults').addEventListener('change', calculateTotalGuest);
-    document.getElementById('numChildren').addEventListener('change', calculateTotalGuest);
-
-    // Initial calculation
-    calculateTotalGuest();
+    // Event listeners para sa pag-update ng total guests
+    $('#numAdults, #numChildren, #modalRoomQty').on('change', updateTotalGuests);
 });
+
+// Functions para sa quantity buttons
+function incrementQuantity() {
+    var input = document.getElementById('modalRoomQty');
+    input.value = parseInt(input.value) + 1;
+    input.dispatchEvent(new Event('change'));
+}
+
+function decrementQuantity() {
+    var input = document.getElementById('modalRoomQty');
+    if (parseInt(input.value) > 1) {
+        input.value = parseInt(input.value) - 1;
+        input.dispatchEvent(new Event('change'));
+    }
+}
 </script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const checkInDate = document.getElementById('checkInDate');
-    const checkOutDate = document.getElementById('checkOutDate');
-
-    checkInDate.addEventListener('change', function() {
-        const selectedDate = new Date(this.value);
-        const minDate = selectedDate.toISOString().split('T')[0];
+    function updateTotalGuests() {
+        var adults = parseInt($('#numAdults').val()) || 0;
+        var children = parseInt($('#numChildren').val()) || 0;
+        var quantity = parseInt($('#modalRoomQty').val()) || 1;
+        var totalCapacity = roomCapacity * quantity;
+        var totalGuests = adults + children;
         
-        // Set minimum date for check-out date
-        checkOutDate.min = minDate;
+        $('#totalGuest').val(totalGuests);
         
-        // If check-out date is before check-in date, reset it
-        if (new Date(checkOutDate.value) < selectedDate) {
-            checkOutDate.value = minDate;
+        var errorDiv = $('#capacityError');
+        if (!errorDiv.length) {
+            $('#totalGuest').after('<div id="capacityError" class="text-danger mt-2"></div>');
+            errorDiv = $('#capacityError');
         }
+        
+        if (totalGuests > totalCapacity) {
+            errorDiv.text(`Exceeded maximum capacity of ${totalCapacity} guests for this accommodation!`);
+            $('#reserveButton').prop('disabled', true);
+        } else {
+            errorDiv.text('');
+            $('#reserveButton').prop('disabled', false);
+        }
+    }
+
+    // Add event listeners
+    $('#numAdults, #numChildren, #modalRoomQty').on('change', updateTotalGuests);
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const reservationType = document.getElementById('reservationType');
+        const checkInDate = document.getElementById('checkInDate');
+        const checkOutDate = document.getElementById('checkOutDate');
+        const checkOutDateGroup = document.getElementById('checkOutDateGroup');
+
+        // Handle reservation type change
+        reservationType.addEventListener('change', function() {
+            if (this.value === 'one_day') {
+                checkOutDateGroup.style.display = 'none';
+                checkOutDate.value = checkInDate.value;
+            } else {
+                checkOutDateGroup.style.display = 'block';
+            }
+        });
+
+        // Handle check-in date change
+        checkInDate.addEventListener('change', function() {
+            if (reservationType.value === 'one_day') {
+                checkOutDate.value = this.value;
+            }
+        });
     });
-});
+</script>
+<script>
+    function calculateTotalAmount() {
+        const quantity = parseInt(document.getElementById('modalRoomQty').value) || 1;
+        const priceText = document.getElementById('modalRoomPrice').textContent;
+        const price = parseFloat(priceText.replace(/[^0-9.]/g, ''));
+        const checkInDate = new Date(document.getElementById('checkInDate').value);
+        const checkOutDate = new Date(document.getElementById('checkOutDate').value);
+        const reservationType = document.getElementById('reservationType').value;
+
+        if (!isNaN(price) && !isNaN(quantity)) {
+            let totalAmount = quantity * price;
+            
+            if (reservationType === 'overnight') {
+                const timeDiff = checkOutDate - checkInDate;
+                const stayDuration = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+                totalAmount *= stayDuration;
+            }
+
+            document.getElementById('totalAmount').textContent = totalAmount.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        } else {
+            document.getElementById('totalAmount').textContent = '0.00';
+        }
+    }
+
+    function incrementQuantity() {
+        const quantityInput = document.getElementById('modalRoomQty');
+        quantityInput.value = parseInt(quantityInput.value) + 1;
+        calculateTotalAmount();
+    }
+
+    function decrementQuantity() {
+        const quantityInput = document.getElementById('modalRoomQty');
+        if (quantityInput.value > 1) {
+            quantityInput.value = parseInt(quantityInput.value) - 1;
+            calculateTotalAmount();
+        }
+    }
+
+        document.addEventListener('DOMContentLoaded', function() {
+        const quantityInput = document.getElementById('modalRoomQty');
+        const checkInDateInput = document.getElementById('checkInDate');
+        const checkOutDateInput = document.getElementById('checkOutDate');
+        
+        quantityInput.addEventListener('change', calculateTotalAmount);
+        quantityInput.addEventListener('input', calculateTotalAmount);
+        checkInDateInput.addEventListener('change', calculateTotalAmount);
+        checkOutDateInput.addEventListener('change', calculateTotalAmount);
+        
+        // Initialize total amount on modal open
+        $('#reservationModal').on('show.bs.modal', function() {
+            calculateTotalAmount();
+        });
+    });
 </script>
 </body>
 </html>
+

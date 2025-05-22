@@ -18,6 +18,10 @@ class LandingPageController extends Controller
     {
         $accommodations = DB::table('accomodations')->get();
         $activities = DB::table('activitiestbl')->get();
-        return view('FrontEnd.homepage', compact('accommodations', 'activities'));
+        $transactions = DB::table('transaction')
+            ->select('start_time', 'end_time')
+            ->get();
+        
+        return view('FrontEnd.homepage', compact('accommodations', 'activities', 'transactions'));
     }
 }
