@@ -369,7 +369,7 @@
                     </p>
 
                     <a href="{{ route('google.redirect') }}" class="text-white font-paragraph text-decoration-none fw-bold">
-                        <div class="d-flex justify-content-center align-items-center color-background8 p-3 rounded-4 google"
+                        <div class="d-flex justify-content-center align-items-center bg-success p-3 rounded-4 google"
                              style="font-size: 0.9rem;">
                             <img src="{{ asset('images/google.png') }}" alt="" width="16" height="16" class="me-2"> 
                             Sign In using Google
