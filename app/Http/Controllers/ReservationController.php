@@ -197,19 +197,36 @@ class ReservationController extends Controller
 
     public function OnedayStay(Request $request)
 {
-    $request->validate([
-        'reservation_check_in_date' => 'required|date|after_or_equal:today',
-        'reservation_check_out_date' => 'required|date|after_or_equal:reservation_check_in_date',
-        'reservation_check_in' => 'required',
-        'reservation_check_out' => 'required', 
-        'number_of_adults' => 'required|integer|min:1',
-        'number_of_children' => 'required|integer|min:0',
-    ]);
+    try {
+        $request->validate([
+            'reservation_check_in_date' => 'required|date|after_or_equal:today',
+            'reservation_check_out_date' => 'required|date|after_or_equal:reservation_check_in_date',
+            'reservation_check_in' => 'required|date_format:H:i',
+            'reservation_check_out' => 'required|date_format:H:i',
+            'number_of_adults' => 'required|integer|min:1',
+            'number_of_children' => 'required|integer|min:0',
+            'special_request' => 'nullable|string|max:500',
+            'quantity' => 'required|integer|min:1'
+        ], [
+            'number_of_adults.required' => 'At least one adult must be included.',
+            'number_of_adults.min' => 'At least one adult must be included.',
+            'number_of_children.min' => 'Number of children cannot be negative.',
+            'quantity.required' => 'Please select number of rooms.',
+            'quantity.min' => 'Please select at least one room.',
+        ]);
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return redirect()->back()->withErrors($e->validator)->withInput();
+    }
     
     // Validate selected accommodations
-    $selectedAccommodationIds = $request->input('accomodation_id', []);
+    $selectedAccommodationIds = (array) $request->input('accomodation_id');
     if (empty($selectedAccommodationIds)) {
         return redirect()->back()->with('error', 'Please select at least one accommodation.');
+    }
+
+    // If single value is received, convert it to array
+    if (!is_array($selectedAccommodationIds)) {
+        $selectedAccommodationIds = [$selectedAccommodationIds];
     }
 
     // Fetch accommodation prices
@@ -217,7 +234,7 @@ class ReservationController extends Controller
         ->whereIn('accomodation_id', $selectedAccommodationIds)
         ->get();
     
-    $accommodationPrice = (float) $accommodations->sum('accomodation_price');
+    $accommodationPrice = (float) $accommodations->sum('accomodation_price') * $request->input('quantity', 1);
 
     // Handle activity selection (store as JSON if multiple)
     $activityIds = $request->input('activity_id', []);
@@ -238,15 +255,13 @@ class ReservationController extends Controller
     
     // Calculate total entrance fee
     $entranceFee = ($numAdults * $adultFee) + ($numChildren * $kidFee);
-
-    // Store entrance fee in session separately
     session()->put('entrance_fee', $entranceFee);
 
     // Compute total price
     $totalPrice = $entranceFee + $accommodationPrice;
 
     // Store reservation details in session
-    session()->put('reservation_details', [
+    $reservationData = [
         'user_id' => Auth::id(),
         'accomodation_id' => json_encode($selectedAccommodationIds),
         'activity_id' => $selectedActivityId,
@@ -256,18 +271,42 @@ class ReservationController extends Controller
         'reservation_check_in_date' => $request->input('reservation_check_in_date'),
         'reservation_check_out_date' => $request->input('reservation_check_out_date'),
         'special_request' => $request->input('special_request'),
+        'quantity' => $request->input('quantity', 1),
         'total_guest' => $numAdults + $numChildren,
         'number_of_adults' => $numAdults,
         'number_of_children' => $numChildren,
         'amount' => $totalPrice,
         'session' => $session
+    ];
+
+    session()->put('reservation_details', $reservationData);
+
+    // Log all session data
+    Log::info('Reservation Details Saved to Session', [
+        'user_id' => Auth::id(),
+        'session_data' => $reservationData,
+        'accommodation_details' => [
+            'selected_ids' => $selectedAccommodationIds,
+            'accommodation_price' => $accommodationPrice
+        ],
+        'activity_details' => [
+            'activity_ids' => $activityIds,
+            'selected_activity_id' => $selectedActivityId
+        ],
+        'guest_details' => [
+            'adults' => $numAdults,
+            'children' => $numChildren,
+            'total_guests' => $numAdults + $numChildren
+        ],
+        'price_details' => [
+            'accommodation_price' => $accommodationPrice,
+            'entrance_fee' => $entranceFee,
+            'total_price' => $totalPrice
+        ],
+        'timestamp' => now()->toDateTimeString()
     ]);
-    try {
-        return redirect()->route('paymentProcess')->with('success', 'Package selection saved successfully.');
-    } catch (\Exception $e) {
-        Log::error('Error in OnedayStay: ' . $e->getMessage());
-        return redirect()->back()->with('error', 'An error occurred while processing your request. Please try again. Error: ' . $e->getMessage());
-    }
+
+    return redirect()->route('paymentProcess')->with('success', 'Package selection saved successfully.');
 }
 
     public function getSessionTimes(Request $request) {
@@ -326,18 +365,27 @@ class ReservationController extends Controller
     
         public function StayInPackages(Request $request)
     {
-        // Validate input data
-        $request->validate([
-            'reservation_check_in_date' => 'required|date|after_or_equal:today',
-            'reservation_check_out_date' => 'required|date|after_or_equal:reservation_check_in_date',
-            'reservation_check_in' => 'required|date_format:H:i',
-            'reservation_check_out' => 'required|date_format:H:i',
-            'number_of_adults' => 'required|integer|min:1',
-            'number_of_children' => 'required|integer|min:0',
-            'special_request' => 'nullable|string|max:500',
-            'quantity' => 'required|integer|min:1'
-        ]);
-    
+        try {
+            $request->validate([
+                'reservation_check_in_date' => 'required|date|after_or_equal:today',
+                'reservation_check_out_date' => 'required|date|after_or_equal:reservation_check_in_date',
+                'reservation_check_in' => 'required|date_format:H:i',
+                'reservation_check_out' => 'required|date_format:H:i',
+                'number_of_adults' => 'required|integer|min:1',
+                'number_of_children' => 'required|integer|min:0',
+                'special_request' => 'nullable|string|max:500',
+                'quantity' => 'required|integer|min:1'
+            ], [
+                'number_of_adults.required' => 'At least one adult must be included.',
+                'number_of_adults.min' => 'At least one adult must be included.',
+                'number_of_children.min' => 'Number of children cannot be negative.',
+                'quantity.required' => 'Please select number of rooms.',
+                'quantity.min' => 'Please select at least one room.',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()->withErrors($e->validator)->withInput();
+        }
+
         // Validate selected accommodations
         $selectedAccommodationIds = $request->input('accomodation_id', []);
         if (empty($selectedAccommodationIds)) {
@@ -358,10 +406,10 @@ class ReservationController extends Controller
         // Compute entrance fee
         $numAdults = (int) $request->input('number_of_adults', 0);
         $numChildren = (int) $request->input('number_of_children', 0);
-        $entranceFee = ($numAdults * 100) + ($numChildren * 50);
     
         // Compute total price
-        $totalPrice = $entranceFee + $accommodationPrice;
+        $totalPrice = $accommodationPrice;
+        session()->put('entrance_fee', 0);
     
         // Store reservation details in session
         $reservationData = [
@@ -402,7 +450,6 @@ class ReservationController extends Controller
             ],
             'price_details' => [
                 'accommodation_price' => $accommodationPrice,
-                'entrance_fee' => $entranceFee,
                 'total_price' => $totalPrice
             ],
             'timestamp' => now()->toDateTimeString()
@@ -434,17 +481,7 @@ public function savePaymentProcess(Request $request)
         $reservationDetails = (array) $reservationDetails;
     }
 
-    $total_amount = $request->input('total_amount');
-    
-    // Retrieve entrance fee from transactions table based on selected session
-    $selectedSession = $reservationDetails['session'] ?? null;
-    $entranceFee = Transaction::where('session', $selectedSession)->first()->entrance_fee ?? 0;
-    $reservationDetails['entrance_fee'] = $entranceFee;
-    
-    // Retrieve entrance fee from transactions table
-    $entranceFee = Transaction::first()->entrance_fee ?? 0;
-    
-    
+    $total_amount = $request->input('total_amount'); 
     // Check if `accomodation_id` exists before decoding
     $accomodationIds = isset($reservationDetails['accomodation_id']) 
         ? json_decode($reservationDetails['accomodation_id'], true) 

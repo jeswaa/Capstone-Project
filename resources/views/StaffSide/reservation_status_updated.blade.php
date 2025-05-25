@@ -180,6 +180,18 @@
         <p class="thank-you">Thank you for choosing Lelo's Resort!</p>
 
         <div class="footer">
+            <div class="booking-policies" style="margin-bottom: 20px; padding: 15px; background-color: #f8f8f8; border-radius: 8px;">
+                <h5 style="color: #2a5d34; margin-bottom: 10px;">Our Policies:</h5>
+                <ul style="list-style-type: disc; margin-left: 20px; font-size: 14px;">
+                    <li>50% down payment is required to confirm your reservation</li>
+                    <li>Full payment must be settled upon check-in</li>
+                    <li>No refund for no-show or late cancellation</li>
+                    <li>Early check-in and late check-out are subject to room availability</li>
+                    <li>The resort is not liable for loss of personal belongings</li>
+                    <li>Guests must follow resort rules and regulations during their stay</li>
+                </ul>
+            </div>
+            
             <p>If you have any questions, please contact us at:</p>
             <p>Email: lelosresort@gmail.com | Phone: +09297278336</p>
             <p>© {{ date('Y') }} Lelo's Resort. All rights reserved.</p>

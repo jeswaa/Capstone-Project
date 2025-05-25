@@ -9,7 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <style>
@@ -39,39 +38,82 @@
     .room-card, .room-card * {
         user-select: none;
     }
+
+    .navbar-nav .nav-link {
+        color: #0b573d;
+        font-family: 'Josefin Sans', sans-serif;
+        transition: color 0.3s;
+    }
+
+    .navbar-nav .nav-link:hover {
+        color: white;
+    }
+
+    /* Hover for small screens */
+    @media (max-width: 991px) {
+        .navbar-nav {
+            flex-direction: column;
+            align-items: stretch;
+            background-color: rgba(11, 87, 61, 0.95);
+            padding: 0;
+            border-radius: 0.8rem;
+            width: 200px;
+            margin-left: auto;
+            backdrop-filter: blur(8px);
+            overflow: hidden;
+        }
+
+        .navbar-nav .nav-item {
+            width: 100%;
+        }
+
+        .navbar-nav .nav-link {
+            color: white !important;
+            padding: 1rem;
+            width: 100%;
+            text-align: center;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+            margin: 0;
+            border-radius: 0;
+            border-bottom: 2px solid #e6f4e6; /* separator line */
+        }
+        .navbar-nav .nav-item:last-child .nav-link {
+            border-bottom: none; /* walang separator sa huli */
+        }
+    }
 </style>
 <body>
-    <nav class="navbar navbar-expand-lg  position-absolute top-0 w-100 mt-5" style="z-index: 10;">
+<nav class="navbar navbar-expand-lg position-absolute top-0 w-100 mt-4" style="z-index: 10;">
         <div class="container">
+            <a href="{{ route('profile') }}" class="text-decoration-none me-auto">
+                <div class="profile-icon d-flex align-items-center justify-content-center" 
+                     style="width: 45px; 
+                            height: 45px; 
+                            background-color: #0b573d;
+                            border-radius: 50%;
+                            transition: all 0.3s ease;
+                            box-shadow: 0 2px 5px rgba(0,0,0,0.2);"
+                     onmouseover="this.style.transform='scale(1.1)'; this.style.backgroundColor='#0d6a4a';" 
+                     onmouseout="this.style.transform='scale(1)'; this.style.backgroundColor='#0b573d';">
+                    <i class="fa-solid fa-user fa-lg" style="color: #ffffff;"></i>
+                </div>
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase me-4 text-underline-left-to-right" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#rooms">Rooms</a>
+                        <a class="nav-link fw-semibold text-uppercase text-decoration-none" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif; transition: color 0.3s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#0b573d'" href="#rooms">Rooms</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase me-4 text-underline-left-to-right" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#activities">Activities</a>
+                        <a class="nav-link fw-semibold text-uppercase text-decoration-none" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif; transition: color 0.3s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#0b573d'" href="#activities">Activities</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase me-4 text-underline-left-to-right" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#">Reservations</a>
+                        <a class="nav-link fw-semibold text-uppercase text-decoration-none" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif; transition: color 0.3s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#0b573d'" href="#">Reservations</a>
                     </li>
                 </ul>
-                <a href="{{ route('profile') }}" class="text-decoration-none">
-                    <div class="profile-icon d-flex align-items-center justify-content-center" 
-                         style="width: 45px; 
-                                height: 45px; 
-                                background-color: #0b573d;
-                                border-radius: 50%;
-                                transition: all 0.3s ease;
-                                box-shadow: 0 2px 5px rgba(0,0,0,0.2);"
-                         onmouseover="this.style.transform='scale(1.1)'; this.style.backgroundColor='#0d6a4a';" 
-                         onmouseout="this.style.transform='scale(1)'; this.style.backgroundColor='#0b573d';">
-                        <i class="fa-solid fa-user fa-lg" style="color: #ffffff;"></i>
-                    </div>
-                </a>
-                </a>
             </div>
         </div>
     </nav>
@@ -405,37 +447,31 @@
             </div>
         </div>
     </section>
-     <!-- footer section -->                                   
+      <!-- footer section -->
     <footer style="background-color: #0b573d; height: auto; padding: 20px;">
-    <div class="container">
-        <div class="row">
-            <!-- Left Side: Smaller App Icon -->
-            <div class="col-md-6 d-flex justify-content-start align-items-center">
-                <img src="{{ asset('images/appicon.png') }}" class="img-fluid" alt="App Icon" style="height: 100px;">
-            </div>
+        <div class="container">
+            <div class="row align-items-center">
+                <!-- Left: App Icon -->
+                <div class="col-md-2 d-flex justify-content-start align-items-center">
+                    <img src="{{ asset('images/appicon.png') }}" class="img-fluid" alt="App Icon" style="height: 90px;">
+                </div>
 
-            <!-- Right Side: Facebook Link -->
-            <div class="col-md-6 d-flex justify-content-end align-items-center">
-                <a href="https://www.facebook.com/lelosmountainresort" target="_blank" class="text-white fs-6 text-center">
-                    <i style="color: #0a66c2" class="bi bi-facebook fs-3"></i>
-                </a>
+                <!-- Spacer or optional center -->
+                <div class="col-md-7"></div>
+
+                <!-- Right: Facebook + Contact -->
+                <div class="col-md-3 d-flex flex-column align-items-end text-white">
+                    <a href="https://www.facebook.com/lelosmountainresort" target="_blank"
+                        class="text-white d-flex align-items-center gap-2 mb-1">
+                        <i class="bi bi-facebook fs-4" style="color: #0a66c2;"></i>
+                        <span class="text-white">Lelo's Mountain Resort</span>
+                    </a>
+                    <span>Contact: +63 912 345 6789</span>
+                </div>
             </div>
         </div>
-    </div>
-</footer>
-<script>
-function incrementQuantity() {
-    var input = document.getElementById('modalRoomQty');
-    input.value = parseInt(input.value) + 1;
-}
+    </footer>
 
-function decrementQuantity() {
-    var input = document.getElementById('modalRoomQty');
-    if (parseInt(input.value) > 1) {
-        input.value = parseInt(input.value) - 1;
-    }
-}
-</script>
 <script>
 let roomCapacity = 0;
 
@@ -508,74 +544,76 @@ function decrementQuantity() {
 }
 </script>
 <script>
-    function updateTotalGuests() {
-        var adults = parseInt($('#numAdults').val()) || 0;
-        var children = parseInt($('#numChildren').val()) || 0;
-        var quantity = parseInt($('#modalRoomQty').val()) || 1;
-        var totalCapacity = roomCapacity * quantity;
-        var totalGuests = adults + children;
-        
-        $('#totalGuest').val(totalGuests);
-        
-        var errorDiv = $('#capacityError');
-        if (!errorDiv.length) {
-            $('#totalGuest').after('<div id="capacityError" class="text-danger mt-2"></div>');
-            errorDiv = $('#capacityError');
-        }
-        
-        if (totalGuests > totalCapacity) {
-            errorDiv.text(`Exceeded maximum capacity of ${totalCapacity} guests for this accommodation!`);
-            $('#reserveButton').prop('disabled', true);
-        } else {
-            errorDiv.text('');
-            $('#reserveButton').prop('disabled', false);
-        }
-    }
-
-    // Add event listeners
-    $('#numAdults, #numChildren, #modalRoomQty').on('change', updateTotalGuests);
-</script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const reservationType = document.getElementById('reservationType');
         const checkInDate = document.getElementById('checkInDate');
         const checkOutDate = document.getElementById('checkOutDate');
         const checkOutDateGroup = document.getElementById('checkOutDateGroup');
+        const checkInTime = document.getElementById('checkInTime');
+        const checkOutTime = document.getElementById('checkOutTime');
 
-        // Handle reservation type change
-        reservationType.addEventListener('change', function() {
-            if (this.value === 'one_day') {
+        function addOptionIfMissing(selectElement, value, label) {
+            const exists = Array.from(selectElement.options).some(opt => opt.value === value);
+            if (!exists) {
+                const newOption = document.createElement('option');
+                newOption.value = value;
+                newOption.textContent = label;
+                selectElement.appendChild(newOption);
+            }
+            selectElement.value = value;
+        }
+
+        function handleReservationTypeChange() {
+            if (reservationType.value === 'one_day') {
                 checkOutDateGroup.style.display = 'none';
                 checkOutDate.value = checkInDate.value;
+            } else if (reservationType.value === 'overnight') {
+                checkOutDateGroup.style.display = 'block';
+
+                // Add/check 2:00 PM and 12:00 PM options
+                addOptionIfMissing(checkInTime, '14:00:00', '02:00 PM');
+                addOptionIfMissing(checkOutTime, '12:00:00', '12:00 PM');
             } else {
                 checkOutDateGroup.style.display = 'block';
             }
-        });
+        }
 
-        // Handle check-in date change
-        checkInDate.addEventListener('change', function() {
+        reservationType.addEventListener('change', handleReservationTypeChange);
+
+        checkInDate.addEventListener('change', function () {
             if (reservationType.value === 'one_day') {
                 checkOutDate.value = this.value;
             }
         });
+
+        handleReservationTypeChange(); // On load
     });
 </script>
+
 <script>
     function calculateTotalAmount() {
         const quantity = parseInt(document.getElementById('modalRoomQty').value) || 1;
         const priceText = document.getElementById('modalRoomPrice').textContent;
         const price = parseFloat(priceText.replace(/[^0-9.]/g, ''));
-        const checkInDate = new Date(document.getElementById('checkInDate').value);
-        const checkOutDate = new Date(document.getElementById('checkOutDate').value);
+        const checkInDateValue = document.getElementById('checkInDate').value;
+        const checkOutDateValue = document.getElementById('checkOutDate').value;
         const reservationType = document.getElementById('reservationType').value;
+
+        const checkInDate = new Date(checkInDateValue);
+        const checkOutDate = new Date(checkOutDateValue);
 
         if (!isNaN(price) && !isNaN(quantity)) {
             let totalAmount = quantity * price;
-            
+
             if (reservationType === 'overnight') {
-                const timeDiff = checkOutDate - checkInDate;
-                const stayDuration = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-                totalAmount *= stayDuration;
+                if (checkInDateValue && checkOutDateValue && !isNaN(checkInDate) && !isNaN(checkOutDate)) {
+                    const timeDiff = checkOutDate - checkInDate;
+                    const stayDuration = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+                    const validDuration = stayDuration > 0 ? stayDuration : 1;
+                    totalAmount = quantity * price * validDuration;
+                } else {
+                    totalAmount = quantity * price * 1;
+                }
             }
 
             document.getElementById('totalAmount').textContent = totalAmount.toLocaleString('en-US', {
@@ -584,6 +622,24 @@ function decrementQuantity() {
             });
         } else {
             document.getElementById('totalAmount').textContent = '0.00';
+        }
+    }
+
+    function updateDateFields() {
+        const reservationType = document.getElementById('reservationType').value;
+        const checkInDateInput = document.getElementById('checkInDate');
+        const checkOutDateInput = document.getElementById('checkOutDate');
+
+        if (reservationType === 'overnight') {
+            const now = new Date();
+
+            // Set check-in: today 2:00 PM
+            const checkInDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 14, 0);
+            checkInDateInput.value = checkInDate.toISOString().slice(0, 16);
+
+            // Set check-out: tomorrow 12:00 PM
+            const checkOutDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 12, 0);
+            checkOutDateInput.value = checkOutDate.toISOString().slice(0, 16);
         }
     }
 
@@ -601,22 +657,26 @@ function decrementQuantity() {
         }
     }
 
-        document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const quantityInput = document.getElementById('modalRoomQty');
         const checkInDateInput = document.getElementById('checkInDate');
         const checkOutDateInput = document.getElementById('checkOutDate');
-        
+        const reservationTypeInput = document.getElementById('reservationType');
+
         quantityInput.addEventListener('change', calculateTotalAmount);
         quantityInput.addEventListener('input', calculateTotalAmount);
         checkInDateInput.addEventListener('change', calculateTotalAmount);
         checkOutDateInput.addEventListener('change', calculateTotalAmount);
-        
-        // Initialize total amount on modal open
-        $('#reservationModal').on('show.bs.modal', function() {
+        reservationTypeInput.addEventListener('change', function () {
+            updateDateFields(); // auto-fill, not disable
+            calculateTotalAmount();
+        });
+
+        $('#reservationModal').on('show.bs.modal', function () {
+            updateDateFields();
             calculateTotalAmount();
         });
     });
 </script>
 </body>
 </html>
-

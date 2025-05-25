@@ -13,7 +13,7 @@
 <body class="bg-light font-paragraph" style="background: url('{{ asset('images/newbg.png') }}') no-repeat center center fixed; background-size: cover;">
     <div class="container mt-5 px-3">
         <div class="d-flex justify-content-between align-items-center">
-            <a href="{{ route('calendar') }}" class="text-decoration-none">
+            <a href="{{ route('homepage') }}" class="text-decoration-none">
                 <div class="rounded-circle bg-success d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
                     <i class="fa-solid fa-home text-white fs-4"></i>
                 </div>

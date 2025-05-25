@@ -263,7 +263,7 @@
                         <!-- GCash 2 Content -->
                         <div class="tab-pane fade" id="gcash2-content" role="tabpanel" aria-labelledby="gcash2-tab">
                             <div class="d-flex flex-column align-items-center">
-                                <input class="form-check-input d-none" type="radio" name="payment_method" id="gcash" value="gcash2">
+                                <input class="form-check-input d-none" type="radio" name="payment_method" id="gcash" value="gcash">
                                 <div class="bg-secondary p-1 d-flex align-items-center justify-content-center rounded-2" style="width: 400px; height: 400px; background-image: url('{{ asset('images/logosheesh.png') }}'); background-size: cover; background-position: center;">
                                     <img src="{{ asset('images/qrcode.jpg') }}" alt="GCash QR Code 2" style="max-width: 80%; height: auto;">
                                 </div>
