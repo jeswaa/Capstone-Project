@@ -11,6 +11,76 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        @media (max-width: 767.98px) {
+            .col-12 {
+                position: static !important;
+                height: auto !important;
+            }
+
+            .offset-md-4 {
+                margin-left: 0 !important;
+            }
+
+            .offset-lg-3 {
+                margin-left: 0 !important;
+            }
+
+            .px-5 {
+                padding-left: 1rem !important;
+                padding-right: 1rem !important;
+            }
+
+            /* Styling for mobile sidebar */
+            #profileSidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                overflow-y: hidden;
+                display: none;
+                background-color: #0b573d;
+            }
+
+            #profileSidebar.show {
+                display: block;
+            }
+
+            /* Main content styling for mobile */
+            #mainContent {
+                width: 100%;
+                position: relative;
+                height: auto;
+                background: inherit;
+            }
+
+            /* Remove any transitions or transformations */
+            body.sidebar-open #mainContent {
+                margin-top: 1rem;
+            }
+
+            /* Ensure no blank space */
+            .row.g-0 {
+                margin-left: 0 !important;
+                flex-direction: column;
+            }
+        }
+
+        @media (min-width: 768px) {
+            #profileSidebar {
+                transform: none !important;
+            }
+
+            /* Reset order for desktop view */
+            .order-md-1 {
+                order: 1 !important;
+            }
+
+            .order-md-2 {
+                order: 2 !important;
+            }
+        }
+    </style>
 </head>
 
 <body
@@ -124,8 +194,16 @@
     <!-- Main Layout: Profile & Reservation Section -->
     <div class="container-fluid p-0">
         <div class="row g-0">
+            <!-- Burger Menu Button (Visible only on mobile) -->
+            <div class="d-md-none position-fixed top-0 start-0 p-3" style="z-index: 1030;">
+                <button class="btn btn-success" type="button" id="sidebarToggle">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+
             <!-- Profile Card -->
-            <div class="col-12 col-md-4 col-lg-3" style="background-color: #0b573d; min-height: 100vh; z-index: 1;">
+            <div class="col-12 col-md-4 col-lg-3" id="profileSidebar"
+                style="background-color: #0b573d; min-height: 100vh; z-index: 1020;">
                 <div class="p-4 text-white d-flex flex-column">
                     <!-- Back Arrow -->
                     <div class="d-flex justify-content-start align-items-start mb-4">
@@ -192,7 +270,7 @@
             </div>
 
             <!-- Main Content -->
-            <div class="col-12 col-md-8 col-lg-9 px-5 py-3" style="margin-top: 80px;">
+            <div class="col-12 col-md-8 col-lg-9 px-5 py-3" id="mainContent">
                 <div>
                     <p class="fw-bold text-start display-4"><span class="text-white fs-1">Hello,<br></span><span
                             class="text-color-2">{{ $user->name }}</span></p>
@@ -290,12 +368,13 @@
                                         <div class="card-body">
                                             <div class="d-flex justify-content-between">
                                                 <p><strong>Status:</strong>
-                                                    <span class="badge 
-                                                                                    @if(isset($reservation) && $reservation->payment_status == 'paid') bg-success 
-                                                                                    @elseif(isset($reservation) && $reservation->payment_status == 'pending') bg-warning 
-                                                                                    @elseif(isset($reservation) && $reservation->payment_status == 'booked') bg-primary 
-                                                                                        @else bg-danger 
-                                                                                    @endif">
+                                                    <span
+                                                        class="badge 
+                                                                                                                            @if(isset($reservation) && $reservation->payment_status == 'paid') bg-success 
+                                                                                                                            @elseif(isset($reservation) && $reservation->payment_status == 'pending') bg-warning 
+                                                                                                                            @elseif(isset($reservation) && $reservation->payment_status == 'booked') bg-primary 
+                                                                                                                                @else bg-danger 
+                                                                                                                            @endif">
                                                         {{ isset($reservation) ? $reservation->payment_status : 'N/A' }}
                                                     </span>
                                                 </p>
@@ -390,96 +469,69 @@
             </div>
         </div>
     </div>
+    <script>
+        // Add smooth transition for sidebar collapse/expand
+        const sidebar = document.getElementById('profileSidebar');
+        const mainContent = document.querySelector('.col-12.col-md-8.col-lg-9');
 
-    <style>
-        @media (max-width: 767.98px) {
-            .col-12 {
-                position: static !important;
-                height: auto !important;
-            }
-
-            .offset-md-4 {
-                margin-left: 0 !important;
-            }
-
-            .offset-lg-3 {
-                margin-left: 0 !important;
-            }
-
-            .px-5 {
-                padding-left: 1rem !important;
-                padding-right: 1rem !important;
-            }
-        }
-    </style>
+        sidebar.style.transition = 'all 0.3s ease';
+        mainContent.style.transition = 'all 0.3s ease';
+    </script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Set initial states
-            document.getElementById('reservation-list-section').style.display = 'block';
-            document.getElementById('history-section').style.display = 'none';
-
-            // Auto-hide toasts after 5 seconds
-            const toasts = document.querySelectorAll('.toast');
-            toasts.forEach(toast => {
-                const bsToast = new bootstrap.Toast(toast);
-                bsToast.show();
-
-                setTimeout(() => {
-                    bsToast.hide();
-                }, 5000);
-            });
-        });
-
-        function openCancelModal(reservationId) {
-            // Store the reservation ID if needed for the cancellation process
-            document.getElementById("cancelReservationModal").setAttribute("data-reservation-id", reservationId);
-            let modal = new bootstrap.Modal(document.getElementById("cancelReservationModal"));
-            modal.show();
-        }
-
-        function toggleTab(event, sectionToShow, activeTabId, inactiveTabId) {
-            event.preventDefault();
-
-            // Toggle sections visibility
-            document.getElementById('reservation-list-section').style.display = 'none';
-            document.getElementById('history-section').style.display = 'none';
-            document.getElementById(sectionToShow).style.display = 'block';
-
-            // Toggle tab styles
-            document.getElementById(activeTabId).style.backgroundColor = '#0b573d';
-            document.getElementById(activeTabId).style.color = 'white';
-            document.getElementById(inactiveTabId).style.backgroundColor = 'white';
-            document.getElementById(inactiveTabId).style.color = '#0b573d';
-        }
-
-        // Profile menu toggle functionality
-        const profileToggleBtn = document.querySelector('[data-bs-target="#profileContent"]');
-        const profileContent = document.getElementById('profileContent');
-
-        // Toggle menu when clicking the burger icon
-        profileToggleBtn.addEventListener('click', function () {
-            const bsCollapse = bootstrap.Collapse.getInstance(profileContent);
-            if (!bsCollapse) {
-                // Initialize collapse if not yet initialized
-                new bootstrap.Collapse(profileContent);
-            } else {
-                bsCollapse.toggle();
-            }
-        });
-
-        // Close menu when clicking outside
-        document.addEventListener('click', function (event) {
-            if (!profileContent.contains(event.target) &&
-                !profileToggleBtn.contains(event.target) &&
-                profileContent.classList.contains('show')) {
-                const bsCollapse = bootstrap.Collapse.getInstance(profileContent);
-                if (bsCollapse) {
-                    bsCollapse.hide();
-                }
-            }
-        });
+        <script>
+            document.getElementById('sidebarToggle').addEventListener('click', function() {
+                document.body.classList.toggle('sidebar-open');
+            document.getElementById('profileSidebar').classList.toggle('show');
+    });
+    </script>
     </script>
 </body>
+
+<script>
+        document.addEventListener('DOMContentLoaded', function () {
+        var sidebar = document.getElementById('profileSidebar');
+        var mainContent = document.getElementById('mainContent');
+        var toggleBtn = document.getElementById('sidebarToggle');
+        var isSidebarOpen = false;
+
+        function openSidebar() {
+            sidebar.classList.add('show');
+        document.body.classList.add('sidebar-open');
+        isSidebarOpen = true;
+        }
+
+        function closeSidebar() {
+            sidebar.classList.remove('show');
+        document.body.classList.remove('sidebar-open');
+        isSidebarOpen = false;
+        }
+
+        toggleBtn.addEventListener('click', function () {
+            if (isSidebarOpen) {
+            closeSidebar();
+            } else {
+            openSidebar();
+            }
+        });
+
+        // Close sidebar when window is resized to desktop view
+        window.addEventListener('resize', function () {
+            if (window.innerWidth >= 768) {
+            closeSidebar();
+            }
+        });
+
+        // Initialize state
+        if (window.innerWidth < 768) {
+            closeSidebar(); // Ensure sidebar is closed initially on mobile
+        }
+    });
+
+        // Existing tab toggle function
+        function toggleTab(event, showSectionId, activeTabId, inactiveTabId) {
+            // ... existing code ...
+        }
+</script>
 
 </html>
