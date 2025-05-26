@@ -295,6 +295,41 @@
                                 </li>
                             </ul>
 
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function () {
+                                    // Set initial states
+                                    document.getElementById('reservation-list-section').style.display = 'block';
+                                    document.getElementById('history-section').style.display = 'none';
+
+                                    // Auto-hide toasts after 5 seconds
+                                    const toasts = document.querySelectorAll('.toast');
+                                    toasts.forEach(toast => {
+                                        const bsToast = new bootstrap.Toast(toast);
+                                        bsToast.show();
+
+                                        setTimeout(() => {
+                                            bsToast.hide();
+                                        }, 5000);
+                                    });
+                                });
+
+                                function toggleTab(event, sectionToShow, activeTabId, inactiveTabId) {
+                                    event.preventDefault();
+
+                                    // Toggle sections visibility
+                                    document.getElementById('reservation-list-section').style.display = 'none';
+                                    document.getElementById('history-section').style.display = 'none';
+                                    document.getElementById(sectionToShow).style.display = 'block';
+
+                                    // Toggle tab styles
+                                    document.getElementById(activeTabId).style.backgroundColor = '#0b573d';
+                                    document.getElementById(activeTabId).style.color = 'white';
+                                    document.getElementById(inactiveTabId).style.backgroundColor = 'white';
+                                    document.getElementById(inactiveTabId).style.color = '#0b573d';
+                                }
+                            </script>
+
+
                             <!-- Reservation List -->
                             <section id="reservation-list-section">
                                 <h5 class="mb-4 fw-bold text-color-2 border-bottom pb-2">YOUR CURRENT RESERVATION</h5>
@@ -370,11 +405,11 @@
                                                 <p><strong>Status:</strong>
                                                     <span
                                                         class="badge 
-                                                                                                                            @if(isset($reservation) && $reservation->payment_status == 'paid') bg-success 
-                                                                                                                            @elseif(isset($reservation) && $reservation->payment_status == 'pending') bg-warning 
-                                                                                                                            @elseif(isset($reservation) && $reservation->payment_status == 'booked') bg-primary 
-                                                                                                                                @else bg-danger 
-                                                                                                                            @endif">
+                                                                                                                                                @if(isset($reservation) && $reservation->payment_status == 'paid') bg-success 
+                                                                                                                                                @elseif(isset($reservation) && $reservation->payment_status == 'pending') bg-warning 
+                                                                                                                                                @elseif(isset($reservation) && $reservation->payment_status == 'booked') bg-primary 
+                                                                                                                                                    @else bg-danger 
+                                                                                                                                                @endif">
                                                         {{ isset($reservation) ? $reservation->payment_status : 'N/A' }}
                                                     </span>
                                                 </p>
@@ -469,6 +504,27 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function openCancelModal(reservationId) {
+            // Store the reservation ID if needed for the cancellation process
+            document.getElementById("cancelReservationModal").setAttribute("data-reservation-id", reservationId);
+            let modal = new bootstrap.Modal(document.getElementById("cancelReservationModal"));
+            modal.show();
+        }
+
+        function confirmCancel() {
+            // Retrieve the reservation ID
+            let reservationId = document.getElementById("cancelReservationModal").getAttribute("data-reservation-id");
+            // Implement the cancellation logic here, potentially an AJAX request to cancel the reservation
+            console.log("Reservation ID to cancel:", reservationId);
+            // Close the modal after cancellation
+            let modal = bootstrap.Modal.getInstance(document.getElementById("cancelReservationModal"));
+            modal.hide();
+        }
+    </script>
+
+
     <script>
         // Add smooth transition for sidebar collapse/expand
         const sidebar = document.getElementById('profileSidebar');
@@ -489,49 +545,89 @@
 </body>
 
 <script>
-        document.addEventListener('DOMContentLoaded', function () {
+            document.addEventListener('DOMContentLoaded', function () {
         var sidebar = document.getElementById('profileSidebar');
-        var mainContent = document.getElementById('mainContent');
-        var toggleBtn = document.getElementById('sidebarToggle');
-        var isSidebarOpen = false;
+            var mainContent = document.getElementById('mainContent');
+            var toggleBtn = document.getElementById('sidebarToggle');
+            var isSidebarOpen = false;
 
-        function openSidebar() {
-            sidebar.classList.add('show');
-        document.body.classList.add('sidebar-open');
-        isSidebarOpen = true;
+            function openSidebar() {
+                sidebar.classList.add('show');
+            document.body.classList.add('sidebar-open');
+            isSidebarOpen = true;
         }
 
-        function closeSidebar() {
-            sidebar.classList.remove('show');
-        document.body.classList.remove('sidebar-open');
-        isSidebarOpen = false;
+            function closeSidebar() {
+                sidebar.classList.remove('show');
+            document.body.classList.remove('sidebar-open');
+            isSidebarOpen = false;
         }
 
-        toggleBtn.addEventListener('click', function () {
+            toggleBtn.addEventListener('click', function () {
             if (isSidebarOpen) {
-            closeSidebar();
+                closeSidebar();
             } else {
-            openSidebar();
+                openSidebar();
             }
         });
 
-        // Close sidebar when window is resized to desktop view
-        window.addEventListener('resize', function () {
+            // Close sidebar when window is resized to desktop view
+            window.addEventListener('resize', function () {
             if (window.innerWidth >= 768) {
-            closeSidebar();
+                closeSidebar();
             }
         });
 
-        // Initialize state
-        if (window.innerWidth < 768) {
-            closeSidebar(); // Ensure sidebar is closed initially on mobile
+            // Initialize state
+            if (window.innerWidth < 768) {
+                closeSidebar(); // Ensure sidebar is closed initially on mobile
         }
     });
 
-        // Existing tab toggle function
-        function toggleTab(event, showSectionId, activeTabId, inactiveTabId) {
-            // ... existing code ...
+            // Existing tab toggle function
+            <script>
+                function toggleTab(event, showSectionId, activeTabId, inactiveTabId) {
+                    // Prevent default link behavior
+                    event.preventDefault();
+
+                // Hide all sections first
+                document.getElementById('reservation-list-section').style.display = 'none';
+                document.getElementById('history-section').style.display = 'none';
+
+                // Show the selected section
+                document.getElementById(showSectionId).style.display = 'block';
+
+                // Update active tab styles
+                document.getElementById(activeTabId).classList.add('active');
+                document.getElementById(activeTabId).style.backgroundColor = '#0b573d';
+                document.getElementById(activeTabId).style.color = 'white';
+
+                // Update inactive tab styles
+                document.getElementById(inactiveTabId).classList.remove('active');
+                document.getElementById(inactiveTabId).style.backgroundColor = 'white';
+                document.getElementById(inactiveTabId).style.color = '#0b573d';
         }
+
+                // Initialize the tabs on page load
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Show reservation section by default
+                    document.getElementById('reservation-list-section').style.display = 'block';
+                document.getElementById('history-section').style.display = 'none';
+
+                // Set initial tab styles
+                document.getElementById('reservation-tab').style.backgroundColor = '#0b573d';
+                document.getElementById('reservation-tab').style.color = 'white';
+                document.getElementById('history-tab').style.backgroundColor = 'white';
+                document.getElementById('history-tab').style.color = '#0b573d';
+        });
+                <script>
+                    function toggleHistory(event, sectionToShow) {
+                        event.preventDefault();
+                    document.getElementById('reservation-list-section').style.display = (sectionToShow === 'reservation-list-section') ? 'block' : 'none';
+                    document.getElementById('history-section').style.display = (sectionToShow === 'history-section') ? 'block' : 'none';
+        }
+</script>
+</script>
 </script>
 
 </html>
