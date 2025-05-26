@@ -103,7 +103,7 @@ Route::get('/profile/edit', [HomePageController::class, 'editProfile'])->name('e
 Route::post('/profile/edit', [HomePageController::class, 'editProfile'])->name('editProfile.post');
 Route::post('/reservation/cancel/{id}', [ReservationController::class, 'guestcancelReservation'])->name('guestcancelReservation');
 Route::get('/reservation-summary/{id}', [ReservationController::class, 'displayReservationSummary'])->name('displaySummary');
-//qr code
+Route::get('/get-all-reservations', [HomePageController::class, 'getAllReservations'])->name('getAllReservations');
 Route::get('/reservation-summary/{id}', [ReservationController::class,'reservationSummary'])->name('reservation.summary');
 Route::get('/user-logout', [HomePageController::class, 'userlogout'])->name('logout.user');
 // Reservation
@@ -116,6 +116,7 @@ Route::get('/check-accommodation-availability', [ReservationController::class, '
 Route::get('/reservation/fetch-addons', [ReservationController::class, 'fetchAddons'])->name('fetchAddons');
 Route::get('/reservation/payment-process', [ReservationController::class, 'paymentProcess'])->name('paymentProcess');
 Route::get('/reservation/display-summary', [ReservationController::class, 'displayReservationSummary'])->name('summary');
+Route::post('/reservation/feedback', [ReservationController::class, 'feedback'])->name('feedback.store');
 
 // Display the credentials of the login user
 Route::post('/reservation-personal', [ReservationController::class, 'fetchUserData'])->name('fetchUserData');

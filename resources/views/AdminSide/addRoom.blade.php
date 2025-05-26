@@ -42,6 +42,12 @@
 <body style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
     <div class="container-fluid min-vh-100 d-flex p-0">
         @include('Alert.loginSuccessUser')
+        @if(session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
         @include('Navbar.sidenavbar')
         <!-- Main Content -->
         <div class="col-md-9 col-lg-10 py-4 px-4">
@@ -137,6 +143,7 @@
                                 <th scope="col">Room Name</th>
                                 <th scope="col">Room Type</th>
                                 <th scope="col">Description</th>
+                                <th scope="col">Amenities</th>
                                 <th scope="col">Room Capacity</th>
                                 <th scope="col">Quantity</th>
                                 <th scope="col">Price</th>
@@ -154,6 +161,7 @@
                                 <td>{{ $accomodation->accomodation_name }}</td>
                                 <td>{{ $accomodation->accomodation_type }}</td>
                                 <td>{{ $accomodation->accomodation_description}}</td>
+                                <td>{{ $accomodation->amenities }}</td>
                                 <td>{{ $accomodation->accomodation_capacity }}</td>
                                 <td>{{ $accomodation->quantity}}</td>
                                 <td>{{ $accomodation->accomodation_price }}</td>
@@ -173,59 +181,89 @@
                             </tr>
                             <!-- Edit Room Modal -->
                             <div class="modal fade" id="editRoomModal{{ $accomodation->accomodation_id }}" tabindex="-1" aria-labelledby="editRoomModalLabel{{ $accomodation->accomodation_id }}" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="editRoomModalLabel{{ $accomodation->accomodation_id }}">Edit Room</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content rounded-4 shadow">
+                                        <div class="modal-header border-0" style="background-color: #0b573d;">
+                                            <h5 class="modal-title text-white text-uppercase" style="font-family: 'Anton', sans-serif; letter-spacing: 0.1em;" id="editRoomModalLabel{{ $accomodation->accomodation_id }}">Edit Room</h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
-                                        <div class="modal-body">
-                                            <form method="POST" action="{{ route('updateRoom', ['id' => $accomodation->accomodation_id]) }}" enctype="multipart/form-data">
+                                        <div class="modal-body p-4">
+                                            <form method="POST" action="{{ route('updateRoom', ['id' => $accomodation->accomodation_id]) }}" enctype="multipart/form-data" class="needs-validation" novalidate>
                                                 @csrf
                                                 @method('PUT')
                                                 <input type="hidden" id="editRoomId" name="room_id" value="{{ $accomodation->accomodation_id }}">
-                                                <div class="mb-3">
-                                                    <label for="editRoomId{{ $accomodation->accomodation_id }}" class="form-label">Room ID</label>
-                                                    <input type="text" class="form-control" id="editRoomId{{ $accomodation->accomodation_id }}" name="room_id" required value="{{ $accomodation->room_id }}">
+                                                
+                                                <div class="row g-4">
+                                                    <!-- Room ID and Image Section -->
+                                                    <div class="col-md-6">
+                                                        <label for="editRoomId{{ $accomodation->accomodation_id }}" class="form-label fw-bold text-color-2">Room ID</label>
+                                                        <input type="text" class="form-control form-control-lg border-2 rounded-3" id="editRoomId{{ $accomodation->accomodation_id }}" name="room_id" required value="{{ $accomodation->room_id }}">
+                                                    </div>
+                                                    
+                                                    <div class="col-md-6">
+                                                        <label for="editRoomImage{{ $accomodation->accomodation_id }}" class="form-label fw-bold text-color-2">Image</label>
+                                                        <input type="file" class="form-control form-control-lg border-2 rounded-3" id="editRoomImage{{ $accomodation->accomodation_id }}" name="accomodation_image" accept="image/*" onchange="previewImage(event, 'preview{{ $accomodation->accomodation_id }}')">
+                                                        <div class="mt-3 text-center">
+                                                            <img id="preview{{ $accomodation->accomodation_id }}" src="{{ asset('storage/' . $accomodation->accomodation_image) }}" alt="Preview" class="rounded-3 shadow-sm" style="max-width: 200px; height: auto;">
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Name and Type Section -->
+                                                    <div class="col-md-6">
+                                                        <label for="editRoomName{{ $accomodation->accomodation_id }}" class="form-label fw-bold text-color-2">Name</label>
+                                                        <input type="text" class="form-control form-control-lg border-2 rounded-3" id="editRoomName{{ $accomodation->accomodation_id }}" name="accomodation_name" required value="{{ $accomodation->accomodation_name }}">
+                                                    </div>
+                                                    
+                                                    <div class="col-md-6">
+                                                        <label for="editRoomType{{ $accomodation->accomodation_id }}" class="form-label fw-bold text-color-2">Type</label>
+                                                        <select class="form-select form-select-lg border-2 rounded-3" id="editRoomType{{ $accomodation->accomodation_id }}" name="accomodation_type" required>
+                                                            <option value="room" {{ $accomodation->accomodation_type == 'room' ? 'selected' : '' }}>Room</option>
+                                                            <option value="cottage" {{ $accomodation->accomodation_type == 'cottage' ? 'selected' : '' }}>Cottage</option>
+                                                            <option value="cabin" {{ $accomodation->accomodation_type == 'cabin' ? 'selected' : '' }}>Cabin</option>
+                                                        </select>
+                                                    </div>
+
+                                                    <!-- Description and Amenities Section -->
+                                                    <div class="col-12">
+                                                        <label for="editRoomDescription{{ $accomodation->accomodation_id }}" class="form-label fw-bold text-color-2">Description</label>
+                                                        <textarea class="form-control form-control-lg border-2 rounded-3" id="editRoomDescription{{ $accomodation->accomodation_id }}" name="accomodation_description" rows="3">{{ $accomodation->accomodation_description }}</textarea>
+                                                    </div>
+                                                    
+                                                    <div class="col-12">
+                                                        <label for="editRoomAmenities{{ $accomodation->accomodation_id }}" class="form-label fw-bold text-color-2">Amenities</label>
+                                                        <textarea class="form-control form-control-lg border-2 rounded-3" id="editRoomAmenities{{ $accomodation->accomodation_id }}" name="amenities" rows="3" placeholder="Enter amenities (e.g., WiFi, TV, Air Conditioning)">{{ $accomodation->amenities }}</textarea>
+                                                    </div>
+
+                                                    <!-- Capacity, Quantity, and Price Section -->
+                                                    <div class="col-md-4">
+                                                        <label for="editRoomCapacity{{ $accomodation->accomodation_id }}" class="form-label fw-bold text-color-2">Capacity</label>
+                                                        <input type="number" class="form-control form-control-lg border-2 rounded-3" id="editRoomCapacity{{ $accomodation->accomodation_id }}" name="accomodation_capacity" min="1" required value="{{ $accomodation->accomodation_capacity }}">
+                                                    </div>
+                                                    
+                                                    <div class="col-md-4">
+                                                        <label for="editRoomQuantity{{ $accomodation->accomodation_id }}" class="form-label fw-bold text-color-2">Quantity</label>
+                                                        <input type="number" class="form-control form-control-lg border-2 rounded-3" id="editRoomQuantity{{ $accomodation->accomodation_id }}" name="quantity" min="1" required value="{{ $accomodation->quantity }}">
+                                                    </div>
+                                                    
+                                                    <div class="col-md-4">
+                                                        <label for="editRoomPrice{{ $accomodation->accomodation_id }}" class="form-label fw-bold text-color-2">Price</label>
+                                                        <input type="number" class="form-control form-control-lg border-2 rounded-3" id="editRoomPrice{{ $accomodation->accomodation_id }}" name="accomodation_price" min="0" required value="{{ $accomodation->accomodation_price }}">
+                                                    </div>
+
+                                                    <!-- Status Section -->
+                                                    <div class="col-12">
+                                                        <label for="editRoomStatus{{ $accomodation->accomodation_id }}" class="form-label fw-bold text-color-2">Status</label>
+                                                        <select class="form-select form-select-lg border-2 rounded-3" id="editRoomStatus{{ $accomodation->accomodation_id }}" name="accomodation_status" required>
+                                                            <option value="available" {{ $accomodation->accomodation_status == 'available' ? 'selected' : '' }}>Available</option>
+                                                            <option value="unavailable" {{ $accomodation->accomodation_status == 'unavailable' ? 'selected' : '' }}>Not Available</option>
+                                                        </select>
+                                                    </div>
                                                 </div>
-                                                <div class="mb-3">
-                                                    <label for="editRoomImage{{ $accomodation->accomodation_id }}" class="form-label">Image</label>
-                                                    <input type="file" class="form-control" id="editRoomImage{{ $accomodation->accomodation_id }}" name="accomodation_image" accept="image/*" onchange="previewImage(event, 'preview{{ $accomodation->accomodation_id }}')">
-                                                    <img id="preview{{ $accomodation->accomodation_id }}" src="{{ asset('storage/' . $accomodation->accomodation_image) }}" alt="Preview" width="100" height="100">
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label for="editRoomName{{ $accomodation->accomodation_id }}" class="form-label">Name</label>
-                                                    <input type="text" class="form-control" id="editRoomName{{ $accomodation->accomodation_id }}" name="accomodation_name" required value="{{ $accomodation->accomodation_name }}">
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label for="editRoomType{{ $accomodation->accomodation_id }}" class="form-label">Type</label>
-                                                    <select class="form-select" id="editRoomType{{ $accomodation->accomodation_id }}" name="accomodation_type" required>
-                                                        <option value="room" {{ $accomodation->accomodation_type == 'room' ? 'selected' : '' }}>Room</option>
-                                                        <option value="cottage" {{ $accomodation->accomodation_type == 'cottage' ? 'selected' : '' }}>Cottage</option>
-                                                        <option value="cabin" {{ $accomodation->accomodation_type == 'cabin' ? 'selected' : '' }}>Cabin</option>
-                                                    </select>
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label for="editRoomDescription{{ $accomodation->accomodation_id }}" class="form-label">Description</label>
-                                                    <textarea class="form-control" id="editRoomDescription{{ $accomodation->accomodation_id }}" name="accomodation_description" rows="3">{{ $accomodation->accomodation_description }}</textarea>
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label for="editRoomCapacity{{ $accomodation->accomodation_id }}" class="form-label">Capacity</label>
-                                                    <input type="number" class="form-control" id="editRoomCapacity{{ $accomodation->accomodation_id }}" name="accomodation_capacity" min="1" required value="{{ $accomodation->accomodation_capacity }}">
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label for="editRoomPrice{{ $accomodation->accomodation_id }}" class="form-label">Price</label>
-                                                    <input type="number" class="form-control" id="editRoomPrice{{ $accomodation->accomodation_id }}" name="accomodation_price" min="0" required value="{{ $accomodation->accomodation_price }}">
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label for="editRoomStatus{{ $accomodation->accomodation_id }}" class="form-label">Status</label>
-                                                    <select class="form-select" id="editRoomStatus{{ $accomodation->accomodation_id }}" name="accomodation_status" required>
-                                                        <option value="available" {{ $accomodation->accomodation_status == 'available' ? 'selected' : '' }}>Available</option>
-                                                        <option value="unavailable" {{ $accomodation->accomodation_status == 'unavailable' ? 'selected' : '' }}>Not Available</option>
-                                                    </select>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+
+                                                <!-- Footer Buttons -->
+                                                <div class="modal-footer border-0 pt-4">
+                                                    <button type="button" class="btn btn-secondary btn-lg rounded-3 px-4" data-bs-dismiss="modal">Cancel</button>
+                                                    <button type="submit" class="btn btn-lg rounded-3 px-4 text-white" style="background-color: #0b573d;">Save Changes</button>
                                                 </div>
                                             </form>
                                         </div>
@@ -337,6 +375,10 @@
                                 <label for="accomodationDescription" class="form-label fw-semibold">Description</label>
                                 <textarea class="form-control border-2" id="accomodationDescription" name="accomodation_description" rows="3"></textarea>
                             </div>
+                            <div class="col-12">
+                                <label for="accomodationDescription" class="form-label fw-semibold">Amenities</label>
+                                <textarea class="form-control border-2" id="accomodationDescription" name="amenities" rows="3"></textarea>
+                            </div>
                             <div class="col-md-6">
                                 <label for="accomodationCapacity" class="form-label fw-semibold">Capacity</label>
                                 <input type="number" class="form-control border-2" id="accomodationCapacity" name="accomodation_capacity" min="1" required>
@@ -382,11 +424,18 @@
             editButtons.forEach(button => {
                 button.addEventListener("click", function () {
                     const row = button.closest("tr");
-                    const roomId = row.querySelector("input[name='room_id']").value;
-                    document.getElementById("editRoomName" + roomId).value = row.cells[1].textContent.trim();
-                    document.getElementById("editRoomType" + roomId).value = row.cells[2].textContent.trim();
-                    document.getElementById("editRoomCapacity" + roomId).value = row.cells[3].textContent.trim();
-                    document.getElementById("editRoomPrice" + roomId).value = row.cells[4].textContent.trim();
+                    const accomodationId = button.getAttribute("data-bs-target").replace("#editRoomModal", "");
+                    
+                    // Update all form fields with current values
+                    document.getElementById(`editRoomId${accomodationId}`).value = row.cells[0].textContent.trim();
+                    document.getElementById(`editRoomName${accomodationId}`).value = row.cells[2].textContent.trim();
+                    document.getElementById(`editRoomType${accomodationId}`).value = row.cells[3].textContent.trim().toLowerCase();
+                    document.getElementById(`editRoomDescription${accomodationId}`).value = row.cells[4].textContent.trim();
+                    document.getElementById(`editRoomAmenities${accomodationId}`).value = row.cells[5].textContent.trim();
+                    document.getElementById(`editRoomCapacity${accomodationId}`).value = row.cells[6].textContent.trim();
+                    document.getElementById(`editRoomQuantity${accomodationId}`).value = row.cells[7].textContent.trim();
+                    document.getElementById(`editRoomPrice${accomodationId}`).value = row.cells[8].textContent.trim();
+                    document.getElementById(`editRoomStatus${accomodationId}`).value = row.cells[9].textContent.trim().toLowerCase();
                 });
             });
         });

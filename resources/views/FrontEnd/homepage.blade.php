@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css">
     <link href="https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <style>
@@ -38,39 +38,82 @@
     .room-card, .room-card * {
         user-select: none;
     }
+
+    .navbar-nav .nav-link {
+        color: #0b573d;
+        font-family: 'Josefin Sans', sans-serif;
+        transition: color 0.3s;
+    }
+
+    .navbar-nav .nav-link:hover {
+        color: white;
+    }
+
+    /* Hover for small screens */
+    @media (max-width: 991px) {
+        .navbar-nav {
+            flex-direction: column;
+            align-items: stretch;
+            background-color: rgba(11, 87, 61, 0.95);
+            padding: 0;
+            border-radius: 0.8rem;
+            width: 200px;
+            margin-left: auto;
+            backdrop-filter: blur(8px);
+            overflow: hidden;
+        }
+
+        .navbar-nav .nav-item {
+            width: 100%;
+        }
+
+        .navbar-nav .nav-link {
+            color: white !important;
+            padding: 1rem;
+            width: 100%;
+            text-align: center;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+            margin: 0;
+            border-radius: 0;
+            border-bottom: 2px solid #e6f4e6; /* separator line */
+        }
+        .navbar-nav .nav-item:last-child .nav-link {
+            border-bottom: none; /* walang separator sa huli */
+        }
+    }
 </style>
 <body>
-    <nav class="navbar navbar-expand-lg  position-absolute top-0 w-100 mt-5" style="z-index: 10;">
+<nav class="navbar navbar-expand-lg position-absolute top-0 w-100 mt-4" style="z-index: 10;">
         <div class="container">
+            <a href="{{ route('profile') }}" class="text-decoration-none me-auto">
+                <div class="profile-icon d-flex align-items-center justify-content-center" 
+                     style="width: 45px; 
+                            height: 45px; 
+                            background-color: #0b573d;
+                            border-radius: 50%;
+                            transition: all 0.3s ease;
+                            box-shadow: 0 2px 5px rgba(0,0,0,0.2);"
+                     onmouseover="this.style.transform='scale(1.1)'; this.style.backgroundColor='#0d6a4a';" 
+                     onmouseout="this.style.transform='scale(1)'; this.style.backgroundColor='#0b573d';">
+                    <i class="fa-solid fa-user fa-lg" style="color: #ffffff;"></i>
+                </div>
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase me-4 text-underline-left-to-right" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#rooms">Rooms</a>
+                        <a class="nav-link fw-semibold text-uppercase text-decoration-none" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif; transition: color 0.3s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#0b573d'" href="#rooms">Rooms</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase me-4 text-underline-left-to-right" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#activities">Activities</a>
+                        <a class="nav-link fw-semibold text-uppercase text-decoration-none" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif; transition: color 0.3s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#0b573d'" href="#activities">Activities</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase me-4 text-underline-left-to-right" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif" href="#">Reservations</a>
+                        <a class="nav-link fw-semibold text-uppercase text-decoration-none" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif; transition: color 0.3s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#0b573d'" href="{{route ('getAllReservations')}}">Reservations</a>
                     </li>
                 </ul>
-                <a href="{{ route('profile') }}" class="text-decoration-none">
-                    <div class="profile-icon d-flex align-items-center justify-content-center" 
-                         style="width: 45px; 
-                                height: 45px; 
-                                background-color: #0b573d;
-                                border-radius: 50%;
-                                transition: all 0.3s ease;
-                                box-shadow: 0 2px 5px rgba(0,0,0,0.2);"
-                         onmouseover="this.style.transform='scale(1.1)'; this.style.backgroundColor='#0d6a4a';" 
-                         onmouseout="this.style.transform='scale(1)'; this.style.backgroundColor='#0b573d';">
-                        <i class="fa-solid fa-user fa-lg" style="color: #ffffff;"></i>
-                    </div>
-                </a>
-                </a>
             </div>
         </div>
     </nav>
@@ -155,7 +198,8 @@
                                  data-room="{{ $accommodation->accomodation_name }}"
                                  data-roomid="{{ $accommodation->accomodation_id }}"
                                  data-roomimg="{{ asset('storage/' . $accommodation->accomodation_image) }}"
-                                 data-roomprice="{{ number_format($accommodation->accomodation_price, 2) }}">
+                                 data-roomprice="{{ number_format($accommodation->accomodation_price, 2) }}"
+                                 data-roomcapacity="{{ $accommodation->accomodation_capacity }}">
                                 <div class="position-relative">
                                     <img src="{{ asset('storage/' . $accommodation->accomodation_image) }}" 
                                          class="card-img-top" 
@@ -220,7 +264,7 @@
                 @endif
                 
                 <div class="modal-body">
-                    <div class="row g-4 align-items-center">
+                        <div class="row g-4 align-items-center">
                         <!-- Column 1: Room Info -->
                         <div class="col-md-4 text-center">
                             <img id="modalRoomImg" src="" alt="Room Image" class="img-fluid rounded mb-3" style="max-height: 200px; border-radius: 20px; object-fit: cover; border: 2px solid #0b573d;">
@@ -231,7 +275,7 @@
                                 </span>
                             </div>
                             <div class="mb-3">
-                                <label for="modalRoomQty" class="form-label" style="color: #0b573d;">Quantity</label>
+                                <label for="modalRoomQty" class="form-label" style="color: #0b573d;">Quantity</label>   
                                 <div class="input-group" style="width: 150px; margin: 0 auto;">
                                     <button type="button" class="btn btn-success" onclick="decrementQuantity()" style="background-color: #0b573d; height: 38px;">
                                         <i class="fas fa-minus"></i>
@@ -250,7 +294,7 @@
                             <div class="card-body p-3">
                                 <div class="mb-3">
                                   <label for="numAdults" class="form-label" style="color: #0b573d;">Number of Adults</label>
-                                  <input type="number" min="1" value="1" class="form-control border-success" id="numAdults" name="number_of_adults" required>
+                                  <input type="number" min="0" value="0" class="form-control border-success" id="numAdults" name="number_of_adults" required>
                                 </div>
                                 <div class="mb-3">
                                   <label for="numChildren" class="form-label" style="color: #0b573d;">Number of Children</label>
@@ -278,17 +322,30 @@
                                 </div>
                                 <div class="mb-3" id="checkOutDateGroup" style="display: none;">
                                   <label for="checkOutDate" class="form-label" style="color: #0b573d;">Check-out Date</label>
-                                  <input type="date" class="form-control border-success" id="checkOutDate" name="reservation_check_out_date" required>
+                                  <input type="date" class="form-control border-success" id="checkOutDate" name="reservation_check_out_date">
                                 </div>
                                 <div class="mb-3">
                                   <label for="checkInTime" class="form-label" style="color: #0b573d;">Check-in Time</label>
-                                  <input type="time" class="form-control border-success" id="checkInTime" name="reservation_check_in" required>
-
-                                </div>
-                                <div class="mb-3">
+                                  <select class="form-control border-success" id="checkInTime" name="reservation_check_in" required>
+                                      @php
+                                          $uniqueStartTimes = $transactions->unique('start_time');
+                                      @endphp
+                                      @foreach($uniqueStartTimes as $transaction)
+                                          <option value="{{ $transaction->start_time }}">{{ date('h:i A', strtotime($transaction->start_time)) }}</option>
+                                      @endforeach
+                                  </select>
+                              </div>
+                              <div class="mb-3">
                                   <label for="checkOutTime" class="form-label" style="color: #0b573d;">Check-out Time</label>
-                                  <input type="time" class="form-control border-success" id="checkOutTime" name="reservation_check_out" required>
-                                </div>
+                                  <select class="form-control border-success" id="checkOutTime" name="reservation_check_out" required>
+                                      @php
+                                          $uniqueEndTimes = $transactions->unique('end_time');
+                                      @endphp
+                                      @foreach($uniqueEndTimes as $transaction)
+                                          <option value="{{ $transaction->end_time }}">{{ date('h:i A', strtotime($transaction->end_time)) }}</option>
+                                      @endforeach
+                                  </select>
+                              </div>
                             </div>
                         </div>
                         <!-- Activities Section - Updated Design -->
@@ -322,8 +379,15 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer" style="border-bottom-left-radius: 24px; border-bottom-right-radius: 24px;">
-                    <button type="submit" class="btn btn-light px-4 fw-bold" style="border-radius: 25px; color: #0b573d; border: 2px solid #0b573d;">Reserve</button>
+                <div class="modal-footer d-flex justify-content-end align-items-center gap-3">
+                    <div class="badge" 
+                        style="background-color: #0b573d; 
+                                font-size: clamp(1rem, 2.5vw, 1.2rem);
+                                padding: clamp(8px, 2vw, 18px);">
+                        <span class="text-nowrap">Amount to pay: </span>
+                        <span class="ms-1">₱<span id="totalAmount"></span></span>
+                    </div>
+                    <button type="submit" class="btn btn-success" id="reserveButton" style="background-color: #0b573d;">Reserve</button>
                 </div>
             </form>
         </div>
@@ -385,145 +449,236 @@
             </div>
         </div>
     </section>
-     <!-- footer section -->                                   
+      <!-- footer section -->
     <footer style="background-color: #0b573d; height: auto; padding: 20px;">
-    <div class="container">
-        <div class="row">
-            <!-- Left Side: Smaller App Icon -->
-            <div class="col-md-6 d-flex justify-content-start align-items-center">
-                <img src="{{ asset('images/appicon.png') }}" class="img-fluid" alt="App Icon" style="height: 100px;">
-            </div>
+        <div class="container">
+            <div class="row align-items-center">
+                <!-- Left: App Icon -->
+                <div class="col-md-2 d-flex justify-content-start align-items-center">
+                    <img src="{{ asset('images/appicon.png') }}" class="img-fluid" alt="App Icon" style="height: 90px;">
+                </div>
 
-            <!-- Right Side: Facebook Link -->
-            <div class="col-md-6 d-flex justify-content-end align-items-center">
-                <a href="https://www.facebook.com/lelosmountainresort" target="_blank" class="text-white fs-6 text-center">
-                    <i style="color: #0a66c2" class="bi bi-facebook fs-3"></i>
-                </a>
+                <!-- Spacer or optional center -->
+                <div class="col-md-7"></div>
+
+                <!-- Right: Facebook + Contact -->
+                <div class="col-md-3 d-flex flex-column align-items-end text-white">
+                    <a href="https://www.facebook.com/lelosmountainresort" target="_blank"
+                        class="text-white d-flex align-items-center gap-2 mb-1">
+                        <i class="bi bi-facebook fs-4" style="color: #0a66c2;"></i>
+                        <span class="text-white">Lelo's Mountain Resort</span>
+                    </a>
+                    <span>Contact: +63 912 345 6789</span>
+                </div>
             </div>
         </div>
-    </div>
-</footer>
+    </footer>
+
 <script>
+let roomCapacity = 0;
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Reservation Modal Event Handler
+    $('#reservationModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var roomName = button.data('room');
+        var roomId = button.data('roomid');
+        var roomImg = button.data('roomimg');
+        var roomPrice = button.data('roomprice');
+        roomCapacity = button.data('roomcapacity');
+        
+        // Update modal content
+        var modal = $(this);
+        modal.find('#modalRoomName').text(roomName);
+        modal.find('#modalRoomId').val(roomId);
+        modal.find('#modalRoomImg').attr('src', roomImg);
+        modal.find('#modalRoomPrice').text('₱ ' + roomPrice);
+        
+        // Reset form values
+        modal.find('#modalRoomQty').val(1);
+        modal.find('#numAdults').val(1);
+        modal.find('#numChildren').val(0);
+        updateTotalGuests();
+    });
+
+    // Function para sa pag-update ng total guests
+    function updateTotalGuests() {
+        var adults = parseInt($('#numAdults').val()) || 0;
+        var children = parseInt($('#numChildren').val()) || 0;
+        var quantity = parseInt($('#modalRoomQty').val()) || 1;
+        var totalCapacity = roomCapacity * quantity;
+        var totalGuests = adults + children;
+        
+        $('#totalGuest').val(totalGuests);
+        
+        var errorDiv = $('#capacityError');
+        if (!errorDiv.length) {
+            $('#totalGuest').after('<div id="capacityError" class="text-danger mt-2"></div>');
+            errorDiv = $('#capacityError');
+        }
+        
+        if (totalGuests > totalCapacity) {
+            errorDiv.text(`Exceeded maximum capacity of ${totalCapacity} guests!`);
+            $('#reserveButton').prop('disabled', true);
+        } else {
+            errorDiv.text('');
+            $('#reserveButton').prop('disabled', false);
+        }
+    }
+
+    // Event listeners para sa pag-update ng total guests
+    $('#numAdults, #numChildren, #modalRoomQty').on('change', updateTotalGuests);
+});
+
+// Functions para sa quantity buttons
 function incrementQuantity() {
     var input = document.getElementById('modalRoomQty');
     input.value = parseInt(input.value) + 1;
+    input.dispatchEvent(new Event('change'));
 }
 
 function decrementQuantity() {
     var input = document.getElementById('modalRoomQty');
     if (parseInt(input.value) > 1) {
         input.value = parseInt(input.value) - 1;
+        input.dispatchEvent(new Event('change'));
     }
 }
 </script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    var reservationModal = document.getElementById('reservationModal');
-    var reservationForm = document.getElementById('reservationForm');
-    var reservationTypeSelect = document.getElementById('reservationType');
+    document.addEventListener('DOMContentLoaded', function () {
+        const reservationType = document.getElementById('reservationType');
+        const checkInDate = document.getElementById('checkInDate');
+        const checkOutDate = document.getElementById('checkOutDate');
+        const checkOutDateGroup = document.getElementById('checkOutDateGroup');
+        const checkInTime = document.getElementById('checkInTime');
+        const checkOutTime = document.getElementById('checkOutTime');
 
-    // Initial set on modal show
-    reservationModal.addEventListener('show.bs.modal', function (event) {
-        var card = event.relatedTarget;
-        
-        // Para sa input fields (hidden)
-        var accommodationId = card.getAttribute('data-roomid');
-        document.getElementById('modalRoomId').name = 'accomodation_id';
-        document.getElementById('modalRoomId').value = accommodationId;
-        
-        // Para sa ibang fields
-        document.getElementById('modalRoomImg').src = card.getAttribute('data-roomimg');
-        document.getElementById('modalRoomQty').value = 1;
-        document.getElementById('modalRoomName').textContent = card.getAttribute('data-room');
-        document.getElementById('modalRoomPrice').textContent = '₱ ' + card.getAttribute('data-roomprice');
-        
-        // Reset all form fields
-        document.getElementById('reservationType').value = 'one_day';
-        document.getElementById('checkInDate').value = '';
-        document.getElementById('checkInTime').value = '';
-        document.getElementById('checkOutDate').value = '';
-        document.getElementById('checkOutTime').value = '';
-        document.getElementById('checkOutDateGroup').style.display = 'none';
-        document.getElementById('checkOutTimeGroup').style.display = 'none';
-        
-        updateFormAction();
+        function addOptionIfMissing(selectElement, value, label) {
+            const exists = Array.from(selectElement.options).some(opt => opt.value === value);
+            if (!exists) {
+                const newOption = document.createElement('option');
+                newOption.value = value;
+                newOption.textContent = label;
+                selectElement.appendChild(newOption);
+            }
+            selectElement.value = value;
+        }
+
+        function handleReservationTypeChange() {
+            if (reservationType.value === 'one_day') {
+                checkOutDateGroup.style.display = 'none';
+                checkOutDate.value = checkInDate.value;
+            } else if (reservationType.value === 'overnight') {
+                checkOutDateGroup.style.display = 'block';
+
+                // Add/check 2:00 PM and 12:00 PM options
+                addOptionIfMissing(checkInTime, '14:00:00', '02:00 PM');
+                addOptionIfMissing(checkOutTime, '12:00:00', '12:00 PM');
+            } else {
+                checkOutDateGroup.style.display = 'block';
+            }
+        }
+
+        reservationType.addEventListener('change', handleReservationTypeChange);
+
+        checkInDate.addEventListener('change', function () {
+            if (reservationType.value === 'one_day') {
+                checkOutDate.value = this.value;
+            }
+        });
+
+        handleReservationTypeChange(); // On load
     });
+</script>
 
-    // Logic para sa reservation type at form action
-    reservationTypeSelect.addEventListener('change', function() {
-        var type = this.value;
-        var checkOutDateGroup = document.getElementById('checkOutDateGroup');
-        var checkOutTimeGroup = document.getElementById('checkOutTimeGroup');
-        var checkIn = document.getElementById('checkInDate');
-        var checkOut = document.getElementById('checkOutDate');
-        var checkOutTime = document.getElementById('checkOutTime');
-        
-        if(type === 'overnight') {
-            checkOutDateGroup.style.display = 'block';
-            checkOutTimeGroup.style.display = 'block';
-            checkOut.required = true;
-            checkOutTime.required = true;
+<script>
+    function calculateTotalAmount() {
+        const quantity = parseInt(document.getElementById('modalRoomQty').value) || 1;
+        const priceText = document.getElementById('modalRoomPrice').textContent;
+        const price = parseFloat(priceText.replace(/[^0-9.]/g, ''));
+        const checkInDateValue = document.getElementById('checkInDate').value;
+        const checkOutDateValue = document.getElementById('checkOutDate').value;
+        const reservationType = document.getElementById('reservationType').value;
+
+        const checkInDate = new Date(checkInDateValue);
+        const checkOutDate = new Date(checkOutDateValue);
+
+        if (!isNaN(price) && !isNaN(quantity)) {
+            let totalAmount = quantity * price;
+
+            if (reservationType === 'overnight') {
+                if (checkInDateValue && checkOutDateValue && !isNaN(checkInDate) && !isNaN(checkOutDate)) {
+                    const timeDiff = checkOutDate - checkInDate;
+                    const stayDuration = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+                    const validDuration = stayDuration > 0 ? stayDuration : 1;
+                    totalAmount = quantity * price * validDuration;
+                } else {
+                    totalAmount = quantity * price * 1;
+                }
+            }
+
+            document.getElementById('totalAmount').textContent = totalAmount.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
         } else {
-            checkOutDateGroup.style.display = 'none';
-            checkOutTimeGroup.style.display = 'none';
-            checkOut.value = checkIn.value;
-            checkOutTime.value = document.getElementById('checkInTime').value;
-            checkOut.required = false;
-            checkOutTime.required = false;
+            document.getElementById('totalAmount').textContent = '0.00';
         }
-        
-        updateFormAction();
-    });
-
-    // Kapag nagbago ang check-in date at one day lang, auto set check-out date
-    document.getElementById('checkInDate').addEventListener('change', function() {
-        var type = document.getElementById('reservationType').value;
-        if(type === 'one_day') {
-            document.getElementById('checkOutDate').value = this.value;
-        }
-    });
-
-    // Kapag nagbago ang check-in time at one day lang, auto set check-out time
-    document.getElementById('checkInTime').addEventListener('change', function() {
-        var type = document.getElementById('reservationType').value;
-        if(type === 'one_day') {
-            document.getElementById('checkOutTime').value = this.value;
-        }
-    });
-
-    // Auto-calculate total guest
-    function calculateTotalGuest() {
-        const adults = parseInt(document.getElementById('numAdults').value) || 0;
-        const children = parseInt(document.getElementById('numChildren').value) || 0;
-        document.getElementById('totalGuest').value = adults + children;
     }
 
-    // Add event listeners for changes
-    document.getElementById('numAdults').addEventListener('change', calculateTotalGuest);
-    document.getElementById('numChildren').addEventListener('change', calculateTotalGuest);
+    function updateDateFields() {
+        const reservationType = document.getElementById('reservationType').value;
+        const checkInDateInput = document.getElementById('checkInDate');
+        const checkOutDateInput = document.getElementById('checkOutDate');
 
-    // Initial calculation
-    calculateTotalGuest();
-});
-</script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const checkInDate = document.getElementById('checkInDate');
-    const checkOutDate = document.getElementById('checkOutDate');
+        if (reservationType === 'overnight') {
+            const now = new Date();
 
-    checkInDate.addEventListener('change', function() {
-        const selectedDate = new Date(this.value);
-        const minDate = selectedDate.toISOString().split('T')[0];
-        
-        // Set minimum date for check-out date
-        checkOutDate.min = minDate;
-        
-        // If check-out date is before check-in date, reset it
-        if (new Date(checkOutDate.value) < selectedDate) {
-            checkOutDate.value = minDate;
+            // Set check-in: today 2:00 PM
+            const checkInDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 14, 0);
+            checkInDateInput.value = checkInDate.toISOString().slice(0, 16);
+
+            // Set check-out: tomorrow 12:00 PM
+            const checkOutDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 12, 0);
+            checkOutDateInput.value = checkOutDate.toISOString().slice(0, 16);
         }
+    }
+
+    function incrementQuantity() {
+        const quantityInput = document.getElementById('modalRoomQty');
+        quantityInput.value = parseInt(quantityInput.value) + 1;
+        calculateTotalAmount();
+    }
+
+    function decrementQuantity() {
+        const quantityInput = document.getElementById('modalRoomQty');
+        if (quantityInput.value > 1) {
+            quantityInput.value = parseInt(quantityInput.value) - 1;
+            calculateTotalAmount();
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const quantityInput = document.getElementById('modalRoomQty');
+        const checkInDateInput = document.getElementById('checkInDate');
+        const checkOutDateInput = document.getElementById('checkOutDate');
+        const reservationTypeInput = document.getElementById('reservationType');
+
+        quantityInput.addEventListener('change', calculateTotalAmount);
+        quantityInput.addEventListener('input', calculateTotalAmount);
+        checkInDateInput.addEventListener('change', calculateTotalAmount);
+        checkOutDateInput.addEventListener('change', calculateTotalAmount);
+        reservationTypeInput.addEventListener('change', function () {
+            updateDateFields(); // auto-fill, not disable
+            calculateTotalAmount();
+        });
+
+        $('#reservationModal').on('show.bs.modal', function () {
+            updateDateFields();
+            calculateTotalAmount();
+        });
     });
-});
 </script>
 </body>
 </html>
