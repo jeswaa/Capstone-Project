@@ -9,8 +9,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&family=Poppins:wght@100;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </head>
 <body class="bg-light font-paragraph" style="background: url('{{ asset('images/newbg.png') }}') no-repeat center center fixed; background-size: cover;">
+    @include('Alert.loginSuccessUser')
     <div class="container mt-5 px-3">
         <div class="d-flex justify-content-between align-items-center">
             <a href="{{ route('homepage') }}" class="text-decoration-none">
@@ -173,6 +176,102 @@
         </div>
     </div>
     <div class="pb-5"></div> <!-- Add padding at the bottom -->
+
+    <!-- Feedback Modal -->
+    <div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 15px; border: none;">
+                <div class="modal-header bg-success text-white" style="border-radius: 15px 15px 0 0;">
+                    <h5 class="modal-title" id="feedbackModalLabel">We Value Your Feedback!</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="feedbackForm" action="{{ route('feedback.store') }}" method="POST">
+                    @csrf
+                    <div class="modal-body p-4">
+                    <input type="hidden" name="reservation_id" value="{{ $reservationDetails->id }}">
+                        <div class="mb-3">
+                            <label for="rating" class="form-label">How would you rate your experience?</label>
+                            <div class="d-flex justify-content-center gap-2 mb-3">
+                                <div class="rating">
+                                    <input type="radio" name="rating" id="rating5" value="5" class="star-input" required>
+                                    <label for="rating5" class="star-label">
+                                        <i class="fas fa-star"></i>
+                                    </label>
+                                    
+                                    <input type="radio" name="rating" id="rating4" value="4" class="star-input">
+                                    <label for="rating4" class="star-label">
+                                        <i class="fas fa-star"></i>
+                                    </label>
+                                    
+                                    <input type="radio" name="rating" id="rating3" value="3" class="star-input">
+                                    <label for="rating3" class="star-label">
+                                        <i class="fas fa-star"></i>
+                                    </label>
+                                    
+                                    <input type="radio" name="rating" id="rating2" value="2" class="star-input">
+                                    <label for="rating2" class="star-label">
+                                        <i class="fas fa-star"></i>
+                                    </label>
+                                    
+                                    <input type="radio" name="rating" id="rating1" value="1" class="star-input">
+                                    <label for="rating1" class="star-label">
+                                        <i class="fas fa-star"></i>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="feedbackText" class="form-label">Your feedback</label>
+                            <textarea class="form-control" id="feedbackText" name="comment" rows="3" placeholder="Please share your thoughts..." required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">Submit Feedback</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+<style>
+.rating {
+    display: flex;
+    flex-direction: row-reverse;
+    gap: 0.3rem;
+}
+
+.star-input {
+    display: none;
+}
+
+.star-label {
+    color: #ddd;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.2s ease-in-out;
+}
+
+.star-input:checked ~ .star-label {
+    color: #ffd700;
+}
+
+.star-label:hover,
+.star-label:hover ~ .star-label {
+    color: #ffd700;
+}
+</style>
+<script>
+$(document).ready(function() {
+    // Check if modal has been shown before
+    if (!localStorage.getItem('feedbackModalShown')) {
+        // Show modal
+        $('#feedbackModal').modal('show');
+        
+        // Mark modal as shown in localStorage
+        localStorage.setItem('feedbackModalShown', 'true');
+    }
+});
+</script>
 <script>
     // Generate QR code on page load
     window.onload = function() {

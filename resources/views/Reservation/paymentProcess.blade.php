@@ -428,7 +428,7 @@
                         <div class="mt-3">
                             <label class="fw-bold">Sender's Number</label>
                             <input type="number" class="form-control bg-secondary-subtle border-0" name="mobileNo" id="mobileNo" 
-                                   value="{{ auth()->user() ? auth()->user()->mobileNo : '' }}" placeholder="ex: 09xxxxxxxxx" required>
+                                   value="{{ auth()->user() ? auth()->user()->mobileNo : '' }}" placeholder="ex: 09xxxxxxxxx" readonly>
                         </div>
                         
                         <div class="mt-3">

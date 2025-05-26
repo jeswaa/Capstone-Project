@@ -11,6 +11,76 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        @media (max-width: 767.98px) {
+            .col-12 {
+                position: static !important;
+                height: auto !important;
+            }
+
+            .offset-md-4 {
+                margin-left: 0 !important;
+            }
+
+            .offset-lg-3 {
+                margin-left: 0 !important;
+            }
+
+            .px-5 {
+                padding-left: 1rem !important;
+                padding-right: 1rem !important;
+            }
+
+            /* Styling for mobile sidebar */
+            #profileSidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                overflow-y: hidden;
+                display: none;
+                background-color: #0b573d;
+            }
+
+            #profileSidebar.show {
+                display: block;
+            }
+
+            /* Main content styling for mobile */
+            #mainContent {
+                width: 100%;
+                position: relative;
+                height: auto;
+                background: inherit;
+            }
+
+            /* Remove any transitions or transformations */
+            body.sidebar-open #mainContent {
+                margin-top: 1rem;
+            }
+
+            /* Ensure no blank space */
+            .row.g-0 {
+                margin-left: 0 !important;
+                flex-direction: column;
+            }
+        }
+
+        @media (min-width: 768px) {
+            #profileSidebar {
+                transform: none !important;
+            }
+
+            /* Reset order for desktop view */
+            .order-md-1 {
+                order: 1 !important;
+            }
+
+            .order-md-2 {
+                order: 2 !important;
+            }
+        }
+    </style>
 </head>
 
 <body
@@ -124,8 +194,16 @@
     <!-- Main Layout: Profile & Reservation Section -->
     <div class="container-fluid p-0">
         <div class="row g-0">
+            <!-- Burger Menu Button (Visible only on mobile) -->
+            <div class="d-md-none position-fixed top-0 start-0 p-3" style="z-index: 1030;">
+                <button class="btn btn-success" type="button" id="sidebarToggle">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+
             <!-- Profile Card -->
-            <div class="col-12 col-md-4 col-lg-3" style="background-color: #0b573d; min-height: 100vh; z-index: 1;">
+            <div class="col-12 col-md-4 col-lg-3" id="profileSidebar"
+                style="background-color: #0b573d; min-height: 100vh; z-index: 1020;">
                 <div class="p-4 text-white d-flex flex-column">
                     <!-- Back Arrow -->
                     <div class="d-flex justify-content-start align-items-start mb-4">
@@ -192,7 +270,7 @@
             </div>
 
             <!-- Main Content -->
-            <div class="col-12 col-md-8 col-lg-9 px-5 py-3" style="margin-top: 80px;">
+            <div class="col-12 col-md-8 col-lg-9 px-5 py-3" id="mainContent">
                 <div>
                     <p class="fw-bold text-start display-4"><span class="text-white fs-1">Hello,<br></span><span
                             class="text-color-2">{{ $user->name }}</span></p>
@@ -210,117 +288,127 @@
                                         onclick="toggleTab(event, 'reservation-list-section', 'reservation-tab', 'history-tab')"
                                         style="background-color: #0b573d; color: white;">Reservation</a>
                                 </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#" id="history-tab"
-                                        onclick="toggleTab(event, 'history-section', 'history-tab', 'reservation-tab')"
-                                        style="background-color: white; color: #0b573d;">History</a>
-                                </li>
                             </ul>
 
                             <!-- Reservation List -->
-                            <section id="reservation-list-section">
-                                <h5 class="mb-4 fw-bold text-color-2 border-bottom pb-2">YOUR CURRENT RESERVATION</h5>
-                                @if ($latestReservation && $latestReservation->payment_status !== 'cancelled')
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="border-0 mb-4" style="background: transparent;">
-                                                <div class="fw-bold text-color-2">
-                                                    <div class="d-flex align-items-center mb-3">
-                                                        <p class="mb-0"><strong>Status:</strong></p>
-                                                        <span class="badge ms-2 text-capitalize @if($latestReservation->reservation_status == 'reserved') bg-primary 
-                                                        @elseif($latestReservation->reservation_status == 'checked-in') bg-success
-                                                        @elseif($latestReservation->reservation_status == 'pending') bg-warning
-                                                        @elseif($latestReservation->reservation_status == 'early-checked-out') bg-danger
-                                                        @elseif($latestReservation->reservation_status == 'checked-out') bg-danger
-                                                        @else bg-danger @endif">
-                                                            {{ $latestReservation->reservation_status }}
-                                                        </span>
-                                                    </div>
-                                                    <div class="row mb-2">
-                                                        <div class="col-4"><strong>Room Type</strong></div>
-                                                        <div class="col-8">
-                                                            @foreach($accommodations as $accommodation)
-                                                                {{ $accommodation }}
-                                                            @endforeach
+                            <section id="reservation-list-section" class="p-4 w-100">
+                                <h5 class="mb-4 fw-bold text-color-2 border-bottom pb-2" style="color: #0b573d;">YOUR CURRENT RESERVATION</h5>
+                                @if ($latestReservation && $latestReservation->reservation_status !== 'cancelled')
+                                    <div class="card shadow-sm border-0 w-100" style="background-color: rgba(255, 255, 255, 0.9);">
+                                        <div class="card-body p-4">
+                                            <div class="d-flex align-items-center mb-4">
+                                                <h6 class="mb-0 me-2" style="color: #0b573d;"><strong>Status:</strong></h6>
+                                                <span class="badge text-capitalize px-3 py-2 @if($latestReservation->reservation_status == 'checked in') bg-success 
+                                                    @elseif($latestReservation->reservation_status == 'pending') bg-warning 
+                                                    @elseif($latestReservation->reservation_status == 'reserved') bg-primary
+                                                    @else bg-danger @endif">
+                                                    {{ $latestReservation->reservation_status }}
+                                                </span>
+                                            </div>
+
+                                            <div class="reservation-details w-100" style="color: #0b573d;">
+                                                <div class="row g-4">
+                                                    <div class="col-12 col-md-6">
+                                                        <div class="detail-item mb-3">
+                                                            <h6 class="fw-bold mb-2">Room Type</h6>
+                                                            <p class="mb-0">
+                                                                @foreach($accommodations as $accommodation)
+                                                                    {{ $accommodation }}
+                                                                @endforeach
+                                                            </p>
+                                                        </div>
+
+                                                        <div class="detail-item mb-3">
+                                                            <h6 class="fw-bold mb-2">Reservation Type</h6>
+                                                            <p class="mb-0">
+                                                                @php
+                                                                    $checkInDate = \Carbon\Carbon::parse($latestReservation->reservation_check_in_date);
+                                                                    $checkOutDate = \Carbon\Carbon::parse($latestReservation->reservation_check_out_date);
+                                                                    $daysDiff = $checkInDate->diffInDays($checkOutDate);
+                                                                @endphp
+                                                                @if($daysDiff == 0)
+                                                                    Day Tour
+                                                                @else
+                                                                    Stay In ({{ $daysDiff }} {{ Str::plural('night', $daysDiff) }})
+                                                                @endif
+                                                            </p>
+                                                        </div>
+                                                        
+                                                        <div class="detail-item mb-3">
+                                                            <h6 class="fw-bold mb-2">Time Check-In</h6>
+                                                            <p class="mb-0">{{ date('h:i A', strtotime($latestReservation->reservation_check_in)) }} - {{ date('h:i A', strtotime($latestReservation->reservation_check_out)) }}</p>
+                                                        </div>
+
+                                                        <div class="detail-item mb-3">
+                                                            <h6 class="fw-bold mb-2">Date Check In - Out</h6>
+                                                            <p class="mb-0">{{ \Carbon\Carbon::parse($latestReservation->reservation_check_in_date)->format('F j, Y') }} - {{ \Carbon\Carbon::parse($latestReservation->reservation_check_out_date)->format('F j, Y') }}</p>
                                                         </div>
                                                     </div>
-                                                    <div class="row mb-2">
-                                                        <div class="col-4"><strong>Time Check-In</strong></div>
-                                                        <div class="col-8">
-                                                            {{ \Carbon\Carbon::parse($latestReservation->reservation_check_in)->format('h:i A') }} -
-                                                            {{ \Carbon\Carbon::parse($latestReservation->reservation_check_out)->format('h:i A') }}
+
+                                                    <div class="col-12 col-md-6">
+                                                        <div class="detail-item mb-3">
+                                                            <h6 class="fw-bold mb-2">Special Request</h6>
+                                                            <p class="mb-0">{{ $latestReservation->special_request ?? 'None' }}</p>
+                                                        </div>
+
+                                                        <div class="detail-item mb-3">
+                                                            <h6 class="fw-bold mb-2">Total Amount:</h6>
+                                                            <p class="mb-0 fs-5">₱{{ number_format($latestReservation->amount, 2) }}</p>
                                                         </div>
                                                     </div>
-                                                    <div class="row mb-2">
-                                                        <div class="col-4"><strong>Date Check-In</strong></div>
-                                                        <div class="col-8">
-                                                            {{ \Carbon\Carbon::parse($latestReservation->reservation_check_in_date)->format('F j, Y') }}
-                                                        </div>
-                                                    </div>
-                                                    <div class="row mb-2">
-                                                        <div class="col-4"><strong>Special Request</strong>
-                                                        </div>
-                                                        <div class="col-8">
-                                                            {{ $latestReservation->special_request ?? 'None' }}
-                                                        </div>
-                                                    </div>
-                                                    <div class="row mb-4">
-                                                        <div class="col-4"><strong>Balance</strong></div>
-                                                        <div class="col-8">
-                                                            ₱{{ number_format($latestReservation->amount, 2) }}
-                                                        </div>
-                                                    </div>
-                                                    @if($latestReservation->reservation_status == 'pending')
-                                                    <div class="text-end">
-                                                        <button class="btn btn-danger px-5 py-3" style="border-radius: 5;"
-                                                            onclick="openCancelModal({{ $latestReservation->id }})">
-                                                            <strong>Cancel Booking</strong>
-                                                        </button>
-                                                    </div>
-                                                    @endif
                                                 </div>
+                                            </div>
+
+                                            <div class="text-end mt-4 w-100">
+                                                <button class="btn px-4 py-2" 
+                                                        style="background-color: #0b573d; color: white;"
+                                                        onclick="openCancelModal({{ $latestReservation->id }})">
+                                                    <i class="fas fa-times-circle me-2"></i>
+                                                    <strong>Cancel Booking</strong>
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
                                 @else
-                                    <p class="text-center text-muted">No reservations yet.</p>
+                                    <div class="text-center p-5 w-100">
+                                        <i class="fas fa-calendar-times fa-3x mb-3" style="color: #0b573d;"></i>
+                                        <p class="text-muted">No reservations yet.</p>
+                                    </div>
                                 @endif
                             </section>
-
                             <section id="history-section" style="display: none;">
                                 <h5 class="text-center mt-3">Your Reservation History</h5>
-                                <div style="max-height: 300px; overflow-y: auto;">
-                                    @forelse ($pastReservations as $reservation)
-                                        <div class="card mb-3 mt-4">
-                                            <div class="card-body">
-                                                <div class="d-flex justify-content-between">
-                                                    <p><strong>Status:</strong>
-                                                        <span class="badge 
+                                @forelse ($pastReservations as $reservation)
+                                    <div class="card mb-3 mt-4">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between">
+                                                <p><strong>Status:</strong>
+                                                    <span
+                                                        class="badge 
                                                             @if(isset($reservation) && $reservation->payment_status == 'paid') bg-success 
                                                             @elseif(isset($reservation) && $reservation->payment_status == 'pending') bg-warning 
                                                             @elseif(isset($reservation) && $reservation->payment_status == 'booked') bg-primary 
-                                                            @else bg-danger 
+                                                                @else bg-danger 
                                                             @endif">
-                                                            {{ isset($reservation) ? $reservation->payment_status : 'N/A' }}
-                                                        </span>
-                                                    </p>
-                                                </div>
-                                                <p><strong>Check-in:</strong>
-                                                    {{ $reservation->reservation_check_in }}</p>
-                                                <p><strong>Check-out:</strong>
-                                                    {{ $reservation->reservation_check_out }}</p>
-                                                <p><strong>Guests:</strong> {{ $reservation->total_guest }}</p>
-                                                <p><strong>Amount:</strong> {{ $reservation->amount }}</p>
+                                                        {{ isset($reservation) ? $reservation->payment_status : 'N/A' }}
+                                                    </span>
+                                                </p>
                                             </div>
+                                            <p><strong>Check-in:</strong>
+                                                {{ $reservation->reservation_check_in }}</p>
+                                            <p><strong>Check-out:</strong>
+                                                {{ $reservation->reservation_check_out }}</p>
+                                            <p><strong>Guests:</strong> {{ $reservation->total_guest }}
+                                            </p>
+                                            <p><strong>Amount:</strong> {{ $reservation->amount }}</p>
                                         </div>
-                                    @empty
-                                        <p class="text-center text-muted">No reservation history found.</p>
-                                    @endforelse
-                                </div>
+                                    </div>
+                                @empty
+                                    <p class="text-center text-muted">No reservation history found.</p>
+                                @endforelse
                             </section>
                         </div>
                     </div>
-                    
                 </div>
             </div>
         </div>
@@ -361,96 +449,69 @@
             </div>
         </div>
     </div>
+    <script>
+        // Add smooth transition for sidebar collapse/expand
+        const sidebar = document.getElementById('profileSidebar');
+        const mainContent = document.querySelector('.col-12.col-md-8.col-lg-9');
 
-    <style>
-        @media (max-width: 767.98px) {
-            .col-12 {
-                position: static !important;
-                height: auto !important;
-            }
-
-            .offset-md-4 {
-                margin-left: 0 !important;
-            }
-
-            .offset-lg-3 {
-                margin-left: 0 !important;
-            }
-
-            .px-5 {
-                padding-left: 1rem !important;
-                padding-right: 1rem !important;
-            }
-        }
-    </style>
+        sidebar.style.transition = 'all 0.3s ease';
+        mainContent.style.transition = 'all 0.3s ease';
+    </script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Set initial states
-            document.getElementById('reservation-list-section').style.display = 'block';
-            document.getElementById('history-section').style.display = 'none';
-
-            // Auto-hide toasts after 5 seconds
-            const toasts = document.querySelectorAll('.toast');
-            toasts.forEach(toast => {
-                const bsToast = new bootstrap.Toast(toast);
-                bsToast.show();
-
-                setTimeout(() => {
-                    bsToast.hide();
-                }, 5000);
-            });
-        });
-
-        function openCancelModal(reservationId) {
-            // Store the reservation ID if needed for the cancellation process
-            document.getElementById("cancelReservationModal").setAttribute("data-reservation-id", reservationId);
-            let modal = new bootstrap.Modal(document.getElementById("cancelReservationModal"));
-            modal.show();
-        }
-
-        function toggleTab(event, sectionToShow, activeTabId, inactiveTabId) {
-            event.preventDefault();
-
-            // Toggle sections visibility
-            document.getElementById('reservation-list-section').style.display = 'none';
-            document.getElementById('history-section').style.display = 'none';
-            document.getElementById(sectionToShow).style.display = 'block';
-
-            // Toggle tab styles
-            document.getElementById(activeTabId).style.backgroundColor = '#0b573d';
-            document.getElementById(activeTabId).style.color = 'white';
-            document.getElementById(inactiveTabId).style.backgroundColor = 'white';
-            document.getElementById(inactiveTabId).style.color = '#0b573d';
-        }
-
-        // Profile menu toggle functionality
-        const profileToggleBtn = document.querySelector('[data-bs-target="#profileContent"]');
-        const profileContent = document.getElementById('profileContent');
-
-        // Toggle menu when clicking the burger icon
-        profileToggleBtn.addEventListener('click', function () {
-            const bsCollapse = bootstrap.Collapse.getInstance(profileContent);
-            if (!bsCollapse) {
-                // Initialize collapse if not yet initialized
-                new bootstrap.Collapse(profileContent);
-            } else {
-                bsCollapse.toggle();
-            }
-        });
-
-        // Close menu when clicking outside
-        document.addEventListener('click', function (event) {
-            if (!profileContent.contains(event.target) &&
-                !profileToggleBtn.contains(event.target) &&
-                profileContent.classList.contains('show')) {
-                const bsCollapse = bootstrap.Collapse.getInstance(profileContent);
-                if (bsCollapse) {
-                    bsCollapse.hide();
-                }
-            }
-        });
+        <script>
+            document.getElementById('sidebarToggle').addEventListener('click', function() {
+                document.body.classList.toggle('sidebar-open');
+            document.getElementById('profileSidebar').classList.toggle('show');
+    });
+    </script>
     </script>
 </body>
+
+<script>
+        document.addEventListener('DOMContentLoaded', function () {
+        var sidebar = document.getElementById('profileSidebar');
+        var mainContent = document.getElementById('mainContent');
+        var toggleBtn = document.getElementById('sidebarToggle');
+        var isSidebarOpen = false;
+
+        function openSidebar() {
+            sidebar.classList.add('show');
+        document.body.classList.add('sidebar-open');
+        isSidebarOpen = true;
+        }
+
+        function closeSidebar() {
+            sidebar.classList.remove('show');
+        document.body.classList.remove('sidebar-open');
+        isSidebarOpen = false;
+        }
+
+        toggleBtn.addEventListener('click', function () {
+            if (isSidebarOpen) {
+            closeSidebar();
+            } else {
+            openSidebar();
+            }
+        });
+
+        // Close sidebar when window is resized to desktop view
+        window.addEventListener('resize', function () {
+            if (window.innerWidth >= 768) {
+            closeSidebar();
+            }
+        });
+
+        // Initialize state
+        if (window.innerWidth < 768) {
+            closeSidebar(); // Ensure sidebar is closed initially on mobile
+        }
+    });
+
+        // Existing tab toggle function
+        function toggleTab(event, showSectionId, activeTabId, inactiveTabId) {
+            // ... existing code ...
+        }
+</script>
 
 </html>

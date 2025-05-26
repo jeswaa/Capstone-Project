@@ -54,7 +54,7 @@
 
 <body class="bg-light font-paragraph" style="background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.8)), url('{{ asset('images/packagebg.jpg') }}') no-repeat center center fixed; background-size: cover;">
     <div class="d-flex align-items-center ms-5 mt-5">
-        <a href="{{ route('calendar') }}"><i class="color-3 fa-2x fa-circle-left fa-solid icon icon-hover ms-4"></i></a><h1 class="text-white text-uppercase font-heading ms-3"> Stay In Reservation</h1>
+        <a href="{{ route('calendar') }}"><i class="color-3 fa-2x fa-circle-left fa-solid icon icon-hover ms-4"></i></a><h1 class="text-white text-uppercase font-heading ms-3">Reservation</h1>
     </div>
 
     <div class="position-absolute top-0 end-0 mt-3 me-5 d-none d-md-block">

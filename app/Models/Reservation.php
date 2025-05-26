@@ -57,4 +57,9 @@ class Reservation extends Model
         'total_guest',
         'selected_packages',
     ];
+    
+    public function feedback()
+    {
+        return $this->hasMany(Feedback::class, 'reservation_id');
+    }
 }

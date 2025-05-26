@@ -12,6 +12,7 @@ use App\Models\Package;
 use App\Models\Accomodation;
 use App\Models\Transaction;
 use App\Models\Reservation;
+use App\Models\Feedback;
 use DateTime;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\NewReservationNotification;
@@ -808,6 +809,33 @@ public function showReservationsInCalendar()
         }
     }
 
+public function feedback(Request $request)
+{
+    try {
+        // Validate request
+        $validated = $request->validate([
+            'rating' => 'required|integer|max:5',
+            'comment' => 'required|string|max:500',
+            'reservation_id' => 'required|exists:reservation_details,id'
+        ]);
 
+        // Find the reservation
+        $reservation = Reservation::findOrFail($validated['reservation_id']);
+
+        // Store feedback
+        $feedback = $reservation->feedback()->create([
+            'user_id' => Auth::id(),
+            'rating' => $validated['rating'],
+            'comment' => $validated['comment']
+        ]);
+
+        return redirect()->back()
+            ->with('success', 'Thank you for your feedback!');
+
+    } catch (\Exception $e) {
+        return redirect()->back()
+            ->with('error', 'Error submitting feedback: ' . $e->getMessage());
+    }
+}
 
 }

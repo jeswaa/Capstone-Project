@@ -110,9 +110,9 @@
                     <li class="nav-item">
                         <a class="nav-link fw-semibold text-uppercase text-decoration-none" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif; transition: color 0.3s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#0b573d'" href="#activities">Activities</a>
                     </li>
-                    <!-- <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase text-decoration-none" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif; transition: color 0.3s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#0b573d'" href="#">Reservations</a>
-                    </li> -->
+                    <li class="nav-item">
+                        <a class="nav-link fw-semibold text-uppercase text-decoration-none" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif; transition: color 0.3s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#0b573d'" href="{{route ('getAllReservations')}}">Reservations</a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -286,11 +286,6 @@
                                     </button>
                                 </div>
                             </div>
-                            <div class="mb-3">
-                                <span class="badge" style="background-color: #0b573d; font-size: 1.2rem; padding: 10px 18px;">
-                                    Amount to pay: ₱<span id="totalAmount"></span>
-                                </span>
-                            </div>
                             <input type="hidden" id="modalRoomId" name="accomodation_id">
                         </div>
                         
@@ -299,7 +294,7 @@
                             <div class="card-body p-3">
                                 <div class="mb-3">
                                   <label for="numAdults" class="form-label" style="color: #0b573d;">Number of Adults</label>
-                                  <input type="number" min="1" value="1" class="form-control border-success" id="numAdults" name="number_of_adults" required>
+                                  <input type="number" min="0" value="0" class="form-control border-success" id="numAdults" name="number_of_adults" required>
                                 </div>
                                 <div class="mb-3">
                                   <label for="numChildren" class="form-label" style="color: #0b573d;">Number of Children</label>
@@ -384,7 +379,14 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer d-flex justify-content-end align-items-center gap-3">
+                    <div class="badge" 
+                        style="background-color: #0b573d; 
+                                font-size: clamp(1rem, 2.5vw, 1.2rem);
+                                padding: clamp(8px, 2vw, 18px);">
+                        <span class="text-nowrap">Amount to pay: </span>
+                        <span class="ms-1">₱<span id="totalAmount"></span></span>
+                    </div>
                     <button type="submit" class="btn btn-success" id="reserveButton" style="background-color: #0b573d;">Reserve</button>
                 </div>
             </form>
