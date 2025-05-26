@@ -12,7 +12,7 @@ class HomePageController extends Controller
 {
     public function homepage()
     {
-        return view('Frontend.homepage'); // Ensure 'homepage' matches your blade file name
+        return view('FrontEnd.homepage'); // Ensure 'homepage' matches your blade file name
     }
 public function profilepage()
 {
@@ -66,7 +66,7 @@ public function profilepage()
             ->get();
     }
 
-    return view('Frontend.profilepage', [
+    return view('FrontEnd.profilepage', [
         'user' => $user,
         'latestReservation' => $latestReservation,
         'pastReservations' => $pastReservations,
