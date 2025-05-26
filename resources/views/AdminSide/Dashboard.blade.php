@@ -14,6 +14,11 @@
     <title>Dashboard</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
+<style>
+    .color-background8{
+        background-color: #0b573d;
+    }
+</style>
 <body style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
             @include('Alert.loginSucess')
 

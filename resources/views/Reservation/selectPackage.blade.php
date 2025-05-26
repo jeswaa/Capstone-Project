@@ -6,39 +6,11 @@
     <title>Custom Package</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <style>
-    .activity-card {
-        border-radius: 15px;
-        overflow: hidden;
-        position: relative;
-    }
-    .activity-card img {
-        width: 100%;
-        height: 200px;
-        object-fit: cover;
-    }
-    .activity-title {
-        position: absolute;
-        bottom: 10px;
-        left: 15px;
-        font-size: 1.2rem;
-        font-weight: bold;
-        color: white;
-    }
-    .availability-badge {
-        position: absolute;
-        bottom: 10px;
-        right: 15px;
-        background-color: green;
-        color: white;
-        padding: 3px 8px;
-        border-radius: 5px;
-        font-size: 0.8rem;
-    }
-
-    
     .select-accommodation {
         cursor: pointer;
         transition: all 0.3s ease;
@@ -84,27 +56,11 @@
     <div class="d-flex align-items-center ms-5 mt-5">
         <a href="{{ route('calendar') }}"><i class="color-3 fa-2x fa-circle-left fa-solid icon icon-hover ms-4"></i></a><h1 class="text-white text-uppercase font-heading ms-3">Reservation</h1>
     </div>
-    @if ($errors->any())
-    <div class="alert alert-danger mt-3">
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
-    <div class="position-absolute top-0 end-0 mt-3 me-5">
+    <div class="position-absolute top-0 end-0 mt-3 me-5 d-none d-md-block">
         <a class="text-decoration-none">
             <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="120" class="rounded-pill">
         </a>
     </div>
-    
-    <div class="position-absolute top-0 end-0 mt-3 me-5">
-        <a href="{{ url('/') }}" class="text-decoration-none">
-            <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="120" class="rounded-pill">
-        </a>
-    </div>
-
     
     <div class="container">
     <h1 class="text-white font-heading fs-2 mt-3 mb-3 ms-2">Select your Room</h1>
@@ -130,17 +86,64 @@
                 <div class="container">
                     <div class="row g-4" id="accommodationContainer">
                         @foreach($accomodations as $accomodation)
-                            <div class="col-md-4">
-                                <div class="card select-accommodation" 
-                                     data-id="{{ $accomodation->accomodation_id }}" 
+                            <div class="col-md-4 accommodation-card">
+                                <div class="card select-accommodation"
+                                     data-id="{{ $accomodation->accomodation_id }}"
                                      data-price="{{ $accomodation->accomodation_price }}"
                                      data-capacity="{{ $accomodation->accomodation_capacity }}">
                                     <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" class="card-img-top" alt="accommodation image" style="max-width: 100%; height: 250px; object-fit: cover;">
                                     <div class="card-body p-3 position-relative" style="background-color: white;">
+                                        <div class="position-absolute top-0 end-0 p-2">
+                                            <i class="fas fa-info-circle text-success fs-3 mt-2 me-2" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#roomModal{{ $accomodation->accomodation_id }}"></i>
+                                        </div>
                                         <h5 class="text-success text-capitalize font-heading fs-4 fw-bold">{{ $accomodation->accomodation_name }}</h5>
                                         <p class="card-text text-success font-paragraph" style="font-size: smaller;">Description: {{ $accomodation->accomodation_description }}</p>
                                         <p class="card-text text-success font-paragraph">Capacity: {{ $accomodation->accomodation_capacity }} pax</p>
                                         <p class="card-text font-paragraph fw-bold text-success" style="text-align: right;">Price: <span style="background-color: #0b573d; color: white; padding: 2px 5px;">₱{{ $accomodation->accomodation_price }}</span></p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Modal for Room Details -->
+                            <div class="modal fade" id="roomModal{{ $accomodation->accomodation_id }}" tabindex="-1" aria-labelledby="roomModalLabel{{ $accomodation->accomodation_id }}" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content rounded-4 shadow">
+                                        <div class="modal-header border-0" style="background-color: #0b573d;">
+                                            <h5 class="modal-title text-white text-uppercase" style="font-family: 'Anton', sans-serif; letter-spacing: 0.1em;" id="roomModalLabel{{ $accomodation->accomodation_id }}">{{ $accomodation->accomodation_name }}</h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body p-0">
+                                            <div class="row g-0">
+                                                <!-- Left Column - Image -->
+                                                <div class="col-md-6">
+                                                    <div class="position-relative h-100">
+                                                        <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" 
+                                                            class="w-100 h-100 object-fit-cover rounded-start" 
+                                                            style="max-height: 400px;" 
+                                                            alt="{{ $accomodation->accomodation_name }}">
+                                                        <div class="position-absolute bottom-0 start-0 w-100 p-3" 
+                                                            style="background: linear-gradient(0deg, rgba(11, 87, 61, 0.9) 0%, rgba(11, 87, 61, 0.7) 100%);">
+                                                            <h3 class="text-white mb-0 fw-bold">₱{{ number_format($accomodation->accomodation_price, 2) }}</h3>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- Right Column - Details -->
+                                                <div class="col-md-6 p-4">
+                                                    <div class="mb-4">
+                                                        <h6 class="text-uppercase fw-bold" style="color: #0b573d;">Description</h6>
+                                                        <p class="text-muted mb-0">{{ $accomodation->accomodation_description }}</p>
+                                                    </div>
+                                                    <div class="mb-4">
+                                                        <h6 class="text-uppercase fw-bold" style="color: #0b573d;">Amenities</h6>
+                                                        <p class="text-muted mb-0">{{ $accomodation->amenities }}</p>
+                                                    </div>
+                                                    <div class="mb-4">
+                                                        <h6 class="text-uppercase fw-bold" style="color: #0b573d;">Capacity</h6>
+                                                        <p class="text-muted mb-0">{{ $accomodation->accomodation_capacity }} pax</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -190,6 +193,14 @@
                             <!-- VISITOR INFO -->
                             <div class="row g-4">
                                 <div class="col-md-6">
+                                <div class="card p-3 shadow-sm border-0 mb-4"> 
+                                        <h6 class="fw-bold mb-3 text-success">Quantity</h6>
+                                        <div class="form-group">
+                                            <label for="quantity">Number of Rooms:</label> {{-- Updated label text --}}
+                                            <input type="number" id="quantity" name="quantity" class="form-control" min="1" value="1" required oninput="calculateTotalGuest()"> {{-- Added oninput event --}}
+                                            <small class="text-muted" style="font-size: 10px;">Number of rooms to reserve</small>
+                                        </div>
+                                    </div>
                                     <div class="card p-3 shadow-sm border-0">
                                         <h6 class="fw-bold mb-3 text-success">Number of Visitors</h6>
                                         <div class="form-group mb-3">
@@ -237,37 +248,21 @@
                                             <input type="time" id="end_time" name="reservation_check_out" value="{{ \Carbon\Carbon::createFromFormat('H:i:s', $transactions->end_time)->format('H:i') }}" class="form-control" required readonly>
                                         </div>
                                     </div>
-                                </div>
 
-                                <!-- DATE SELECTION AND QUANTITY -->
-                                <div class="col-md-6">
-                                    <div class="card p-3 shadow-sm border-0">
-                                        <h6 class="fw-bold mb-3 text-success">Select Date</h6>
-                                        <div class="row g-3">
+                                    <div class="card p-3 shadow-sm border-0 mt-2">
+                                        <h6 class="fw-bold mb-1 text-success">Select Date</h6>
+                                        <div class="row g-1">
                                             <div class="col-md-12"> {{-- Changed from col-md-6 to col-md-12 to make date inputs full width within this card --}}
                                                 <label for="reservation_date">Check-in Date:</label>
                                                 <input type="date" id="reservation_date" name="reservation_check_in_date" class="form-control" required readonly>
                                             </div>
-                                            <div class="col-md-12"> {{-- Changed from col-md-6 to col-md-12 --}}
+                                            <div class="col-md-12">
                                                 <label for="check_out_date" class="form-label">Check-out Date:</label>
                                                 <input type="date" id="check_out_date" name="reservation_check_out_date" class="form-control" readonly>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                               
-                                <div class="col-md-6"> 
-                                    <div class="card p-3 shadow-sm border-0"> 
-                                        <h6 class="fw-bold mb-3 text-success">Quantity</h6>
-                                        <div class="form-group">
-                                            <label for="quantity">Number of Rooms:</label> {{-- Updated label text --}}
-                                            <input type="number" id="quantity" name="quantity" class="form-control" min="1" value="1" required oninput="calculateTotalGuest()"> {{-- Added oninput event --}}
-                                            <small class="text-muted" style="font-size: 10px;">Number of rooms to reserve</small>
-                                        </div>
-                                    </div>
-                                </div>
-
-
                                 <!-- SPECIAL REQUEST -->
                                 <div class="col-md-12">
                                     <div class="card p-3 shadow-sm border-0">
@@ -291,38 +286,147 @@
             </div>
         </div>
     </div>
-
+    <!-- Payment Breakdown Modal -->
+    <div class="modal fade" id="paymentBreakdownModal" tabindex="-1" aria-labelledby="paymentBreakdownModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="paymentBreakdownModalLabel">Payment Breakdown</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="payment-details">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Room Price:</span>
+                            <span id="roomRate">₱0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Number of Rooms:</span>
+                            <span id="numberOfRooms">0</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Entrance Fee:</span>
+                            <span id="totalEntranceFeeDisplay">₱0.00</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between fw-bold">
+                            <span>Total Amount:</span>
+                            <span id="totalAmountDisplay">₱0.00</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-success" id="confirmPayment">Continue to Payment</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        document.getElementById("proceedToPayment").addEventListener("click", function () {
-            let modal = new bootstrap.Modal(document.getElementById("reservationModal"));
-            modal.show();
-        });
-    });
-  </script>
-    <script>
-    function resetFrontendAccommodations() {
-        console.log("Resetting accommodations to available...");
+    document.addEventListener("DOMContentLoaded", function() {
+        const submitButton = document.querySelector('button[type="submit"]');
+        const confirmPaymentBtn = document.getElementById('confirmPayment');
+        
+        submitButton.addEventListener("click", function(e) {
+            e.preventDefault();
+            
+            // Validate accommodation selection
+            const selectedAccommodation = document.querySelector('.select-accommodation.selected');
+            if (!selectedAccommodation) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No Room Selected',
+                    text: 'Please select a room before proceeding',
+                    confirmButtonColor: '#198754'
+                });
+                return;
+            }
+            
+            // Validate quantity
+            const quantity = parseInt(document.getElementById('quantity').value) || 0;
+            if (quantity <= 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Quantity',
+                    text: 'Please enter a quantity greater than 0',
+                    confirmButtonColor: '#198754'
+                });
+                return;
+            }
 
-        document.querySelectorAll(".select-accommodation").forEach(item => {
-            item.classList.remove("disabled");
-            item.classList.add("available");
-
-            // I-update ang status text at background color
-            let statusSpan = item.querySelector(".card-text");
-            if (statusSpan) {
-                statusSpan.textContent = "Available";
-                statusSpan.style.backgroundColor = "#C6F7D0"; // Green background for available
+            // Validate number of guests
+            const adults = parseInt(document.getElementById('number_of_adults').value) || 0;
+            const children = parseInt(document.getElementById('number_of_children').value) || 0;
+            
+            if (adults <= 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Number of Adults',
+                    text: 'Please enter the number of adults (must be greater than 0)',
+                    confirmButtonColor: '#198754'
+                });
+                return;
+            }
+            
+            if (adults + children <= 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Number of Guests',
+                    text: 'The total number of guests must be greater than 0',
+                    confirmButtonColor: '#198754'
+                });
+                return;
+            }
+            
+            // Compute payment details
+            const roomRate = parseFloat(selectedAccommodation.getAttribute('data-price')) || 0;
+            const totalEntranceFee = parseFloat(document.getElementById('total_entrance_fee').textContent.replace(/[^\d.]/g, '')) || 0;
+            
+            // Calculate total
+            const totalAmount = (roomRate * quantity) + totalEntranceFee;
+            
+            try {
+                // Update modal content with null checks
+                const roomRateElement = document.getElementById('roomRate');
+                const numberOfRoomsElement = document.getElementById('numberOfRooms');
+                const totalEntranceFeeElement = document.getElementById('totalEntranceFeeDisplay');
+                const totalAmountElement = document.getElementById('totalAmountDisplay');
+                
+                if (roomRateElement) roomRateElement.textContent = `₱${roomRate.toFixed(2)}`;
+                if (numberOfRoomsElement) numberOfRoomsElement.textContent = quantity;
+                if (totalEntranceFeeElement) totalEntranceFeeElement.textContent = `₱${totalEntranceFee.toFixed(2)}`;
+                if (totalAmountElement) totalAmountElement.textContent = `₱${totalAmount.toFixed(2)}`;
+                
+                // Show payment breakdown modal
+                const paymentBreakdownModal = new bootstrap.Modal(document.getElementById('paymentBreakdownModal'));
+                paymentBreakdownModal.show();
+            } catch (error) {
+                console.error('Error updating modal content:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'There was an error processing your request. Please try again.',
+                    confirmButtonColor: '#198754'
+                });
             }
         });
-    }
-
-    document.addEventListener("DOMContentLoaded", function () {
-        const checkInDateInput = document.getElementById("reservation_date");
-
-        checkInDateInput.addEventListener("change", function () {
-            resetFrontendAccommodations(); // I-reset ang frontend kapag nagbago ang check-in date
-        });
+        
+        if (confirmPaymentBtn) {
+            confirmPaymentBtn.addEventListener("click", function() {
+                try {
+                    // Close the breakdown modal
+                    const paymentBreakdownModal = bootstrap.Modal.getInstance(document.getElementById('paymentBreakdownModal'));
+                    if (paymentBreakdownModal) {
+                        paymentBreakdownModal.hide();
+                    }
+                    
+                    // Submit the form
+                    document.querySelector('form').submit();
+                } catch (error) {
+                    console.error('Error during form submission:', error);
+                }
+            });
+        }
     });
 </script>
 
@@ -420,28 +524,40 @@
         const accommodationCards = document.querySelectorAll(".select-accommodation");
         const totalAmountInput = document.getElementById("total_amount");
         const form = document.querySelector("form");
-        const proceedButton = document.getElementById("proceedToPayment"); // Add this line
+        const proceedButton = document.getElementById("proceedToPayment");
 
-        // Function para i-update ang estado ng button
+        // Function to update proceed button state
         function updateProceedButton() {
             const selectedAccommodations = document.querySelectorAll(".select-accommodation.selected");
             proceedButton.disabled = selectedAccommodations.length === 0;
         }
 
-        // Magdagdag ng click event listener sa bawat accommodation card
+        // Add click event listener to each accommodation card
         accommodationCards.forEach(card => {
             card.addEventListener("click", function () {
+                // Remove 'selected' class from all cards first
+                accommodationCards.forEach(c => {
+                    if (c !== this) {
+                        c.classList.remove("selected");
+                        // Remove any existing hidden inputs for other cards
+                        let otherId = c.getAttribute("data-id");
+                        let otherInput = document.querySelector(`input[name="accomodation_id"][value="${otherId}"]`);
+                        if (otherInput) otherInput.remove();
+                    }
+                });
+
+                // Toggle selected state for clicked card
                 this.classList.toggle("selected");
-                updateProceedButton(); // I-update ang button state tuwing may click
+                updateProceedButton();
 
                 let accommodationId = this.getAttribute("data-id");
-                let existingInput = document.querySelector(`input[name="accomodation_id[]"][value="${accommodationId}"]`);
+                let existingInput = document.querySelector(`input[name="accomodation_id"][value="${accommodationId}"]`);
 
                 if (this.classList.contains("selected")) {
                     if (!existingInput) {
                         let input = document.createElement("input");
                         input.type = "hidden";
-                        input.name = "accomodation_id[]";
+                        input.name = "accomodation_id"; // Changed from accomodation_id[]
                         input.value = accommodationId;
                         form.appendChild(input);
                     }
@@ -450,17 +566,21 @@
                 }
 
                 calculateTotalAmount();
+                calculateTotalGuest(); // Recalculate guest capacity when room selection changes
             });
         });
 
-        form.addEventListener("submit", function () {
-            document.querySelectorAll("input[name='accomodation_id[]']").forEach(input => {
-                let accommodationId = input.value;
-                let card = document.querySelector(`.select-accommodation[data-id="${accommodationId}"]`);
-                if (!card.classList.contains("selected")) {
-                    input.remove();
-                }
-            });
+        form.addEventListener("submit", function (e) {
+            const selectedRoom = document.querySelector(".select-accommodation.selected");
+            if (!selectedRoom) {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No Room Selected',
+                    text: 'Please select a room before proceeding.',
+                    confirmButtonColor: '#198754'
+                });
+            }
         });
 
         document.getElementById("number_of_adults").addEventListener("input", calculateTotalGuest);
@@ -595,4 +715,3 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 </body>
 </html>
-

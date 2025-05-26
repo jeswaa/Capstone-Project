@@ -125,18 +125,55 @@
     <div class="container-fluid py-4">
         <div class="row">
             <div class="col-md-4">
-                <div class="reservation-controls">
+                <div class="reservation-controls" style="background-color: white;">
                     <div class="btn-group w-100 mb-4" role="group">
-                        <button type="button" class="btn btn-success active flex-grow-1" id="stayinBtn">
+                        <button type="button" class="btn btn-success active flex-grow-1 reservation-btn" id="stayinBtn">
                             OVERNIGHT STAY
                         </button>
                         
-                        <button type="button" class="btn btn-success flex-grow-1" id="daytourBtn">
+                        <button type="button" class="btn btn-success flex-grow-1 reservation-btn" id="daytourBtn">
                             ONE DAY STAY
                         </button>
                     </div>
 
-                    <div class="selected-dates mb-4 p-4 rounded-3" id="selectedDatesBox">
+                    <style>
+                        .reservation-btn {
+                            position: relative;
+                            overflow: hidden;
+                            transition: all 0.3s ease;
+                        }
+
+                        .reservation-btn:hover {
+                            transform: translateY(-2px);
+                            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+                        }
+
+                        .reservation-btn.active {
+                            background-color: #1a6e3d !important;
+                            border-color: #1a6e3d !important;
+                            transform: scale(1.02);
+                            animation: buttonGlow 2s infinite;
+                        }
+
+                        @keyframes buttonGlow {
+                            0% {
+                                box-shadow: 0 0 5px #2ecc71;
+                            }
+                            50% {
+                                box-shadow: 0 0 20px #2ecc71, 0 0 30px #2ecc71;
+                            }
+                            100% {
+                                box-shadow: 0 0 5px #2ecc71;
+                            }
+                        }
+
+                        .reservation-btn:active {
+                            transform: scale(0.98);
+                            background-color: #145a32 !important;
+                        }
+                    </style>
+
+                    <div class="selected-dates mb-4 p-4 rounded-3" id="selectedDatesBox" style="background-color: white;">
                         <h5 class="text-center mb-3 text-success">Chosen Dates:</h5>
                         
                         <div class="row text-center">
@@ -152,7 +189,7 @@
                         </div>
                     </div>
 
-                    <div id="overnightInstructions" class="instructions-box p-4 rounded-3">
+                    <div id="overnightInstructions" class="instructions-box p-4 rounded-3" style="background-color: white;">
                         <h5 class="text-center mb-3 text-success">How to Book an Overnight Stay</h5>
                         
                         <ol class="mb-0">
@@ -165,8 +202,9 @@
                             </li>
                         </ol>
                     </div>
-
-                    <div id="daytourInstructions" class="instructions-box p-4 rounded-3" style="display: none;">
+                        
+                    
+                    <div id="daytourInstructions" class="instructions-box p-4 rounded-3" style="display: none; background-color: white;">
                         <h5 class="text-center mb-3 text-success">How to Book a Day Tour</h5>
                         
                         <ol class="mb-0">
@@ -184,11 +222,10 @@
                 </div>
             </div>
             <div class="col-md-8 mb-4 mb-md-0">
-                <div id="calendar" class="p-3 mt-4 mt-md-0" style="border: 2px solid #198754; border-radius: 10px;"></div>
+                <div id="calendar" class="p-3 mt-4 mt-md-0" style="border: 2px solid #198754; border-radius: 10px; background-color: white;"></div>
             </div>
         </div>
     </div>
-
     <script>
 document.addEventListener('DOMContentLoaded', function() {
     const calendarEl = document.getElementById('calendar');

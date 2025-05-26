@@ -183,23 +183,23 @@
                                             alt="Hotel Image 2">
                                     </div>
                                     <div class="carousel-item" data-bs-interval="5000">
-                                        <img src="{{ asset('images/image8.jpg') }}" class="d-block w-100 rounded"
+                                        <img src="{{ asset('images/image8.JPG') }}" class="d-block w-100 rounded"
                                             alt="Hotel Image 3">
                                     </div>
                                     <div class="carousel-item" data-bs-interval="5000">
-                                        <img src="{{ asset('images/image10.jpg') }}" class="d-block w-100 rounded"
+                                        <img src="{{ asset('images/image10.JPG') }}" class="d-block w-100 rounded"
                                             alt="Hotel Image 3">
                                     </div>
                                     <div class="carousel-item" data-bs-interval="5000">
-                                        <img src="{{ asset('images/image3.jpg') }}" class="d-block w-100 rounded"
+                                        <img src="{{ asset('images/image3.JPG') }}" class="d-block w-100 rounded"
                                             alt="Hotel Image 3">
                                     </div>
                                     <div class="carousel-item" data-bs-interval="5000">
-                                        <img src="{{ asset('images/image9.jpg') }}" class="d-block w-100 rounded"
+                                        <img src="{{ asset('images/image9.JPG') }}" class="d-block w-100 rounded"
                                             alt="Hotel Image 3">
                                     </div>
                                     <div class="carousel-item" data-bs-interval="5000">
-                                        <img src="{{ asset('images/image2.jpg') }}" class="d-block w-100 rounded"
+                                        <img src="{{ asset('images/image2.JPG') }}" class="d-block w-100 rounded"
                                             alt="Hotel Image 3">
                                     </div>
                                 </div>
@@ -266,23 +266,23 @@
                                             alt="Hotel Image 2">
                                     </div>
                                     <div class="carousel-item" data-bs-interval="5000">
-                                        <img src="{{ asset('images/image8.jpg') }}" class="d-block w-100 rounded"
+                                        <img src="{{ asset('images/image8.JPG') }}" class="d-block w-100 rounded"
                                             alt="Hotel Image 3">
                                     </div>
                                     <div class="carousel-item" data-bs-interval="5000">
-                                        <img src="{{ asset('images/image10.jpg') }}" class="d-block w-100 rounded"
+                                        <img src="{{ asset('images/image10.JPG') }}" class="d-block w-100 rounded"
                                             alt="Hotel Image 3">
                                     </div>
                                     <div class="carousel-item" data-bs-interval="5000">
-                                        <img src="{{ asset('images/image3.jpg') }}" class="d-block w-100 rounded"
+                                        <img src="{{ asset('images/image3.JPG') }}" class="d-block w-100 rounded"
                                             alt="Hotel Image 3">
                                     </div>
                                     <div class="carousel-item" data-bs-interval="5000">
-                                        <img src="{{ asset('images/image9.jpg') }}" class="d-block w-100 rounded"
+                                        <img src="{{ asset('images/image9.JPG') }}" class="d-block w-100 rounded"
                                             alt="Hotel Image 3">
                                     </div>
                                     <div class="carousel-item" data-bs-interval="5000">
-                                        <img src="{{ asset('images/image2.jpg') }}" class="d-block w-100 rounded"
+                                        <img src="{{ asset('images/image2.JPG') }}" class="d-block w-100 rounded"
                                             alt="Hotel Image 3">
                                     </div>
                                 </div>

@@ -1469,7 +1469,8 @@ public function addRoom(Request $request)
         'accomodation_status' => 'required|in:available,unavailable',
         'room_id' => 'required|numeric',
         'accomodation_description' => 'nullable|string',
-        'quantity' => 'required|numeric|min:1' // Added quantity validation
+        'quantity' => 'required|numeric|min:1', // Added quantity validation
+        'amenities' => 'nullable|string', // Added amenities validation
     ]);
 
     // Attempt to store the image
@@ -1488,7 +1489,6 @@ public function addRoom(Request $request)
     if (!$accomodationType) {
         return redirect()->back()->with('error', 'Invalid accommodation type. Please select a valid type.');
     }
-
     // Save the data into the database
     $inserted = DB::table('accomodations')->insert([
         'accomodation_image' => $imagePath,
@@ -1499,7 +1499,8 @@ public function addRoom(Request $request)
         'accomodation_status' => $request->accomodation_status,
         'room_id' => $request->room_id,
         'accomodation_description' => $request->accomodation_description,
-        'quantity' => $request->quantity, // Added quantity field
+        'quantity' => $request->quantity,
+        'amenities' => $request->amenities, // Added amenities field
         'created_at' => now(),
         'updated_at' => now(),
     ]);
@@ -1512,51 +1513,53 @@ public function addRoom(Request $request)
     return redirect()->route('rooms')->with('success', 'Accommodation added successfully!');
 }
 
+public function updateRoom(Request $request, $accomodation_id)
+{
+    $request->validate([
+        'accomodation_image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+        'accomodation_name' => 'required|string|max:255',
+        'accomodation_type' => 'required|in:room,cottage',
+        'accomodation_capacity' => 'required|numeric|min:1',
+        'accomodation_price' => 'required|numeric|min:0',
+        'accomodation_status' => 'required|in:available,unavailable',
+        'room_id' => 'required|numeric',
+        'accomodation_description' => 'nullable|string',
+        'amenities' => 'nullable|string', // Added amenities validation
+    ]);
 
-    public function updateRoom(Request $request, $accomodation_id)
-    {
-        $request->validate([
-            'accomodation_image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
-            'accomodation_name' => 'required|string|max:255',
-            'accomodation_type' => 'required|in:room,cottage',
-            'accomodation_capacity' => 'required|numeric|min:1',
-            'accomodation_price' => 'required|numeric|min:0',
-            'accomodation_status' => 'required|in:available,unavailable',
-            'room_id' => 'required|numeric',
-            'accomodation_description' => 'nullable|string',
-        ]);
+    // Find accommodation using Eloquent
+    $accomodation = Accomodation::find($accomodation_id);
 
-        // Find accommodation using Eloquent
-        $accomodation = Accomodation::find($accomodation_id);
-
-        if (!$accomodation) {
-            return redirect()->back()->with('error', 'Accommodation not found.');
-        }
-
-        // Handle image upload
-        if ($request->hasFile('accomodation_image')) {
-            // Delete the old image if it exists
-            if ($accomodation->accomodation_image) {
-                Storage::delete('public/' . $accomodation->accomodation_image);
-            }
-
-            // Store the new image
-            $imagePath = $request->file('accomodation_image')->store('public/accomodations');
-            $accomodation->accomodation_image = str_replace('public/', '', $imagePath);
-        }
-
-        // Update other fields
-        $accomodation->accomodation_name = $request->accomodation_name;
-        $accomodation->accomodation_type = $request->accomodation_type;
-        $accomodation->accomodation_capacity = $request->accomodation_capacity;
-        $accomodation->accomodation_price = $request->accomodation_price;
-        $accomodation->accomodation_status = $request->accomodation_status;
-        $accomodation->room_id = $request->room_id;
-        $accomodation->accomodation_description = $request->accomodation_description;
-        $accomodation->save();
-
-        return redirect()->route('rooms')->with('success', 'Accommodation updated successfully!');
+    if (!$accomodation) {
+        return redirect()->back()->with('error', 'Accommodation not found.');
     }
+
+    // Handle image upload
+    if ($request->hasFile('accomodation_image')) {
+        // Delete the old image if it exists
+        if ($accomodation->accomodation_image) {
+            Storage::delete('public/' . $accomodation->accomodation_image);
+        }
+
+        // Store the new image
+        $imagePath = $request->file('accomodation_image')->store('public/accomodations');
+        $accomodation->accomodation_image = str_replace('public/', '', $imagePath);
+    }
+
+    // Update other fields
+    $accomodation->accomodation_name = $request->accomodation_name;
+    $accomodation->accomodation_type = $request->accomodation_type;
+    $accomodation->accomodation_capacity = $request->accomodation_capacity;
+    $accomodation->accomodation_price = $request->accomodation_price;
+    $accomodation->accomodation_status = $request->accomodation_status;
+    $accomodation->room_id = $request->room_id;
+    $accomodation->accomodation_description = $request->accomodation_description;
+    $accomodation->amenities = $request->amenities;
+
+    $accomodation->save();
+
+    return redirect()->route('rooms')->with('success', 'Accommodation updated successfully!');
+}
 
     public function deleteRoom($accomodation_id)
     {

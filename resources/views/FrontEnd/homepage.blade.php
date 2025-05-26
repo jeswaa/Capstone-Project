@@ -9,7 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <style>
@@ -85,7 +84,7 @@
     }
 </style>
 <body>
-    <nav class="navbar navbar-expand-lg position-absolute top-0 w-100 mt-4" style="z-index: 10;">
+<nav class="navbar navbar-expand-lg position-absolute top-0 w-100 mt-4" style="z-index: 10;">
         <div class="container">
             <a href="{{ route('profile') }}" class="text-decoration-none me-auto">
                 <div class="profile-icon d-flex align-items-center justify-content-center" 
@@ -112,7 +111,7 @@
                         <a class="nav-link fw-semibold text-uppercase text-decoration-none" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif; transition: color 0.3s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#0b573d'" href="#activities">Activities</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase text-decoration-none" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif; transition: color 0.3s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#0b573d'" href="#about">About Us</a>
+                        <a class="nav-link fw-semibold text-uppercase text-decoration-none" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif; transition: color 0.3s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#0b573d'" href="{{route ('getAllReservations')}}">Reservations</a>
                     </li>
                 </ul>
             </div>
@@ -287,11 +286,6 @@
                                     </button>
                                 </div>
                             </div>
-                            <div class="mb-3">
-                                <span class="badge" style="background-color: #0b573d; font-size: 1.2rem; padding: 10px 18px;">
-                                    Amount to pay: ₱<span id="totalAmount"></span>
-                                </span>
-                            </div>
                             <input type="hidden" id="modalRoomId" name="accomodation_id">
                         </div>
                         
@@ -300,7 +294,7 @@
                             <div class="card-body p-3">
                                 <div class="mb-3">
                                   <label for="numAdults" class="form-label" style="color: #0b573d;">Number of Adults</label>
-                                  <input type="number" min="1" value="1" class="form-control border-success" id="numAdults" name="number_of_adults" required>
+                                  <input type="number" min="0" value="0" class="form-control border-success" id="numAdults" name="number_of_adults" required>
                                 </div>
                                 <div class="mb-3">
                                   <label for="numChildren" class="form-label" style="color: #0b573d;">Number of Children</label>
@@ -388,7 +382,14 @@
                         <h5 class="card-title mb-0" style="font-style: italic; color: #0b573d;">Cottage 6</h5>
                     </div>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer d-flex justify-content-end align-items-center gap-3">
+                    <div class="badge" 
+                        style="background-color: #0b573d; 
+                                font-size: clamp(1rem, 2.5vw, 1.2rem);
+                                padding: clamp(8px, 2vw, 18px);">
+                        <span class="text-nowrap">Amount to pay: </span>
+                        <span class="ms-1">₱<span id="totalAmount"></span></span>
+                    </div>
                     <button type="submit" class="btn btn-success" id="reserveButton" style="background-color: #0b573d;">Reserve</button>
                 </div>
             </form>
@@ -451,78 +452,7 @@
             </div>
         </div>
     </section>
-
-    <section id="about">
-
-<div class="container">
-    <h1 class="fw-bold text-uppercase text-start mt-4"
-        style="font-size: calc(2rem + 1vw); color: #0b573d; font-family: 'Anton', sans-serif; letter-spacing: 0.1em;">
-        ABOUT</h1>
-</div>
-
-
-<div class="container py-4">
-    <div class="row">
-        <div class="col-md-6">
-            <div class="p-4 h-100" style="background: #0b573d; border-radius: 10px;">
-                <h5 class="text-center mb-4"
-                    style="font-size: 2.5rem; color: white; font-family: 'Montserrat', sans-serif; font-weight: 600;">
-                    Lelo's Resort Location
-                </h5>
-                <div class="map-container"
-                    style="position: relative; overflow: hidden; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                    <iframe
-                        src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d961.0491022967285!2d121.15607442205169!3d15.527598132646467!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x339733007d27d00d%3A0xb261c522c057f04f!2sLelo&#39;s%20Peak!5e0!3m2!1sen!2sus!4v1746511741643!5m2!1sen!2sus"
-                        width="100%" height="350" style="border: none;" allowfullscreen="" loading="lazy"
-                        referrerpolicy="no-referrer-when-downgrade">
-                    </iframe>
-                </div>
-                <div class=" text-start">
-                    <h5
-                        style="font-size: 2rem; color: white; font-family: 'Montserrat', sans-serif; font-weight: 600;">
-                        Our Locations
-                    </h5>
-                    <p
-                        style="font-size: 1.2rem; color: white; font-family: 'Montserrat', sans-serif; margin-bottom: 0.8rem;">
-                        Resort: Laur, Nueva Ecija, Philippines
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <!-- Second section content -->
-            <div class="p-4 h-100">
-                <div class="d-flex flex-column h-100">
-                    <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" class="img-fluid mb-4"
-                        style="height: 150px; width: auto; margin: -20px auto; display: block;">
-
-                    <div class="text-start">
-                        <h3 class="mb-4"
-                            style="color: #0b573d; font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 2.5rem;">
-                            About Lelo's Resort</h3>
-
-                        <div class="mb-4">
-                            <h5
-                                style="color: #0b573d; font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 1.8rem;">
-                                Our Story</h5>
-                            <p style="font-family: 'Montserrat', sans-serif; font-size: 1.2rem; color: #333;">
-                                Established in 2020, Lelo's Resort has been providing a serene mountain getaway
-                                experience for families and friends. Nestled in the heart of Nueva Ecija, our
-                                resorts offer stunning views, comfortable accommodations, and a perfect blend of
-                                nature and modern amenities.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-</section>
-
-
-
-    <!-- footer section -->
+      <!-- footer section -->
     <footer style="background-color: #0b573d; height: auto; padding: 20px;">
         <div class="container">
             <div class="row align-items-center">
@@ -547,19 +477,6 @@
         </div>
     </footer>
 
-<script>
-function incrementQuantity() {
-    var input = document.getElementById('modalRoomQty');
-    input.value = parseInt(input.value) + 1;
-}
-
-function decrementQuantity() {
-    var input = document.getElementById('modalRoomQty');
-    if (parseInt(input.value) > 1) {
-        input.value = parseInt(input.value) - 1;
-    }
-}
-</script>
 <script>
 let roomCapacity = 0;
 
@@ -632,74 +549,76 @@ function decrementQuantity() {
 }
 </script>
 <script>
-    function updateTotalGuests() {
-        var adults = parseInt($('#numAdults').val()) || 0;
-        var children = parseInt($('#numChildren').val()) || 0;
-        var quantity = parseInt($('#modalRoomQty').val()) || 1;
-        var totalCapacity = roomCapacity * quantity;
-        var totalGuests = adults + children;
-        
-        $('#totalGuest').val(totalGuests);
-        
-        var errorDiv = $('#capacityError');
-        if (!errorDiv.length) {
-            $('#totalGuest').after('<div id="capacityError" class="text-danger mt-2"></div>');
-            errorDiv = $('#capacityError');
-        }
-        
-        if (totalGuests > totalCapacity) {
-            errorDiv.text(`Exceeded maximum capacity of ${totalCapacity} guests for this accommodation!`);
-            $('#reserveButton').prop('disabled', true);
-        } else {
-            errorDiv.text('');
-            $('#reserveButton').prop('disabled', false);
-        }
-    }
-
-    // Add event listeners
-    $('#numAdults, #numChildren, #modalRoomQty').on('change', updateTotalGuests);
-</script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const reservationType = document.getElementById('reservationType');
         const checkInDate = document.getElementById('checkInDate');
         const checkOutDate = document.getElementById('checkOutDate');
         const checkOutDateGroup = document.getElementById('checkOutDateGroup');
+        const checkInTime = document.getElementById('checkInTime');
+        const checkOutTime = document.getElementById('checkOutTime');
 
-        // Handle reservation type change
-        reservationType.addEventListener('change', function() {
-            if (this.value === 'one_day') {
+        function addOptionIfMissing(selectElement, value, label) {
+            const exists = Array.from(selectElement.options).some(opt => opt.value === value);
+            if (!exists) {
+                const newOption = document.createElement('option');
+                newOption.value = value;
+                newOption.textContent = label;
+                selectElement.appendChild(newOption);
+            }
+            selectElement.value = value;
+        }
+
+        function handleReservationTypeChange() {
+            if (reservationType.value === 'one_day') {
                 checkOutDateGroup.style.display = 'none';
                 checkOutDate.value = checkInDate.value;
+            } else if (reservationType.value === 'overnight') {
+                checkOutDateGroup.style.display = 'block';
+
+                // Add/check 2:00 PM and 12:00 PM options
+                addOptionIfMissing(checkInTime, '14:00:00', '02:00 PM');
+                addOptionIfMissing(checkOutTime, '12:00:00', '12:00 PM');
             } else {
                 checkOutDateGroup.style.display = 'block';
             }
-        });
+        }
 
-        // Handle check-in date change
-        checkInDate.addEventListener('change', function() {
+        reservationType.addEventListener('change', handleReservationTypeChange);
+
+        checkInDate.addEventListener('change', function () {
             if (reservationType.value === 'one_day') {
                 checkOutDate.value = this.value;
             }
         });
+
+        handleReservationTypeChange(); // On load
     });
 </script>
+
 <script>
     function calculateTotalAmount() {
         const quantity = parseInt(document.getElementById('modalRoomQty').value) || 1;
         const priceText = document.getElementById('modalRoomPrice').textContent;
         const price = parseFloat(priceText.replace(/[^0-9.]/g, ''));
-        const checkInDate = new Date(document.getElementById('checkInDate').value);
-        const checkOutDate = new Date(document.getElementById('checkOutDate').value);
+        const checkInDateValue = document.getElementById('checkInDate').value;
+        const checkOutDateValue = document.getElementById('checkOutDate').value;
         const reservationType = document.getElementById('reservationType').value;
+
+        const checkInDate = new Date(checkInDateValue);
+        const checkOutDate = new Date(checkOutDateValue);
 
         if (!isNaN(price) && !isNaN(quantity)) {
             let totalAmount = quantity * price;
-            
+
             if (reservationType === 'overnight') {
-                const timeDiff = checkOutDate - checkInDate;
-                const stayDuration = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-                totalAmount *= stayDuration;
+                if (checkInDateValue && checkOutDateValue && !isNaN(checkInDate) && !isNaN(checkOutDate)) {
+                    const timeDiff = checkOutDate - checkInDate;
+                    const stayDuration = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+                    const validDuration = stayDuration > 0 ? stayDuration : 1;
+                    totalAmount = quantity * price * validDuration;
+                } else {
+                    totalAmount = quantity * price * 1;
+                }
             }
 
             document.getElementById('totalAmount').textContent = totalAmount.toLocaleString('en-US', {
@@ -708,6 +627,24 @@ function decrementQuantity() {
             });
         } else {
             document.getElementById('totalAmount').textContent = '0.00';
+        }
+    }
+
+    function updateDateFields() {
+        const reservationType = document.getElementById('reservationType').value;
+        const checkInDateInput = document.getElementById('checkInDate');
+        const checkOutDateInput = document.getElementById('checkOutDate');
+
+        if (reservationType === 'overnight') {
+            const now = new Date();
+
+            // Set check-in: today 2:00 PM
+            const checkInDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 14, 0);
+            checkInDateInput.value = checkInDate.toISOString().slice(0, 16);
+
+            // Set check-out: tomorrow 12:00 PM
+            const checkOutDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 12, 0);
+            checkOutDateInput.value = checkOutDate.toISOString().slice(0, 16);
         }
     }
 
@@ -725,22 +662,26 @@ function decrementQuantity() {
         }
     }
 
-        document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const quantityInput = document.getElementById('modalRoomQty');
         const checkInDateInput = document.getElementById('checkInDate');
         const checkOutDateInput = document.getElementById('checkOutDate');
-        
+        const reservationTypeInput = document.getElementById('reservationType');
+
         quantityInput.addEventListener('change', calculateTotalAmount);
         quantityInput.addEventListener('input', calculateTotalAmount);
         checkInDateInput.addEventListener('change', calculateTotalAmount);
         checkOutDateInput.addEventListener('change', calculateTotalAmount);
-        
-        // Initialize total amount on modal open
-        $('#reservationModal').on('show.bs.modal', function() {
+        reservationTypeInput.addEventListener('change', function () {
+            updateDateFields(); // auto-fill, not disable
+            calculateTotalAmount();
+        });
+
+        $('#reservationModal').on('show.bs.modal', function () {
+            updateDateFields();
             calculateTotalAmount();
         });
     });
 </script>
 </body>
 </html>
-

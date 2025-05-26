@@ -12,7 +12,7 @@ class HomePageController extends Controller
 {
     public function homepage()
     {
-        return view('Frontend.homepage'); // Ensure 'homepage' matches your blade file name
+        return view('FrontEnd.homepage'); // Ensure 'homepage' matches your blade file name
     }
 public function profilepage()
 {
@@ -66,7 +66,7 @@ public function profilepage()
             ->get();
     }
 
-    return view('Frontend.profilepage', [
+    return view('FrontEnd.profilepage', [
         'user' => $user,
         'latestReservation' => $latestReservation,
         'pastReservations' => $pastReservations,
@@ -132,6 +132,60 @@ public function profilepage()
         $request->session()->regenerateToken();
 
         return redirect()->route('login')->with('success', 'Logged out successfully!');
+    }
+
+    public function getAllReservations()
+    {
+        $userId = Auth::id();
+        if (!$userId) {
+            return redirect()->route('login')->with('error', 'Please login to view your reservations.');
+        }
+
+        // Get the latest reservation ID to exclude
+        $latestReservation = DB::table('reservation_details')
+            ->where('user_id', $userId)
+            ->orderByDesc('id')
+            ->first();
+
+        // Fetch all reservations except the latest one
+        $allReservations = DB::table('reservation_details')
+            ->leftJoin('activitiestbl', 'reservation_details.activity_id', '=', 'activitiestbl.id')
+            ->where('reservation_details.user_id', $userId)
+            ->when($latestReservation, function($query) use ($latestReservation) {
+                return $query->where('reservation_details.id', '!=', $latestReservation->id);
+            })
+            ->select(
+                'reservation_details.*',
+                'activitiestbl.activity_name',
+                'activitiestbl.id as activity_id'
+            )
+            ->orderByDesc('reservation_details.reservation_check_in_date')
+            ->get();
+
+        // Process accommodations for each reservation
+        foreach ($allReservations as $reservation) {
+            $accommodations = [];
+            if ($reservation->accomodation_id) {
+                $accommodationIds = json_decode($reservation->accomodation_id, true);
+                
+                if (is_array($accommodationIds) && count($accommodationIds) > 0) {
+                    $accommodations = DB::table('accomodations')
+                        ->whereIn('accomodation_id', $accommodationIds)
+                        ->pluck('accomodation_name')
+                        ->toArray();
+                } elseif (is_numeric($accommodationIds)) {
+                    $accommodations = DB::table('accomodations')
+                        ->where('accomodation_id', $accommodationIds)
+                        ->pluck('accomodation_name')
+                        ->toArray();
+                }
+            }
+            $reservation->accommodations = $accommodations;
+        }
+
+        return view('FrontEnd.allReservations', [
+            'reservations' => $allReservations
+        ]);
     }
 
     
