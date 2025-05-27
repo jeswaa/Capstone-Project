@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stay In</title>
     <link
+        href="https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:wght@100..900&family=Poppins:wght@100..900&display=swap"
+        rel="stylesheet">
+    <link
         href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
@@ -14,6 +17,19 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <style>
+    h1,
+    h5 {
+        font-family: 'Anton', sans-serif;
+    }
+
+    body,
+    p,
+    h6,
+    li,
+    span {
+        font-family: 'Montserrat', sans-serif;
+    }
+
     .select-accommodation {
         cursor: pointer;
         transition: all 0.3s ease;
@@ -101,11 +117,13 @@
                                                     data-bs-target="#roomModal{{ $accomodation->accomodation_id }}"></i>
                                             </div>
                                             <h5 class="text-success text-capitalize font-heading fs-4 fw-bold">
-                                                {{ $accomodation->accomodation_name }}</h5>
+                                                {{ $accomodation->accomodation_name }}
+                                            </h5>
                                             <p class="card-text text-success font-paragraph" style="font-size: smaller;">
                                                 Description: {{ $accomodation->accomodation_description }}</p>
                                             <p class="card-text text-success font-paragraph">Capacity:
-                                                {{ $accomodation->accomodation_capacity }} pax</p>
+                                                {{ $accomodation->accomodation_capacity }} pax
+                                            </p>
                                             <p class="card-text font-paragraph fw-bold text-success"
                                                 style="text-align: right;">Price: <span
                                                     style="background-color: #0b573d; color: white; padding: 2px 5px;">₱{{ $accomodation->accomodation_price }}</span>
@@ -123,7 +141,8 @@
                                                 <h5 class="modal-title text-white text-uppercase"
                                                     style="font-family: 'Anton', sans-serif; letter-spacing: 0.1em;"
                                                     id="roomModalLabel{{ $accomodation->accomodation_id }}">
-                                                    {{ $accomodation->accomodation_name }}</h5>
+                                                    {{ $accomodation->accomodation_name }}
+                                                </h5>
                                                 <button type="button" class="btn-close btn-close-white"
                                                     data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
@@ -150,7 +169,8 @@
                                                             <h6 class="text-uppercase fw-bold" style="color: #0b573d;">
                                                                 Description</h6>
                                                             <p class="text-muted mb-0">
-                                                                {{ $accomodation->accomodation_description }}</p>
+                                                                {{ $accomodation->accomodation_description }}
+                                                            </p>
                                                         </div>
                                                         <div class="mb-4">
                                                             <h6 class="text-uppercase fw-bold" style="color: #0b573d;">
@@ -161,7 +181,8 @@
                                                             <h6 class="text-uppercase fw-bold" style="color: #0b573d;">
                                                                 Capacity</h6>
                                                             <p class="text-muted mb-0">
-                                                                {{ $accomodation->accomodation_capacity }} pax</p>
+                                                                {{ $accomodation->accomodation_capacity }} pax
+                                                            </p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -189,7 +210,8 @@
                                         alt="{{ $activity->activity_name }}">
                                     <div class="d-flex align-items-center ms-3">
                                         <p class="text-success text-capitalize font-heading fs-4 fw-bold">
-                                            {{ $activity->activity_name }}</p>
+                                            {{ $activity->activity_name }}
+                                        </p>
                                     </div>
                                     <div class="d-none form-check">
                                         <input class="form-check-input" type="checkbox" id="activity{{ $activity->id }}"

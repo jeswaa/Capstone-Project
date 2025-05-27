@@ -15,6 +15,8 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <style>
+    h1, h5 { font-family: 'Anton', sans-serif; }
+    body, p, h6, li, span { font-family: 'Montserrat', sans-serif; }
     .animate-button {
         transform: scale(1.05);
         box-shadow: 0 0 20px rgba(0, 87, 61, 0.5);

@@ -4,9 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Reservations - Lelo's Resort</title>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:wght@100..900&family=Poppins:wght@100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
 </head>
+<style>
+    h1, h5 { font-family: 'Anton', sans-serif; }
+    body, p, h6, li, span { font-family: 'Montserrat', sans-serif; }
+</style>
 <body class="bg-light">
     <div class="text-start ms-5 mt-4">
         <a href="{{ route('homepage') }}" class="btn btn-success" style="background-color: #0b573d;">
