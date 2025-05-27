@@ -15,6 +15,14 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <style>
+        h1, h2, h3, h4, h5, h6 {
+        font-family: 'Anton', sans-serif;
+    }
+
+    body, p, span, a, div {
+        font-family: 'Montserrat', sans-serif;
+    }
+
     .animate-button {
         transform: scale(1.05);
         box-shadow: 0 0 20px rgba(0, 87, 61, 0.5);
@@ -43,9 +51,7 @@
     .navbar-nav .nav-link:hover {
         color: white;
     }
-
-
-
+    
     /* Hover for small screens */
     @media (max-width: 991px) {
         .navbar-nav {
@@ -83,7 +89,7 @@
 
 <body>
     <!-- ✅ Navbar (Fixed at the Top with z-index) -->
-    <nav class="navbar navbar-expand-lg position-absolute top-0 w-100" style="z-index: 10;">
+    <nav class="navbar navbar-expand-lg position-fixed top-0 w-100" style="z-index: 10; background-color: rgba(255, 255, 255, 0.15); transition: background-color 0.3s ease;">
         <div class="container">
             <!-- Logo - visible on all screens, aligned left -->
             <a class="navbar-brand" href="#">
@@ -105,7 +111,7 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link fw-semibold text-uppercase text-decoration-none"
-                            href="#reviews">Review</a>
+                            href="#reviews">Reviews</a>
                     </li>
                     <li class="nav-item">
                         <a href="{{ route('login') }}"
@@ -175,23 +181,19 @@
                             <div id="carouselExampleInterval" class="carousel slide" data-bs-ride="carousel">
                                 <div class="carousel-inner">
                                     <div class="carousel-item active" data-bs-interval="5000">
-                                        <img src="{{ asset('images/image1.JPG') }}" class="d-block w-100 rounded"
+                                        <img src="{{ asset('images/harap.JPG') }}" class="d-block w-100 rounded"
                                             alt="Hotel Image 1">
                                     </div>
                                     <div class="carousel-item" data-bs-interval="5000">
-                                        <img src="{{ asset('images/image5.JPG') }}" class="d-block w-100 rounded"
+                                        <img src="{{ asset('images/labas.JPG') }}" class="d-block w-100 rounded"
                                             alt="Hotel Image 2">
                                     </div>
                                     <div class="carousel-item" data-bs-interval="5000">
-                                        <img src="{{ asset('images/image8.JPG') }}" class="d-block w-100 rounded"
+                                        <img src="{{ asset('images/loob.JPG') }}" class="d-block w-100 rounded"
                                             alt="Hotel Image 3">
                                     </div>
                                     <div class="carousel-item" data-bs-interval="5000">
-                                        <img src="{{ asset('images/image10.JPG') }}" class="d-block w-100 rounded"
-                                            alt="Hotel Image 3">
-                                    </div>
-                                    <div class="carousel-item" data-bs-interval="5000">
-                                        <img src="{{ asset('images/image3.JPG') }}" class="d-block w-100 rounded"
+                                        <img src="{{ asset('images/una.JPG') }}" class="d-block w-100 rounded"
                                             alt="Hotel Image 3">
                                     </div>
                                     <div class="carousel-item" data-bs-interval="5000">
@@ -199,7 +201,11 @@
                                             alt="Hotel Image 3">
                                     </div>
                                     <div class="carousel-item" data-bs-interval="5000">
-                                        <img src="{{ asset('images/image2.JPG') }}" class="d-block w-100 rounded"
+                                        <img src="{{ asset('images/dalawa.JPG') }}" class="d-block w-100 rounded"
+                                            alt="Hotel Image 3">
+                                    </div>
+                                    <div class="carousel-item" data-bs-interval="5000">
+                                        <img src="{{ asset('images/tatlo.JPG') }}" class="d-block w-100 rounded"
                                             alt="Hotel Image 3">
                                     </div>
                                 </div>
@@ -255,7 +261,7 @@
                         </div>
                         <!-- Right Carousel Section -->
                         <div class="col-lg-6">
-                            <div id="carouselExampleInterval" class="carousel slide" data-bs-ride="carousel">
+                            <div id="carouselExampleInterval2" class="carousel slide" data-bs-ride="carousel">
                                 <div class="carousel-inner">
                                     <div class="carousel-item active" data-bs-interval="5000">
                                         <img src="{{ asset('images/image1.JPG') }}" class="d-block w-100 rounded"
@@ -271,28 +277,28 @@
                                     </div>
                                     <div class="carousel-item" data-bs-interval="5000">
                                         <img src="{{ asset('images/image10.JPG') }}" class="d-block w-100 rounded"
-                                            alt="Hotel Image 3">
+                                            alt="Hotel Image 4">
                                     </div>
                                     <div class="carousel-item" data-bs-interval="5000">
                                         <img src="{{ asset('images/image3.JPG') }}" class="d-block w-100 rounded"
-                                            alt="Hotel Image 3">
+                                            alt="Hotel Image 5">
                                     </div>
                                     <div class="carousel-item" data-bs-interval="5000">
                                         <img src="{{ asset('images/image9.JPG') }}" class="d-block w-100 rounded"
-                                            alt="Hotel Image 3">
+                                            alt="Hotel Image 6">
                                     </div>
                                     <div class="carousel-item" data-bs-interval="5000">
                                         <img src="{{ asset('images/image2.JPG') }}" class="d-block w-100 rounded"
-                                            alt="Hotel Image 3">
+                                            alt="Hotel Image 7">
                                     </div>
                                 </div>
                                 <button class="carousel-control-prev" type="button"
-                                    data-bs-target="#carouselExampleInterval" data-bs-slide="prev">
+                                    data-bs-target="#carouselExampleInterval2" data-bs-slide="prev">
                                     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                                     <span class="visually-hidden">Previous</span>
                                 </button>
                                 <button class="carousel-control-next" type="button"
-                                    data-bs-target="#carouselExampleInterval" data-bs-slide="next">
+                                    data-bs-target="#carouselExampleInterval2" data-bs-slide="next">
                                     <span class="carousel-control-next-icon" aria-hidden="true"></span>
                                     <span class="visually-hidden">Next</span>
                                 </button>
@@ -424,7 +430,7 @@
         <div class="container">
             <h1 class="fw-bold text-uppercase text-start mt-4"
                 style="font-size: calc(2rem + 1vw); color: #0b573d; font-family: 'Anton', sans-serif; letter-spacing: 0.1em;">
-                ABOUT</h1>
+                ABOUT US</h1>
         </div>
 
 
