@@ -434,7 +434,9 @@
                         <div class="mt-3">
                             <label class="fw-bold">Reference Number</label>
                             <input type="number" class="form-control bg-secondary-subtle border-0" name="reference_num" id="reference_num" 
-                                   placeholder="ex: 1100xx-xxx-xxx" required>
+                                   placeholder="ex: 1100xx-xxx-xxx" required
+                                   minlength="13" maxlength="13"
+                                   oninput="javascript: if (this.value.length > 13) this.value = this.value.slice(0, 13);">
                         </div>
                         
                         <div class="d-grid gap-2 mt-3">
@@ -450,68 +452,6 @@
     </div>
 
     
-    <!-- JavaScript -->
-    <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // Star rating functionality
-        document.querySelectorAll(".stars").forEach(starContainer => {
-            for (let i = 1; i <= 5; i++) {
-                let star = document.createElement("i");
-                star.classList.add("fas", "fa-star");
-                star.dataset.value = i;
-                star.addEventListener("click", function () {
-                    let stars = this.parentElement.querySelectorAll("i");
-                    stars.forEach(s => s.classList.remove("active"));
-                    for (let j = 0; j < i; j++) {
-                        stars[j].classList.add("active");
-                    }
-                });
-                starContainer.appendChild(star);
-            }
-        });
-        
-        // Ensure GCash is selected by default
-        document.getElementById('gcash').checked = true;
-
-        // Calculate proper stay duration
-        const checkInDate = "{{ $reservationDetails['reservation_check_in_date'] ?? '' }}";
-        const checkOutDate = "{{ $reservationDetails['reservation_check_out_date'] ?? '' }}";
-        
-        let stayDuration = 1;
-        if(checkInDate && checkOutDate) {
-            const start = new Date(checkInDate);
-            const end = new Date(checkOutDate);
-            stayDuration = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
-            if (stayDuration < 1) stayDuration = 1;
-        }
-
-        // Update duration display and hidden input
-        document.getElementById('duration-text').textContent = `Stay Duration: ${stayDuration} ${stayDuration > 1 ? 'days' : 'day'}`;
-        document.getElementById('stay_duration').value = stayDuration;
-
-        // Update accommodation prices
-        const accommodationItems = document.querySelectorAll('#accommodation-list li');
-        let totalAccommodation = 0;
-        
-        accommodationItems.forEach(item => {
-            const price = parseFloat(item.dataset.price);
-            const total = price * stayDuration;
-            totalAccommodation += total;
-            item.textContent = `${item.textContent.split(' - ')[0]} - ₱${total.toFixed(2)} (${stayDuration} ${stayDuration > 1 ? 'days' : 'day'})`;
-        });
-
-        // Update total accommodation price
-        document.getElementById('total-accommodation').value = `₱${totalAccommodation.toFixed(2)}`;
-
-        // Update total amount (if needed)
-        const entranceFee = parseFloat("{{ $totalEntranceFee ?? 0 }}");
-        const totalAmount = totalAccommodation + entranceFee;
-        document.querySelector('input[name="amount"]').value = `₱ ${totalAmount.toFixed(2)}`;
-        
-        // Update downpayment (15% of total)
-        const downpayment = totalAmount * 0.15;
-        document.querySelector('input[name="downpayment"]').value = `₱${downpayment.toFixed(2)}`;
-    });
-    </script>
+    
 </body>
 </html>

@@ -804,11 +804,11 @@ public function showReservationsInCalendar()
             // I-save sa session ang reservation details
             session(['reservation_details' => $reservationDetails]);
     
-            return redirect()->route('paymentProcess')->with('success', 'Matagumpay na na-save ang iyong reservation details!');
-    
+            return redirect()->route('paymentProcess')->with('success', 'Reservation saved.Wait for the staff to process your reservation.Thank you!');
+
         } catch (\Exception $e) {
             Log::error('Reservation save error: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'May error sa pag-save ng reservation. Pakisubukan ulit.');
+            return redirect()->back()->with('error', 'Error saving reservation.');
         }
     }
 

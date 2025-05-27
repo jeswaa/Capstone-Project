@@ -90,7 +90,8 @@
                                 <div class="card select-accommodation"
                                      data-id="{{ $accomodation->accomodation_id }}"
                                      data-price="{{ $accomodation->accomodation_price }}"
-                                     data-capacity="{{ $accomodation->accomodation_capacity }}">
+                                     data-capacity="{{ $accomodation->accomodation_capacity }}"
+                                     data-max-quantity="{{ $accomodation->quantity }}">
                                     <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" class="card-img-top" alt="accommodation image" style="max-width: 100%; height: 250px; object-fit: cover;">
                                     <div class="card-body p-3 position-relative" style="background-color: white;">
                                         <div class="position-absolute top-0 end-0 p-2">
@@ -198,7 +199,7 @@
                                         <div class="form-group">
                                             <label for="quantity">Number of Rooms:</label> {{-- Updated label text --}}
                                             <input type="number" id="quantity" name="quantity" class="form-control" min="1" value="1" required oninput="calculateTotalGuest()"> {{-- Added oninput event --}}
-                                            <small class="text-muted" style="font-size: 10px;">Number of rooms to reserve</small>
+                                            <small id="quantityError" class="text-danger mt-2" style="display: none;"></small>
                                         </div>
                                     </div>
                                     <div class="card p-3 shadow-sm border-0">
@@ -222,9 +223,7 @@
                                             <label for="total_guests">Total Guests:</label>
                                             <input type="number" name="total_guest" id="total_guests" class="form-control p-2" readonly>
                                             <small class="text-muted">Total Entrance Fee: ₱<span id="total_entrance_fee">0</span></small>
-                                            <div id="guestError" class="text-danger mt-2" style="display: none;">
-                                                Exceeds maximum room capacity!
-                                            </div>
+                                            <small id="guestError" class="text-danger mt-2" style="display: none;"></small>
                                         </div>
                                     </div>
                                 </div>
@@ -440,38 +439,54 @@
             let totalCapacity = 0;
             const selectedCard = document.querySelector('.select-accommodation.selected');
             const quantityInput = document.getElementById('quantity');
-            const quantity = parseInt(quantityInput.value) || 1; // Default quantity to 1 if input is empty or invalid
 
-            if (selectedCard) {
-                let roomCapacity = parseInt(selectedCard.getAttribute('data-capacity')) || 0;
-                totalCapacity = roomCapacity * quantity; // Multiply capacity by quantity
-            }
+            // Get quantity value
+            let quantity = parseInt(quantityInput.value) || 0;
 
-            // Get elements
+            // Get error elements and save button
             let saveButton = document.querySelector('button[type="submit"]');
             let guestError = document.getElementById('guestError');
+            let quantityError = document.getElementById('quantityError'); // Ensure this element exists in your HTML
             let totalGuestsInput = document.getElementById("total_guests");
 
             // Update total guests display
             totalGuestsInput.value = totalGuests;
 
-            // Check if total guests is 0 or exceeds total capacity
-            if (totalGuests === 0) { // Disable if total guests is 0
-                guestError.style.display = 'none'; // Hide error if guests is 0
+            // Reset error states initially
+            guestError.style.display = 'none';
+            quantityError.style.display = 'none';
+            saveButton.disabled = false;
+            saveButton.classList.remove('opacity-50');
+            totalGuestsInput.style.color = 'black';
+
+            // Check quantity limit first
+            if (selectedCard) {
+                const maxQuantity = parseInt(selectedCard.getAttribute('data-max-quantity')) || 1;
+                if (quantity > maxQuantity) {
+                    quantityError.style.display = 'block';
+                    quantityError.textContent = `Maximum ${maxQuantity} rooms available`;
+                    saveButton.disabled = true;
+                    saveButton.classList.add('opacity-50');
+                    return; // Stop further checks if quantity is invalid
+                }
+
+                let roomCapacity = parseInt(selectedCard.getAttribute('data-capacity')) || 0;
+                totalCapacity = roomCapacity * quantity;
+
+                // Check guest capacity if quantity is valid and a card is selected
+                if (totalGuests > totalCapacity && totalCapacity > 0) {
+                    guestError.style.display = 'block';
+                    guestError.textContent = `Exceeds maximum capacity of ${totalCapacity} guests`;
+                    saveButton.disabled = true;
+                    saveButton.classList.add('opacity-50');
+                    totalGuestsInput.style.color = 'red';
+                }
+            }
+
+            // Handle case where total guests is 0 (only disable button, no error message)
+            if (totalGuests === 0) {
                 saveButton.disabled = true;
                 saveButton.classList.add('opacity-50');
-                totalGuestsInput.style.color = 'black'; // Keep color black if 0
-            } else if (totalGuests > totalCapacity && totalCapacity > 0) { // Disable if exceeds capacity
-                guestError.style.display = 'block';
-                guestError.textContent = `Exceeds maximum capacity of ${totalCapacity} guests`; // Update error message with calculated capacity
-                saveButton.disabled = true;
-                saveButton.classList.add('opacity-50');
-                totalGuestsInput.style.color = 'red';
-            } else { // Enable if guests > 0 and within capacity
-                guestError.style.display = 'none';
-                saveButton.disabled = false;
-                saveButton.classList.remove('opacity-50');
-                totalGuestsInput.style.color = 'black';
             }
 
             // Get entrance fees
@@ -715,4 +730,3 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 </body>
 </html>
-
