@@ -6,14 +6,37 @@
     <title>Your Reservations - Lelo's Resort</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        h1, h5 { font-family: 'Anton', sans-serif; }
+        body, p, h6, li, span { font-family: 'Montserrat', sans-serif; }
+    </style>
 </head>
-<body class="bg-light">
-    <div class="text-start ms-5 mt-4">
-        <a href="{{ route('homepage') }}" class="btn btn-success" style="background-color: #0b573d;">
-            <i class="bi bi-arrow-left"></i> Back to Homepage
+<body style="background-image: url('{{ asset('images/logosheesh.png') }}'); 
+    background-size: cover; 
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-attachment: fixed;
+    min-height: 100vh;
+    width: 100%;
+    overflow-x: hidden;">
+
+    <div class="w-100 d-flex justify-content-between align-items-center p-3">
+        <!-- Back Button -->
+        <a href="{{ route('homepage') }}" class="d-flex align-items-center justify-content-center rounded-circle shadow ms-3"
+           style="width: 50px; height: 50px; background-color: #0B5D3B; text-decoration: none;">
+            <i class="fa-solid fa-arrow-left text-white"></i>
+        </a>
+
+        <!-- Logo -->
+        <a class="text-decoration-none">
+            <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" class="rounded-pill" style="width: 100px; height: auto;">
         </a>
     </div>
-    <div class="container py-5">
+
+
+<div class="container py-5" style="background-color: rgba(255, 255, 255, 0.95); border-radius: 2px;">
         <h1 class="text-center mb-4" style="color: #0b573d;">Your Reservations</h1>
 
         @if($reservations->isEmpty())
@@ -87,5 +110,6 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>

@@ -152,6 +152,7 @@
                             <th scope="col" class="small">Dates(In-Out)</th>
                             <th scope="col" class="small">Time(In-Out)</th>
                             <th scope="col" class="small">Room Type</th>
+                            <th scope="col" class="small">Room Qty</th>
                             <th scope="col" class="small">Mobile Number</th>
                             <th scope="col" class="small">Reference Number</th>
                             <th scope="col" class="small">Payment Status</th>
@@ -172,6 +173,7 @@
                                         <span class="text-muted">No Accommodation</span>
                                     @endif
                                 </td>
+                                <td>{{ $reservation->quantity}}</td>
                                 <td>{{$reservation->mobileNo}}</td>
                                 <td>{{ $reservation->reference_num}}</td>
                                 <td>

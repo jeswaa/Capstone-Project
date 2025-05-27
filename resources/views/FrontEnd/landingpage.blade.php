@@ -507,23 +507,27 @@
 
                     <!-- Responsive Card Grid -->
                     <div class="row g-3 justify-content-center">
-                        @foreach (['DSCF2814.JPG', 'DSCF2821.JPG', 'DSCF2729.JPG'] as $index => $image)
-                                                <div class="col-12 col-sm-6 col-md-4">
-                                                    <div class="card h-100 shadow" style="background-color: #0b573d; border-radius: 15px;">
-                                                        <img src="{{ asset('images/' . $image) }}" class="card-img-top"
-                                                            alt="Review {{ $index + 1 }}"
-                                                            style="width: 100%; height: 200px; object-fit: cover; border-radius: 15px 15px 0 0;">
-                                                        <div class="card-body">
-                                                            <h5 class="card-title" style="color: #f5f5dc;">
-                                                                {{ ['Amazing Resort', 'Best Experience', 'Relaxing Stay'][$index] }}</h5>
-                                                            <p class="card-text" style="color: #f5f5dc;">{{ [
-                                'This resort is amazing! The staff is so friendly and the rooms are so comfortable.',
-                                'I had the best experience at this resort. The food is delicious and the amenities are top-notch.',
-                                'I had a very relaxing stay at this resort. The staff is so friendly and the rooms are so comfortable.'
-                            ][$index] }}</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                        @foreach ($feedbacks as $feedback)
+                            <div class="col-12 col-sm-6 col-md-4">
+                                <div class="card h-100 shadow" style="background-color: #0b573d; border-radius: 15px;">
+                                    <img src="{{ asset('images/default-profile.jpg') }}" class="card-img-top"
+                                        alt="User Review"
+                                        style="width: 100%; height: 200px; object-fit: cover; border-radius: 15px 15px 0 0;">
+                                    <div class="card-body">
+                                            <h5 class="card-title" style="color: #f5f5dc;">
+                                            {{ $feedback->name ?? 'Anonymous' }}
+                                        </h5>
+                                        <div class="mb-2">
+                                            @for ($i = 1; $i <= 5; $i++)
+                                                <i class="bi bi-star{{ $i <= $feedback->rating ? '-fill' : '' }}" style="color: #f5f5dc;"></i>
+                                            @endfor
+                                        </div>
+                                        <p class="card-text" style="color: #f5f5dc;">
+                                            {{ $feedback->comment }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
                         @endforeach
                     </div>
 

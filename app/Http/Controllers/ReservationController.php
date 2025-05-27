@@ -143,8 +143,11 @@ class ReservationController extends Controller
         $user = User::find(Auth::user()->id);
         return $user;
     }
-    public function fetchAccomodationData(){
-        $accomodations = DB::table('accomodations')->get();
+    public function fetchAccomodationData()
+    {
+        $accomodations = DB::table('accomodations')
+            ->where('accomodation_status', 'available')
+            ->get();
         $activities = DB::table('activitiestbl')->get();
         $transactions = DB::table('transaction')->first();
         $adultTransaction = Transaction::where('type', 'adult')->select('entrance_fee')->first();

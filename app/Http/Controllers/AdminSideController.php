@@ -1628,9 +1628,18 @@ public function updateRoom(Request $request, $accomodation_id)
         // Sum the original quantity of all accommodations
         $countAvailableRoom = $accomodations->sum('available_rooms'); // Changed from 'available_rooms' to 'quantity'
 
-        $countReservedRoom = DB::table('reservation_details')
+        // Count reserved rooms from reservation_details
+        $countReservedFromReservations = DB::table('reservation_details')
             ->whereIn('reservation_status', ['reserved', 'checked-in'])
             ->sum('quantity');
+
+        // Count reserved rooms from walkin_guests
+        $countReservedFromWalkins = DB::table('walkin_guests')
+            ->whereIn('reservation_status', ['reserved', 'checked-in'])
+            ->sum('quantity');
+
+        // Total reserved rooms from both tables
+        $countReservedRoom = $countReservedFromReservations + $countReservedFromWalkins;
 
         return view('AdminSide.addRoom', [
             'accomodations' => $accomodations,
