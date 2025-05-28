@@ -19,6 +19,7 @@ use App\Models\WalkInGuest;
 use App\Models\Transaction;
 use App\Models\Notification;
 use App\Models\DamageReport;
+use App\Models\ActivityLog;
 
 
 
@@ -725,7 +726,14 @@ public function UpdateStatus(Request $request, $id)
     }
     
     $changeLog = !empty($statusChanges) ? " Changes: " . implode(', ', $statusChanges) : "";
-    $this->recordActivity($staff->username . " updated reservation #{$id}." . $changeLog);
+
+    // Ensure $staff is not null before accessing its properties
+    if ($staff && $staff->username) {
+        $this->recordActivity($staff->username . " updated reservation #{$id}." . $changeLog);
+    } else {
+        // Handle the case where $staff is null or username is missing, e.g., log an error or use a default value
+        $this->recordActivity("Unknown staff updated reservation #{$id}." . $changeLog);
+    }
 
     // Send email notification
     Mail::to($updatedReservation->email)->send(new ReservationStatusUpdated(
@@ -1004,20 +1012,18 @@ public function UpdateStatus(Request $request, $id)
                 $staffId = session()->get('StaffLogin');
                 $staff = Staff::find($staffId);
 
-                // Record the activity
-                $changes = [];
-                if ($originalStatus['payment'] != $request->payment_status) {
-                    $changes[] = "payment status from '{$originalStatus['payment']}' to '{$request->payment_status}'";
-                }
-                if ($originalStatus['reservation'] != $request->reservation_status) {
-                    $changes[] = "reservation status from '{$originalStatus['reservation']}' to '{$request->reservation_status}'";
+                if (!$staff) {
+                    return redirect('/login')->with('error', 'Session expired or staff not found. Please log in again.');
                 }
 
-                if (!empty($changes)) {
-                    $this->recordActivity($staff->username . ' updated walk-in guest #' . $id . ': ' . implode(', ', $changes));
-                }
+                // Record activity
+                ActivityLog::create([
+                    'staff_id' => $staff->id,
+                    'activity' => 'Updated walk-in guest status for ' . $walkInGuest->name . ' to ' . $request->reservation_status,
+                    'performed_by' => $staff->username,
+                ]);
 
-                return redirect()->back()->with('success', 'Walk-in guest status updated successfully');
+                return response()->json(['message' => 'Walk-in guest status updated successfully']);
 
             } catch (\Exception $e) {
                 \Log::error('Error updating walk-in guest status: ' . $e->getMessage());

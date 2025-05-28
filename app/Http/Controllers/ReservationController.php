@@ -691,26 +691,6 @@ public function showReservationsInCalendar()
         }
 
         // Update status to "cancelled" and save the reason
-        if (in_array($reservation->payment_status, ['cancelled', 'checked_out'])) {
-            // Move reservation to archived_reservations
-            DB::table('archived_reservations')->insert([
-                'name' => $reservation->name,
-                'email' => $reservation->email,
-                'phone' => $reservation->mobileNo,
-                'package' => $reservation->package_id,
-                'reservation_check_in_date' => $reservation->reservation_check_in_date,
-                'reservation_check_in' => $reservation->reservation_check_in,
-                'reservation_check_out' => $reservation->reservation_check_out,
-                'amount' => $reservation->amount,
-                'payment_status' => $newPaymentStatus,
-                'created_at' => $reservation->created_at,
-                'updated_at' => now(),
-            ]);
-
-            // Delete reservation from current table
-            $reservation->delete();
-        }
-        $reservation->cancel_reason = $request->cancel_reason;
         DB::table('reservation_details')->where('id', $reservation->id)->update([
             'cancel_reason' => $request->cancel_reason,
             'payment_status' => 'cancelled',

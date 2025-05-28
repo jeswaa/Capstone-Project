@@ -303,12 +303,40 @@
                                         </div>
                                         <div class="mb-3">
                                             <label for="quantity" class="form-label fw-bold">Quantity</label>
-                                            <input type="number" class="form-control border-success" id="quantity" name="quantity" min="1" value="1" required>
+                                            <input type="number" class="form-control border-success" id="quantity" name="quantity" min="1" value="1" required oninput="validateQuantity()">
+                                            <div class="invalid-feedback" id="quantity_error">
+                                                The selected quantity exceeds the available rooms for this accommodation type.
+                                            </div>
                                         </div>
                                         <script>
-                                                function updateAmountAndTotal() {
+                                            function updateAmountAndTotal() {
                                                 // Update the amount paid based on selected room
                                                 updateAmount();
+                                                validateQuantity(); // Call validation when room type or other related fields change
+                                            }
+
+                                            function validateQuantity() {
+                                                const roomTypeSelect = document.getElementById('room_type');
+                                                const quantityInput = document.getElementById('quantity');
+                                                const quantityError = document.getElementById('quantity_error');
+                                                const selectedOption = roomTypeSelect.options[roomTypeSelect.selectedIndex];
+
+                                                if (selectedOption.value) {
+                                                    const availableCapacity = parseInt(selectedOption.getAttribute('data-capacity'));
+                                                    const enteredQuantity = parseInt(quantityInput.value);
+
+                                                    if (enteredQuantity > availableCapacity) {
+                                                        quantityInput.classList.add('is-invalid');
+                                                        quantityError.style.display = 'block';
+                                                    } else {
+                                                        quantityInput.classList.remove('is-invalid');
+                                                        quantityError.style.display = 'none';
+                                                    }
+                                                } else {
+                                                    // If no room type is selected, hide the error
+                                                    quantityInput.classList.remove('is-invalid');
+                                                    quantityError.style.display = 'none';
+                                                }
                                             }
                                             
                                             document.getElementById('session').addEventListener('change', function() {

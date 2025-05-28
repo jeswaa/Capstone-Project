@@ -232,22 +232,24 @@
                             </button>
                         </li>
 
-                     <!-- Tab Content -->
+                    <!-- Tab Content -->
                     <div class="tab-content" id="paymentTabContent">
                         <!-- GCash 1 Content -->
                         <div class="tab-pane fade show active" id="gcash1-content" role="tabpanel" aria-labelledby="gcash1-tab">
                             <div class="d-flex flex-column align-items-center">
                                 <input class="form-check-input d-none" type="radio" name="payment_method" id="gcash1" value="gcash" checked>
-                                <div class="bg-secondary p-1 d-flex align-items-center justify-content-center rounded-2" style="width: 400px; height: 400px; background-image: url('{{ asset('images/logosheesh.png') }}'); background-size: cover; background-position: center;">
-                                    <img src="{{ asset('images/qrcode.jpg') }}" alt="GCash QR Code 1" style="max-width: 80%; height: auto;">
+                                <div class="bg-secondary p-1 d-flex align-items-center justify-content-center rounded-2" style="width: 100%; max-width: 300px; height: auto; aspect-ratio: 1/1; background-image: url('{{ asset('images/logosheesh.png') }}'); background-size: cover; background-position: center;">
+                                    <img src="{{ asset('images/qrcode.jpg') }}" alt="GCash QR Code 1" style="width: 80%; height: auto;">
                                 </div>
                                 <div class="text-center mt-3">
                                     <p class="fw-bold text-success mb-0">GCash Number:</p>
                                     <p class="text-dark">0912-345-6789</p>
+                                    <p class="text-dark">Lelo's R. (AR***E M** A.)</p>
+
                                 </div>
-                                <div class="alert mt-3" role="alert" style="background-color: #0B5D3B; color: white;">
+                                <div class="alert mt-3 p-2" role="alert" style="background-color: #0B5D3B; color: white; font-size: 0.9rem;">
                                     <h6 class="fw-bold">Important Payment Instructions:</h6>
-                                    <ul class="mb-0">
+                                    <ul class="mb-0 ps-3">
                                         <li>Please ensure to scan the correct QR code for payment</li>
                                         <li>Double check the amount before confirming the transaction</li>
                                         <li>Save your reference number and screenshot of payment</li>
@@ -264,16 +266,17 @@
                         <div class="tab-pane fade" id="gcash2-content" role="tabpanel" aria-labelledby="gcash2-tab">
                             <div class="d-flex flex-column align-items-center">
                                 <input class="form-check-input d-none" type="radio" name="payment_method" id="gcash" value="gcash">
-                                <div class="bg-secondary p-1 d-flex align-items-center justify-content-center rounded-2" style="width: 400px; height: 400px; background-image: url('{{ asset('images/logosheesh.png') }}'); background-size: cover; background-position: center;">
-                                    <img src="{{ asset('images/qrcode.jpg') }}" alt="GCash QR Code 2" style="max-width: 80%; height: auto;">
+                                <div class="bg-secondary p-1 d-flex align-items-center justify-content-center rounded-2" style="width: 100%; max-width: 300px; height: auto; aspect-ratio: 1/1; background-image: url('{{ asset('images/logosheesh.png') }}'); background-size: cover; background-position: center;">
+                                    <img src="{{ asset('images/qrcode.jpg') }}" alt="GCash QR Code 2" style="width: 80%; height: auto;">
                                 </div>
                                 <div class="text-center mt-3">
                                     <p class="fw-bold text-success mb-0">GCash Number:</p>
                                     <p class="text-dark">0923-456-7890</p>
+                                    <p class="text-dark">Lelo's R. (AR***E M** A.)</p>
                                 </div>
-                                <div class="alert mt-3" role="alert" style="background-color: #0B5D3B; color: white;">
+                                <div class="alert mt-3 p-2" role="alert" style="background-color: #0B5D3B; color: white; font-size: 0.9rem;">
                                     <h6 class="fw-bold">Important Payment Instructions:</h6>
-                                    <ul class="mb-0">
+                                    <ul class="mb-0 ps-3">
                                         <li>Please ensure to scan the correct QR code for payment</li>
                                         <li>Double check the amount before confirming the transaction</li>
                                         <li>Save your reference number and screenshot of payment</li>
@@ -290,16 +293,17 @@
                         <div class="tab-pane fade" id="gcash3-content" role="tabpanel" aria-labelledby="gcash3-tab">
                             <div class="d-flex flex-column align-items-center">
                                 <input class="form-check-input d-none" type="radio" name="payment_method" id="gcash3" value="gcash">
-                                <div class="bg-secondary p-1 d-flex align-items-center justify-content-center rounded-2" style="width: 400px; height: 400px; background-image: url('{{ asset('images/logosheesh.png') }}'); background-size: cover; background-position: center;">
-                                    <img src="{{ asset('images/qrcode.jpg') }}" alt="GCash QR Code 3" style="max-width: 80%; height: auto;">
+                                <div class="bg-secondary p-1 d-flex align-items-center justify-content-center rounded-2" style="width: 100%; max-width: 300px; height: auto; aspect-ratio: 1/1; background-image: url('{{ asset('images/logosheesh.png') }}'); background-size: cover; background-position: center;">
+                                    <img src="{{ asset('images/qrcode.jpg') }}" alt="GCash QR Code 3" style="width: 80%; height: auto;">
                                 </div>
                                 <div class="text-center mt-3">
                                     <p class="fw-bold text-success mb-0">GCash Number:</p>
                                     <p class="text-dark">0934-567-8901</p>
+                                    <p class="text-dark">Lelo's R. (AR***E M** A.)</p>
                                 </div>
-                                <div class="alert mt-3" role="alert" style="background-color: #0B5D3B; color: white;">
+                                <div class="alert mt-3 p-2" role="alert" style="background-color: #0B5D3B; color: white; font-size: 0.9rem;">
                                     <h6 class="fw-bold">Important Payment Instructions:</h6>
-                                    <ul class="mb-0">
+                                    <ul class="mb-0 ps-3">
                                         <li>Please ensure to scan the correct QR code for payment</li>
                                         <li>Double check the amount before confirming the transaction</li>
                                         <li>Save your reference number and screenshot of payment</li>
@@ -452,6 +456,68 @@
     </div>
 
     
-    
+    <!-- JavaScript -->
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Star rating functionality
+        document.querySelectorAll(".stars").forEach(starContainer => {
+            for (let i = 1; i <= 5; i++) {
+                let star = document.createElement("i");
+                star.classList.add("fas", "fa-star");
+                star.dataset.value = i;
+                star.addEventListener("click", function () {
+                    let stars = this.parentElement.querySelectorAll("i");
+                    stars.forEach(s => s.classList.remove("active"));
+                    for (let j = 0; j < i; j++) {
+                        stars[j].classList.add("active");
+                    }
+                });
+                starContainer.appendChild(star);
+            }
+        });
+        
+        // Ensure GCash is selected by default
+        document.getElementById('gcash').checked = true;
+
+        // Calculate proper stay duration
+        const checkInDate = "{{ $reservationDetails['reservation_check_in_date'] ?? '' }}";
+        const checkOutDate = "{{ $reservationDetails['reservation_check_out_date'] ?? '' }}";
+        
+        let stayDuration = 1;
+        if(checkInDate && checkOutDate) {
+            const start = new Date(checkInDate);
+            const end = new Date(checkOutDate);
+            stayDuration = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+            if (stayDuration < 1) stayDuration = 1;
+        }
+
+        // Update duration display and hidden input
+        document.getElementById('duration-text').textContent = `Stay Duration: ${stayDuration} ${stayDuration > 1 ? 'days' : 'day'}`;
+        document.getElementById('stay_duration').value = stayDuration;
+
+        // Update accommodation prices
+        const accommodationItems = document.querySelectorAll('#accommodation-list li');
+        let totalAccommodation = 0;
+        
+        accommodationItems.forEach(item => {
+            const price = parseFloat(item.dataset.price);
+            const total = price * stayDuration;
+            totalAccommodation += total;
+            item.textContent = `${item.textContent.split(' - ')[0]} - ₱${total.toFixed(2)} (${stayDuration} ${stayDuration > 1 ? 'days' : 'day'})`;
+        });
+
+        // Update total accommodation price
+        document.getElementById('total-accommodation').value = `₱${totalAccommodation.toFixed(2)}`;
+
+        // Update total amount (if needed)
+        const entranceFee = parseFloat("{{ $totalEntranceFee ?? 0 }}");
+        const totalAmount = totalAccommodation + entranceFee;
+        document.querySelector('input[name="amount"]').value = `₱ ${totalAmount.toFixed(2)}`;
+        
+        // Update downpayment (15% of total)
+        const downpayment = totalAmount * 0.15;
+        document.querySelector('input[name="downpayment"]').value = `₱${downpayment.toFixed(2)}`;
+    });
+    </script>
 </body>
 </html>

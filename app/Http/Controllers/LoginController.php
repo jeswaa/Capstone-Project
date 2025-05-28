@@ -106,7 +106,7 @@ class LoginController extends Controller
             }
 
             // If neither admin nor staff credentials match
-            return back()->with('error', 'Invalid username or password')->withInput($request->only('credential'));
+            return back()->with('error', 'Invalid credentials')->withInput($request->only('credential'));
         }
     }
     protected function attemptLogin(Request $request)
@@ -240,7 +240,7 @@ class LoginController extends Controller
         if (!$user) {
             return response()->json([
                 'success' => false,
-                'message' => 'User not found.'
+                'message' => 'Invalid email or password.'
             ]);
         }
 
@@ -318,7 +318,7 @@ public function verifyLoginOTP(Request $request)
             if (!$user) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'User not found with this email.'
+                    'message' => 'Invalid email.'
                 ]);
             }
 

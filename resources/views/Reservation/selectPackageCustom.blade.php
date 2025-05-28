@@ -508,8 +508,6 @@
             let quantityError = document.getElementById('quantityError');
             let totalGuestsInput = document.getElementById("total_guests");
 
-            totalGuestsInput.value = totalGuests;
-
             // Quantity validation against available rooms
             if (quantity > availableRoomQuantity && availableRoomQuantity > 0) {
                 quantityError.style.display = 'block';
@@ -518,6 +516,8 @@
                 saveButton.classList.add('opacity-50');
             } else {
                 quantityError.style.display = 'none';
+                // Ensure button is enabled if quantity is valid and other inputs are also valid
+                validateInputs();
             }
 
             // Guest capacity validation
@@ -530,10 +530,12 @@
             } else {
                 guestError.style.display = 'none';
                 totalGuestsInput.style.color = 'black';
+                 // Ensure button is enabled if guest capacity is valid and other inputs are also valid
+                validateInputs();
             }
 
             // Re-evaluate button state after all checks
-            validateInputs();
+            // validateInputs(); // This call is redundant here now that validateInputs is called in the else blocks
 
             document.getElementById("total_guests").value = totalGuests;
         }
@@ -542,6 +544,10 @@
         const mainForm = document.querySelector('form');
         const accommodationCards = document.querySelectorAll(".select-accommodation");
         const proceedButton = document.getElementById("proceedToPayment");
+        const quantityInput = document.getElementById("quantity"); // Get the quantity input
+
+        // Add event listener to quantity input
+        quantityInput.addEventListener('input', calculateTotalGuest); // Call calculateTotalGuest directly
 
         // Function para i-update ang estado ng button
         function updateProceedButton() {
@@ -575,7 +581,7 @@
                 this.classList.add("selected");
                 
                 updateProceedButton();
-                calculateTotalGuest();
+                calculateTotalGuest(); // Call calculateTotalGuest when a card is selected
                 updateSelectedAccommodation();
             });
         });
@@ -597,8 +603,77 @@
             // I-update muna ang hidden input bago mag-submit
             updateSelectedAccommodation();
         });
+
+        // Initial call to set button state and validate on page load if needed
+        updateProceedButton();
+        calculateTotalGuest();
+    });
+
+    // Keep the validateInputs function for other validations if needed
+    function validateInputs() {
+        let isValid = true;
+        const quantityInput = document.getElementById("quantity");
+        const adultsInput = document.getElementById("number_of_adults");
+        const childrenInput = document.getElementById("number_of_children");
+        const saveButton = document.querySelector('button[type="submit"]');
+
+        // Check if quantity, adults, and children inputs are valid numbers and not empty
+        if (!quantityInput.value || parseInt(quantityInput.value) <= 0 || isNaN(parseInt(quantityInput.value))) {
+            isValid = false;
+        }
+        if (!adultsInput.value || parseInt(adultsInput.value) < 0 || isNaN(parseInt(adultsInput.value))) {
+             isValid = false;
+        }
+         if (!childrenInput.value || parseInt(childrenInput.value) < 0 || isNaN(parseInt(childrenInput.value))) {
+             isValid = false;
+        }
+
+        // Check if there are any visible error messages
+        const guestError = document.getElementById('guestError');
+        const quantityError = document.getElementById('quantityError');
+
+        if (guestError.style.display === 'block' || quantityError.style.display === 'block') {
+            isValid = false;
+        }
+
+        // Enable or disable the save button based on overall validity
+        if (isValid) {
+            saveButton.disabled = false;
+            saveButton.classList.remove('opacity-50');
+        } else {
+            saveButton.disabled = true;
+            saveButton.classList.add('opacity-50');
+        }
+
+        return isValid;
+    }
+</script>
+    <script>
+    function resetFrontendAccommodations() {
+        console.log("Resetting accommodations to available...");
+
+        document.querySelectorAll(".select-accommodation").forEach(item => {
+            item.classList.remove("disabled");
+            item.classList.add("available");
+
+            // I-update ang status text at background color
+            let statusSpan = item.querySelector(".card-text");
+            if (statusSpan) {
+                statusSpan.textContent = "Available";
+                statusSpan.style.backgroundColor = "#C6F7D0"; // Green background for available
+            }
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const checkInDateInput = document.getElementById("reservation_date");
+
+        checkInDateInput.addEventListener("change", function () {
+            resetFrontendAccommodations(); // I-reset ang frontend kapag nagbago ang check-in date
+        });
     });
 </script>
+
 <script>
         document.addEventListener("DOMContentLoaded", function () {
             // Get check-in and check-out dates from URL
