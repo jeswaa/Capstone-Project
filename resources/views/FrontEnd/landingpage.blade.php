@@ -89,7 +89,7 @@
 
 <body>
     <!-- ✅ Navbar (Fixed at the Top with z-index) -->
-    <nav class="navbar navbar-expand-lg position-fixed top-0 w-100" style="z-index: 10; background-color: rgba(255, 255, 255, 0.15); transition: background-color 0.3s ease;">
+    <nav class="navbar navbar-expand-lg position-fixed top-0 w-100" style="z-index: 10;">
         <div class="container">
             <!-- Logo - visible on all screens, aligned left -->
             <a class="navbar-brand" href="#">
@@ -99,12 +99,12 @@
             <!-- Navbar toggler - aligned right -->
             <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse"
                 data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
-                aria-label="Toggle navigation">
+                aria-label="Toggle navigation" style="background-color: rgba(255, 255, 255, 0.95); border: 3px solid black;">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
             <!-- Navbar content - aligned right -->
-            <div class="collapse navbar-collapse justify-content-end text-end" id="navbarSupportedContent">
+            <div class="collapse navbar-collapse justify-content-end text-end bg-transparent" id="navbarSupportedContent">
                 <ul class="navbar-nav">
                     <li class="nav-item">
                         <a class="nav-link fw-semibold text-uppercase text-decoration-none" href="#about">About Us</a>
@@ -427,11 +427,14 @@
     <!-- Third Page -->
     <section id="about">
 
-        <div class="container">
-            <h1 class="fw-bold text-uppercase text-start mt-4"
-                style="font-size: calc(2rem + 1vw); color: #0b573d; font-family: 'Anton', sans-serif; letter-spacing: 0.1em;">
-                ABOUT US</h1>
-        </div>
+                <div class="py-4 mt-4 d-flex justify-content-center">
+                        <div class="position-relative px-5 py-3 text-center" style="width: 85%; max-width: 85%; margin: 0 auto; background-color: #E6F4E6; border-radius: 15px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                        <h1 class="fw-bolder text-success display-5 mb-0"
+                            style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); font-weight: 900;">
+                            ABOUT US
+                        </h1>
+                    </div>
+                </div>
 
 
         <div class="container py-4">
@@ -500,11 +503,13 @@
         <div class="container">
             <div class="row">
                 <!-- Title for All Screens -->
-                <div class="col-12 text-center mb-3">
-                    <h1 class="fw-bold text-uppercase text-start"
-                        style="font-size: calc(2rem + 1vw); color: #0b573d; font-family: 'Anton', sans-serif; letter-spacing: 0.1em;">
-                        REVIEWS
-                    </h1>
+                <div class="py-4 mt-4 d-flex justify-content-center">
+                    <div class="position-relative px-5 py-3 text-center" style="width: 100%; max-width: 100%; margin: 0 auto; background-color: #E6F4E6; border-radius: 15px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                        <h1 class="fw-bolder text-success display-5 mb-0"
+                            style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); font-weight: 900;">
+                            REVIEWS
+                        </h1>
+                    </div>
                 </div>
 
                 <!-- HR Lines and Content -->
@@ -513,23 +518,27 @@
 
                     <!-- Responsive Card Grid -->
                     <div class="row g-3 justify-content-center">
-                        @foreach (['DSCF2814.JPG', 'DSCF2821.JPG', 'DSCF2729.JPG'] as $index => $image)
-                                                <div class="col-12 col-sm-6 col-md-4">
-                                                    <div class="card h-100 shadow" style="background-color: #0b573d; border-radius: 15px;">
-                                                        <img src="{{ asset('images/' . $image) }}" class="card-img-top"
-                                                            alt="Review {{ $index + 1 }}"
-                                                            style="width: 100%; height: 200px; object-fit: cover; border-radius: 15px 15px 0 0;">
-                                                        <div class="card-body">
-                                                            <h5 class="card-title" style="color: #f5f5dc;">
-                                                                {{ ['Amazing Resort', 'Best Experience', 'Relaxing Stay'][$index] }}</h5>
-                                                            <p class="card-text" style="color: #f5f5dc;">{{ [
-                                'This resort is amazing! The staff is so friendly and the rooms are so comfortable.',
-                                'I had the best experience at this resort. The food is delicious and the amenities are top-notch.',
-                                'I had a very relaxing stay at this resort. The staff is so friendly and the rooms are so comfortable.'
-                            ][$index] }}</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                        @foreach ($feedbacks as $feedback)
+                            <div class="col-12 col-sm-6 col-md-4">
+                                <div class="card h-100 shadow" style="background-color: #0b573d; border-radius: 15px;">
+                                    <img src="{{ asset('images/default-profile.jpg') }}" class="card-img-top"
+                                        alt="User Review"
+                                        style="width: 100%; height: 200px; object-fit: cover; border-radius: 15px 15px 0 0;">
+                                    <div class="card-body">
+                                            <h5 class="card-title" style="color: #f5f5dc;">
+                                            {{ $feedback->name ?? 'Anonymous' }}
+                                        </h5>
+                                        <div class="mb-2">
+                                            @for ($i = 1; $i <= 5; $i++)
+                                                <i class="bi bi-star{{ $i <= $feedback->rating ? '-fill' : '' }}" style="color: #f5f5dc;"></i>
+                                            @endfor
+                                        </div>
+                                        <p class="card-text" style="color: #f5f5dc;">
+                                            {{ $feedback->comment }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
                         @endforeach
                     </div>
 

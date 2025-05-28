@@ -312,8 +312,8 @@
                                 <div class="mb-3">
                                   <label class="form-label" style="color: #0b573d;">Reservation Type</label>
                                   <select class="form-select border-success" id="reservationType" name="reservation_type" required>
-                                    <option value="one_day">One Day</option>
-                                    <option value="overnight">Overnight</option>
+                                    <option value="one_day">Day Tour</option>
+                                    <option value="overnight">Stay In</option>
                                   </select>
                                 </div>
                                 <div class="mb-3">

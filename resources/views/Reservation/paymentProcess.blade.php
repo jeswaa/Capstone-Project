@@ -244,6 +244,8 @@
                                 <div class="text-center mt-3">
                                     <p class="fw-bold text-success mb-0">GCash Number:</p>
                                     <p class="text-dark">0912-345-6789</p>
+                                    <p class="text-dark">Lelo's R. (AR***E M** A.)</p>
+
                                 </div>
                                 <div class="alert mt-3 p-2" role="alert" style="background-color: #0B5D3B; color: white; font-size: 0.9rem;">
                                     <h6 class="fw-bold">Important Payment Instructions:</h6>
@@ -270,6 +272,7 @@
                                 <div class="text-center mt-3">
                                     <p class="fw-bold text-success mb-0">GCash Number:</p>
                                     <p class="text-dark">0923-456-7890</p>
+                                    <p class="text-dark">Lelo's R. (AR***E M** A.)</p>
                                 </div>
                                 <div class="alert mt-3 p-2" role="alert" style="background-color: #0B5D3B; color: white; font-size: 0.9rem;">
                                     <h6 class="fw-bold">Important Payment Instructions:</h6>
@@ -296,6 +299,7 @@
                                 <div class="text-center mt-3">
                                     <p class="fw-bold text-success mb-0">GCash Number:</p>
                                     <p class="text-dark">0934-567-8901</p>
+                                    <p class="text-dark">Lelo's R. (AR***E M** A.)</p>
                                 </div>
                                 <div class="alert mt-3 p-2" role="alert" style="background-color: #0B5D3B; color: white; font-size: 0.9rem;">
                                     <h6 class="fw-bold">Important Payment Instructions:</h6>
