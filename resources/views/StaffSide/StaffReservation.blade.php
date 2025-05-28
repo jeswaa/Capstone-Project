@@ -377,6 +377,11 @@
                     style="{{ request('status') == 'early-checked-out' ? 'background-color: #0b573d; border: 1px solid #0b573d; color: white;' : 'background-color: transparent; border: 1px solid #0b573d; color: black;' }}">
                         Early Checked-out
                     </a>
+                    <a href="{{ route('staff.reservation', ['status' => 'cancelled']) }}"
+                    class="btn w-100 filter-btn fw-semibold"
+                    style="{{ request('status') == 'cancelled' ? 'background-color: #0b573d; border: 1px solid #0b573d; color: white;' : 'background-color: transparent; border: 1px solid #0b573d; color: black;' }}">
+                        Cancelled
+                    </a>
                 </div>
             </div>
 
@@ -404,7 +409,7 @@
                     </thead>
                     <tbody>
                         @foreach ($reservations as $reservation)
-                            @if(in_array($reservation->reservation_status, ['pending', 'reserved', 'checked-in','checked-out','early-checked-out']))
+                            @if(in_array($reservation->reservation_status, ['pending', 'reserved', 'checked-in','checked-out','early-checked-out','cancelled']))
                             <tr>
                                 <td class="text-center align-middle" style="font-size: x-small;">{{ $reservation->name }}</td>
                                 <td class="text-center align-middle" style="font-size: x-small;">{{ $reservation->email }}</td>
