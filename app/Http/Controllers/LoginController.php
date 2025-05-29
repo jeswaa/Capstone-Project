@@ -106,7 +106,7 @@ class LoginController extends Controller
             }
 
             // If neither admin nor staff credentials match
-            return back()->with('error', 'Invalid credentials')->withInput($request->only('credential'));
+            return back()->with('error', 'Invalid username or password')->withInput($request->only('credential'));
         }
     }
     protected function attemptLogin(Request $request)
@@ -201,6 +201,7 @@ class LoginController extends Controller
 
             return response()->json(['message' => 'OTP sent successfully!']);
         } catch (\Exception $e) {
+            \Log::error('Error sending OTP: ' . $e->getMessage()); // Log the exception message
             return response()->json(['message' => 'Error sending OTP'], 500);
         }
     }
@@ -231,117 +232,141 @@ class LoginController extends Controller
         }
     }
     public function sendLoginOTP(Request $request)
-    {
+{
+    $email = $request->email;
+    $password = $request->input('password');
+    $user = User::where('email', $email)->first();
+
+    if (!$user) {
+        return response()->json([
+            'success' => false,
+            'message' => 'User not found.'
+        ]);
+    }
+
+    // Check if user is banned
+    if ($user->status === 'banned') {
+        return response()->json([
+            'success' => false,
+            'message' => 'This account has been banned. Please contact support for assistance.'
+        ]);
+    }
+    
+    // Check if password is missing
+    if (empty($password)) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Password is required.'
+        ]);
+    }
+    
+    // Check password match
+    if (!Hash::check($password, $user->password)) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Invalid password.'
+        ]);
+    }
+
+    // Check cooldown before sending OTP (60 seconds)
+    $lastOtpSent = session('last_otp_sent');
+    $currentTimestamp = now()->timestamp;
+
+    if ($lastOtpSent && ($currentTimestamp - $lastOtpSent) < 60) {
+        $waitTime = 60 - ($currentTimestamp - $lastOtpSent);
+        return response()->json([
+            'success' => false,
+            'message' => "Please wait {$waitTime} seconds before requesting a new OTP."
+        ]);
+    }
+
+    // Generate a 6-digit OTP
+    $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+    session(['login_otp' => $otp, 'login_otp_email' => $email, 'last_otp_sent' => $currentTimestamp]);
+
+    try {
+        Mail::to($email)->send(new LoginOTPMail($otp));
+        return response()->json([
+            'success' => true,
+            'message' => 'OTP has been successfully sent to your email.'
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to send OTP. Please try again.'
+        ]);
+    }
+}
+
+public function resendOTP(Request $request)
+{
+    try {
         $email = $request->email;
-        $password = $request->input('password');
-        
         $user = User::where('email', $email)->first();
-        
+
         if (!$user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Invalid email or password.'
+                'message' => 'User not found with this email.'
             ]);
         }
 
-        // Check if user is banned
-        if ($user->status === 'banned') {
+        // Check cooldown before sending OTP (60 seconds)
+        $lastOtpSent = session('last_otp_sent');
+        $currentTimestamp = now()->timestamp;
+
+        if ($lastOtpSent && ($currentTimestamp - $lastOtpSent) < 60) {
+            $waitTime = 60 - ($currentTimestamp - $lastOtpSent);
             return response()->json([
                 'success' => false,
-                'message' => 'This account has been banned. Please contact support for assistance.'
+                'message' => "Please wait {$waitTime} seconds before requesting a new OTP."
             ]);
         }
-        
-        // Check if password is missing
-        if (empty($password)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Password is required.'
-            ]);
-        }
-        
-        // Check password match
-        if (!Hash::check($password, $user->password)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid password.'
-            ]);
-        }
-        
-        // Generate a 6-digit OTP
+
+        // Generate new 6-digit OTP
         $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-        session(['login_otp' => $otp, 'login_otp_email' => $email]);
-        
-        try {
-            Mail::to($email)->send(new LoginOTPMail($otp));
-            return response()->json([
-                'success' => true,
-                'message' => 'OTP has been successfully sent to your email.'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to send OTP. Please try again.'
-            ]);
-        }
-    }
-public function verifyLoginOTP(Request $request)
-{
-    $inputOTP = $request->otp;
-    $email = $request->email;
-    
-    // Check if OTP matches
-    if (session('login_otp') == $inputOTP && session('login_otp_email') == $email) {
-        // Clear OTP from session
-        session()->forget(['login_otp', 'login_otp_email']);
-        
-        // Log the user in
-        $user = User::where('email', $email)->first();
-        Auth::login($user);
 
-        // Add success message to flash session
-        session()->flash('success', 'OTP verified successfully.');
-        
-        // Return with success message and redirect
-        return redirect()->route('homepage')->with('success', 'Login successful!');
+        // Update OTP in session and cooldown timestamp
+        session(['login_otp' => $otp, 'login_otp_email' => $email, 'last_otp_sent' => $currentTimestamp]);
+
+        // Send new OTP via email
+        Mail::to($email)->send(new LoginOTPMail($otp));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'New OTP has been sent to your email.'
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to resend OTP. Please try again.'
+        ]);
     }
-    
-    // Return with error message
-    return back()->with('error', 'Invalid OTP. Please try again.');
 }
-    public function resendOTP(Request $request)
+
+    public function verifyLoginOTP(Request $request)
     {
-        try {
-            $email = $request->email;
+        $inputOTP = $request->otp;
+        $email = $request->email;
+        
+        // Check if OTP matches
+        if (session('login_otp') == $inputOTP && session('login_otp_email') == $email) {
+            // Clear OTP from session
+            session()->forget(['login_otp', 'login_otp_email']);
+            
+            // Log the user in
             $user = User::where('email', $email)->first();
+            Auth::login($user);
 
-            if (!$user) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Invalid email.'
-                ]);
-            }
-
-            // Generate new 6-digit OTP
-            $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-
-            // Update OTP in session
-            session(['login_otp' => $otp, 'login_otp_email' => $email]);
-
-            // Send new OTP via email
-            Mail::to($email)->send(new LoginOTPMail($otp));
-
-            return response()->json([
-                'success' => true,
-                'message' => 'New OTP has been sent to your email.'
-            ]);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to resend OTP. Please try again.'
-            ]);
+            // Add success message to flash session
+            session()->flash('success', 'OTP verified successfully.');
+            
+            // Return with success message and redirect
+            return redirect()->route('homepage')->with('success', 'Login successful!');
         }
+        
+        // Return with error message
+        return back()->with('error', 'Invalid OTP. Please try again.');
     }
 }
-

@@ -239,7 +239,7 @@
                             <div class="d-flex flex-column align-items-center">
                                 <input class="form-check-input d-none" type="radio" name="payment_method" id="gcash1" value="gcash" checked>
                                 <div class="bg-secondary p-1 d-flex align-items-center justify-content-center rounded-2" style="width: 100%; max-width: 300px; height: auto; aspect-ratio: 1/1; background-image: url('{{ asset('images/logosheesh.png') }}'); background-size: cover; background-position: center;">
-                                    <img src="{{ asset('images/qrcode.jpg') }}" alt="GCash QR Code 1" style="width: 80%; height: auto;">
+                                    <img src="{{ asset('images/qrcode.JPG') }}" alt="GCash QR Code 1" style="width: 80%; height: auto;">
                                 </div>
                                 <div class="text-center mt-3">
                                     <p class="fw-bold text-success mb-0">GCash Number:</p>
@@ -267,7 +267,7 @@
                             <div class="d-flex flex-column align-items-center">
                                 <input class="form-check-input d-none" type="radio" name="payment_method" id="gcash" value="gcash">
                                 <div class="bg-secondary p-1 d-flex align-items-center justify-content-center rounded-2" style="width: 100%; max-width: 300px; height: auto; aspect-ratio: 1/1; background-image: url('{{ asset('images/logosheesh.png') }}'); background-size: cover; background-position: center;">
-                                    <img src="{{ asset('images/qrcode.jpg') }}" alt="GCash QR Code 2" style="width: 80%; height: auto;">
+                                    <img src="{{ asset('images/qrcode.JPG') }}" alt="GCash QR Code 2" style="width: 80%; height: auto;">
                                 </div>
                                 <div class="text-center mt-3">
                                     <p class="fw-bold text-success mb-0">GCash Number:</p>
@@ -294,7 +294,7 @@
                             <div class="d-flex flex-column align-items-center">
                                 <input class="form-check-input d-none" type="radio" name="payment_method" id="gcash3" value="gcash">
                                 <div class="bg-secondary p-1 d-flex align-items-center justify-content-center rounded-2" style="width: 100%; max-width: 300px; height: auto; aspect-ratio: 1/1; background-image: url('{{ asset('images/logosheesh.png') }}'); background-size: cover; background-position: center;">
-                                    <img src="{{ asset('images/qrcode.jpg') }}" alt="GCash QR Code 3" style="width: 80%; height: auto;">
+                                    <img src="{{ asset('images/qrcode.JPG') }}" alt="GCash QR Code 3" style="width: 80%; height: auto;">
                                 </div>
                                 <div class="text-center mt-3">
                                     <p class="fw-bold text-success mb-0">GCash Number:</p>

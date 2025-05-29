@@ -31,7 +31,7 @@ Route::get('/login/admin', [AdminSideController::class, 'AdminLogin'])->name('Ad
 Route::post('/login/admin/authenticate', [AdminSideController::class, 'login'])->name('authenticate');
 
 // Apply middleware to admin-specific routes only
-Route::middleware(['isAdmin'])->group(function () {
+Route::middleware(['isAdmin','auth'])->group(function () {
     // ADMIN ROUTES
     Route::get('/admin/dashboard', [AdminSideController::class, 'DashboardView'])->name('dashboard');
     Route::get('/reservations', [AdminSideController::class, 'reservations'])->name('reservations');
@@ -165,7 +165,7 @@ Route::post('/verify-otp', [GoogleAuthController::class, 'verifyOTP'])->name('ve
 // Admin Login
 Route::get('/login/admin', [AdminSideController::class, 'AdminLogin'])->name('AdminLogin');
 Route::post('/login/admin/authenticate', [AdminSideController::class, 'login'])->name('authenticate');
-
+Route::middleware(['auth'])->group(function () {
 //Staff Routes
 Route::get('/login/staff', [StaffController::class, 'StaffLogin'])->name('staff.login');
 Route::post('/login/staff/authenticate', [StaffController::class, 'authenticate'])->name('staff.authenticate');
@@ -191,7 +191,7 @@ Route::post('/staff/damage-report', [StaffController::class, 'storeDamageReport'
 Route::post('/staff/damage-report/edit/{id}', [StaffController::class, 'editDamageReport'])->name('staff.editDamageReport');
 Route::get('/staff/guests', [StaffController::class, 'guests'])->name('staff.guests');
 Route::get('/staff/logout', [StaffController::class, 'logout'])->name('staff.logout');
-
+});
 
 
 

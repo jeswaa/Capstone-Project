@@ -548,7 +548,7 @@ public function savePaymentProcess(Request $request)
 
     // Redirect with flash data
     return redirect()->route('summary')->with([
-        'success' => 'Ang iyong reservation ay matagumpay na na-save!',
+        'success' => 'Reservation saved.Wait for the staff to process your reservation.Thank you!',
         'amount' => $total_amount,
         'accommodations' => $accommodations
     ]);
