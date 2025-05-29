@@ -20,6 +20,7 @@ class Accomodation extends Model
         'accomodation_type',
         'accomodation_capacity',
         'accomodation_price',
+        'quantity',
     ];
 
     

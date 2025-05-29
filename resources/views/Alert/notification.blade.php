@@ -60,15 +60,16 @@
     <div class="toast-container"></div>
     <script>
     $(document).ready(function() {
+        let currentNotificationIndex = 0;
+        let allNotifications = [];
+
         function loadNotifications() {
-            // I-clear ang existing notifications
-            $('.toast-container').empty();
-            
             $.ajax({
                 url: '/staff/notifications',
                 method: 'GET',
                 success: function(response) {
-                    showToastNotifications(response);
+                    allNotifications = response.filter(n => n.is_read == 0);
+                    showNextNotification();
                 },
                 error: function(xhr, status, error) {
                     console.error('Error loading notifications:', error);
@@ -76,73 +77,81 @@
             });
         }
 
-        function showToastNotifications(notifications) {
-            if (notifications && notifications.length > 0) {
-                notifications.forEach(notification => {
-                    // I-check kung ang notification ay hindi pa nababasa at wala pang existing toast
-                    if (notification.is_read == 0 && !$(`.custom-toast[data-notification-id="${notification.id}"]`).length) {
-                        const toastHtml = `
-                            <div class="custom-toast" data-notification-id="${notification.id}">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <p class="mb-1">${notification.message}</p>
-                                        <small class="text-white-50">${moment(notification.created_at).fromNow()}</small>
-                                    </div>
-                                </div>
-                                <div class="timer"></div>
+        function showNextNotification() {
+            // I-clear muna ang container
+            $('.toast-container').empty();
+            
+            if (currentNotificationIndex < allNotifications.length) {
+                const notification = allNotifications[currentNotificationIndex];
+                
+                const toastHtml = `
+                    <div class="custom-toast" data-notification-id="${notification.id}">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="mb-1">${notification.message}</p>
+                                <small class="text-white-50">${moment(notification.created_at).fromNow()}</small>
                             </div>
-                        `;
-                        const $toast = $(toastHtml);
-                        $('.toast-container').append($toast);
-                        console.log("Notifications loaded:", notifications);
+                        </div>
+                        <div class="timer"></div>
+                    </div>
+                `;
+                
+                const $toast = $(toastHtml);
+                $('.toast-container').append($toast);
+                
+                setTimeout(() => {
+                    $toast.addClass('show');
+                }, 100);
 
-                        // Show animation
-                        setTimeout(() => {
-                            $toast.addClass('show');
-                        }, 100);
-
-                        // Add 5-second timer
-                        setTimeout(() => {
-                            markAsReadHandler(notification.id);
-                        }, 5000);
-                    }
-                });
+                // After 5 seconds, mark as read and show next
+                setTimeout(() => {
+                    markAsReadHandler(notification.id).then(() => {
+                        currentNotificationIndex++;
+                        showNextNotification();
+                    });
+                }, 5000);
+            } else {
+                // Reset index kung wala nang notifications
+                currentNotificationIndex = 0;
             }
         }
 
         function markAsReadHandler(id) {
-            const $toast = $(`.custom-toast[data-notification-id="${id}"]`);
-            
-            $.ajax({
-                url: `/staff/notifications/${id}/mark-as-read`,
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    is_read: true
-                },
-                success: function(response) {
-                    console.log('Mark as read successful:', response);
-                    $toast.removeClass('show');
-                    setTimeout(() => {
-                        $toast.remove();
-                    }, 300);
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error marking notification as read:', error);
-                    console.log('Response:', xhr.responseText);
-                    if (xhr.status === 419) {
-                        window.location.reload();
+            return new Promise((resolve, reject) => {
+                const $toast = $(`.custom-toast[data-notification-id="${id}"]`);
+                
+                $.ajax({
+                    url: `/staff/notifications/${id}/mark-as-read`,
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        is_read: true
+                    },
+                    success: function(response) {
+                        console.log('Mark as read successful:', response);
+                        $toast.removeClass('show');
+                        setTimeout(() => {
+                            $toast.remove();
+                            resolve();
+                        }, 300);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error marking notification as read:', error);
+                        if (xhr.status === 419) {
+                            window.location.reload();
+                        }
+                        reject(error);
                     }
-                }
+                });
             });
         }
 
         loadNotifications();
         setInterval(loadNotifications, 30000);
     });
-</script>
+    </script>
 </body>
 </html>

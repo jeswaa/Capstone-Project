@@ -169,51 +169,10 @@
             <div id="noResultsMessage" class="alert alert-info text-center" style="display: none;">
                 No reservations found
             </div>
-            <!-- Checked-out Guest -->
-            <div>
-                <!-- Modal for Checked Out Guests -->
-                <div class="modal fade" id="checkedOutGuestsModal" tabindex="-1" aria-labelledby="checkedOutGuestsModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="checkedOutGuestsModalLabel">Checked Out Guests</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="table-responsive">
-                                    <table class="table table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th>Name</th>
-                                                <th>Check-in Date</th>
-                                                <th>Check-out Date</th>
-                                                <th>Room</th>
-                                                <th>Total Amount</th>
-                                                <th>Reservation Status</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Buttons Container -->
+            <div> <!-- Buttons Container -->
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <!-- Button to trigger checked out guests modal -->
-                    <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#checkedOutGuestsModal">
-                        <i class="fas fa-history me-2"></i>View Checked Out Guests
-                    </button>
-
                     <!-- Button to add walk-in guest -->
-                    <button type="button" class="btn btn-primary ms-auto" style="width: 200px;" data-bs-toggle="modal" data-bs-target="#addWalkInModal">
+                    <button type="button" class="btn ms-auto text-white" style="width: 200px; background-color: #0b573d;" data-bs-toggle="modal" data-bs-target="#addWalkInModal">
                         <i class="fas fa-user-plus me-2"></i>Add Walk-in Guest
                     </button>
                 </div>
@@ -257,16 +216,19 @@
                                                 <div class="mb-3">
                                                     <label for="number_of_adult" class="form-label fw-bold">Number of Adults</label>
                                                     <input type="number" class="form-control border-success" id="number_of_adult" name="number_of_adult" min="0" value="0" required onchange="calculateTotalGuests()">
-                                                    <small class="text-muted" id="adult_entrance_fee">Entrance Fee: ₱<span id="adult_fee">{{ $adultTransaction->entrance_fee ?? '0.00' }}</span></small>
+                                                    <small class="text-muted" id="adult_entrance_fee">Entrance Fee: ₱<span id="adult_fee">0.00</span></small>
                                                 </div>
                                                 <div class="mb-3">
                                                     <label for="number_of_children" class="form-label fw-bold">Number of Children</label>
                                                     <input type="number" class="form-control border-success" id="number_of_children" name="number_of_children" min="0" value="0" required onchange="calculateTotalGuests()">
-                                                        <small class="text-muted" id="child_entrance_fee">Entrance Fee: ₱<span id="child_fee">{{ $kidTransaction->entrance_fee ?? '0.00' }}</span></small>
+                                                        <small class="text-muted" id="child_entrance_fee">Entrance Fee: ₱<span id="child_fee">0.00</span></small>
                                                 </div>
                                                 <div class="mb-3">
                                                     <label for="num_guests" class="form-label fw-bold">Total Guests</label>
                                                     <input type="number" class="form-control border-success" id="num_guests" name="total_guest" readonly>
+                                                    <small class="text-danger" id="capacity_error" style="display:none;">
+                                                        Total guests exceeds accommodation capacity! Maximum allowed: <span id="max_capacity"></span>
+                                                    </small>
                                                 </div>
                                                 <div class="mb-3">
                                                     <label for="total_fee" class="form-label fw-bold">Total Entrance Fee</label>
@@ -327,7 +289,9 @@
                                                 <option value="">Select Room Type</option>
                                                 @foreach($accomodations as $accomodation)
                                                     @if($accomodation->accomodation_status === 'available')
-                                                        <option value="{{ $accomodation->accomodation_id }}" data-price="{{ $accomodation->accomodation_price }}">
+                                                        <option value="{{ $accomodation->accomodation_id }}" 
+                                                                data-price="{{ $accomodation->accomodation_price }}"
+                                                                data-capacity="{{ $accomodation->accomodation_capacity }}">
                                                             {{ $accomodation->accomodation_name }} - ₱{{ number_format($accomodation->accomodation_price, 2) }}
                                                         </option>
                                                     @endif
@@ -338,34 +302,43 @@
                                             </div>
                                         </div>
                                         <div class="mb-3">
-                                            <label for="session" class="form-label fw-bold">Session</label>
-                                            <select class="form-select border-success" id="session" name="session" required onchange="calculateTotalGuests(); updateAmountAndTotal();">
-                                                <option value="Morning">Morning</option>
-                                                <option value="Evening">Evening</option>
-                                            </select>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="amount_paid" class="form-label fw-bold">Amount Paid</label>
-                                            <input type="number" class="form-control border-success" id="amount_paid" name="amount" step="0.01" required>
+                                            <label for="quantity" class="form-label fw-bold">Quantity</label>
+                                            <input type="number" class="form-control border-success" id="quantity" name="quantity" min="1" value="1" required oninput="validateQuantity()">
+                                            <div class="invalid-feedback" id="quantity_error">
+                                                The selected quantity exceeds the available rooms for this accommodation type.
+                                            </div>
                                         </div>
                                         <script>
                                             function updateAmountAndTotal() {
-                                                // Kunin ang presyo ng room
-                                                var roomSelect = document.getElementById('room_type');
-                                                var amountInput = document.getElementById('amount_paid');
-                                                var selectedOption = roomSelect.options[roomSelect.selectedIndex];
-                                                var roomPrice = parseFloat(selectedOption.getAttribute('data-price')) || 0;
-                                                
-                                                // Kunin ang total entrance fee
-                                                var totalFeeInput = document.getElementById('total_fee');
-                                                var totalEntranceFee = parseFloat(totalFeeInput.value.replace(/[^\d.]/g, '')) || 0;
-                                                
-                                                // I-add ang room price at entrance fee
-                                                var totalAmount = roomPrice + totalEntranceFee;
-                                                amountInput.value = totalAmount.toFixed(2);
+                                                // Update the amount paid based on selected room
+                                                updateAmount();
+                                                validateQuantity(); // Call validation when room type or other related fields change
+                                            }
+
+                                            function validateQuantity() {
+                                                const roomTypeSelect = document.getElementById('room_type');
+                                                const quantityInput = document.getElementById('quantity');
+                                                const quantityError = document.getElementById('quantity_error');
+                                                const selectedOption = roomTypeSelect.options[roomTypeSelect.selectedIndex];
+
+                                                if (selectedOption.value) {
+                                                    const availableCapacity = parseInt(selectedOption.getAttribute('data-capacity'));
+                                                    const enteredQuantity = parseInt(quantityInput.value);
+
+                                                    if (enteredQuantity > availableCapacity) {
+                                                        quantityInput.classList.add('is-invalid');
+                                                        quantityError.style.display = 'block';
+                                                    } else {
+                                                        quantityInput.classList.remove('is-invalid');
+                                                        quantityError.style.display = 'none';
+                                                    }
+                                                } else {
+                                                    // If no room type is selected, hide the error
+                                                    quantityInput.classList.remove('is-invalid');
+                                                    quantityError.style.display = 'none';
+                                                }
                                             }
                                             
-                                            // Update amount kapag nagbago ang session, room, o guest count
                                             document.getElementById('session').addEventListener('change', function() {
                                                 calculateTotalGuests();
                                                 updateAmountAndTotal();
@@ -440,6 +413,7 @@
                         <th class="text-center align-middle" style="font-size: 0.85rem;">Date</th>
                         <th class="text-center align-middle" style="font-size: 0.85rem;">Check In-Out</th>
                         <th class="text-center align-middle" style="font-size: 0.85rem;">Room</th>
+                        <th class="text-center align-middle" style="font-size: 0.85rem;">Room Qty</th>
                         <th class="text-center align-middle" style="font-size: 0.85rem;">Total Guest</th>
                         <th class="text-center align-middle" style="font-size: 0.85rem;">Amount</th>
                         <th class="text-center align-middle" style="font-size: 0.85rem;">Payment Method</th>
@@ -457,14 +431,17 @@
                                 <td>{{ date('M d, Y', strtotime($guest->reservation_check_in_date)) }}</td>
                                 <td>{{ date('h:i A', strtotime($guest->check_in_time)) }} - {{ date('h:i A', strtotime($guest->check_out_time)) }}</td>
                                 <td>{{ $guest->accomodation_name }}</td>
+                                <td>{{ $guest->quantity}}</td>
                                 <td>{{ $guest->total_guests }}</td>
                                 <td>₱{{ number_format($guest->amount, 2) }}</td>
                                 <td>{{ $guest->payment_method }}</td>
                                 <td>
-                                    @if($guest->reservation_status == 'Checked In')
-                                        <span class="badge bg-success">{{ $guest->reservation_status }}</span>
+                                    @if($guest->reservation_status == 'checked-in')
+                                        <span class="badge bg-success text-capitalize">{{ $guest->reservation_status }}</span>
+                                    @elseif($guest->reservation_status == 'checked-out')
+                                        <span class="badge bg-danger text-capitalize">{{ $guest->reservation_status }}</span>
                                     @else
-                                        <span class="badge bg-danger">{{ $guest->reservation_status }}</span>
+                                        <span class="badge bg-secondary">{{ $guest->reservation_status }}</span>
                                     @endif
                                 </td>
                                 <td class="text-capitalize">
@@ -502,9 +479,9 @@
                                                         <div class="mb-3">
                                                             <label for="reservation_status{{ $guest->id }}" class="form-label fw-bold">Reservation Status</label>
                                                             <select class="form-select border-success" id="reservation_status{{ $guest->id }}" name="reservation_status" required>
-                                                                <option value="Checked In" {{ old('reservation_status', $guest->reservation_status) == 'Checked In' ? 'selected' : '' }}>Checked In</option>
-                                                                <option value="Checked Out" {{ old('reservation_status', $guest->reservation_status) == 'Checked Out' ? 'selected' : '' }}>Checked Out</option>
-                                                                <option value="Cancelled" {{ old('reservation_status', $guest->reservation_status) == 'Cancelled' ? 'selected' : '' }}>Cancelled</option>
+                                                                <option value="checked-in" {{ old('reservation_status', $guest->reservation_status) == 'checked-in' ? 'selected' : '' }}>Checked In</option>
+                                                                <option value="checked-out" {{ old('reservation_status', $guest->reservation_status) == 'checked-out' ? 'selected' : '' }}>Checked Out</option>
+                                                                <option value="cencelled" {{ old('reservation_status', $guest->reservation_status) == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
                                                             </select>
                                                         </div>
                                                     </div>
@@ -620,31 +597,61 @@
     function updateAmount() {
         var roomSelect = document.getElementById('room_type');
         var amountInput = document.getElementById('amount_paid');
+        var quantityInput = document.getElementById('quantity');
         var selectedOption = roomSelect.options[roomSelect.selectedIndex];
         var price = selectedOption.getAttribute('data-price');
+        var quantity = parseInt(quantityInput.value) || 1;
+        
         if (price) {
-            amountInput.value = price;
+            var totalAmount = parseFloat(price) * quantity;
+            amountInput.value = totalAmount;
         } else {
             amountInput.value = '';
         }
     }
+
+    // Add event listener for quantity changes
+    document.getElementById('quantity').addEventListener('change', updateAmount);
 </script>
 <script>
 function calculateTotalGuests() {
     const adults = parseInt(document.getElementById('number_of_adult').value) || 0;
     const children = parseInt(document.getElementById('number_of_children').value) || 0;
+    const quantity = parseInt(document.getElementById('quantity').value) || 1;
     
     const sessionSelect = document.getElementById('session');
+    const accommodationSelect = document.getElementById('room_type');
+    
     if (!sessionSelect || !sessionSelect.value) {
         document.getElementById('adult_fee').textContent = '0.00';
         document.getElementById('child_fee').textContent = '0.00';
         document.getElementById('total_fee').value = '₱0.00';
+        document.getElementById('capacity_error').style.display = 'none';
         return;
     }
 
+    // Only check capacity if a room is selected
+    if (accommodationSelect && accommodationSelect.value) {
+        const selectedAccommodation = accommodationSelect.options[accommodationSelect.selectedIndex];
+        const capacity = selectedAccommodation ? parseInt(selectedAccommodation.getAttribute('data-capacity')) || 0 : 0;
+        const maxCapacity = capacity * quantity;
+        
+        const totalGuests = adults + children;
+        
+        // Validate capacity
+        if (totalGuests > maxCapacity) {
+            document.getElementById('capacity_error').style.display = 'block';
+            document.getElementById('max_capacity').textContent = maxCapacity;
+        } else {
+            document.getElementById('capacity_error').style.display = 'none';
+        }
+    } else {
+        document.getElementById('capacity_error').style.display = 'none';
+    }
+
+    // Rest of the function remains the same
     const selectedSession = sessionSelect.value;
 
-    // AJAX request to fetch updated fees
     $.ajax({
         url: "{{ route('session.fees') }}", // <-- Make sure this matches the route name
         method: 'POST',

@@ -147,6 +147,7 @@
                                     <th scope="col">Room Name</th>
                                     <th scope="col">Room Description</th>
                                     <th scope="col">Room Type</th>
+                                    <th scope="col">Room Qty</th>
                                     <th scope="col" class="text-center">Price</th>
                                     <th scope="col" class="text-center">Capacity</th>
                                     <th scope="col" class="text-center">Availability</th>
@@ -166,6 +167,7 @@
                                         <td class="align-middle">{{ $accomodation->accomodation_name }}</td>
                                         <td class="align-middle">{{ Str::limit($accomodation->accomodation_description, 50) }}</td>
                                         <td class="align-middle text-capitalize">{{ $accomodation->accomodation_type }}</td>
+                                        <td class="align-middle">{{ $accomodation->quantity }}</td>
                                         <td class="text-center align-middle">₱{{ number_format($accomodation->accomodation_price, 2) }}</td>
                                         <td class="text-center align-middle">{{ $accomodation->accomodation_capacity }}</td>
                                         <td class="text-center align-middle">

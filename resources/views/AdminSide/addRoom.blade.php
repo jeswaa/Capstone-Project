@@ -57,12 +57,7 @@
 <body style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
     <div class="container-fluid min-vh-100 d-flex p-0">
         @include('Alert.loginSuccessUser')
-        @if(session('error'))
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                {{ session('error') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
+        @include('Alert.errornotification')
         @include('Navbar.sidenavbar')
         <!-- Main Content -->
         <div class="col-md-9 col-lg-10 py-4 px-4">

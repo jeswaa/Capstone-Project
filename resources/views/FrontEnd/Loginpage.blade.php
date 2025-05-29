@@ -374,7 +374,7 @@ body, p, h6, li, span { font-family: 'Montserrat', sans-serif; }
                     </p>
 
                     <a href="{{ route('google.redirect') }}" class="text-white font-paragraph text-decoration-none fw-bold">
-                        <div class="d-flex justify-content-center align-items-center color-background8 p-3 rounded-4 google"
+                        <div class="d-flex justify-content-center align-items-center bg-success p-3 rounded-4 google"
                              style="font-size: 0.9rem;">
                             <img src="{{ asset('images/google.png') }}" alt="" width="16" height="16" class="me-2"> 
                             Sign In using Google
@@ -1051,219 +1051,215 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 <!-- Verfication Modal After clicking the Login Button-->
 <script>
-document.getElementById('login-form').addEventListener('submit', function(e) {
-    const loginText = document.getElementById('loginText');
-    const loadingText = document.getElementById('loadingText');
-    const dynamicLoadingText = document.getElementById('dynamicLoadingText');
-    const userCredential = document.getElementById('userCredential').value;
-    
-    loginText.classList.add('d-none');
-    loadingText.classList.remove('d-none');
-    
-    // Check if input is email using regex and set loading text
-    dynamicLoadingText.textContent = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userCredential) 
-        ? 'Sending OTP...' 
-        : 'Please wait...';
-    
-    // Kung email, ipakita ang OTP verification
-    const modalBody = document.querySelector('#otpModal .modal-body');
-    const sendingAlert = document.createElement('div');
-    sendingAlert.className = 'alert alert-info text-center';
-    sendingAlert.textContent = 'Sending OTP...';
-    modalBody.insertBefore(sendingAlert, modalBody.firstChild);
-    
-    function sendLoginOTP(email, password) {
+document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('login-form').addEventListener('submit', function(e) {
+        const loginText = document.getElementById('loginText');
+        const loadingText = document.getElementById('loadingText');
+        const dynamicLoadingText = document.getElementById('dynamicLoadingText');
+        const userCredential = document.getElementById('userCredential').value;
+        
+        loginText.classList.add('d-none');
+        loadingText.classList.remove('d-none');
+        
+        // Check if input is email using regex and set loading text
+        dynamicLoadingText.textContent = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userCredential) 
+            ? 'Sending OTP...' 
+            : 'Please wait...';
+        
+        // Kung email, ipakita ang OTP verification
+        const modalBody = document.querySelector('#otpModal .modal-body');
         const sendingAlert = document.createElement('div');
         sendingAlert.className = 'alert alert-info text-center';
-        sendingAlert.innerHTML = '<span id="loadingText" class="loading-text">Sending OTP please wait... <i class="fas fa-circle-notch fa-spin"></i></span>';
-        
-        const modalBody = document.querySelector('#otpVerificationModal .modal-body');
+        sendingAlert.textContent = 'Sending OTP...';
         modalBody.insertBefore(sendingAlert, modalBody.firstChild);
-
-        fetch('{{ route("send-login-otp") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({ 
-                email: email,
-                password: password  // Include password in the request
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            sendingAlert.remove();
-            
-            if (data.success) {
-                alert('OTP has been sent successfully to your email!');
-                startResendCountdown();
-            } else {
-                // Close the OTP modal if credentials are invalid
-                if (data.message === 'Invalid email or password.') {
-                    bootstrap.Modal.getInstance(document.getElementById('otpVerificationModal')).hide();
-                }
-                alert(data.message || 'Failed to send OTP. Please try again.');
-            }
-        })
-        .catch(error => {
-            sendingAlert.remove();
-            console.error('Error sending OTP:', error);
-            alert('An error occurred while sending OTP. Please try again.');
-        });
-    }
-    
-    // Resend OTP button functionality
-    const resendOTPButton = document.getElementById('resendOTP');
-    resendOTPButton.addEventListener('click', function() {
-        const email = document.getElementById('otpEmailInput').value;
-        sendLoginOTP(email);
-    });
-    
-    // Countdown timer for resend button
-    function startResendCountdown() {
-        const countdownElement = document.getElementById('countdown');
-        const resendButton = document.getElementById('resendOTP');
         
-        resendButton.disabled = true;
-        countdownElement.classList.remove('d-none');
-        
-        let seconds = 60;
-        countdownElement.textContent = `(${seconds}s)`;
-        
-        const countdownInterval = setInterval(() => {
-            seconds--;
-            countdownElement.textContent = `(${seconds}s)`;
+        function sendLoginOTP(email, password) {
+            const sendingAlert = document.createElement('div');
+            sendingAlert.className = 'alert alert-info text-center';
+            sendingAlert.innerHTML = '<span id="loadingText" class="loading-text">Sending OTP please wait... <i class="fas fa-circle-notch fa-spin"></i></span>';
             
-            if (seconds <= 0) {
-                clearInterval(countdownInterval);
-                resendButton.disabled = false;
-                countdownElement.classList.add('d-none');
-            }
-        }, 1000);
-    }
+            const modalBody = document.querySelector('#otpVerificationModal .modal-body');
+            modalBody.insertBefore(sendingAlert, modalBody.firstChild);
     
-    // OTP verification form submission
-    const otpForm = document.getElementById('otpForm');
-    if (otpForm) {
-        otpForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(this);
-            const submitButton = this.querySelector('button[type="submit"]');
-            
-            // Disable button and show loading state
-            submitButton.disabled = true;
-            submitButton.innerHTML = `
-                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                Verifying...
-            `;
-            
-            fetch(this.action, {
+            fetch('{{ route("send-login-otp") }}', {
                 method: 'POST',
-                body: formData,
                 headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 },
-                credentials: 'same-origin'
+                body: JSON.stringify({ 
+                    email: email,
+                    password: password
+                })
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
+                sendingAlert.remove();
+                
                 if (data.success) {
-                    // Show success message
-                    const successDiv = document.createElement('div');
-                    successDiv.className = 'alert alert-success text-center mb-3';
-                    successDiv.innerHTML = 'OTP verified successfully! Redirecting...';
-                    this.insertBefore(successDiv, this.firstChild);
-                    
-                    // Redirect after short delay
-                    setTimeout(() => {
-                        window.location.href = data.redirect || '/dashboard';
-                    }, 1500);
+                    alert('OTP has been sent successfully to your email!');
+                    startResendCountdown();
                 } else {
-                    // Reset button state
-                    submitButton.disabled = false;
-                    submitButton.innerHTML = 'Verify OTP';
-                    alert(data.message || 'Invalid OTP. Please try again.');
+                    if (data.message === 'Invalid email or password.') {
+                        bootstrap.Modal.getInstance(document.getElementById('otpVerificationModal')).hide();
+                    }
+                    alert(data.message || 'Failed to send OTP. Please try again.');
                 }
             })
             .catch(error => {
-                console.error('Error verifying OTP:', error);
-                // Reset button state
-                submitButton.disabled = false;
-                submitButton.innerHTML = 'Verify OTP';
-                alert('An error occurred while verifying OTP. Please try again.');
+                sendingAlert.remove();
+                console.error('Error sending OTP:', error);
+                alert('An error occurred while sending OTP. Please try again.');
             });
-        });
-// Add resend OTP functionality
-let resendTimer;
-let resendCountdown = 60;
-
-function startResendTimer() {
-    const resendButton = document.getElementById('resendOTP');
-    const countdownSpan = document.getElementById('countdown');
-    
-    resendButton.disabled = true;
-    countdownSpan.classList.remove('d-none');
-    
-    resendTimer = setInterval(() => {
-        resendCountdown--;
-        countdownSpan.textContent = `(${resendCountdown}s)`;
+        }
         
-        if (resendCountdown <= 0) {
-            clearInterval(resendTimer);
-            resendButton.disabled = false;
-            countdownSpan.classList.add('d-none');
-            resendCountdown = 60;
+        // Resend OTP button functionality
+        const resendOTPButton = document.getElementById('resendOTP');
+        resendOTPButton.addEventListener('click', function() {
+            const email = document.getElementById('otpEmailInput').value;
+            sendLoginOTP(email);
+        });
+        
+        // Countdown timer for resend button
+        function startResendCountdown() {
+            const countdownElement = document.getElementById('countdown');
+            const resendButton = document.getElementById('resendOTP');
+            
+            resendButton.disabled = true;
+            countdownElement.classList.remove('d-none');
+            
+            let seconds = 60;
+            countdownElement.textContent = `(${seconds}s)`;
+            
+            const countdownInterval = setInterval(() => {
+                seconds--;
+                countdownElement.textContent = `(${seconds}s)`;
+                
+                if (seconds <= 0) {
+                    clearInterval(countdownInterval);
+                    resendButton.disabled = false;
+                    countdownElement.classList.add('d-none');
+                }
+            }, 1000);
         }
-    }, 1000);
-}
+        
+        // OTP verification form submission
+        const otpForm = document.getElementById('otpForm');
+        if (otpForm) {
+            otpForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                const submitButton = this.querySelector('button[type="submit"]');
+                
+                submitButton.disabled = true;
+                submitButton.innerHTML = `
+                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    Verifying...
+                `;
+                
+                fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        const successDiv = document.createElement('div');
+                        successDiv.className = 'alert alert-success text-center mb-3';
+                        successDiv.innerHTML = 'OTP verified successfully! Redirecting...';
+                        this.insertBefore(successDiv, this.firstChild);
+                        
+                        setTimeout(() => {
+                            window.location.href = data.redirect || '/dashboard';
+                        }, 1500);
+                    } else {
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = 'Verify OTP';
+                        alert(data.message || 'Invalid OTP. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error verifying OTP:', error);
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = 'Verify OTP';
+                    alert('An error occurred while verifying OTP. Please try again.');
+                });
+            });
+        }
 
-function resendOTP() {
-    const email = document.getElementById('otpEmailInput').value;
-    const resendButton = document.getElementById('resendOTP');
+        // Add resend OTP functionality
+        let resendTimer;
+        let resendCountdown = 60;
     
-    resendButton.disabled = true;
-    
-    fetch('{{ route("resend-login-otp") }}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        },
-        body: JSON.stringify({ email: email })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('New OTP has been sent to your email!');
-            startResendTimer();
-        } else {
-            alert(data.message || 'Failed to resend OTP. Please try again.');
-            resendButton.disabled = false;
+        function startResendTimer() {
+            const resendButton = document.getElementById('resendOTP');
+            const countdownSpan = document.getElementById('countdown');
+            
+            resendButton.disabled = true;
+            countdownSpan.classList.remove('d-none');
+            
+            resendTimer = setInterval(() => {
+                resendCountdown--;
+                countdownSpan.textContent = `(${resendCountdown}s)`;
+                
+                if (resendCountdown <= 0) {
+                    clearInterval(resendTimer);
+                    resendButton.disabled = false;
+                    countdownSpan.classList.add('d-none');
+                    resendCountdown = 60;
+                }
+            }, 1000);
         }
-    })
-    .catch(error => {
-        console.error('Error resending OTP:', error);
-        alert('An error occurred while resending OTP. Please try again.');
-        resendButton.disabled = false;
+    
+        function resendOTP() {
+            const email = document.getElementById('otpEmailInput').value;
+            const resendButton = document.getElementById('resendOTP');
+            
+            resendButton.disabled = true;
+            
+            fetch('{{ route("resend-login-otp") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({ email: email })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('New OTP has been sent to your email!');
+                    startResendTimer();
+                } else {
+                    alert(data.message || 'Failed to resend OTP. Please try again.');
+                    resendButton.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error resending OTP:', error);
+                alert('An error occurred while resending OTP. Please try again.');
+                resendButton.disabled = false;
+            });
+        }
+    
+        document.getElementById('resendOTP').addEventListener('click', resendOTP);
+        startResendTimer();
     });
-}
-
-// Add event listener for resend button
-document.getElementById('resendOTP').addEventListener('click', resendOTP);
-
-// Start initial timer when OTP is first sent
-startResendTimer();
-
+});
 </script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const otpInput = document.getElementById('otp');

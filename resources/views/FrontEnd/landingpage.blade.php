@@ -89,13 +89,13 @@
         <div class="container">
             <!-- Logo - visible on all screens, aligned left -->
             <a class="navbar-brand" href="#">
-                <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort" id="logo" height="150" width="130">
+                <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort" id="logo" height="90" width="80">
             </a>
 
             <!-- Navbar toggler - aligned right -->
             <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse"
                 data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
-                aria-label="Toggle navigation">
+                aria-label="Toggle navigation" style="background-color: rgba(255, 255, 255, 0.95); border: 3px solid black;">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
@@ -171,23 +171,19 @@
                             <div id="carouselExampleInterval" class="carousel slide" data-bs-ride="carousel">
                                 <div class="carousel-inner">
                                     <div class="carousel-item active" data-bs-interval="5000">
-                                        <img src="{{ asset('images/image1.JPG') }}" class="d-block w-100 rounded"
+                                        <img src="{{ asset('images/harap.JPG') }}" class="d-block w-100 rounded"
                                             alt="Hotel Image 1">
                                     </div>
                                     <div class="carousel-item" data-bs-interval="5000">
-                                        <img src="{{ asset('images/image5.JPG') }}" class="d-block w-100 rounded"
+                                        <img src="{{ asset('images/labas.JPG') }}" class="d-block w-100 rounded"
                                             alt="Hotel Image 2">
                                     </div>
                                     <div class="carousel-item" data-bs-interval="5000">
-                                        <img src="{{ asset('images/image8.JPG') }}" class="d-block w-100 rounded"
+                                        <img src="{{ asset('images/loob.JPG') }}" class="d-block w-100 rounded"
                                             alt="Hotel Image 3">
                                     </div>
                                     <div class="carousel-item" data-bs-interval="5000">
-                                        <img src="{{ asset('images/image10.JPG') }}" class="d-block w-100 rounded"
-                                            alt="Hotel Image 3">
-                                    </div>
-                                    <div class="carousel-item" data-bs-interval="5000">
-                                        <img src="{{ asset('images/image3.JPG') }}" class="d-block w-100 rounded"
+                                        <img src="{{ asset('images/una.JPG') }}" class="d-block w-100 rounded"
                                             alt="Hotel Image 3">
                                     </div>
                                     <div class="carousel-item" data-bs-interval="5000">
@@ -195,7 +191,11 @@
                                             alt="Hotel Image 3">
                                     </div>
                                     <div class="carousel-item" data-bs-interval="5000">
-                                        <img src="{{ asset('images/image2.JPG') }}" class="d-block w-100 rounded"
+                                        <img src="{{ asset('images/dalawa.JPG') }}" class="d-block w-100 rounded"
+                                            alt="Hotel Image 3">
+                                    </div>
+                                    <div class="carousel-item" data-bs-interval="5000">
+                                        <img src="{{ asset('images/tatlo.JPG') }}" class="d-block w-100 rounded"
                                             alt="Hotel Image 3">
                                     </div>
                                 </div>
@@ -252,6 +252,7 @@
                         <!-- Right Carousel Section -->
                         <div class="col-lg-6">
                             <div id="carouselExampleInterval2" class="carousel slide" data-bs-ride="carousel">
+                            <div id="carouselExampleInterval2" class="carousel slide" data-bs-ride="carousel">
                                 <div class="carousel-inner">
                                     <div class="carousel-item active" data-bs-interval="5000">
                                         <img src="{{ asset('images/image1.JPG') }}" class="d-block w-100 rounded"
@@ -267,27 +268,29 @@
                                     </div>
                                     <div class="carousel-item" data-bs-interval="5000">
                                         <img src="{{ asset('images/image10.JPG') }}" class="d-block w-100 rounded"
-                                            alt="Hotel Image 3">
+                                            alt="Hotel Image 4">
                                     </div>
                                     <div class="carousel-item" data-bs-interval="5000">
                                         <img src="{{ asset('images/image3.JPG') }}" class="d-block w-100 rounded"
-                                            alt="Hotel Image 3">
+                                            alt="Hotel Image 5">
                                     </div>
                                     <div class="carousel-item" data-bs-interval="5000">
                                         <img src="{{ asset('images/image9.JPG') }}" class="d-block w-100 rounded"
-                                            alt="Hotel Image 3">
+                                            alt="Hotel Image 6">
                                     </div>
                                     <div class="carousel-item" data-bs-interval="5000">
                                         <img src="{{ asset('images/image2.JPG') }}" class="d-block w-100 rounded"
-                                            alt="Hotel Image 3">
+                                            alt="Hotel Image 7">
                                     </div>
                                 </div>
                                 <button class="carousel-control-prev" type="button"
+                                    data-bs-target="#carouselExampleInterval2" data-bs-slide="prev">
                                     data-bs-target="#carouselExampleInterval2" data-bs-slide="prev">
                                     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                                     <span class="visually-hidden">Previous</span>
                                 </button>
                                 <button class="carousel-control-next" type="button"
+                                    data-bs-target="#carouselExampleInterval2" data-bs-slide="next">
                                     data-bs-target="#carouselExampleInterval2" data-bs-slide="next">
                                     <span class="carousel-control-next-icon" aria-hidden="true"></span>
                                     <span class="visually-hidden">Next</span>
@@ -554,11 +557,13 @@
         <div class="container">
             <div class="row">
                 <!-- Title for All Screens -->
-                <div class="col-12 text-center mb-3">
-                    <h1 class="fw-bold text-uppercase text-start"
-                        style="font-size: calc(2rem + 1vw); color: #0b573d; font-family: 'Anton', sans-serif; letter-spacing: 0.1em;">
-                        REVIEWS
-                    </h1>
+                <div class="py-4 mt-4 d-flex justify-content-center">
+                    <div class="position-relative px-5 py-3 text-center" style="width: 100%; max-width: 100%; margin: 0 auto; background-color: #E6F4E6; border-radius: 15px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                        <h1 class="fw-bolder text-success display-5 mb-0"
+                            style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); font-weight: 900;">
+                            REVIEWS
+                        </h1>
+                    </div>
                 </div>
 
                 <!-- HR Lines and Content -->

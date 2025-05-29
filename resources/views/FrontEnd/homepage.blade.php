@@ -115,7 +115,8 @@
 </style>
 
 <body>
-    <nav class="navbar navbar-expand-lg position-absolute top-0 w-100 mt-4" style="z-index: 10;">
+    @include('Alert.loginSuccessUser')
+<nav class="navbar navbar-expand-lg position-absolute top-0 w-100 mt-4" style="z-index: 10;">
         <div class="container">
             <a href="{{ route('profile') }}" class="text-decoration-none me-auto">
                 <div class="profile-icon d-flex align-items-center justify-content-center" style="width: 45px; 

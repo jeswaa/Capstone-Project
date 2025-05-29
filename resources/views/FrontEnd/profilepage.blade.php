@@ -95,6 +95,7 @@
 
 <body
     style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
+    @include('Alert.infoNotif')
     <nav class="navbar navbar-expand-lg position-absolute top-0 w-100" style="z-index: 0;">
         <div class="container">
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
@@ -425,11 +426,11 @@
     <!-- Cancel Reservation Modal -->
     <div class="modal fade" id="cancelReservationModal" tabindex="-1" aria-labelledby="cancelReservationModalLabel"
         aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header text-white" style="background-color: #0b573d;">
                     <h5 class="modal-title" id="cancelReservationModalLabel">Cancel Reservation</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <p>Are you sure you want to cancel this reservation?</p>
@@ -437,12 +438,19 @@
                         <form method="POST"
                             action="{{ route('guestcancelReservation', ['id' => $latestReservation->id]) }}">
                             @csrf
-                            <div class="form-group">
-                                <label for="cancel_reason">Reason for cancellation:</label>
-                                <textarea class="form-control" id="cancel_reason" name="cancel_reason" required></textarea>
+                            <div class="form-group mb-3">
+                                <label for="cancel_reason" class="form-label">Reason for cancellation:</label>
+                                <select class="form-select" id="cancel_reason" name="cancel_reason" required>
+                                    <option value="">Select a reason</option>
+                                    <option value="Change of plans">Change of plans</option>
+                                    <option value="Found a better deal">Found a better deal</option>
+                                    <option value="Travel restrictions">Travel restrictions</option>
+                                    <option value="Emergency">Emergency</option>
+                                    <option value="Other">Other</option>
+                                </select>
                             </div>
                             <div class="modal-footer">
-                                <button type="submit" class="btn btn-danger">Confirm Cancel</button>
+                                <button type="submit" class="btn btn-success">Confirm Cancel</button>
                             </div>
                         </form>
                     @else

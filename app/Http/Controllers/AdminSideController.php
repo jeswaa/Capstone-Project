@@ -1518,13 +1518,14 @@ public function updateRoom(Request $request, $accomodation_id)
     $request->validate([
         'accomodation_image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
         'accomodation_name' => 'required|string|max:255',
-        'accomodation_type' => 'required|in:room,cottage',
+        'accomodation_type' => 'required',
         'accomodation_capacity' => 'required|numeric|min:1',
         'accomodation_price' => 'required|numeric|min:0',
         'accomodation_status' => 'required|in:available,unavailable',
         'room_id' => 'required|numeric',
         'accomodation_description' => 'nullable|string',
         'amenities' => 'nullable|string', // Added amenities validation
+        'quantity' => 'required|numeric|min:0', // Add this line for quantity validation
     ]);
 
     // Find accommodation using Eloquent
@@ -1555,8 +1556,17 @@ public function updateRoom(Request $request, $accomodation_id)
     $accomodation->room_id = $request->room_id;
     $accomodation->accomodation_description = $request->accomodation_description;
     $accomodation->amenities = $request->amenities;
+    // Check if the quantity is valid before updating
+    if ($request->quantity < 0) {
+        return redirect()->back()->with('error', 'Quantity cannot be negative.');
+    }
+    $accomodation->quantity = $request->quantity; // Add this line to update quantity
 
-    $accomodation->save();
+    try {
+        $accomodation->save();
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'Failed to update accommodation: ' . $e->getMessage());
+    }
 
     return redirect()->route('rooms')->with('success', 'Accommodation updated successfully!');
 }
@@ -1628,9 +1638,18 @@ public function updateRoom(Request $request, $accomodation_id)
         // Sum the original quantity of all accommodations
         $countAvailableRoom = $accomodations->sum('available_rooms'); // Changed from 'available_rooms' to 'quantity'
 
-        $countReservedRoom = DB::table('reservation_details')
+        // Count reserved rooms from reservation_details
+        $countReservedFromReservations = DB::table('reservation_details')
             ->whereIn('reservation_status', ['reserved', 'checked-in'])
             ->sum('quantity');
+
+        // Count reserved rooms from walkin_guests
+        $countReservedFromWalkins = DB::table('walkin_guests')
+            ->whereIn('reservation_status', ['reserved', 'checked-in'])
+            ->sum('quantity');
+
+        // Total reserved rooms from both tables
+        $countReservedRoom = $countReservedFromReservations + $countReservedFromWalkins;
 
         return view('AdminSide.addRoom', [
             'accomodations' => $accomodations,

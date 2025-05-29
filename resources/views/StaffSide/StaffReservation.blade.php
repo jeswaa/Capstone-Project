@@ -377,6 +377,11 @@
                     style="{{ request('status') == 'early-checked-out' ? 'background-color: #0b573d; border: 1px solid #0b573d; color: white;' : 'background-color: transparent; border: 1px solid #0b573d; color: black;' }}">
                         Early Checked-out
                     </a>
+                    <a href="{{ route('staff.reservation', ['status' => 'cancelled']) }}"
+                    class="btn w-100 filter-btn fw-semibold"
+                    style="{{ request('status') == 'cancelled' ? 'background-color: #0b573d; border: 1px solid #0b573d; color: white;' : 'background-color: transparent; border: 1px solid #0b573d; color: black;' }}">
+                        Cancelled
+                    </a>
                 </div>
             </div>
 
@@ -391,6 +396,7 @@
                         <th class="text-center align-middle" style="font-size: 0.85rem;">Check in Date</th>
                         <th class="text-center align-middle" style="font-size: 0.85rem;">Check In-Out</th>
                         <th class="text-center align-middle" style="font-size: 0.85rem;">Room</th>
+                        <th class="text-center align-middle" style="font-size: 0.85rem;">Room Qty</th>
                         <th class="text-center align-middle" style="font-size: 0.85rem;">Ref Num</th>
                         <th class="text-center align-middle" style="font-size: 0.85rem;">Amount</th>
                         <th class="text-center align-middle" style="font-size: 0.85rem;">Balance</th>
@@ -403,7 +409,7 @@
                     </thead>
                     <tbody>
                         @foreach ($reservations as $reservation)
-                            @if(in_array($reservation->reservation_status, ['pending', 'reserved', 'checked-in','checked-out','early-checked-out']))
+                            @if(in_array($reservation->reservation_status, ['pending', 'reserved', 'checked-in','checked-out','early-checked-out','cancelled']))
                             <tr>
                                 <td class="text-center align-middle" style="font-size: x-small;">{{ $reservation->name }}</td>
                                 <td class="text-center align-middle" style="font-size: x-small;">{{ $reservation->email }}</td>
@@ -416,6 +422,7 @@
                                 @endphp
                                 {{ implode(', ', $accommodationNames) }}
                                 </td>
+                                <td  class="text-center align-middle" style="font-size: x-small;">{{$reservation->quantity}}</td>
                                 <td class="text-center align-middle" style="font-size: x-small;">{{ $reservation->reference_num }}</td>
                                 <td class="text-center align-middle" style="font-size: x-small;">₱{{ number_format($reservation->amount ?? 0, 2)  }}</td>
                                 <td class="text-center align-middle" style="font-size: x-small;" id="balance-{{ $reservation->id }}"></td>
@@ -501,9 +508,9 @@
                                                     </label>
                                                     <select class="form-select form-select-lg border-2" name="payment_status" id="payment_status" style="border-color: #0b573d">
                                                         <option value="" disabled selected hidden>Choose payment status</option>
-                                                        <option value="paid" {{ $reservation->status == 'paid' ? 'selected' : '' }}>Paid</option>
-                                                        <option value="partial" {{ $reservation->status == 'partial' ? 'selected' : '' }}>Partial</option>
-                                                        <option value="unpaid" {{ $reservation->status == 'unpaid' ? 'selected' : '' }}>Unpaid</option>
+                                                        <option value="paid" {{ old('payment_status', $reservation->payment_status) == 'paid' ? 'selected' : '' }}>Paid</option>
+                                                        <option value="partial" {{ old('payment_status', $reservation->payment_status) == 'partial' ? 'selected' : '' }}>Partial</option>
+                                                        <option value="unpaid" {{ old('payment_status', $reservation->payment_status) == 'unpaid' ? 'selected' : '' }}>Unpaid</option>
                                                     </select>
                                                 </div>
 
@@ -511,14 +518,14 @@
                                                     <label for="reservation_status" class="form-label fw-semibold text-muted">
                                                         <i class="fas fa-calendar-check me-2"></i>Reservation Status
                                                     </label>
-                                                    <select class="form-select form-select-lg border-2" name="reservation_status" id="reservation_status" style="border-color: #0b573d">
-                                                        <option value="" disabled selected hidden>Choose reservation status</option>
-                                                        <option value="reserved" {{ $reservation->status == 'reserved' ? 'selected' : '' }}>Reserved</option>
-                                                        <option value="checked-in" {{ $reservation->status == 'checked-in' ? 'selected' : '' }}>Checked-In</option>
-                                                        <option value="early-checked-out" {{ $reservation->status == 'early-checked-out' ? 'selected' : '' }}>Early Checked-Out</option>
-                                                        <option value="checked-out" {{ $reservation->status == 'checked-out' ? 'selected' : '' }}>Checked-Out</option>
-                                                        <option value="cancelled" {{ $reservation->status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
-                                                    </select>
+                                                <select class="form-select form-select-lg border-2" name="reservation_status" id="reservation_status" style="border-color: #0b573d">
+                                                    <option value="" disabled selected hidden>Choose reservation status</option>
+                                                    <option value="reserved" {{ $reservation->reservation_status == 'reserved' ? 'selected' : '' }}>Reserved</option>
+                                                    <option value="checked-in" {{ $reservation->reservation_status == 'checked-in' ? 'selected' : '' }}>Checked-In</option>
+                                                    <option value="early-checked-out" {{ $reservation->reservation_status == 'early-checked-out' ? 'selected' : '' }}>Early Checked-Out</option>
+                                                    <option value="checked-out" {{ $reservation->reservation_status == 'checked-out' ? 'selected' : '' }}>Checked-Out</option>
+                                                    <option value="cancelled" {{ $reservation->reservation_status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                                                </select>
                                                 </div>
 
                                                 <div class="mb-4">
