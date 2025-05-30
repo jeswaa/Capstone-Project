@@ -84,6 +84,7 @@
     }
 </style>
 <body>
+    @include('Alert.loginSuccessUser')
 <nav class="navbar navbar-expand-lg position-absolute top-0 w-100 mt-4" style="z-index: 10;">
         <div class="container">
             <a href="{{ route('profile') }}" class="text-decoration-none me-auto">

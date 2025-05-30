@@ -263,12 +263,15 @@
 <script>
 $(document).ready(function() {
     // Check if modal has been shown before
-    if (!localStorage.getItem('feedbackModalShown')) {
-        // Show modal
-        $('#feedbackModal').modal('show');
-        
-        // Mark modal as shown in localStorage
-        localStorage.setItem('feedbackModalShown', 'true');
+    if (!sessionStorage.getItem('feedbackModalShown')) {
+        // Show modal after 3 seconds
+        setTimeout(function() {
+            $('#feedbackModal').modal('show');
+            
+            // Mark modal as shown in sessionStorage instead of localStorage
+            // This will reset when the browser session ends
+            sessionStorage.setItem('feedbackModalShown', 'true');
+        }, 3000);
     }
 });
 </script>

@@ -26,7 +26,8 @@ class WalkinGuest extends Model
         'reservation_status',
         'accomodation_id',
         'payment_method',
-        'amount'
+        'amount',
+        'quantity',
     ];
 
     /**

@@ -5,13 +5,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Profile</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&family=Poppins:wght@100..900&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:wght@100..900&family=Poppins:wght@100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
+        h1, h5 { font-family: 'Anton', sans-serif; }
+        body, p, h6, li, span { font-family: 'Montserrat', sans-serif; }
+            /* Ensure the burger menu button is always on the right for mobile */
+    @media (max-width: 767.98px) {
+        #sidebarToggle {
+            position: fixed;
+            top: 1rem; /* Adjust as needed for spacing from the top */
+            right: 1rem; /* Adjust as needed for spacing from the right */
+            z-index: 1050; /* Ensure it's above other content */
+        }
+    }
         @media (max-width: 767.98px) {
             .col-12 {
                 position: static !important;
@@ -80,11 +89,13 @@
                 order: 2 !important;
             }
         }
+        
     </style>
 </head>
 
 <body
     style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
+    @include('Alert.infoNotif')
     <nav class="navbar navbar-expand-lg position-absolute top-0 w-100" style="z-index: 0;">
         <div class="container">
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
@@ -195,7 +206,7 @@
     <div class="container-fluid p-0">
         <div class="row g-0">
             <!-- Burger Menu Button (Visible only on mobile) -->
-            <div class="d-md-none position-fixed top-0 start-0 p-3" style="z-index: 1030;">
+            <div class="d-md-none position-fixed top-0 end-0 p-3" style="z-index: 1030;">
                 <button class="btn btn-success" type="button" id="sidebarToggle">
                     <i class="fa-solid fa-bars"></i>
                 </button>
@@ -279,24 +290,23 @@
                 <!-- Main Content Area -->
                 <div class="row">
                     <!-- Reservation Section -->
-                    <div class="col-md-8">
+                    <div class="col-12 col-xl-10 mx-auto">
                         <div class="p-3 shadow text-white background-color mt-4">
-                            <!-- Navigation Tabs -->
-                            <ul class="nav nav-tabs">
-                                <li class="nav-item">
-                                    <a class="nav-link active" href="#" id="reservation-tab"
+                            <!-- Navigation Tabs -->                            <ul class="nav nav-tabs">
+                                <li class="nav-item w-60">
+                                    <a class="nav-link active w-100 text-center" href="#" id="reservation-tab"
                                         onclick="toggleTab(event, 'reservation-list-section', 'reservation-tab', 'history-tab')"
                                         style="background-color: #0b573d; color: white;">Reservation</a>
                                 </li>
                             </ul>
 
                             <!-- Reservation List -->
-                            <section id="reservation-list-section" class="p-4 w-100">
+                            <section id="reservation-list-section" class="p-3 p-md-4 w-100">
                                 <h5 class="mb-4 fw-bold text-color-2 border-bottom pb-2" style="color: #0b573d;">YOUR CURRENT RESERVATION</h5>
                                 @if ($latestReservation && $latestReservation->reservation_status !== 'cancelled')
                                     <div class="card shadow-sm border-0 w-100" style="background-color: rgba(255, 255, 255, 0.9);">
-                                        <div class="card-body p-4">
-                                            <div class="d-flex align-items-center mb-4">
+                                        <div class="card-body p-3 p-md-4">
+                                            <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center mb-4 gap-2">
                                                 <h6 class="mb-0 me-2" style="color: #0b573d;"><strong>Status:</strong></h6>
                                                 <span class="badge text-capitalize px-3 py-2 @if($latestReservation->reservation_status == 'checked in') bg-success 
                                                     @elseif($latestReservation->reservation_status == 'pending') bg-warning 
@@ -311,7 +321,7 @@
                                                     <div class="col-12 col-md-6">
                                                         <div class="detail-item mb-3">
                                                             <h6 class="fw-bold mb-2">Room Type</h6>
-                                                            <p class="mb-0">
+                                                            <p class="mb-0 text-break">
                                                                 @foreach($accommodations as $accommodation)
                                                                     {{ $accommodation }}
                                                                 @endforeach
@@ -341,14 +351,14 @@
 
                                                         <div class="detail-item mb-3">
                                                             <h6 class="fw-bold mb-2">Date Check In - Out</h6>
-                                                            <p class="mb-0">{{ \Carbon\Carbon::parse($latestReservation->reservation_check_in_date)->format('F j, Y') }} - {{ \Carbon\Carbon::parse($latestReservation->reservation_check_out_date)->format('F j, Y') }}</p>
+                                                            <p class="mb-0 text-break">{{ \Carbon\Carbon::parse($latestReservation->reservation_check_in_date)->format('F j, Y') }} - {{ \Carbon\Carbon::parse($latestReservation->reservation_check_out_date)->format('F j, Y') }}</p>
                                                         </div>
                                                     </div>
 
                                                     <div class="col-12 col-md-6">
                                                         <div class="detail-item mb-3">
                                                             <h6 class="fw-bold mb-2">Special Request</h6>
-                                                            <p class="mb-0">{{ $latestReservation->special_request ?? 'None' }}</p>
+                                                            <p class="mb-0 text-break">{{ $latestReservation->special_request ?? 'None' }}</p>
                                                         </div>
 
                                                         <div class="detail-item mb-3">
@@ -359,8 +369,8 @@
                                                 </div>
                                             </div>
 
-                                            <div class="text-end mt-4 w-100">
-                                                <button class="btn px-4 py-2" 
+                                            <div class="text-center text-sm-end mt-4 w-100">
+                                                <button class="btn px-4 py-2 w-100 w-sm-auto" 
                                                         style="background-color: #0b573d; color: white;"
                                                         onclick="openCancelModal({{ $latestReservation->id }})">
                                                     <i class="fas fa-times-circle me-2"></i>
@@ -370,41 +380,40 @@
                                         </div>
                                     </div>
                                 @else
-                                    <div class="text-center p-5 w-100">
+                                    <div class="text-center p-4 p-md-5 w-100">
                                         <i class="fas fa-calendar-times fa-3x mb-3" style="color: #0b573d;"></i>
                                         <p class="text-muted">No reservations yet.</p>
                                     </div>
                                 @endif
                             </section>
-                            <section id="history-section" style="display: none;">
+
+                            <section id="history-section" class="p-3 p-md-4" style="display: none;">
                                 <h5 class="text-center mt-3">Your Reservation History</h5>
                                 @forelse ($pastReservations as $reservation)
                                     <div class="card mb-3 mt-4">
-                                        <div class="card-body">
-                                            <div class="d-flex justify-content-between">
-                                                <p><strong>Status:</strong>
-                                                    <span
-                                                        class="badge 
-                                                            @if(isset($reservation) && $reservation->payment_status == 'paid') bg-success 
-                                                            @elseif(isset($reservation) && $reservation->payment_status == 'pending') bg-warning 
-                                                            @elseif(isset($reservation) && $reservation->payment_status == 'booked') bg-primary 
-                                                                @else bg-danger 
-                                                            @endif">
+                                        <div class="card-body p-3 p-md-4">
+                                            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2">
+                                                <p class="mb-0"><strong>Status:</strong>
+                                                    <span class="badge ms-2 @if(isset($reservation) && $reservation->payment_status == 'paid') bg-success 
+                                                        @elseif(isset($reservation) && $reservation->payment_status == 'pending') bg-warning 
+                                                        @elseif(isset($reservation) && $reservation->payment_status == 'booked') bg-primary 
+                                                        @else bg-danger @endif">
                                                         {{ isset($reservation) ? $reservation->payment_status : 'N/A' }}
                                                     </span>
                                                 </p>
                                             </div>
-                                            <p><strong>Check-in:</strong>
-                                                {{ $reservation->reservation_check_in }}</p>
-                                            <p><strong>Check-out:</strong>
-                                                {{ $reservation->reservation_check_out }}</p>
-                                            <p><strong>Guests:</strong> {{ $reservation->total_guest }}
-                                            </p>
-                                            <p><strong>Amount:</strong> {{ $reservation->amount }}</p>
+                                            <div class="mt-3">
+                                                <p class="mb-2"><strong>Check-in:</strong> {{ $reservation->reservation_check_in }}</p>
+                                                <p class="mb-2"><strong>Check-out:</strong> {{ $reservation->reservation_check_out }}</p>
+                                                <p class="mb-2"><strong>Guests:</strong> {{ $reservation->total_guest }}</p>
+                                                <p class="mb-0"><strong>Amount:</strong> ₱{{ number_format($reservation->amount, 2) }}</p>
+                                            </div>
                                         </div>
                                     </div>
                                 @empty
-                                    <p class="text-center text-muted">No reservation history found.</p>
+                                    <div class="text-center p-4 p-md-5">
+                                        <p class="text-muted mb-0">No reservation history found.</p>
+                                    </div>
                                 @endforelse
                             </section>
                         </div>
@@ -417,11 +426,11 @@
     <!-- Cancel Reservation Modal -->
     <div class="modal fade" id="cancelReservationModal" tabindex="-1" aria-labelledby="cancelReservationModalLabel"
         aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header text-white" style="background-color: #0b573d;">
                     <h5 class="modal-title" id="cancelReservationModalLabel">Cancel Reservation</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <p>Are you sure you want to cancel this reservation?</p>
@@ -429,12 +438,19 @@
                         <form method="POST"
                             action="{{ route('guestcancelReservation', ['id' => $latestReservation->id]) }}">
                             @csrf
-                            <div class="form-group">
-                                <label for="cancel_reason">Reason for cancellation:</label>
-                                <textarea class="form-control" id="cancel_reason" name="cancel_reason" required></textarea>
+                            <div class="form-group mb-3">
+                                <label for="cancel_reason" class="form-label">Reason for cancellation:</label>
+                                <select class="form-select" id="cancel_reason" name="cancel_reason" required>
+                                    <option value="">Select a reason</option>
+                                    <option value="Change of plans">Change of plans</option>
+                                    <option value="Found a better deal">Found a better deal</option>
+                                    <option value="Travel restrictions">Travel restrictions</option>
+                                    <option value="Emergency">Emergency</option>
+                                    <option value="Other">Other</option>
+                                </select>
                             </div>
                             <div class="modal-footer">
-                                <button type="submit" class="btn btn-danger">Confirm Cancel</button>
+                                <button type="submit" class="btn btn-success">Confirm Cancel</button>
                             </div>
                         </form>
                     @else
@@ -449,6 +465,23 @@
             </div>
         </div>
     </div>
+    <script>
+        function openCancelModal(reservationId) {
+            // Check if reservationId is valid
+            if (!reservationId) {
+                console.error("No valid reservation ID provided.");
+                return;
+            }
+    
+            // Optionally set the reservation ID in a hidden field if you want to use it later
+            // document.getElementById('reservationIdInput').value = reservationId;
+    
+            // Show the modal using Bootstrap 5
+            var modal = new bootstrap.Modal(document.getElementById('cancelReservationModal'));
+            modal.show();
+        }
+    </script>
+    
     <script>
         // Add smooth transition for sidebar collapse/expand
         const sidebar = document.getElementById('profileSidebar');

@@ -143,8 +143,11 @@ class ReservationController extends Controller
         $user = User::find(Auth::user()->id);
         return $user;
     }
-    public function fetchAccomodationData(){
-        $accomodations = DB::table('accomodations')->get();
+    public function fetchAccomodationData()
+    {
+        $accomodations = DB::table('accomodations')
+            ->where('accomodation_status', 'available')
+            ->get();
         $activities = DB::table('activitiestbl')->get();
         $transactions = DB::table('transaction')->first();
         $adultTransaction = Transaction::where('type', 'adult')->select('entrance_fee')->first();
@@ -688,26 +691,6 @@ public function showReservationsInCalendar()
         }
 
         // Update status to "cancelled" and save the reason
-        if (in_array($reservation->payment_status, ['cancelled', 'checked_out'])) {
-            // Move reservation to archived_reservations
-            DB::table('archived_reservations')->insert([
-                'name' => $reservation->name,
-                'email' => $reservation->email,
-                'phone' => $reservation->mobileNo,
-                'package' => $reservation->package_id,
-                'reservation_check_in_date' => $reservation->reservation_check_in_date,
-                'reservation_check_in' => $reservation->reservation_check_in,
-                'reservation_check_out' => $reservation->reservation_check_out,
-                'amount' => $reservation->amount,
-                'payment_status' => $newPaymentStatus,
-                'created_at' => $reservation->created_at,
-                'updated_at' => now(),
-            ]);
-
-            // Delete reservation from current table
-            $reservation->delete();
-        }
-        $reservation->cancel_reason = $request->cancel_reason;
         DB::table('reservation_details')->where('id', $reservation->id)->update([
             'cancel_reason' => $request->cancel_reason,
             'payment_status' => 'cancelled',
@@ -801,11 +784,11 @@ public function showReservationsInCalendar()
             // I-save sa session ang reservation details
             session(['reservation_details' => $reservationDetails]);
     
-            return redirect()->route('paymentProcess')->with('success', 'Matagumpay na na-save ang iyong reservation details!');
-    
+            return redirect()->route('paymentProcess')->with('success', 'Reservation saved.Wait for the staff to process your reservation.Thank you!');
+
         } catch (\Exception $e) {
             Log::error('Reservation save error: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'May error sa pag-save ng reservation. Pakisubukan ulit.');
+            return redirect()->back()->with('error', 'Error saving reservation.');
         }
     }
 

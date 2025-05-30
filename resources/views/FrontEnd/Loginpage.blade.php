@@ -849,7 +849,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     loginText.textContent = 'LOG IN';
                 } catch (error) {
                     console.error('Error:', error);
-                    alert('May naganap na error. Pakisubukan muli.');
+                    alert('Error. Please try again');
                     
                     // Reset button on error
                     const loginButton = document.getElementById('loginButton');

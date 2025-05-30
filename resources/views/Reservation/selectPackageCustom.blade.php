@@ -93,7 +93,8 @@
                                 <div class="card select-accommodation"
                                      data-id="{{ $accomodation->accomodation_id }}"
                                      data-price="{{ $accomodation->accomodation_price }}"
-                                     data-capacity="{{ $accomodation->accomodation_capacity }}">
+                                     data-capacity="{{ $accomodation->accomodation_capacity }}"
+                                     data-room-quantity="{{ $accomodation->quantity }}">
                                     <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" class="card-img-top" alt="accommodation image" style="max-width: 100%; height: 250px; object-fit: cover;">
                                     <div class="card-body p-3 position-relative" style="background-color: white;">
                                         <div class="position-absolute top-0 end-0 p-2">
@@ -197,8 +198,9 @@
                             <div class="col-md-6">
                              <div class="card p-2 shadow-sm border-0 mt-2 mb-2">
                                 <h6 class="fw-bold mb-3 text-success">Quantity</h6>
-                                    <input type="number" id="quantity" name="quantity" class="form-control" min="1" value="1" required>
+                                    <input type="number" id="quantity" name="quantity" class="form-control" min="1" value="1" required oninput="validateInputs()">
                                     <small class="text-muted" style="font-size: 10px;">Number of rooms to reserve</small>
+                                    <small id="quantityError" class="text-danger mt-2" style="display: none;"></small>
                                 </div>
                                 <div class="card p-3 shadow-sm border-0">
                                     <h6 class="fw-bold mb-3 text-success">Number of Visitors</h6>
@@ -206,7 +208,7 @@
                                         <div class="d-flex justify-content-between align-items-center">
                                             <label for="number_of_adults">Adults <small style="font-size:10px;">(13 years old and above):</small></label>
                                         </div>
-                                        <input type="number" name="number_of_adults" id="number_of_adults" class="form-control p-2" min="0" value="0" oninput="calculateTotalGuest()">
+                                        <input type="number" name="number_of_adults" id="number_of_adults" class="form-control p-2" min="0" value="0" oninput="calculateTotalGuest(); validateInputs();">
                                         {{-- Display validation error for adults --}}
                                         @error('number_of_adults')
                                             <div class="text-danger mt-1">{{ $message }}</div>
@@ -216,7 +218,7 @@
                                         <div class="d-flex justify-content-between align-items-center">
                                             <label for="number_of_children">Children <small style="font-size:10px;">(3 to 12 years old):</small></label>
                                         </div>
-                                        <input type="number" name="number_of_children" id="number_of_children" class="form-control p-2" min="0" value="0" oninput="calculateTotalGuest()">
+                                        <input type="number" name="number_of_children" id="number_of_children" class="form-control p-2" min="0" value="0" oninput="calculateTotalGuest(); validateInputs();">
                                         {{-- Display validation error for children --}}
                                         @error('number_of_children')
                                             <div class="text-danger mt-1">{{ $message }}</div>
@@ -323,14 +325,65 @@
         </div>
         
 <script>
+    function validateInputs() {
+        const quantityInput = document.getElementById('quantity');
+        const adultsInput = document.getElementById('number_of_adults');
+        const childrenInput = document.getElementById('number_of_children');
+        const submitButton = document.querySelector('button[type="submit"]');
+
+        let isValid = true;
+
+        // Validate Quantity
+        if (parseInt(quantityInput.value) <= 0 || quantityInput.value.trim() === '') {
+            quantityInput.classList.add('is-invalid');
+            isValid = false;
+        } else {
+            quantityInput.classList.remove('is-invalid');
+        }
+
+        // Validate Adults
+        if (parseInt(adultsInput.value) <= 0 && parseInt(childrenInput.value) <= 0) {
+            adultsInput.classList.add('is-invalid');
+            childrenInput.classList.add('is-invalid');
+            isValid = false;
+        } else {
+            adultsInput.classList.remove('is-invalid');
+            childrenInput.classList.remove('is-invalid');
+        }
+
+        // Disable submit button if any input is invalid or if quantity exceeds available rooms
+        if (!isValid || (document.getElementById('quantityError').style.display === 'block') || (document.getElementById('guestError').style.display === 'block')) {
+            submitButton.disabled = true;
+            submitButton.classList.add('opacity-50');
+        } else {
+            submitButton.disabled = false;
+            submitButton.classList.remove('opacity-50');
+        }
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
         const submitButton = document.querySelector('button[type="submit"]');
         const confirmPaymentBtn = document.getElementById('confirmPayment');
         const reservationModal = new bootstrap.Modal(document.getElementById('reservationModal'));
         
+        // Initial validation on page load
+        validateInputs();
+
         submitButton.addEventListener("click", function(e) {
             e.preventDefault();
             
+            // Re-validate before showing modal
+            validateInputs();
+            if (submitButton.disabled) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validation Error',
+                    text: 'Please correct the highlighted fields before proceeding.',
+                    confirmButtonColor: '#198754'
+                });
+                return;
+            }
+
             // Validate quantity
             const quantity = parseInt(document.getElementById('quantity').value) || 0;
             if (quantity <= 0) {
@@ -442,24 +495,34 @@
             let totalGuests = adults + children;
             let quantity = parseInt(document.getElementById("quantity").value) || 1;
             
-            // Kunin ang selected accommodation at calculate ang total capacity base sa quantity
             let selectedAccommodation = document.querySelector('.select-accommodation.selected');
             let totalCapacity = 0;
-            
+            let availableRoomQuantity = 0;
+
             if (selectedAccommodation) {
                 let roomCapacity = parseInt(selectedAccommodation.getAttribute('data-capacity')) || 0;
                 totalCapacity = roomCapacity * quantity;
+                availableRoomQuantity = parseInt(selectedAccommodation.getAttribute('data-room-quantity')) || 0;
             }
-            
-            // Kunin ang save button at error message elements
+
             let saveButton = document.querySelector('button[type="submit"]');
             let guestError = document.getElementById('guestError');
+            let quantityError = document.getElementById('quantityError');
             let totalGuestsInput = document.getElementById("total_guests");
-            
-            // I-update ang total guests display
-            totalGuestsInput.value = totalGuests;
-            
-            // I-check kung ang total guests ay lumampas sa total capacity
+
+            // Quantity validation against available rooms
+            if (quantity > availableRoomQuantity && availableRoomQuantity > 0) {
+                quantityError.style.display = 'block';
+                quantityError.textContent = `Exceeds available room quantity! (Available: ${availableRoomQuantity} rooms)`;
+                saveButton.disabled = true;
+                saveButton.classList.add('opacity-50');
+            } else {
+                quantityError.style.display = 'none';
+                // Ensure button is enabled if quantity is valid and other inputs are also valid
+                validateInputs();
+            }
+
+            // Guest capacity validation
             if (totalGuests > totalCapacity && totalCapacity > 0) {
                 guestError.style.display = 'block';
                 guestError.textContent = `Exceeds maximum capacity! (Maximum: ${totalCapacity} guests)`;
@@ -468,11 +531,14 @@
                 totalGuestsInput.style.color = 'red';
             } else {
                 guestError.style.display = 'none';
-                saveButton.disabled = false;
-                saveButton.classList.remove('opacity-50');
                 totalGuestsInput.style.color = 'black';
+                 // Ensure button is enabled if guest capacity is valid and other inputs are also valid
+                validateInputs();
             }
-            
+
+            // Re-evaluate button state after all checks
+            // validateInputs(); // This call is redundant here now that validateInputs is called in the else blocks
+
             document.getElementById("total_guests").value = totalGuests;
         }
 
@@ -480,6 +546,10 @@
         const mainForm = document.querySelector('form');
         const accommodationCards = document.querySelectorAll(".select-accommodation");
         const proceedButton = document.getElementById("proceedToPayment");
+        const quantityInput = document.getElementById("quantity"); // Get the quantity input
+
+        // Add event listener to quantity input
+        quantityInput.addEventListener('input', calculateTotalGuest); // Call calculateTotalGuest directly
 
         // Function para i-update ang estado ng button
         function updateProceedButton() {
@@ -513,7 +583,7 @@
                 this.classList.add("selected");
                 
                 updateProceedButton();
-                calculateTotalGuest();
+                calculateTotalGuest(); // Call calculateTotalGuest when a card is selected
                 updateSelectedAccommodation();
             });
         });
@@ -535,8 +605,77 @@
             // I-update muna ang hidden input bago mag-submit
             updateSelectedAccommodation();
         });
+
+        // Initial call to set button state and validate on page load if needed
+        updateProceedButton();
+        calculateTotalGuest();
+    });
+
+    // Keep the validateInputs function for other validations if needed
+    function validateInputs() {
+        let isValid = true;
+        const quantityInput = document.getElementById("quantity");
+        const adultsInput = document.getElementById("number_of_adults");
+        const childrenInput = document.getElementById("number_of_children");
+        const saveButton = document.querySelector('button[type="submit"]');
+
+        // Check if quantity, adults, and children inputs are valid numbers and not empty
+        if (!quantityInput.value || parseInt(quantityInput.value) <= 0 || isNaN(parseInt(quantityInput.value))) {
+            isValid = false;
+        }
+        if (!adultsInput.value || parseInt(adultsInput.value) < 0 || isNaN(parseInt(adultsInput.value))) {
+             isValid = false;
+        }
+         if (!childrenInput.value || parseInt(childrenInput.value) < 0 || isNaN(parseInt(childrenInput.value))) {
+             isValid = false;
+        }
+
+        // Check if there are any visible error messages
+        const guestError = document.getElementById('guestError');
+        const quantityError = document.getElementById('quantityError');
+
+        if (guestError.style.display === 'block' || quantityError.style.display === 'block') {
+            isValid = false;
+        }
+
+        // Enable or disable the save button based on overall validity
+        if (isValid) {
+            saveButton.disabled = false;
+            saveButton.classList.remove('opacity-50');
+        } else {
+            saveButton.disabled = true;
+            saveButton.classList.add('opacity-50');
+        }
+
+        return isValid;
+    }
+</script>
+    <script>
+    function resetFrontendAccommodations() {
+        console.log("Resetting accommodations to available...");
+
+        document.querySelectorAll(".select-accommodation").forEach(item => {
+            item.classList.remove("disabled");
+            item.classList.add("available");
+
+            // I-update ang status text at background color
+            let statusSpan = item.querySelector(".card-text");
+            if (statusSpan) {
+                statusSpan.textContent = "Available";
+                statusSpan.style.backgroundColor = "#C6F7D0"; // Green background for available
+            }
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const checkInDateInput = document.getElementById("reservation_date");
+
+        checkInDateInput.addEventListener("change", function () {
+            resetFrontendAccommodations(); // I-reset ang frontend kapag nagbago ang check-in date
+        });
     });
 </script>
+
 <script>
         document.addEventListener("DOMContentLoaded", function () {
             // Get check-in and check-out dates from URL

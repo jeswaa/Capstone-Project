@@ -153,6 +153,7 @@
                             border-color: #1a6e3d !important;
                             transform: scale(1.02);
                             animation: buttonGlow 2s infinite;
+                            font-weight: bold;
                         }
 
                         @keyframes buttonGlow {
@@ -198,6 +199,8 @@
                             <li>Then select your Check-out Date
                                 <ul class="mt-1">
                                     <li>Check-out must be after Check-in</li>
+                                    <li><span>Check-in Time: 2PM</span></li>
+                                    <li><span>Check-out Time: 12PM</span></li>
                                 </ul>
                             </li>
                         </ol>
@@ -213,6 +216,7 @@
                             <li class="mb-2">Note:
                                 <ul class="mt-1">
                                     <li>Past dates cannot be selected</li>
+                                    
                                 </ul>
                             </li>
                             

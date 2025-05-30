@@ -19,6 +19,7 @@ use App\Models\WalkInGuest;
 use App\Models\Transaction;
 use App\Models\Notification;
 use App\Models\DamageReport;
+use App\Models\ActivityLog;
 
 
 
@@ -436,15 +437,25 @@ public function accomodations()
     
     // Compute Room Overview
     $totalRooms = DB::table('accomodations')->count();
-    $vacantRooms = DB::table('accomodations')->where('accomodation_status', 'available')->count();
+    $vacantRooms = DB::table('accomodations')
+        ->sum('quantity');
+        
+    $reservedRoomsFromWalkin = DB::table('walkin_guests')
+        ->where('reservation_status', 'checked-in')
+        ->selectRaw('SUM(quantity) as total_reserved')
+        ->value('total_reserved') ?? 0;
 
-    // Adjust reservedRooms count and update available slots
-    $reservedRooms = DB::table('accomodations')
-        ->where('accomodation_status', 'unavailable')
-        ->count();
+    // Add reserved rooms from reservation_details table
+    $reservedRoomsFromReservations = DB::table('reservation_details')
+    ->whereIn('reservation_status', ['reserved', 'checked-in'])
+    ->sum('quantity');
 
-    // Record activity
-    $this->recordActivity($staff->username . ' viewed accommodations overview - Total: ' . $totalRooms . 
+    // Combine both reserved room counts
+    $reservedRooms = $reservedRoomsFromWalkin + $reservedRoomsFromReservations;
+
+    // Record activity with staff username if available, otherwise use 'System'
+    $activityUser = $staff ? $staff->username : 'System';
+    $this->recordActivity($activityUser . ' viewed accommodations overview - Total: ' . $totalRooms . 
                          ', Vacant: ' . $vacantRooms . 
                          ', Reserved: ' . $reservedRooms);
 
@@ -715,7 +726,14 @@ public function UpdateStatus(Request $request, $id)
     }
     
     $changeLog = !empty($statusChanges) ? " Changes: " . implode(', ', $statusChanges) : "";
-    $this->recordActivity($staff->username . " updated reservation #{$id}." . $changeLog);
+
+    // Ensure $staff is not null before accessing its properties
+    if ($staff && $staff->username) {
+        $this->recordActivity($staff->username . " updated reservation #{$id}." . $changeLog);
+    } else {
+        // Handle the case where $staff is null or username is missing, e.g., log an error or use a default value
+        $this->recordActivity("Unknown staff updated reservation #{$id}." . $changeLog);
+    }
 
     // Send email notification
     Mail::to($updatedReservation->email)->send(new ReservationStatusUpdated(
@@ -821,8 +839,9 @@ public function UpdateStatus(Request $request, $id)
                 'accomodation_id.*' => 'exists:accomodations,accomodation_id',
                 'number_of_adults' => 'required|integer|min:0',
                 'number_of_children' => 'required|integer|min:0',
-                'payment_status' => 'required|in:pending,paid',
-                'payment_method' => 'required|string'
+                'payment_status' => 'required',
+                'payment_method' => 'required|string',
+                'quantity' => 'required|integer|min:1'
             ]);
 
             // Calculate total guests
@@ -843,6 +862,7 @@ public function UpdateStatus(Request $request, $id)
                 'payment_method' => $request->payment_method,
                 'reservation_status' => 'pending',
                 'reservation_type' => 'walk-in',
+                'quantity' => $request->quantity,
                 'created_at' => now(),
                 'updated_at' => now()
             ]);
@@ -880,17 +900,33 @@ public function UpdateStatus(Request $request, $id)
                 'address' => 'required|string|max:255',
                 'check_in_date' => 'required|date',
                 'check_out_date' => 'required|date',
-                'check_in_time' => 'required',  // Add validation for check_in_time
-                'check_out_time' => 'required', // Add validation for check_out_time
+                'check_in_time' => 'required',
+                'check_out_time' => 'required',
                 'accomodation_id' => 'required',
                 'number_of_adult' => 'required|integer|min:0',
                 'number_of_children' => 'required|integer|min:0',
                 'payment_method' => 'required|string|in:cash,gcash',
-                'amount' => 'required|numeric|min:0'
+                'amount' => 'required|numeric|min:0',
+                'quantity' => 'required|integer|min:1'
             ]);
+                
+            // Get accommodation details
+            $accommodation = DB::table('accomodations')
+                ->where('accomodation_id', $validated['accomodation_id'])
+                ->first();
+                
+            // Check if accommodation exists
+            if (!$accommodation) {
+                return back()->with('error', 'Selected accommodation not found.');
+            }   
+
+            // Check if there's enough quantity available
+            if ($accommodation->quantity < $validated['quantity']) {
+                return back()->with('error', 'Not enough rooms available. Only ' . $accommodation->quantity . ' rooms left.');
+            }
             
             // Calculate total guests
-            $total_guests = $validated['number_of_adult'] + $validated['number_of_children'];
+            $totalGuests = $validated['number_of_adult'] + $validated['number_of_children'];
             
             // Create a walk-in guest record
             $walkInGuest = WalkInGuest::create([
@@ -903,18 +939,23 @@ public function UpdateStatus(Request $request, $id)
                 'check_out_time' => $validated['check_out_time'],
                 'number_of_adult' => $validated['number_of_adult'],
                 'number_of_children' => $validated['number_of_children'],
-                'total_guests' => $total_guests,
+                'quantity' => $validated['quantity'],
+                'total_guests' => $totalGuests,
                 'payment_status' => 'paid',
                 'reservation_status' => 'checked-in',
                 'accomodation_id' => $validated['accomodation_id'],
                 'payment_method' => $validated['payment_method'],
                 'amount' => $validated['amount']
             ]);
-
-            // Update accommodation status
+            
+            // Update accommodation quantity
+            $newQuantity = $accommodation->quantity - $validated['quantity'];
             DB::table('accomodations')
                 ->where('accomodation_id', $validated['accomodation_id'])
-                ->update(['accomodation_status' => 'unavailable']);
+                ->update([
+                    'quantity' => $newQuantity,
+                    'accomodation_status' => $newQuantity > 0 ? 'available' : 'unavailable'
+                ]);
 
             // Record activity
             $this->recordActivity("Created walk-in reservation for {$validated['name']}");
@@ -925,53 +966,70 @@ public function UpdateStatus(Request $request, $id)
             return back()->with('error', 'Error adding walk-in reservation: ' . $e->getMessage());
         }
     }
-    public function updateWalkInStatus(Request $request, $id)
-    {
-        try {
-            // Validate request
-            $request->validate([
-                'payment_status' => 'required',
-                'reservation_status' => 'required'
-            ]);
+        public function updateWalkInStatus(Request $request, $id)
+        {
+            try {
+                // Validate request
+                $request->validate([
+                    'payment_status' => 'required',
+                    'reservation_status' => 'required'
+                ]);
 
-            // Find the walk-in guest record
-            $walkInGuest = WalkInGuest::findOrFail($id);
+                // Find the walk-in guest record
+                $walkInGuest = WalkInGuest::findOrFail($id);
 
-            // Store original values for activity log
-            $originalStatus = [
-                'payment' => $walkInGuest->payment_status,
-                'reservation' => $walkInGuest->reservation_status
-            ];
+                // Store original values for activity log
+                $originalStatus = [
+                    'payment' => $walkInGuest->payment_status,
+                    'reservation' => $walkInGuest->reservation_status
+                ];
 
-            // Update the statuses
-            $walkInGuest->payment_status = $request->payment_status;
-            $walkInGuest->reservation_status = $request->reservation_status;
-            $walkInGuest->save();
+                // Update the statuses
+                $walkInGuest->payment_status = $request->payment_status;
+                $walkInGuest->reservation_status = $request->reservation_status;
+                $walkInGuest->save();
 
-            // Get current staff info
-            $staffId = session()->get('StaffLogin');
-            $staff = Staff::find($staffId);
+                // If status changed to checked-out, update accommodation quantity
+                if ($request->reservation_status === 'checked-out' && $originalStatus['reservation'] !== 'checked-out') {
+                    // Get the accommodation
+                    $accommodation = DB::table('accomodations')
+                        ->where('accomodation_id', $walkInGuest->accomodation_id)
+                        ->first();
 
-            // Record the activity
-            $changes = [];
-            if ($originalStatus['payment'] != $request->payment_status) {
-                $changes[] = "payment status from '{$originalStatus['payment']}' to '{$request->payment_status}'";
+                    if ($accommodation) {
+                        // Add back the quantity
+                        $newQuantity = $accommodation->quantity + $walkInGuest->quantity;
+                        DB::table('accomodations')
+                            ->where('accomodation_id', $walkInGuest->accomodation_id)
+                            ->update([
+                                'quantity' => $newQuantity,
+                                'accomodation_status' => 'available'
+                            ]);
+                    }
+                }
+
+                // Get current staff info
+                $staffId = session()->get('StaffLogin');
+                $staff = Staff::find($staffId);
+
+                if (!$staff) {
+                    return redirect('/login')->with('error', 'Session expired or staff not found. Please log in again.');
+                }
+
+                // Record activity
+                ActivityLog::create([
+                    'staff_id' => $staff->id,
+                    'activity' => 'Updated walk-in guest status for ' . $walkInGuest->name . ' to ' . $request->reservation_status,
+                    'performed_by' => $staff->username,
+                ]);
+
+                return response()->json(['message' => 'Walk-in guest status updated successfully']);
+
+            } catch (\Exception $e) {
+                \Log::error('Error updating walk-in guest status: ' . $e->getMessage());
+                return redirect()->back()->with('error', 'Failed to update walk-in guest status');
             }
-            if ($originalStatus['reservation'] != $request->reservation_status) {
-                $changes[] = "reservation status from '{$originalStatus['reservation']}' to '{$request->reservation_status}'";
-            }
-
-            if (!empty($changes)) {
-                $this->recordActivity($staff->username . ' updated walk-in guest #' . $id . ': ' . implode(', ', $changes));
-            }
-
-            return redirect()->back()->with('success', 'Walk-in guest status updated successfully');
-
-        } catch (\Exception $e) {
-            \Log::error('Error updating walk-in guest status: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Failed to update walk-in guest status');
         }
-    }
 
 
     public function getNotifications()

@@ -12,7 +12,13 @@ class LandingPageController extends Controller
     {
         $accommodations = DB::table('accomodations')->get();
         $activities = DB::table('activitiestbl')->get();
-        return view('FrontEnd.landingpage', compact('accommodations', 'activities')); // Ensure the filename is lowercase
+        $feedbacks = DB::table('feedback')
+            ->join('users', 'feedback.user_id', '=', 'users.id')
+            ->select('feedback.*', 'users.name as name')
+            ->orderBy('feedback.created_at', 'desc') // Add this line
+            ->limit(3)
+            ->get();
+        return view('FrontEnd.landingpage', compact('accommodations', 'activities', 'feedbacks')); // Ensure the filename is lowercase
     }
     public function homepage()
     {
