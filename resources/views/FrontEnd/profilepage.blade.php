@@ -16,10 +16,41 @@
     @media (max-width: 767.98px) {
         #sidebarToggle {
             position: fixed;
-            top: 1rem; /* Adjust as needed for spacing from the top */
-            right: 1rem; /* Adjust as needed for spacing from the right */
-            z-index: 1050; /* Ensure it's above other content */
+            top: 1rem;
+            right: 1rem;
+            z-index: 1050;
         }
+    #profileSidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background-color: #0b573d;
+        overflow-y: auto;
+        z-index: 1040;
+        transition: transform 0.3s ease-in-out;
+        transform: translateX(-100%);
+        display: block !important;
+    }
+    #profileSidebar.show {
+        transform: translateX(0);
+    }
+    .row.g-0 {
+        margin-left: 0 !important;
+        flex-direction: column;
+    }
+    #mainContent {
+        width: 100%;
+        position: relative;
+        height: auto;
+        background: inherit;
+    }
+    body.sidebar-open #mainContent {
+        margin-top: 1rem;
+    }
+}
+
     }
         @media (max-width: 767.98px) {
             .col-12 {
@@ -146,22 +177,21 @@
     </div>
 
     <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editModalLabel">Edit Profile</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 shadow">
+                <div class="modal-header border-0" style="background-color: #0b573d;">
+                    <h5 class="modal-title text-white text-uppercase" style="font-family: 'Anton', sans-serif; letter-spacing: 0.1em;" id="editModalLabel">Edit Profile</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body p-4">
                     <form action="{{ route('editProfile', $user->id) }}" method="POST" enctype="multipart/form-data">
                         @csrf
-                        <div class="mb-3">
-                            <label for="image" class="form-label">Image</label>
+                        <div class="mb-4">
+                            <label for="image" class="form-label text-uppercase fw-bold" style="color: #0b573d;">Profile Picture</label>
                             <div class="row g-3 align-items-center">
                                 <div class="col-12 col-md-8">
                                     <div class="input-group">
-                                        <input type="file" class="form-control" name="image" id="image"
-                                            accept="image/*">
+                                        <input type="file" class="form-control" name="image" id="image" accept="image/*">
                                     </div>
                                 </div>
                                 @if ($user->image)
@@ -175,27 +205,38 @@
                                 @endif
                             </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="name" class="form-label">Name</label>
-                            <input type="text" class="form-control" id="name" name="name" value="{{ $user->name }}"
-                                required>
+                        <div class="mb-4">
+                            <label for="name" class="form-label text-uppercase fw-bold" style="color: #0b573d;">Name</label>
+                            <input type="text" class="form-control" id="name" name="name" value="{{ $user->name }}" required>
                         </div>
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" value="{{ $user->email }}"
-                                required>
+                        <div class="mb-4">
+                            <label for="email" class="form-label text-uppercase fw-bold" style="color: #0b573d;">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" value="{{ $user->email }}" required>
                         </div>
-                        <div class="mb-3">
-                            <label for="mobileNo" class="form-label">Mobile Number</label>
-                            <input type="number" class="form-control" id="mobileNo" name="mobileNo"
-                                value="{{ $user->mobileNo }}" required>
+                        <div class="mb-4">
+                            <div class="mb-4">
+                                <label for="mobileNo" class="form-label text-uppercase fw-bold" style="color: #0b573d;">Mobile Number</label>
+                                <div class="input-group">
+                                    <span class="input-group-text h-100 d-flex align-items-center" style="min-height: 50px;">+63</span>
+                                    <input type="text" 
+                                        class="form-control" 
+                                        id="mobileNo" 
+                                        name="mobileNo" 
+                                        value="{{ substr($user->mobileNo, 0, 11) }}" 
+                                        required
+                                        maxlength="11"
+                                        onkeypress="return (event.charCode >= 48 && event.charCode <= 57) && event.charCode != 45;"
+                                        oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0, 11);"
+                                        pattern="[0-9]{11}"
+                                        title="Please enter a valid 11-digit mobile number (numbers only)">
+                                </div>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="address" class="form-label">Address</label>
-                            <input type="text" class="form-control" id="address" name="address"
-                                value="{{ $user->address }}" required>
+                        <div class="mb-4">
+                            <label for="address" class="form-label text-uppercase fw-bold" style="color: #0b573d;">Address</label>
+                            <input type="text" class="form-control" id="address" name="address" value="{{ $user->address }}" required>
                         </div>
-                        <button type="submit" class="btn btn-primary">Save changes</button>
+                        <button type="submit" class="btn text-white w-100" style="background-color: #0b573d;">Save changes</button>
                     </form>
                 </div>
             </div>
@@ -219,7 +260,7 @@
                     <!-- Back Arrow -->
                     <div class="d-flex justify-content-start align-items-start mb-4">
                         <a href="{{ route('homepage') }}" class="text-decoration-none">
-                            <i class="text-white fa-2x fa-circle-left fa-solid"></i>
+                            <i class="text-white fa-2x fa-house fa-solid"></i>
                         </a>
                     </div>
 

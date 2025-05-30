@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Signup - Lelo's Resort</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link
         href="https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap"
         rel="stylesheet">
@@ -84,6 +85,10 @@
         .login-link a:hover {
             text-decoration: underline;
         }
+
+        .text-color-1 {
+            color: #4a4a4a !important;
+        }
     </style>
 </head>
 
@@ -118,7 +123,7 @@
     </div>
 
     <div class="d-flex justify-content-center align-items-center vh-100">
-        <div class="container p-4 shadow-lg rounded-4 bg-white" style="max-width: 1000px;">
+        <div class="container p-4 shadow-lg rounded-4 bg-white " style="max-width: 1000px;">
             <div class="row align-items-center">
 
                 <!-- Left Side: Signup Form -->
@@ -126,7 +131,6 @@
                     <div class="d-flex align-items-center w-100 mb-3">
                         <p class="text-success font-paragraph mx-auto fs-2 text-center fw-bold">Create an Account</p>
                     </div>
-
                     <form id="signup-form" class="w-100">
                         @csrf
                         <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -139,8 +143,14 @@
                                 placeholder="Email..." required>
                         </div>
                         <div class="mb-3">
-                            <input type="number" class="form-control p-2 font-paragraph" id="mobileNo" name="mobileNo"
-                                placeholder="Mobile Number..." required>
+                            <div class="input-group">
+                                <span class="input-group-text h-100 d-flex align-items-center"
+                                    style="min-height: 42px;">+63</span>
+                                <input type="text" class="form-control p-2 font-paragraph" id="mobileNo" name="mobileNo"
+                                    placeholder="Mobile Number..." required maxlength="11"
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11);"
+                                    pattern="\d{11}" title="Please enter a valid 11-digit mobile number">
+                            </div>
                         </div>
                         <div class="mb-3">
                             <div class="input-group">
@@ -172,6 +182,129 @@
                             <!-- Password Match Indicator -->
                             <div id="passwordMatchMessage" class="mt-1">
                                 <small class="text-muted"></small>
+                            </div>
+                        </div>
+
+                        <div class="form-check text-start mt-2 mb-2">
+                            <input class="form-check-input" type="checkbox" id="agreeTerms" required>
+                            <label class="form-check-label text-color-1 font-paragraph" for="agreeTerms"
+                                style="font-size: 0.9rem;">
+                                I agree to the
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#privacyPolicyModal"
+                                    class="font-paragraph text-decoration-none text-color-1 fw-semibold text-underline-left-to-right">Terms
+                                    and Conditions</a>
+                            </label>
+                        </div>
+
+                        <!-- Privacy Policy Modal -->
+                        <div class="modal fade" id="privacyPolicyModal" tabindex="-1"
+                            aria-labelledby="privacyPolicyLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-lg" style="margin-top: 8vh;">
+                                <!-- Adjust margin-top as needed -->
+                                <div class="modal-content rounded-4 border-0" style="background-color: #f9f9f9;">
+
+                                    <!-- Header -->
+                                    <div class="modal-header bg-success text-white rounded-top-4 py-3">
+                                        <h5 class="modal-title fw-bold" id="privacyPolicyLabel">Terms and Conditions
+                                        </h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+
+                                    <!-- Body -->
+                                    <div class="modal-body d-flex flex-column px-4 py-3"
+                                        style="max-height: 70vh; overflow-y: auto;">
+                                        <div class="text-start">
+                                            <h5 class="fw-bold text-success mb-4">Terms and Conditions</h5>
+
+                                            <div class="mb-4">
+                                                <p class="fw-bold mb-2">Reservation Agreement</p>
+                                                <p>By confirming a reservation, guests acknowledge and agree to all
+                                                    terms and conditions set by Lelo's Resort management.</p>
+                                            </div>
+
+                                            <div class="mb-4">
+                                                <p class="fw-bold mb-2">Payment Policy</p>
+                                                <ul class="list-unstyled ps-3">
+                                                    <li>• Full payment is required in advance to secure the reservation.
+                                                    </li>
+                                                    <li>• All payments are strictly non-refundable, regardless of:</li>
+                                                    <ul class="ps-4">
+                                                        <li>- Cancellations</li>
+                                                        <li>- Date changes</li>
+                                                        <li>- Late arrivals</li>
+                                                        <li>- Early departures</li>
+                                                        <li>- No-shows</li>
+                                                        <li>- Weather disturbances</li>
+                                                        <li>- Any other unforeseen events</li>
+                                                    </ul>
+                                                </ul>
+                                                <p class="mt-2">Guests are strongly advised to finalize their plans
+                                                    before confirming a reservation.</p>
+                                            </div>
+
+                                            <div class="mb-4">
+                                                <p class="fw-bold mb-2">Security Deposit</p>
+                                                <ul class="list-unstyled ps-3">
+                                                    <li>• A security deposit equivalent to 50% of the total booking
+                                                        amount must be provided upon check-in.</li>
+                                                    <li>• This deposit covers:</li>
+                                                    <ul class="ps-4">
+                                                        <li>- Potential damages to resort property</li>
+                                                        <li>- Loss of items</li>
+                                                        <li>- Violations of resort rules</li>
+                                                    </ul>
+                                                    <li>• The deposit is fully refundable upon check-out if no issues
+                                                        are found after inspection.</li>
+                                                    <li>• Deductions will be made for any damages or violations, and
+                                                        excess charges will be billed to the guest.</li>
+                                                </ul>
+                                            </div>
+
+                                            <div class="mb-4">
+                                                <p class="fw-bold mb-2">Check-in/Check-out Policy</p>
+                                                <ul class="list-unstyled ps-3">
+                                                    <li>• Guests must follow scheduled check-in and check-out times.
+                                                    </li>
+                                                    <li>• Early check-in or late check-out is subject to availability
+                                                        and may incur additional charges.</li>
+                                                </ul>
+                                            </div>
+
+                                            <div class="mb-4">
+                                                <p class="fw-bold mb-2">Guest Conduct</p>
+                                                <ul class="list-unstyled ps-3">
+                                                    <li>• Guests must behave responsibly and follow all resort
+                                                        guidelines.</li>
+                                                    <li>• Respect towards other guests and staff is expected at all
+                                                        times.</li>
+                                                </ul>
+                                            </div>
+
+                                            <div class="mb-4">
+                                                <p class="fw-bold mb-2">Right to Refuse Service</p>
+                                                <ul class="list-unstyled ps-3">
+                                                    <li>• Lelo's Resort reserves the right to refuse service or evict
+                                                        any guest who:</li>
+                                                    <ul class="ps-4">
+                                                        <li>- Violates the terms and conditions</li>
+                                                        <li>- Engages in disruptive or inappropriate behavior</li>
+                                                    </ul>
+                                                    <li>• No refund will be given in such cases.</li>
+                                                </ul>
+                                            </div>
+
+                                            <div class="text-center mt-4">
+                                                <p class="fw-bold mb-1">Contact Information</p>
+                                                <p>For more details, contact us at <a
+                                                        href="mailto:lelosresort@gmail.com"
+                                                        class="text-decoration-none fw-bold text-success">lelosresort@gmail.com</a>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
                             </div>
                         </div>
 
