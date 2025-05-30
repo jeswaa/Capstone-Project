@@ -521,7 +521,7 @@
                         @foreach ($feedbacks as $feedback)
                             <div class="col-12 col-sm-6 col-md-4">
                                 <div class="card h-100 shadow" style="background-color: #0b573d; border-radius: 15px;">
-                                    <img src="{{ asset('images/default-profile.jpg') }}" class="card-img-top"
+                                    <img src="{{ asset('storage/' . $feedback->image) }}" class="card-img-top"
                                         alt="User Review"
                                         style="width: 100%; height: 200px; object-fit: cover; border-radius: 15px 15px 0 0;">
                                     <div class="card-body">

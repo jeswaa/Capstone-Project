@@ -120,6 +120,19 @@
                     </div>
                 </div>
 
+                <!-- Reserved Accomodations -->
+                <div class="flex-grow-1 p-4 rounded-4" style="background-color: #0b573d;">
+                    <div class="d-flex align-items-center">
+                        <div>
+                            <h2 class="fs-1 fw-bold text-white mb-0">{{ $reservedCount ?? 0 }}</h2>
+                            <p class="text-white text-uppercase mb-0 font-paragraph" style="font-size: 0.8rem;">
+                                Reserved<br>Reservations
+                            </p>
+                        </div>
+                        <i class="fas fa-bookmark fs-1 text-white ms-auto"></i>
+                    </div>
+                </div>
+
                 <!-- Checked-in Reservations -->
                 <div class="flex-grow-1 p-4 rounded-4" style="background-color: #0b573d;">
                     <div class="d-flex align-items-center">

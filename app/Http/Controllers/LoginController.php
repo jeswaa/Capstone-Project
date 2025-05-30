@@ -116,12 +116,6 @@ class LoginController extends Controller
                     return redirect()->route('staff.dashboard');
                 }
             }
-            \Log::debug('Admin: ', ['admin' => $admin]);
-            \Log::debug('Staff: ', ['staff' => $staff]);
-
-            // Check if password is matching
-            \Log::debug('Password check for admin: ', ['hashed' => Hash::check($password, $admin->password)]);
-            \Log::debug('Password check for staff: ', ['hashed' => Hash::check($password, $staff->password)]);
             // If neither admin nor staff credentials match
             return back()->with('error', 'Invalid username or password')->withInput($request->only('credential'));
         }
@@ -257,7 +251,7 @@ class LoginController extends Controller
     if (!$user) {
         return response()->json([
             'success' => false,
-            'message' => 'User not found.'
+            'message' => 'User not found with this email.'
         ]);
     }
 

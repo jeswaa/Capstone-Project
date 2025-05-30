@@ -72,7 +72,7 @@
 
                 <div>
                     <div class="d-flex justify-content-end mb-5 mt-5">
-                        <button type="button" class="p-3 border-0 rounded-3 color-background8 text-hover-1 w-25 text-white w-md-25 font-paragraph text-uppercase fw-bold" data-bs-toggle="modal" data-bs-target="#addActivityModal">
+                        <button type="button" class="p-3 border-0 rounded-3 text-white w-25 w-md-25 font-paragraph text-uppercase fw-bold" style="background-color: #0b573d;" data-bs-toggle="modal" data-bs-target="#addActivityModal">
                             Add Activity
                         </button>
                     </div>

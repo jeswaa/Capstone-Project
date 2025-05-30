@@ -85,7 +85,7 @@
                                     <button class="btn btn-sm color-background5 text-white rounded-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#editReportModal{{ $report->id }}" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background-color: #0b573d;">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-danger rounded-3 shadow-sm" onclick="deleteReport({{ $report->id }})" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                                    <button class="btn btn-sm btn-danger rounded-3 shadow-sm delete-report-btn" data-report-id="{{ $report->id }}" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </div>
@@ -164,30 +164,39 @@ function deleteReport(id) {
     modal.show();
 }
 
-document.getElementById('confirmDelete').addEventListener('click', function() {
-    if (reportIdToDelete) {
-        fetch(`/damage-report/delete/${reportIdToDelete}`, {
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                'Accept': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                window.location.reload();
-            } else {
-                alert('Hindi matagumpay ang pagtanggal ng report');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('May naganap na error sa pagtanggal ng report');
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.delete-report-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const reportId = this.dataset.reportId;
+            deleteReport(reportId);
         });
-    }
-    const modal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmationModal'));
-    modal.hide();
+    });
+
+    document.getElementById('confirmDelete').addEventListener('click', function() {
+        if (reportIdToDelete) {
+            fetch(`/damage-report/delete/${reportIdToDelete}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert('Hindi matagumpay ang pagtanggal ng report');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('May naganap na error sa pagtanggal ng report');
+            });
+        }
+        const modal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmationModal'));
+        modal.hide();
+    });
 });
 </script>
 </body>
