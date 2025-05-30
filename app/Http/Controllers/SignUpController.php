@@ -23,7 +23,7 @@ class SignUpController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'mobileNo' => 'required|string|max:15',
+            'mobileNo' => 'required|string|max:11',
             'email' => 'required|email|unique:users',
             'password' => 'required|string|min:8|confirmed',
         ]);

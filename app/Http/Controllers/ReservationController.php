@@ -34,7 +34,7 @@ class ReservationController extends Controller
     try {
         $checkIn = $request->query('checkIn');
         $checkOut = $request->query('checkOut');
-        
+
         // Validate dates
         if (!$checkIn || !$checkOut) {
             return response()->json([
@@ -42,7 +42,7 @@ class ReservationController extends Controller
             ], 400);
         }
 
-        // Get all accommodation types
+        // Step 1: Get all distinct accommodation types
         $accommodationTypes = DB::table('accomodations')
             ->select('accomodation_type')
             ->distinct()
@@ -50,18 +50,57 @@ class ReservationController extends Controller
 
         $availableAccommodations = [];
 
-        foreach ($accommodationTypes as $type) {
-            $available = Accomodation::where('accomodation_type', $type->accomodation_type)
-                ->whereDoesntHave('reservations', function($query) use ($checkIn, $checkOut) {
-                    $query->where(function($q) use ($checkIn, $checkOut) {
-                        $q->whereBetween('reservation_check_in_date', [$checkIn, $checkOut])
-                          ->orWhereBetween('reservation_check_out_date', [$checkIn, $checkOut]);
+        // Step 2: Check if any reservation exists in the selected date range
+        $hasReservations = DB::table('reservation_details')
+            ->where(function ($query) use ($checkIn, $checkOut) {
+                $query->whereBetween('reservation_check_in_date', [$checkIn, $checkOut])
+                    ->orWhereBetween('reservation_check_out_date', [$checkIn, $checkOut])
+                    ->orWhere(function ($q) use ($checkIn, $checkOut) {
+                        $q->where('reservation_check_in_date', '<', $checkIn)
+                          ->where('reservation_check_out_date', '>', $checkOut);
                     });
-                })
-                ->exists();
+            })
+            ->exists();
 
-            if ($available) {
-                $availableAccommodations[] = $type->accomodation_type;
+        if (!$hasReservations) {
+            // Case 1: No reservations for the selected dates, all types are available
+            foreach ($accommodationTypes as $type) {
+                $availableAccommodations[] = [
+                    'type' => $type->accomodation_type,
+                    'total' => \App\Models\Accomodation::where('accomodation_type', $type->accomodation_type)->count(),
+                    'unavailable' => 0,
+                    'available' => \App\Models\Accomodation::where('accomodation_type', $type->accomodation_type)->count(),
+                    'is_available' => true
+                ];
+            }
+        } else {
+            // Case 2: There are reservations, only show types with at least one available unit
+            foreach ($accommodationTypes as $type) {
+                $totalAccommodationsOfType = \App\Models\Accomodation::where('accomodation_type', $type->accomodation_type)->count();
+                
+                $unavailableAccommodationsCount = \App\Models\Accomodation::where('accomodation_type', $type->accomodation_type)
+                    ->whereHas('reservations', function($query) use ($checkIn, $checkOut) {
+                        $query->where(function($q) use ($checkIn, $checkOut) {
+                            $q->whereBetween('reservation_check_in_date', [$checkIn, $checkOut])
+                              ->orWhereBetween('reservation_check_out_date', [$checkIn, $checkOut])
+                              ->orWhere(function($q2) use ($checkIn, $checkOut) {
+                                  $q2->where('reservation_check_in_date', '<', $checkIn)
+                                     ->where('reservation_check_out_date', '>', $checkOut);
+                              });
+                        });
+                    })->count();
+                
+                $availableCount = $totalAccommodationsOfType - $unavailableAccommodationsCount;
+
+                if ($availableCount > 0) {
+                    $availableAccommodations[] = [
+                        'type' => $type->accomodation_type,
+                        'total' => $totalAccommodationsOfType,
+                        'unavailable' => $unavailableAccommodationsCount,
+                        'available' => $availableCount,
+                        'is_available' => true
+                    ];
+                }
             }
         }
 
@@ -77,18 +116,84 @@ class ReservationController extends Controller
         ], 500);
     }
 }
-    public function selectPackageCustom()
-    {
-        $accomodations = DB::table('accomodations')->where('accomodation_status', 'available')->get();
-        $activities = DB::table('activitiestbl')->get();
-        $transactions = DB::table('transaction')->first();
-    
-        return view('Reservation.selectPackageCustom', [
-            'accomodations' => $accomodations,
-            'activities' => $activities,
-            'transactions' => $transactions,
-        ]);
+
+public function selectPackageCustom(Request $request)
+{
+    $checkIn = $request->query('checkIn');  // <-- fixed
+    $checkOut = $request->query('checkOut');
+
+    Log::info('Custom Package - Check In: ' . $checkIn . ', Check Out: ' . $checkOut);
+
+    // Default: get all available accommodations
+    $accomodationsQuery = DB::table('accomodations')->where('accomodation_status', 'available');
+    $accomodations = $accomodationsQuery->get();
+    Log::info('Initial available accommodations count: ' . $accomodations->count());
+
+    if ($checkIn && $checkOut) {
+        // Check if there are ANY reservations in the selected date range
+        $hasReservations = DB::table('reservation_details')
+            ->where(function ($query) use ($checkIn, $checkOut) {
+                $query->where(function ($q) use ($checkIn, $checkOut) {
+                    $q->where('reservation_check_in_date', '<', $checkOut)
+                        ->where('reservation_check_out_date', '>', $checkIn);
+                });
+            })
+            ->whereNull('deleted_at')
+            ->whereIn('reservation_status', ['reserved', 'checked-in'])
+            ->exists();
+
+        Log::info('Has Reservations? ' . ($hasReservations ? 'YES' : 'NO'));
+
+        if ($hasReservations) {
+            // Show only accommodations that have remaining quantity
+            $allAccommodations = DB::table('accomodations')->get();
+            $filtered = [];
+
+            foreach ($allAccommodations as $accommodation) {
+                $reservedQty = DB::table('reservation_details')
+                    ->where('accomodation_id', $accommodation->accomodation_id)
+                    ->where(function ($query) use ($checkIn, $checkOut) {
+                        $query->where(function ($q) use ($checkIn, $checkOut) {
+                            $q->where('reservation_check_in_date', '<', $checkOut)
+                                ->where('reservation_check_out_date', '>', $checkIn);
+                        });
+                    })
+                    ->whereNull('deleted_at')
+                    ->whereIn('reservation_status', ['pending', 'confirmed', 'checked_in'])
+                    ->sum('quantity');
+
+                Log::info("Accommodation ID: {$accommodation->accomodation_id} - Reserved Qty: $reservedQty / Total Qty: {$accommodation->quantity}");
+
+                if ($accommodation->quantity > $reservedQty) {
+                    $accommodation->available_quantity = $accommodation->quantity - $reservedQty;
+                    $filtered[] = $accommodation;
+                }
+            }
+
+            Log::info('Filtered accommodations count (some reserved): ' . count($filtered));
+            $accomodations = collect($filtered);
+        } else {
+            // No reservations: show all
+            $accomodations = DB::table('accomodations')->get();
+            foreach ($accomodations as $acc) {
+                $acc->available_quantity = $acc->quantity;
+            }
+            Log::info('No reservations: Showing all accommodations. Count: ' . $accomodations->count());
+        }
     }
+
+    $activities = DB::table('activitiestbl')->get();
+    $transactions = DB::table('transaction')->first();
+
+    return view('Reservation.selectPackageCustom', [
+        'accomodations' => $accomodations,
+        'activities' => $activities,
+        'transactions' => $transactions,
+        'check_in_date' => $checkIn,
+        'check_out_date' => $checkOut,
+    ]);
+}
+
     public function paymentProcess()
     {
         // Retrieve reservation details from session
@@ -548,7 +653,7 @@ public function savePaymentProcess(Request $request)
 
     // Redirect with flash data
     return redirect()->route('summary')->with([
-        'success' => 'Ang iyong reservation ay matagumpay na na-save!',
+        'success' => 'Reservation saved.Wait for the staff to process your reservation.Thank you!',
         'amount' => $total_amount,
         'accommodations' => $accommodations
     ]);

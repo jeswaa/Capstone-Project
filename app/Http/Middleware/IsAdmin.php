@@ -4,25 +4,16 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use App\Models\Admin;
+use Illuminate\Support\Facades\Auth;
 
 class IsAdmin
 {
-    public function handle(Request $request, Closure $next) {
-        logger('=== Middleware Triggered ===');
-        logger('Session ID: ' . session()->getId());
-        logger('AdminLogin Session: ' . session('AdminLogin'));
-        logger('Requested URL: ' . $request->fullUrl());
-    
-        if (session()->has('AdminLogin')) {
-            $admin = Admin::find(session('AdminLogin'));
-            if ($admin && $admin->role === 'admin') {
-                logger('Admin validated. Proceeding to: ' . $request->path());
-                return $next($request);
-            }
+    public function handle(Request $request, Closure $next)
+    {
+        if (Auth::guard('admin')->check() && Auth::guard('admin')->user()->role === 'admin') {
+            return $next($request);
         }
-    
-        logger('=== ACCESS DENIED ===');
-        abort(403, 'Admins only.');
+
+        return redirect()->route('login')->withErrors(['access' => 'Admins only.']);
     }
 }

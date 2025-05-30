@@ -300,6 +300,10 @@ public function reservations(Request $request)
         ->where('reservation_status', 'early-checked-out')
         ->count();
 
+    $reservedCount = DB::table('reservation_details')
+        ->where('reservation_status', 'reserved')
+        ->count();
+
     $totalCount = DB::table('reservation_details')->count();
     $accommodationIdRows = DB::table('reservation_details')->pluck('accomodation_id');
     $allAccommodationIds = [];
@@ -421,7 +425,8 @@ public function reservations(Request $request)
         'checkedOutCount',
         'earlyCheckedOutCount',
         'totalCount',
-        'accommodationTypes'
+        'accommodationTypes',
+        'reservedCount'
     ));
 }
 
@@ -929,7 +934,7 @@ public function UpdateStatus(Request $request, $id)
             $totalGuests = $validated['number_of_adult'] + $validated['number_of_children'];
             
             // Create a walk-in guest record
-            $walkInGuest = WalkInGuest::create([
+            $walkInGuest = DB::table('walkin_guests')->insert([
                 'name' => $validated['name'],
                 'address' => $validated['address'],
                 'mobileNo' => $validated['mobileNo'],

@@ -121,7 +121,7 @@
 
                         <!-- Add Room Button -->
                         <div class="col-md-6 d-flex justify-content-md-end">
-                            <button type="button" class="p-3 border-0 rounded-3 color-background8 text-hover-1 w-25 text-white w-md-25 font-paragraph text-uppercase fw-bold" data-bs-toggle="modal" data-bs-target="#addRoomModal">
+                            <button type="button" class="p-3 border-0 rounded-3 text-white w-25 w-md-25 font-paragraph text-uppercase fw-bold" style="background-color: #0b573d;" data-bs-toggle="modal" data-bs-target="#addRoomModal">
                                 Add Room
                             </button>
                         </div>

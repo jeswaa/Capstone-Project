@@ -166,7 +166,7 @@ Route::post('/verify-otp', [GoogleAuthController::class, 'verifyOTP'])->name('ve
 // Admin Login
 Route::get('/login/admin', [AdminSideController::class, 'AdminLogin'])->name('AdminLogin');
 Route::post('/login/admin/authenticate', [AdminSideController::class, 'login'])->name('authenticate');
-
+Route::middleware(['IsStaff'])->group(function () {
 //Staff Routes
 Route::get('/login/staff', [StaffController::class, 'StaffLogin'])->name('staff.login');
 Route::post('/login/staff/authenticate', [StaffController::class, 'authenticate'])->name('staff.authenticate');
@@ -192,3 +192,7 @@ Route::post('/staff/damage-report', [StaffController::class, 'storeDamageReport'
 Route::post('/staff/damage-report/edit/{id}', [StaffController::class, 'editDamageReport'])->name('staff.editDamageReport');
 Route::get('/staff/guests', [StaffController::class, 'guests'])->name('staff.guests');
 Route::get('/staff/logout', [StaffController::class, 'logout'])->name('staff.logout');
+});
+
+
+
