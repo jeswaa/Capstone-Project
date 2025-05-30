@@ -929,7 +929,7 @@ public function UpdateStatus(Request $request, $id)
             $totalGuests = $validated['number_of_adult'] + $validated['number_of_children'];
             
             // Create a walk-in guest record
-            $walkInGuest = WalkInGuest::create([
+            $walkInGuest = DB::table('walkin_guests')->insert([
                 'name' => $validated['name'],
                 'address' => $validated['address'],
                 'mobileNo' => $validated['mobileNo'],
