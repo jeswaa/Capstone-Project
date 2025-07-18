@@ -194,12 +194,13 @@
                         <h5 class="text-center mb-3 text-success">How to Book an Overnight Stay</h5>
                         
                         <ol class="mb-0">
-                            <li class="mb-2">Select your Check-in Date</li>
+                            <li>Select your Check-In Date</li>
+                           <ul class="mt-1 mb-2">
+                            <li><span>Check-in Time: 2PM</span></li>
+                           </ul>
                             
                             <li>Then select your Check-out Date
                                 <ul class="mt-1">
-                                    <li>Check-out must be after Check-in</li>
-                                    <li><span>Check-in Time: 2PM</span></li>
                                     <li><span>Check-out Time: 12PM</span></li>
                                 </ul>
                             </li>
@@ -220,7 +221,7 @@
                                 </ul>
                             </li>
                             
-                            <li>Once selected, we'll check availability and show package options</li>
+                            <li>Once selected, we'll check availability and show room options</li>
                         </ol>
                     </div>
                 </div>
@@ -427,12 +428,15 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleDayTour(date) {
         checkInDate = date;
         checkOutDate = date;
+        const urlParams = new URLSearchParams(window.location.search);
+        const selectedRoomId = urlParams.get('roomid');
+        const selectedRoomName = urlParams.get('room');
         Swal.fire({
             title: 'Check in Date Selected',
             text: `Date: ${new Date(date).toLocaleDateString()}`,
             icon: 'success'
         }).then(() => {
-            window.location.href = `{{ route('selectPackage') }}?checkIn=${date}&checkOut=${date}&type=daytour`;
+            window.location.href = `{{ route('selectPackage') }}?checkIn=${date}&checkOut=${date}&type=daytour&roomid=${selectedRoomId}`;
         });
     }
 
@@ -440,6 +444,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if(!checkInDate) {
             checkInDate = date;
             // Update the selected dates display
+            
             document.getElementById('selectedCheckIn').textContent = new Date(date).toLocaleDateString();
             document.getElementById('selectedCheckOut').textContent = '-';
             
@@ -455,6 +460,9 @@ document.addEventListener('DOMContentLoaded', function() {
         } else if(!checkOutDate && date > checkInDate) {
             checkOutDate = date;
             // Update the selected dates display
+            const urlParams = new URLSearchParams(window.location.search);
+            const selectedRoomId = urlParams.get('roomid');
+            const selectedRoomName = urlParams.get('room');
             document.getElementById('selectedCheckOut').textContent = new Date(date).toLocaleDateString();
             
             // Check availability for each accommodation type
@@ -474,7 +482,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             icon: 'success',
                             confirmButtonColor: '#2ecc71'
                         }).then(() => {
-                            window.location.href = `{{ route('selectPackageCustom') }}?checkIn=${checkInDate}&checkOut=${checkOutDate}`;
+                            window.location.href = `{{ route('selectPackageCustom') }}?checkIn=${checkInDate}&checkOut=${checkOutDate}&roomid=${selectedRoomId}`;
                         });
                     } else {
                         throw new Error('No accommodations available');

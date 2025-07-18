@@ -288,7 +288,7 @@
                                             <select class="form-select border-success" id="room_type" name="accomodation_id" required onchange="updateAmountAndTotal()">
                                                 <option value="">Select Room Type</option>
                                                 @foreach($accomodations as $accomodation)
-                                                    @if($accomodation->accomodation_status === 'available')
+                                                    @if($accomodation->accomodation_status === 'available'))
                                                         <option value="{{ $accomodation->accomodation_id }}" 
                                                                 data-price="{{ $accomodation->accomodation_price }}"
                                                                 data-capacity="{{ $accomodation->accomodation_capacity }}">
@@ -308,58 +308,6 @@
                                                 The selected quantity exceeds the available rooms for this accommodation type.
                                             </div>
                                         </div>
-                                        <script>
-                                            function updateAmountAndTotal() {
-                                                // Update the amount paid based on selected room
-                                                updateAmount();
-                                                validateQuantity(); // Call validation when room type or other related fields change
-                                            }
-
-                                            function validateQuantity() {
-                                                const roomTypeSelect = document.getElementById('room_type');
-                                                const quantityInput = document.getElementById('quantity');
-                                                const quantityError = document.getElementById('quantity_error');
-                                                const selectedOption = roomTypeSelect.options[roomTypeSelect.selectedIndex];
-
-                                                if (selectedOption.value) {
-                                                    const availableCapacity = parseInt(selectedOption.getAttribute('data-capacity'));
-                                                    const enteredQuantity = parseInt(quantityInput.value);
-
-                                                    if (enteredQuantity > availableCapacity) {
-                                                        quantityInput.classList.add('is-invalid');
-                                                        quantityError.style.display = 'block';
-                                                    } else {
-                                                        quantityInput.classList.remove('is-invalid');
-                                                        quantityError.style.display = 'none';
-                                                    }
-                                                } else {
-                                                    // If no room type is selected, hide the error
-                                                    quantityInput.classList.remove('is-invalid');
-                                                    quantityError.style.display = 'none';
-                                                }
-                                            }
-                                            
-                                            document.getElementById('session').addEventListener('change', function() {
-                                                calculateTotalGuests();
-                                                updateAmountAndTotal();
-                                            });
-                                            document.getElementById('number_of_adult').addEventListener('change', function() {
-                                                calculateTotalGuests();
-                                                updateAmountAndTotal();
-                                            });
-                                            document.getElementById('number_of_children').addEventListener('change', function() {
-                                                calculateTotalGuests();
-                                                updateAmountAndTotal();
-                                            });
-                                            document.getElementById('room_type').addEventListener('change', function() {
-                                                updateAmountAndTotal();
-                                            });
-                                        
-                                            // I-update din sa unang load
-                                            document.addEventListener('DOMContentLoaded', function() {
-                                                updateAmountAndTotal();
-                                            });
-                                        </script>
                                         <div class="mb-3">
                                             <label for="payment_method" class="form-label fw-bold">Payment Method</label>
                                             <select class="form-select border-success" id="payment_method" name="payment_method" required>
@@ -369,8 +317,8 @@
                                             </select>
                                         </div>
                                         <div class="mb-3">
-                                            <label for="amount_paid" class="form-label fw-bold">Amount Paid</label>
-                                            <input type="number" class="form-control border-success" id="amount_paid" name="amount" step="0.01" required>
+                                            <label for="amount_paid" class="form-label fw-bold">Total Amount Paid</label>
+                                            <input type="number" class="form-control border-success" id="amount_paid" name="amount" step="0.01" required readonly>
                                         </div>
                                         <div class="mb-3">
                                             <label for="payment_status" class="form-label fw-bold">Payment Status</label>
@@ -395,7 +343,7 @@
 
                                 <div class="modal-footer mt-4">
                                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn text-white" style="background-color: #0b573d;">Add Reservation</button>
+                                    <button type="submit" class="btn text-white" style="background-color: #0b573d;" id="submitButton">Add Reservation</button>
                                 </div>
                             </form>
                         </div>
@@ -493,12 +441,6 @@
                                         </div>
                                     </div>
                                 </td>
-
-                                <script>
-                                function openEditModal(id) {
-                                    $('#editModal' + id).modal('show');
-                                }
-                                </script>
                             </tr>
                         @endforeach
                     </tbody>
@@ -602,11 +544,16 @@
         var price = selectedOption.getAttribute('data-price');
         var quantity = parseInt(quantityInput.value) || 1;
         
+        // Get the total entrance fee (remove the ₱ symbol and convert to number)
+        var totalFeeText = document.getElementById('total_fee').value;
+        var totalFee = parseFloat(totalFeeText.replace('₱', '')) || 0;
+        
         if (price) {
-            var totalAmount = parseFloat(price) * quantity;
-            amountInput.value = totalAmount;
+            var roomAmount = parseFloat(price) * quantity;
+            var totalAmount = roomAmount + totalFee;
+            amountInput.value = totalAmount.toFixed(2);
         } else {
-            amountInput.value = '';
+            amountInput.value = totalFee.toFixed(2);
         }
     }
 
@@ -627,6 +574,8 @@ function calculateTotalGuests() {
         document.getElementById('child_fee').textContent = '0.00';
         document.getElementById('total_fee').value = '₱0.00';
         document.getElementById('capacity_error').style.display = 'none';
+        updateAmount(); // Update the total amount when session is cleared
+        validateCapacity();
         return;
     }
 
@@ -649,11 +598,10 @@ function calculateTotalGuests() {
         document.getElementById('capacity_error').style.display = 'none';
     }
 
-    // Rest of the function remains the same
     const selectedSession = sessionSelect.value;
 
     $.ajax({
-        url: "{{ route('session.fees') }}", // <-- Make sure this matches the route name
+        url: "{{ route('session.fees') }}",
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -674,11 +622,17 @@ function calculateTotalGuests() {
 
                 document.getElementById('num_guests').value = totalGuests;
                 document.getElementById('total_fee').value = '₱' + totalFee.toFixed(2);
+                
+                // Update the total amount after calculating fees
+                updateAmount();
+                validateCapacity();
             } catch (error) {
                 console.error('Error processing response:', error);
                 document.getElementById('adult_fee').textContent = '0.00';
                 document.getElementById('child_fee').textContent = '0.00';
                 document.getElementById('total_fee').value = '₱0.00';
+                updateAmount();
+                validateCapacity();
             }
         },
         error: function(xhr, status, error) {
@@ -686,23 +640,109 @@ function calculateTotalGuests() {
             document.getElementById('adult_fee').textContent = '0.00';
             document.getElementById('child_fee').textContent = '0.00';
             document.getElementById('total_fee').value = '₱0.00';
+            updateAmount();
+            validateCapacity();
         }
     });
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    const sessionSelect = document.getElementById('session');
-    const adultInput = document.getElementById('number_of_adult');
+function validateCapacity() {
+    const roomTypeSelect = document.getElementById('room_type');
+    const quantityInput = document.getElementById('quantity');
+    const adultsInput = document.getElementById('number_of_adult');
     const childrenInput = document.getElementById('number_of_children');
+    const submitButton = document.getElementById('submitButton');
+    const capacityError = document.getElementById('capacity_error');
 
-    if (sessionSelect) sessionSelect.addEventListener('change', calculateTotalGuests);
-    if (adultInput) adultInput.addEventListener('input', calculateTotalGuests);
-    if (childrenInput) childrenInput.addEventListener('input', calculateTotalGuests);
+    if (!roomTypeSelect.value) {
+        submitButton.disabled = false;
+        return true;
+    }
+
+    const selectedOption = roomTypeSelect.options[roomTypeSelect.selectedIndex];
+    const capacity = parseInt(selectedOption.getAttribute('data-capacity')) || 0;
+    const quantity = parseInt(quantityInput.value) || 1;
+    const adults = parseInt(adultsInput.value) || 0;
+    const children = parseInt(childrenInput.value) || 0;
+    const totalGuests = adults + children;
+    const maxCapacity = capacity * quantity;
+
+    if (totalGuests > maxCapacity) {
+        submitButton.disabled = true;
+        capacityError.style.display = 'block';
+        capacityError.textContent = `Total guests exceeds accommodation capacity! Maximum allowed: ${maxCapacity}`;
+        return false;
+    } else {
+        submitButton.disabled = false;
+        capacityError.style.display = 'none';
+        return true;
+    }
+}
+
+function validateQuantity() {
+    const roomTypeSelect = document.getElementById('room_type');
+    const quantityInput = document.getElementById('quantity');
+    const quantityError = document.getElementById('quantity_error');
+    const selectedOption = roomTypeSelect.options[roomTypeSelect.selectedIndex];
+
+    if (selectedOption.value) {
+        const availableCapacity = parseInt(selectedOption.getAttribute('data-capacity'));
+        const enteredQuantity = parseInt(quantityInput.value);
+
+        if (enteredQuantity > availableCapacity) {
+            quantityInput.classList.add('is-invalid');
+            quantityError.style.display = 'block';
+        } else {
+            quantityInput.classList.remove('is-invalid');
+            quantityError.style.display = 'none';
+        }
+    } else {
+        // If no room type is selected, hide the error
+        quantityInput.classList.remove('is-invalid');
+        quantityError.style.display = 'none';
+    }
+    validateCapacity();
+    updateAmount();
+}
+
+function updateAmountAndTotal() {
+    // Update the amount paid based on selected room
+    updateAmount();
+    validateQuantity(); // Call validation when room type or other related fields change
+    validateCapacity();
+}
+
+// Update all event listeners
+document.getElementById('room_type').addEventListener('change', function() {
+    updateAmountAndTotal();
+});
+
+document.getElementById('quantity').addEventListener('input', function() {
+    updateAmountAndTotal();
+});
+
+document.getElementById('number_of_adult').addEventListener('input', function() {
+    calculateTotalGuests();
+});
+
+document.getElementById('number_of_children').addEventListener('input', function() {
+    calculateTotalGuests();
+});
+
+// Form submission handler
+document.querySelector('form').addEventListener('submit', function(e) {
+    if (!validateCapacity()) {
+        e.preventDefault();
+        alert('Cannot submit form: Total guests exceeds accommodation capacity!');
+    }
+});
+
+// Initial validation on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updateAmountAndTotal();
+    validateCapacity();
 });
 </script>
 
 </body>
 </html>
-
-
-

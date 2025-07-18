@@ -603,16 +603,58 @@
     });
 </script>
 <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            // Get check-in and check-out dates from URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const checkIn = urlParams.get("checkIn") || "";
-            const checkOut = urlParams.get("checkOut") || "";
+    document.addEventListener("DOMContentLoaded", function () {
+        // Get check-in and check-out dates from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const checkIn = urlParams.get("checkIn") || "";
+        const checkOut = urlParams.get("checkOut") || "";
+        const roomId = urlParams.get('roomid');
 
-            // Set values in the date inputs
-            document.getElementById("reservation_date").value = checkIn;
-            document.getElementById("check_out_date").value = checkOut;
-        });
+        // Set values in the date inputs
+        document.getElementById("reservation_date").value = checkIn;
+        document.getElementById("check_out_date").value = checkOut;
+
+        if (roomId) {
+            // Find and select the corresponding accommodation card
+            const roomCard = document.querySelector(`.select-accommodation[data-id="${roomId}"]`);
+            if (roomCard) {
+                // Remove selection from all cards first
+                document.querySelectorAll(".select-accommodation").forEach(card => {
+                    card.classList.remove("selected");
+                });
+                
+                // Select the specified room
+                roomCard.classList.add("selected");
+                
+                // Scroll to the selected card
+                roomCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                // Update the proceed button state
+                document.getElementById("proceedToPayment").disabled = false;
+                
+                // Update the hidden input field
+                updateSelectedAccommodation();
+            }
+        }
+    });
+
+    // Function to update the hidden input with selected accommodation
+    function updateSelectedAccommodation() {
+        const mainForm = document.querySelector('form');
+        
+        // Remove existing accommodation input
+        mainForm.querySelectorAll('input[name="accomodation_id[]"]').forEach(input => input.remove());
+        
+        // Add new input for selected accommodation
+        const selectedCard = document.querySelector(".select-accommodation.selected");
+        if (selectedCard) {
+            const input = document.createElement("input");
+            input.type = "hidden";
+            input.name = "accomodation_id[]";
+            input.value = selectedCard.getAttribute("data-id");
+            mainForm.appendChild(input);
+        }
+    }
 </script>
 <script>
         document.addEventListener("DOMContentLoaded", function () {

@@ -40,25 +40,25 @@
 .fancy-link.active::after {
     width: 100% !important;
 }
+.transition-width {
+    transition: all 0.3s ease;
+}
+#mainContent.full-width {
+    width: 100% !important;
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+}
 </style>
 <body style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
-    <div class="container-fluid min-vh-100 d-flex p-0">
     @include('Alert.loginSuccessUser')
-        @include('Navbar.sidenavbar')
-
-        <!--  Main Content -->
-          <div class="col-md-9 col-lg-10 py-4 px-4">
+    <div class="container-fluid min-vh-100 d-flex p-0">
+        <div class="d-flex w-100" id="mainLayout" style="min-height: 100vh;">
+            @include('Navbar.sidenavbar')
+            <!--  Main Content -->
+            <div id="mainContent" class="flex-grow-1 py-4 px-4 transition-width" style="transition: all 0.3s ease;">
                 <!-- Header -->
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h1 class="fw-semibold fs-1" style="font-family: 'Anton', sans-serif; color: #0b573d; letter-spacing: 0.2em;">ACTIVITIES</h1>
-                    <form class="d-flex w-50 ms-5" role="search">
-                        <div class="input-group">
-                            <input type="search" class="form-control rounded-start-5 border-3 border-secondary" style="background-color: transparent; height: 40px;" placeholder="Search" aria-label="Search">
-                            <button class="btn btn-secondary h-75 rounded-end-5" style="color: #e9ffcc;" type="submit">
-                                <i class="fa-solid fa-magnifying-glass" ></i>
-                            </button>
-                        </div>
-                    </form>
+                    <h1 class="fw-semibold fs-1" style="font-family: 'Anton', sans-serif; color: #0b573d; letter-spacing: 0.2em;"></h1>
                     <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill me-3">
                 </div>
 
@@ -78,41 +78,39 @@
                     </div>
 
                     <!-- Add Activity Modal -->
-<div class="modal fade" id="addActivityModal" tabindex="-1" aria-labelledby="addActivityModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content border-0">
-            <div class="modal-header border-0" style="background-color: #0b573d;">
-                <h5 class="modal-title text-white fw-bold" id="addActivityModalLabel" style="font-family: 'Poppins', sans-serif;">Add New Activity</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-4">
-                <form action="{{ route('storeActivity') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <div class="form-group mb-3">
-                        <label for="activity_name" class="form-label fw-semibold" style="font-family: 'Poppins', sans-serif;">Activity Name</label>
-                        <input type="text" class="form-control border-2" id="activity_name" name="activity_name" required>
+                    <div class="modal fade" id="addActivityModal" tabindex="-1" aria-labelledby="addActivityModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content border-0">
+                                <div class="modal-header border-0" style="background-color: #0b573d;">
+                                    <h5 class="modal-title text-white fw-bold" id="addActivityModalLabel" style="font-family: 'Poppins', sans-serif;">Add New Activity</h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body p-4">
+                                    <form action="{{ route('storeActivity') }}" method="POST" enctype="multipart/form-data">
+                                        @csrf
+                                        <div class="form-group mb-3">
+                                            <label for="activity_name" class="form-label fw-semibold" style="font-family: 'Poppins', sans-serif;">Activity Name</label>
+                                            <input type="text" class="form-control border-2" id="activity_name" name="activity_name" required>
+                                        </div>
+                                        <div class="form-group mb-3">
+                                            <label for="activity_image" class="form-label fw-semibold" style="font-family: 'Poppins', sans-serif;">Activity Image</label>
+                                            <input type="file" class="form-control border-2" id="activity_image" name="activity_image" required>
+                                        </div>
+                                        <div class="form-group mb-4">
+                                            <label for="activity_status" class="form-label fw-semibold" style="font-family: 'Poppins', sans-serif;">Activity Status</label>
+                                            <select class="form-select border-2" id="activity_status" name="activity_status" required>
+                                                <option value="Available">Available</option>
+                                                <option value="Unavailable">Unavailable</option>
+                                            </select>
+                                        </div>
+                                        <div class="text-end">
+                                            <button type="submit" class="btn text-white px-4 py-2" style="background-color: #0b573d;">Add Activity</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group mb-3">
-                        <label for="activity_image" class="form-label fw-semibold" style="font-family: 'Poppins', sans-serif;">Activity Image</label>
-                        <input type="file" class="form-control border-2" id="activity_image" name="activity_image" required>
-                    </div>
-                    <div class="form-group mb-4">
-                        <label for="activity_status" class="form-label fw-semibold" style="font-family: 'Poppins', sans-serif;">Activity Status</label>
-                        <select class="form-select border-2" id="activity_status" name="activity_status" required>
-                            <option value="Available">Available</option>
-                            <option value="Unavailable">Unavailable</option>
-                        </select>
-                    </div>
-                    <div class="text-end">
-                        <button type="submit" class="btn text-white px-4 py-2" style="background-color: #0b573d;">Add Activity</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-                    <!-- End Add Activity Modal -->
-
                     <!-- Table -->
                     <div class="bg-white shadow-lg rounded-4 p-4 mt-2">
                         <table class="table table-hover table-borderless mb-0">
@@ -168,13 +166,13 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <!-- End Edit Activity Modal -->
-                                    @endforeach
-                                </tbody>
-                            </table>
+                                @endforeach
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-          </div>
+            </div>
+        </div>
     </div>
 </body>
 </html>

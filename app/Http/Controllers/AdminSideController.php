@@ -158,6 +158,7 @@ class AdminSideController extends Controller
             ->whereDate('reservation_check_in_date', '>', Carbon::today()->endOfDay())
             ->count();
         
+        $feedbackCount = DB::table('feedback')->count();
         // Get checked-in reservations count
         $checkedInReservations = DB::table('reservation_details')
             ->where('reservation_status', 'checked-in')
@@ -229,7 +230,8 @@ class AdminSideController extends Controller
             'upcomingReservations',
             'checkedInReservations',
             'upcomingReservationsList',
-            'cancelledReservations'
+            'cancelledReservations',
+            'feedbackCount'
         ));
     }
 
@@ -479,66 +481,72 @@ public function login(Request $request) {
     $selectedYear = request()->input('year', date('Y'));
     
     $dailyReservations = DB::table('reservation_details AS rd')
-        ->select(
-            DB::raw('DATE(rd.created_at) as date'),
-            DB::raw('count(*) as total'),
-            // Gamitin ang pipe '|' bilang separator sa GROUP_CONCAT
-            DB::raw('GROUP_CONCAT(rd.accomodation_id SEPARATOR \'|\') as accomodation_ids')
-        )
-        ->whereYear('rd.created_at', $selectedYear)
-        ->groupBy(DB::raw('DATE(rd.created_at)'))
-        ->orderBy('date', 'asc')
-        ->get()
-        ->map(function($reservation) {
-            // I-explode ang string gamit ang pipe separator
-            $rawJsonStrings = explode('|', $reservation->accomodation_ids);
-            $allAccommodationIds = [];
+    ->select(
+        DB::raw('DATE(rd.created_at) as date'),
+        DB::raw('COUNT(*) as total'),
+        DB::raw('GROUP_CONCAT(rd.accomodation_id SEPARATOR \'|\') as accomodation_ids')
+    )
+    ->whereYear('rd.created_at', $selectedYear)
+    ->groupBy(DB::raw('DATE(rd.created_at)'))
+    ->orderBy('date', 'asc')
+    ->get()
+    ->map(function($reservation) {
+        // Explode the concatenated strings
+        $rawJsonStrings = explode('|', $reservation->accomodation_ids);
+        $allAccommodationIds = [];
 
-            foreach ($rawJsonStrings as $jsonString) {
-                // I-decode ang bawat JSON string (na dapat ay array ng IDs)
-                $decoded = json_decode($jsonString, true);
-                if (is_array($decoded)) {
-                    // I-merge ang mga IDs sa isang flat array
-                    $allAccommodationIds = array_merge($allAccommodationIds, $decoded);
-                }
-                // Hindi na kailangan ang else block dahil inaasahan natin na JSON array string ang format
+        foreach ($rawJsonStrings as $jsonString) {
+            // Skip empty strings
+            if (empty($jsonString)) continue;
+            
+            $decoded = json_decode($jsonString, true);
+            
+            // Only merge if decoding was successful and we got an array
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                $allAccommodationIds = array_merge($allAccommodationIds, $decoded);
             }
+        }
 
-            // Alisin ang mga null o empty values
-            $allAccommodationIds = array_filter($allAccommodationIds);
+        // Remove empty values and duplicates
+        $uniqueAccommodationIds = array_unique(array_filter($allAccommodationIds));
 
-            // Fetch room names
+        // Get room names in one query (more efficient)
+        $roomTypes = [];
+        if (!empty($uniqueAccommodationIds)) {
             $roomTypes = DB::table('accomodations')
-                ->whereIn('accomodation_id', $allAccommodationIds)
+                ->whereIn('accomodation_id', $uniqueAccommodationIds)
                 ->pluck('accomodation_name')
                 ->toArray();
+        }
 
-            return [
-                'date' => $reservation->date,
-                'total' => $reservation->total,
-                'rooms' => $roomTypes
-            ];
-        });
+        return [
+            'date' => $reservation->date,
+            'total' => $reservation->total,
+            'rooms' => $roomTypes,
+            'unique_room_count' => count($uniqueAccommodationIds) // Added count of unique rooms
+        ];
+    });
         $weeklyReservations = DB::table('reservation_details AS rd')
         ->select(
             DB::raw('YEARWEEK(rd.created_at, 1) as week'),
-            DB::raw('count(*) as total'),
-            // Baguhin din ang separator dito kung pareho ang isyu
-            DB::raw('GROUP_CONCAT(rd.accomodation_id SEPARATOR \'|\') as accomodation_ids')
+            DB::raw('SUM(rd.quantity) as total'),
+            DB::raw('GROUP_CONCAT(rd.accomodation_id SEPARATOR \'|\') as accomodation_ids'),
+            DB::raw('GROUP_CONCAT(rd.quantity SEPARATOR \'|\') as quantities')
         )
         ->whereYear('rd.created_at', $selectedYear)
         ->groupBy('week')
         ->orderBy('week', 'asc')
         ->get()
         ->map(function($reservation) {
-            // I-explode gamit ang pipe
             $rawJsonStrings = explode('|', $reservation->accomodation_ids);
+            $quantities = explode('|', $reservation->quantities);
             $allAccommodationIds = [];
     
-            foreach ($rawJsonStrings as $jsonString) {
+            foreach ($rawJsonStrings as $index => $jsonString) {
                 $decoded = json_decode($jsonString, true);
                 if (is_array($decoded)) {
-                    $allAccommodationIds = array_merge($allAccommodationIds, $decoded);
+                    $qty = $quantities[$index] ?? 1;
+                    $allAccommodationIds = array_merge($allAccommodationIds, array_fill(0, $qty, $decoded));
                 }
             }
     
@@ -557,32 +565,29 @@ public function login(Request $request) {
         $monthlyReservations = DB::table('reservation_details AS rd')
         ->select(
             DB::raw('DATE_FORMAT(rd.reservation_check_in_date, "%b %Y") as month'),
-            DB::raw('count(*) as total'),
-            // Baguhin ang separator sa GROUP_CONCAT para sa monthly view
-            DB::raw('GROUP_CONCAT(rd.accomodation_id SEPARATOR \'|\') as accomodation_ids')
+            DB::raw('SUM(rd.quantity) as total'),
+            DB::raw('GROUP_CONCAT(rd.accomodation_id SEPARATOR \'|\') as accomodation_ids'),
+            DB::raw('GROUP_CONCAT(rd.quantity SEPARATOR \'|\') as quantities')
         )
         ->whereYear('rd.reservation_check_in_date', $selectedYear)
         ->groupBy('month')
         ->orderBy(DB::raw('MIN(rd.reservation_check_in_date)'), 'asc')
         ->get()
         ->map(function($reservation) {
-            // I-explode ang string gamit ang pipe separator
             $rawJsonStrings = explode('|', $reservation->accomodation_ids);
+            $quantities = explode('|', $reservation->quantities);
             $allAccommodationIds = [];
     
-            foreach ($rawJsonStrings as $jsonString) {
-                // I-decode ang bawat JSON string (na dapat ay array ng IDs)
+            foreach ($rawJsonStrings as $index => $jsonString) {
                 $decoded = json_decode($jsonString, true);
                 if (is_array($decoded)) {
-                    // I-merge ang mga IDs sa isang flat array
-                    $allAccommodationIds = array_merge($allAccommodationIds, $decoded);
+                    $qty = $quantities[$index] ?? 1;
+                    $allAccommodationIds = array_merge($allAccommodationIds, array_fill(0, $qty, $decoded));
                 }
             }
     
-            // Alisin ang mga null o empty values
             $allAccommodationIds = array_filter($allAccommodationIds);
     
-            // Fetch room names
             $roomTypes = DB::table('accomodations')
                 ->whereIn('accomodation_id', $allAccommodationIds)
                 ->pluck('accomodation_name')
@@ -811,14 +816,72 @@ public function login(Request $request) {
 }
     // Export to Excel
     
-    public function exportExcel(Request $request)
-    {
-        try {
-            return Excel::download(new TransactionsExport($request), 'transactions.xlsx');
-        } catch (\Exception $e) {
-            return redirect()->route('transactions')->with('error', 'Failed to export Excel file. Please try again.');
+public function exportExcel(Request $request)
+{
+    try {
+        // Validate request parameters
+        $validated = $request->validate([
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date'
+        ]);
+
+        // Prepare base query
+        $query = DB::table('reservation_details');
+        
+        // Apply date filters if provided
+        if ($request->has('start_date')) {
+            $query->where('reservation_check_in_date', '>=', $request->start_date);
         }
+        if ($request->has('end_date')) {
+            $query->where('reservation_check_in_date', '<=', $request->end_date);
+        }
+
+        // Get payment status breakdown
+        $paymentStatusData = $query->clone()
+            ->select('payment_status', DB::raw('count(*) as count'))
+            ->groupBy('payment_status')
+            ->pluck('count', 'payment_status')
+            ->toArray();
+
+        // Prepare export data
+        $exportData = [
+            'totalBookings' => $query->clone()->count(),
+            'confirmedBookings' => $query->clone()->where('payment_status', 'paid')->count(),
+            'adultGuests' => $query->clone()->where('payment_status', 'paid')->sum('number_of_adults'),
+            'childGuests' => $query->clone()->where('payment_status', 'paid')->sum('number_of_children'),
+            'mostBookedRoomType' => DB::table('reservation_details')
+                ->join('accomodations', 'reservation_details.accomodation_id', '=', 'accomodations.accomodation_id')
+                ->select('accomodations.accomodation_name', DB::raw('count(*) as total'))
+                ->when($request->start_date, function($q) use ($request) {
+                    return $q->where('reservation_check_in_date', '>=', $request->start_date);
+                })
+                ->when($request->end_date, function($q) use ($request) {
+                    return $q->where('reservation_check_in_date', '<=', $request->end_date);
+                })
+                ->groupBy('accomodations.accomodation_name')
+                ->orderBy('total', 'desc')
+                ->first()->accomodation_name ?? 'N/A',
+            'cancelledBookings' => $query->clone()->where('reservation_status', 'cancelled')->count(),
+            'cancellationPercentage' => $query->clone()
+                ->selectRaw('ROUND((SUM(CASE WHEN reservation_status = "cancelled" THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2) as percentage')
+                ->first()->percentage ?? 0,
+            'paymentStatusData' => $paymentStatusData
+        ];
+
+        // Check if there's data to export
+        if (empty($exportData['totalBookings'])) {
+            return redirect()->route('transactions')
+                ->with('error', 'No data found for the selected date range.');
+        }
+
+        return Excel::download(new TransactionsExport($exportData), 'transactions.xlsx');
+        
+    } catch (\Exception $e) {
+        Log::error('Excel Export Error: ' . $e->getMessage());
+        return redirect()->route('transactions')
+            ->with('error', 'Failed to export Excel file: ' . $e->getMessage());
     }
+}
 
 public function exportExcelReports(Request $request)
 {
@@ -1867,7 +1930,7 @@ public function ActivityLogs(Request $request)
         });
     }
 
-    $activityLogs = $query->paginate(10)->withQueryString();
+    $activityLogs = $query->paginate(5)->withQueryString();
 
     return view('AdminSide.ActivityLogs', compact('activityLogs', 'roles'));
 }

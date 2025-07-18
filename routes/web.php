@@ -87,17 +87,14 @@ Route::post('/login/authenticate', [LoginController::class, 'authenticate'])->na
 Route::post('/forgot/otp', [LoginController::class, 'sendOtp'])->name('forgot.sendOTP');
 Route::post('/forgot/reset', [LoginController::class, 'resetPassword'])->name('forgot.reset');
 
-
 // SIGNUP
 Route::get('/signup', [SignUpController::class, 'signup'])->name('signup');
 Route::post('/signup/send-otp', [SignUpController::class, 'sendOTP'])->name('signup.sendOTP');
 Route::post('/signup/verify-otp', [SignUpController::class, 'verifyOTP'])->name('signup.verifyOTP');
 /*Landing page/index */
 Route::get('/', [LandingPageController::class, 'index'])->name('landingpage');
-/*homepage*/
+//When the user is login
 Route::get('/homepage', [LandingPageController::class, 'homepage'])->name('homepage');
-
-
 Route::get('/profile', [HomePageController::class, 'profilepage'])->name('profile');
 Route::get('/profile/edit', [HomePageController::class, 'editProfile'])->name('editProfile');
 Route::post('/profile/edit', [HomePageController::class, 'editProfile'])->name('editProfile.post');
@@ -161,36 +158,30 @@ Route::get('/auth/google/redirect',[GoogleAuthController::class, 'redirect'])->n
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback']);
 Route::post('/verify-otp', [GoogleAuthController::class, 'verifyOTP'])->name('verifyOTP');
 
-
-// Admin Login
-Route::get('/login/admin', [AdminSideController::class, 'AdminLogin'])->name('AdminLogin');
-Route::post('/login/admin/authenticate', [AdminSideController::class, 'login'])->name('authenticate');
+//Staff Route
 Route::middleware(['IsStaff'])->group(function () {
-//Staff Routes
-Route::get('/login/staff', [StaffController::class, 'StaffLogin'])->name('staff.login');
-Route::post('/login/staff/authenticate', [StaffController::class, 'authenticate'])->name('staff.authenticate');
-Route::get('/staff/dashboard', [StaffController::class, 'dashboard'])->name('staff.dashboard');
-Route::get('/staff/notifications', [StaffController::class, 'getNotifications']);
-Route::post('/staff/notifications/{id}/mark-as-read', [StaffController::class, 'markNotificationAsRead']);
-Route::get('/staff/reservation-details', [StaffController::class, 'reservations'])->name('staff.reservation');
-Route::get('/staff/accomodations', [StaffController::class, 'accomodations'])->name('staff.accomodations');
-Route::get('/staff/walk-in-guest', [StaffController::class, 'walkIn'])->name('staff.walkIn');
-Route::get('/staff/walk-in-guest/add', [StaffController::class, 'walkInAdd'])->name('staff.walkin.create');
-Route::post('/staff/walk-in-guest/add', [StaffController::class, 'storeWalkInGuest'])->name('staff.walkin.store');
-Route::post('/staff/walk-in-guest/update-status/{id}', [StaffController::class, 'updateWalkInStatus'])->name('staff.updateWalkInStatus');
-Route::post('/get-session-fees', [StaffController::class, 'updatedSessionFees'])->name('session.fees');
-Route::put('/staff/edit-room/{id}', [StaffController::class, 'editRoom'])->name('staff.editRoom');
-Route::post('/staff/book-room', [StaffController::class, 'bookRoom'])->name('staff.bookRoom');
-Route::post('/staff/cancel-reservation/{id}', [StaffController::class, 'cancelReservation'])->name('staff.cancelReservation');
-Route::get('/staff/check-new-reservations', [StaffController::class, 'checkNewReservations']);
-Route::post('/staff/transactions/update-payment-status/{id}', [StaffController::class, 'UpdateStatus'])->name('staff.updateStatus');
-Route::get('/staff/transactions', [StaffController::class, 'transactions'])->name('staff.transactions');
-Route::post('/staff/send-email', [StaffController::class, 'sendEmail'])->name('staff.sendEmail');
-Route::get('/staff/damage-report', [StaffController::class, 'damageReport'])->name('staff.damageReport');
-Route::post('/staff/damage-report', [StaffController::class, 'storeDamageReport'])->name('staff.storeDamageReport');
-Route::post('/staff/damage-report/edit/{id}', [StaffController::class, 'editDamageReport'])->name('staff.editDamageReport');
-Route::get('/staff/guests', [StaffController::class, 'guests'])->name('staff.guests');
-Route::get('/staff/logout', [StaffController::class, 'logout'])->name('staff.logout');
+    Route::get('/staff/dashboard', [StaffController::class, 'dashboard'])->name('staff.dashboard');
+    Route::get('/staff/notifications', [StaffController::class, 'getNotifications']);
+    Route::post('/staff/notifications/{id}/mark-as-read', [StaffController::class, 'markNotificationAsRead']);
+    Route::get('/staff/reservation-details', [StaffController::class, 'reservations'])->name('staff.reservation');
+    Route::get('/staff/accomodations', [StaffController::class, 'accomodations'])->name('staff.accomodations');
+    Route::get('/staff/walk-in-guest', [StaffController::class, 'walkIn'])->name('staff.walkIn');
+    Route::get('/staff/walk-in-guest/add', [StaffController::class, 'walkInAdd'])->name('staff.walkin.create');
+    Route::post('/staff/walk-in-guest/add', [StaffController::class, 'storeWalkInGuest'])->name('staff.walkin.store');
+    Route::post('/staff/walk-in-guest/update-status/{id}', [StaffController::class, 'updateWalkInStatus'])->name('staff.updateWalkInStatus');
+    Route::post('/get-session-fees', [StaffController::class, 'updatedSessionFees'])->name('session.fees');
+    Route::put('/staff/edit-room/{id}', [StaffController::class, 'editRoom'])->name('staff.editRoom');
+    Route::post('/staff/book-room', [StaffController::class, 'bookRoom'])->name('staff.bookRoom');
+    Route::post('/staff/cancel-reservation/{id}', [StaffController::class, 'cancelReservation'])->name('staff.cancelReservation');
+    Route::get('/staff/check-new-reservations', [StaffController::class, 'checkNewReservations']);
+    Route::post('/staff/transactions/update-payment-status/{id}', [StaffController::class, 'UpdateStatus'])->name('staff.updateStatus');
+    Route::get('/staff/transactions', [StaffController::class, 'transactions'])->name('staff.transactions');
+    Route::post('/staff/send-email', [StaffController::class, 'sendEmail'])->name('staff.sendEmail');
+    Route::get('/staff/damage-report', [StaffController::class, 'damageReport'])->name('staff.damageReport');
+    Route::post('/staff/damage-report', [StaffController::class, 'storeDamageReport'])->name('staff.storeDamageReport');
+    Route::post('/staff/damage-report/edit/{id}', [StaffController::class, 'editDamageReport'])->name('staff.editDamageReport');
+    Route::get('/staff/guests', [StaffController::class, 'guests'])->name('staff.guests');
+    Route::get('/staff/logout', [StaffController::class, 'logout'])->name('staff.logout');
 });
 
 
