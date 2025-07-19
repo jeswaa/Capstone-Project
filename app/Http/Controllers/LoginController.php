@@ -59,12 +59,12 @@ class LoginController extends Controller
                 return back()->with('invalidLogin', 'Email does not exist.')->withInput($request->only('credential'));
             }
             if ($user->status === 'banned') {
-                return back()->with('errorlogin', 'This account has been banned.')
+                return back()->with('error', 'This account has been banned.')
                     ->withInput($request->only('credential'));
             }
             // Validate password
             if (empty($password) || !Hash::check($password, $user->password)) {
-                return back()->with('errorlogin', 'Invalid email or password.')->withInput($request->only('credential'));
+                return back()->with('errorl', 'Invalid email or password.')->withInput($request->only('credential'));
             }
             // Generate OTP and send email
             $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
@@ -374,7 +374,9 @@ public function resendOTP(Request $request)
             session()->flash('success', 'OTP verified successfully.');
             
             // Return with success message and redirect
-            return redirect()->route('homepage')->with('success', 'Login successful!');
+            return redirect()->route('homepage')->with([
+                'success' => 'Welcome ' . $user->name . '!',
+            ]);
         }
         
         // Return with error message

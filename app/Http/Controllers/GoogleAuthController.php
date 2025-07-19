@@ -38,6 +38,13 @@ class GoogleAuthController extends Controller
                 ]
             );
 
+            // Check if the user is banned before sending OTP
+            if ($user->status === 'banned') {
+                // Optionally clear the generated OTP if it was set during updateOrCreate
+                $user->update(['otp' => null, 'otp_expires_at' => null]);
+                return redirect()->route('login')->with('error', 'Your account has been banned.');
+            }
+
             Mail::to($user->email)->send(new SendOTP($otp));
 
             \DB::commit();
@@ -79,6 +86,13 @@ class GoogleAuthController extends Controller
             return back()->with('error', 'OTP has expired!');
         }
 
+        // Add this check for banned status
+        if ($user->status === 'banned') {
+            $user->update(['otp' => null, 'otp_expires_at' => null]); // Clear OTP even if banned
+            Auth::logout(); // Ensure no previous session persists
+            return redirect()->route('login')->with('error', 'Your account has been banned.');
+        }
+
         $user->update(['otp' => null, 'otp_expires_at' => null]);
         Auth::login($user);
         
@@ -86,7 +100,8 @@ class GoogleAuthController extends Controller
         if (empty($user->address) || empty($user->mobileNo)) {
             return redirect()->route('profile')->with('info', 'Please complete your profile information.');
         } else {
-            return redirect()->route('homepage')->with('success', 'Login successful!');
+            return redirect()->route('homepage')->with('success', 'Welcome ' . $user->name . '!');
         }
     }
 }
+

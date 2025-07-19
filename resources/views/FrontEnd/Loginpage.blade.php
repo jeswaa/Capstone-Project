@@ -274,7 +274,7 @@
                     </button>
                     <!-- Privacy Policy Modal -->
                     <div class="modal fade" id="privacyPolicyModal" tabindex="-1" aria-labelledby="privacyPolicyLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-lg" style="margin-top: 8vh;"> <!-- Adjust margin-top as needed -->
+                        <div class="modal-dialog modal-lg" style="margin-top: 8vh;">
                             <div class="modal-content rounded-4 border-0" style="background-color: #f9f9f9;">
 
                             <!-- Header -->
@@ -286,8 +286,30 @@
                             <!-- Body -->
                             <div class="modal-body d-flex flex-column px-4 py-3" style="max-height: 70vh; overflow-y: auto;">
                                 <div class="text-start">
-                                    <h5 class="fw-bold text-success mb-4">Terms and Conditions</h5>
+                                    <h5 class="fw-bold text-success mb-4">Terms and Conditions & Data Privacy Notice</h5>
                                     
+                                    <div class="mb-4">
+                                        <p class="fw-bold mb-2">Data Privacy Act Compliance</p>
+                                        <p>In accordance with Republic Act 10173 (Data Privacy Act of 2012), Lelo's Resort is committed to protecting your personal information. By using our services:</p>
+                                        <ul class="list-unstyled ps-3">
+                                            <li>• You consent to the collection and processing of your personal data for reservation purposes</li>
+                                            <li>• Your information will be:</li>
+                                            <ul class="ps-4">
+                                                <li>- Securely stored and protected</li>
+                                                <li>- Used only for legitimate business purposes</li>
+                                                <li>- Retained only for the duration required by law</li>
+                                                <li>- Never shared with third parties without consent</li>
+                                            </ul>
+                                            <li>• You have the right to:</li>
+                                            <ul class="ps-4">
+                                                <li>- Access your personal data</li>
+                                                <li>- Request corrections or deletions</li>
+                                                <li>- Object to processing</li>
+                                                <li>- File a complaint</li>
+                                            </ul>
+                                        </ul>
+                                    </div>
+
                                     <div class="mb-4">
                                         <p class="fw-bold mb-2">Reservation Agreement</p>
                                         <p>By confirming a reservation, guests acknowledge and agree to all terms and conditions set by Lelo's Resort management.</p>
@@ -356,7 +378,7 @@
 
                                     <div class="text-center mt-4">
                                         <p class="fw-bold mb-1">Contact Information</p>
-                                        <p>For more details, contact us at <a href="mailto:lelosresort@gmail.com" class="text-decoration-none fw-bold text-success">lelosresort@gmail.com</a></p>
+                                        <p>For more details or data privacy concerns, contact us at <a href="mailto:lelosresort@gmail.com" class="text-decoration-none fw-bold text-success">lelosresort@gmail.com</a></p>
                                     </div>
                                 </div>
                             </div>

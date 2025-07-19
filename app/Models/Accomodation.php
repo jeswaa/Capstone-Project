@@ -29,4 +29,6 @@ class Accomodation extends Model
         return $this->hasMany(Reservation::class, 'accomodation_id');
     }
 
+    
+
 }

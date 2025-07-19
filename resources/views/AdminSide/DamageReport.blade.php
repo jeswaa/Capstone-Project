@@ -15,6 +15,16 @@
     <title>Damage Report</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
+<style>
+    .transition-width {
+    transition: all 0.3s ease;
+    }
+    #mainContent.full-width {
+        width: 100% !important;
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+    }
+</style>
 <body style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
 @include('Alert.loginSucess')
 @if ($errors->any())
@@ -29,11 +39,11 @@
     </div>
 @endif
 
-
 <div class="container-fluid min-vh-100 d-flex p-0">
+    <div class="d-flex w-100" id="mainLayout" style="min-height: 100vh;">
     @include('Navbar.sidenavbar')
      <!-- Main Content -->
-     <div class="col-md-9 col-lg-10 py-4 px-4">
+    <div id="mainContent" class="flex-grow-1 py-4 px-4 transition-width" style="transition: all 0.3s ease;">
         <!-- Header -->
         <div class="d-flex justify-content-between align-items-center mb-2">
             <form class="d-flex w-50 ms-5" role="search">
@@ -133,6 +143,7 @@
             </div>
         </div>
         @endforeach
+    </div>
 </div>
 <!-- Delete Confirmation Modal -->
 <div class="modal fade" id="deleteConfirmationModal" tabindex="-1">

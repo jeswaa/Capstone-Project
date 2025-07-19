@@ -8,12 +8,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <style>
-      .select-accommodation {
+    .select-accommodation {
         cursor: pointer;
         transition: all 0.3s ease;
         position: relative;
@@ -64,7 +62,7 @@
             <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="120" class="rounded-pill">
         </a>
     </div>
-
+    
     <div class="container">
     <h1 class="text-white font-heading fs-2 mt-3 mb-3 ms-2">Select your Room</h1>
     
@@ -89,6 +87,7 @@
                 <div class="container">
                     <div class="row g-4" id="accommodationContainer">
                         @foreach($accomodations as $accomodation)
+                            @if(($accomodation->is_available ?? true) && ($accomodation->accomodation_type == 'cabin' || $accomodation->accomodation_type == 'room'))
                             <div class="col-md-4 accommodation-card">
                                 <div class="card select-accommodation"
                                      data-id="{{ $accomodation->accomodation_id }}"
@@ -107,7 +106,6 @@
                                     </div>
                                 </div>
                             </div>
-
                             <!-- Modal for Room Details -->
                             <div class="modal fade" id="roomModal{{ $accomodation->accomodation_id }}" tabindex="-1" aria-labelledby="roomModalLabel{{ $accomodation->accomodation_id }}" aria-hidden="true">
                                 <div class="modal-dialog modal-lg">
@@ -151,6 +149,7 @@
                                     </div>
                                 </div>
                             </div>
+                            @endif
                         @endforeach
                     </div>
                 </div>
@@ -179,7 +178,6 @@
             </div>
         </div>
         <!-- Reservation Modal -->
-        <!-- Tanggalin ang form tag dito at ilagay ang mga input fields sa main form -->
         <div class="modal fade" id="reservationModal" tabindex="-1" aria-labelledby="reservationModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content shadow-lg rounded-4">
@@ -197,9 +195,8 @@
                         <div class="row g-4">
                             <div class="col-md-6">
                              <div class="card p-2 shadow-sm border-0 mt-2 mb-2">
-                                <h6 class="fw-bold mb-3 text-success">Quantity</h6>
+                                <h6 class="fw-bold mb-3 text-success">Number of rooms</h6>
                                     <input type="number" id="quantity" name="quantity" class="form-control" min="1" value="1" required oninput="validateInputs()">
-                                    <small class="text-muted" style="font-size: 10px;">Number of rooms to reserve</small>
                                     <small id="quantityError" class="text-danger mt-2" style="display: none;"></small>
                                 </div>
                                 <div class="card p-3 shadow-sm border-0">
@@ -248,14 +245,14 @@
                                 </div>
                                 <!-- DATE SELECTION -->
                                 <div class="col-md-12 mt-3">
-                                    <div class="card p-3 shadow-sm border-0">
-                                        <h6 class="fw-bold mb-3 text-success">Select Date</h6>
-                                        <div class="row g-3">
-                                            <div class="col-md-6">
+                                    <div class="card p-2 shadow-sm border-0">
+                                        <h6 class="fw-bold text-success">Select Date</h6>
+                                        <div class="d-flex flex-column gap-2">
+                                            <div>
                                                 <label for="reservation_date">Check-in Date:</label>
                                                 <input type="date" id="reservation_date" name="reservation_check_in_date" class="form-control" required readonly>
                                             </div>
-                                            <div class="col-md-6">
+                                            <div>
                                                 <label for="check_out_date" class="form-label">Check-out Date:</label>
                                                 <input type="date" id="check_out_date" name="reservation_check_out_date" class="form-control" required readonly>
                                             </div>
@@ -266,7 +263,7 @@
                             </div>
                             <!-- SPECIAL REQUEST -->
                             <div class="col-md-12">
-                                <div class="card p-3 shadow-sm border-0">
+                                <div class="card p-3 shadow-sm border-0 mt-3">
                                     <h6 class="fw-bold mb-3 text-success">Special Request</h6>
                                     <textarea id="specialRequest" name="special_request" class="form-control" rows="4" placeholder="Enter any special requests"></textarea>
                                 </div>
@@ -322,8 +319,7 @@
                     </div>
                 </div>
             </div>
-        </div>
-        
+        </div>     
 <script>
     function validateInputs() {
         const quantityInput = document.getElementById('quantity');
@@ -486,7 +482,7 @@
             resetFrontendAccommodations(); // I-reset ang frontend kapag nagbago ang check-in date
         });
     });
-    </script>
+</script>
 
 <script>
         function calculateTotalGuest() {
@@ -675,27 +671,62 @@
         });
     });
 </script>
-
-<script>
-        document.addEventListener("DOMContentLoaded", function () {
-            // Get check-in and check-out dates from URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const checkIn = urlParams.get("checkIn") || "";
-            const checkOut = urlParams.get("checkOut") || "";
-
-            // Set values in the date inputs
-            document.getElementById("reservation_date").value = checkIn;
-            document.getElementById("check_out_date").value = checkOut;
-        });
-</script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        document.getElementById("check_in").value = "15:00";
-        document.getElementById("check_out").value = "10:00";
+        // Get check-in and check-out dates from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const checkIn = urlParams.get("checkIn") || "";
+        const checkOut = urlParams.get("checkOut") || "";
+        const roomId = urlParams.get('roomid');
+
+        // Set values in the date inputs
+        document.getElementById("reservation_date").value = checkIn;
+        document.getElementById("check_out_date").value = checkOut;
+
+        if (roomId) {
+            // Find and select the corresponding accommodation card
+            const roomCard = document.querySelector(`.select-accommodation[data-id="${roomId}"]`);
+            if (roomCard) {
+                // Remove selection from all cards first
+                document.querySelectorAll(".select-accommodation").forEach(card => {
+                    card.classList.remove("selected");
+                });
+                
+                // Select the specified room
+                roomCard.classList.add("selected");
+                
+                // Scroll to the selected card
+                roomCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                // Update the proceed button state
+                document.getElementById("proceedToPayment").disabled = false;
+                
+                // Update the hidden input field
+                updateSelectedAccommodation();
+            }
+        }
     });
+
+    // Function to update the hidden input with selected accommodation
+    function updateSelectedAccommodation() {
+        const mainForm = document.querySelector('form');
+        
+        // Remove existing accommodation input
+        mainForm.querySelectorAll('input[name="accomodation_id[]"]').forEach(input => input.remove());
+        
+        // Add new input for selected accommodation
+        const selectedCard = document.querySelector(".select-accommodation.selected");
+        if (selectedCard) {
+            const input = document.createElement("input");
+            input.type = "hidden";
+            input.name = "accomodation_id[]";
+            input.value = selectedCard.getAttribute("data-id");
+            mainForm.appendChild(input);
+        }
+    }
 </script>
 <script>
-        document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", function () { 
     const checkInDateInput = document.getElementById("reservation_date");
     const accommodationList = document.getElementById("accommodationList");
     const accommodationMessage = document.getElementById("accommodationMessage");

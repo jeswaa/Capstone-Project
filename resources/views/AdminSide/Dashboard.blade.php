@@ -18,14 +18,23 @@
     .color-background8{
         background-color: #0b573d;
     }
+    .transition-width {
+        transition: all 0.3s ease;
+    }
+    #mainContent.full-width {
+        width: 100% !important;
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+    }
 </style>
 <body style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
             @include('Alert.loginSucess')
 
-            <div class="container-fluid min-vh-100 d-flex p-0">
-                @include('Navbar.sidenavbar')
+    <div class="container-fluid min-vh-100 d-flex p-0">
+        <div class="d-flex w-100" id="mainLayout">
+            @include('Navbar.sidenavbar')
             <!-- Main Content -->
-            <div class="col-md-9 col-lg-10 py-4 px-4">
+            <div id="mainContent" class="flex-grow-1 py-4 px-4 transition-width" style="transition: all 0.3s ease;">
                 <!-- Heading and Search Bar -->
                 <div class="d-flex justify-content-end  mb-2">
                     <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill me-3">
@@ -147,9 +156,9 @@
                                 <!-- Filter Dropdowns: labels beside select -->
                                 <div class="d-flex align-items-center">
                                     <!-- Filter By -->
-                                    <div class="me-3 d-flex align-items-center">
-                                        <label for="timeFilter" class="form-label mb-0 me-2 font-paragraph fw-semibold">Filter By:</label>
-                                        <select id="timeFilter" class="form-control" style="min-width: 150px; height: 50px;">
+                                    <div class="me-3 d-flex align-items-center gap-2">
+                                        <label for="timeFilter" class="form-label font-paragraph fw-semibold mb-0" style="white-space: nowrap;">Filter By:</label>
+                                        <select id="timeFilter" class="form-control" style="min-width: 100px; height: 50px;">
                                             <option value="daily">Daily</option>
                                             <option value="weekly">Weekly</option>
                                             <option value="monthly">Monthly</option>
@@ -180,17 +189,6 @@
                                     <div class="shadow-lg rounded-4 p-3 bg-white floating-effect" style="height: 100%;">
                                         <canvas id="reservationChart" class="w-100" height="100" style="height: 100%;"></canvas>
                                     </div>
-                                </div>
-                            </div>
-
-                            <div class="row mt-5">
-                                <div class="col-12">
-                                    <h1 class="text-color-1 font-paragraph fw-bold">Reservation Activity</h1>
-                                </div>
-
-                            <div class="col-md-8 mt-4 w-100">
-                                <div class="shadow-lg rounded-4 p-3 bg-white">
-                                    <canvas id="bookingTrendsChart" height="100"></canvas>
                                 </div>
                             </div>
                         </div>
@@ -294,7 +292,7 @@
                     x: {
                         title: {
                             display: true,
-                            text: labelKey === 'date' ? 'Petsa' : labelKey === 'week' ? 'Linggo' : 'Buwan'
+                            text: labelKey === 'date' ? 'Date' : labelKey === 'week' ? 'Week' : 'Months'
                         }
                     }
                 },

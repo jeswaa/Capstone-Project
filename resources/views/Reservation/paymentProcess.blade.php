@@ -437,10 +437,15 @@
                         
                         <div class="mt-3">
                             <label class="fw-bold">Reference Number</label>
-                            <input type="number" class="form-control bg-secondary-subtle border-0" name="reference_num" id="reference_num" 
-                                   placeholder="ex: 1100xx-xxx-xxx" required
-                                   minlength="13" maxlength="13"
-                                   oninput="javascript: if (this.value.length > 13) this.value = this.value.slice(0, 13);">
+                            <input type="text" 
+                                   class="form-control bg-secondary-subtle border-0" 
+                                   name="reference_num" 
+                                   id="reference_num" 
+                                   placeholder="Enter 13-digit reference number"
+                                   pattern="[0-9]{13}"
+                                   required
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 13);"
+                                   onkeypress="return event.charCode >= 48 && event.charCode <= 57">
                         </div>
                         
                         <div class="d-grid gap-2 mt-3">

@@ -438,7 +438,7 @@
                                 <td  class="text-center align-middle" style="font-size: x-small;">{{$reservation->quantity}}</td>
                                 <td class="text-center align-middle" style="font-size: x-small;">{{ $reservation->reference_num }}</td>
                                 <td class="text-center align-middle" style="font-size: x-small;">₱{{ number_format($reservation->amount ?? 0, 2)  }}</td>
-                                <td class="text-center align-middle" style="font-size: x-small;" id="balance-{{ $reservation->id }}"></td>
+                                <td class="text-center align-middle" style="font-size: x-small;"> ₱{{ number_format($reservation->balance ?? 0, 2)  }}</td>
                                 <td class="text-center align-middle" style="font-size: x-small;">{{ $reservation->stay_type ?? "Unknown" }}</td>
                                 <script>
                                     document.addEventListener("DOMContentLoaded", function () {
@@ -657,7 +657,6 @@
                 </div>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-primary" style="background-color: #0b573d;">Save Changes</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </form>
         </div>
