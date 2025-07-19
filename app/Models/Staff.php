@@ -3,9 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User;
 
-class Staff extends Model
+class Staff extends User
 {
     use HasFactory;
 
@@ -16,4 +16,5 @@ class Staff extends Model
     ];
 
     protected $table = 'stafftbl';
+    protected $guarded = 'staff';
 }

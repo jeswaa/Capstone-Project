@@ -240,6 +240,7 @@
                 @foreach($accommodations as $accommodation)
                     @if(!$displayedTypes[$accommodation->accomodation_type])
                         <div class="col-md-4">
+<<<<<<< HEAD
                             <div class="card h-100 shadow-sm border-0 room-card" style="border-radius: 20px; overflow: hidden;"
                                 data-bs-toggle="modal" data-bs-target="#reservationModal"
                                 data-room="{{ $accommodation->accomodation_name }}"
@@ -247,6 +248,11 @@
                                 data-roomimg="{{ asset('storage/' . $accommodation->accomodation_image) }}"
                                 data-roomprice="{{ number_format($accommodation->accomodation_price, 2) }}"
                                 data-roomcapacity="{{ $accommodation->accomodation_capacity }}">
+=======
+                            <div class="card h-100 shadow-sm border-0 room-card"
+then                                 style="border-radius: 20px; overflow: hidden;"
+                                 onclick="window.location.href='{{ route('calendar') }}?room='+encodeURIComponent('{{ $accommodation->accomodation_name }}')+'&roomid='+encodeURIComponent('{{ $accommodation->accomodation_id }}')">
+>>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
                                 <div class="position-relative">
                                     <img src="{{ asset('storage/' . $accommodation->accomodation_image) }}" class="card-img-top"
                                         alt="{{ $accommodation->accomodation_name }}"

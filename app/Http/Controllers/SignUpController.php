@@ -21,25 +21,39 @@ class SignUpController extends Controller
 
     public function sendOTP(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'mobileNo' => 'required|string|max:15',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
+        try {
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'mobileNo' => 'required|string|max:11', 
+                'email' => 'required|email|unique:users',
+                'password' => 'required|string|min:8|confirmed',
+            ]);
 
-        $otp = rand(100000, 999999);
+            // Check if OTP was recently sent for this email
+            $lastOTPTime = Cache::get('otp_time_' . $request->email);
+            if ($lastOTPTime && now()->diffInSeconds($lastOTPTime) < 60) {
+                return response()->json(['error' => 'Please wait 60 seconds before requesting a new OTP'], 429);
+            }
 
-        Cache::put('otp_' . $request->email, [
-            'otp' => $otp,
-            'name' => $request->name,
-            'mobileNo' => $request->mobileNo,
-            'password' => Hash::make($request->password) // Hash the password before saving
-        ], now()->addMinutes(5));
+            $otp = rand(100000, 999999);
 
-        Mail::to($request->email)->send(new SendOTP($otp));
+            Cache::put('otp_' . $request->email, [
+                'otp' => $otp,
+                'name' => $request->name,
+                'mobileNo' => $request->mobileNo,
+                'password' => Hash::make($request->password)
+            ], now()->addMinutes(5));
 
-        return response()->json(['message' => 'OTP sent successfully! Please check your email.']);
+            // Store the time when OTP was sent
+            Cache::put('otp_time_' . $request->email, now(), now()->addMinutes(5));
+
+            Mail::to($request->email)->send(new SendOTP($otp));
+
+            return redirect()->back()->with('success', 'OTP sent successfully! Please check your email.');
+
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['error' => 'Failed to send OTP. Please try again later.' . $e->getMessage()]);
+        }
     }
 
     public function verifyOTP(Request $request)

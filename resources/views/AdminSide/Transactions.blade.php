@@ -102,21 +102,24 @@
     font-size: 1.2rem;
     font-weight: bold;
 }
+.transition-width {
+    transition: all 0.3s ease;
+}
+#mainContent.full-width {
+    width: 100% !important;
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+}
 </style>
 <body style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
     @include('Alert.loginSucess')
-    @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            {{ session('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
+    @include('Alert.errornotification')
 
     <div class="container-fluid min-vh-100 d-flex p-0">
-        <!-- Sidebar -->
-        @include('Navbar.sidenavbar')
-        <!-- Main Content -->
-         <div class="col-md-9 col-lg-10 py-4 px-4">
+        <div class="d-flex w-100" id="mainLayout" style="min-height: 100vh;">
+            @include('Navbar.sidenavbar')
+            <!-- Main Content -->
+            <div id="mainContent" class="flex-grow-1 py-4 px-4 transition-width" style="transition: all 0.3s ease;">   
                 <!-- Heading and Search Bar -->
                 <div class="d-flex justify-content-end align-items-center mb-2">
                     <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill me-3">
@@ -129,9 +132,6 @@
                         <h1 class="fw-semibold text-uppercase mb-0" style="font-size: 40px; color: #0b573d; font-family: 'Anton', sans-serif; letter-spacing: 0.2em;">Transactions Management</h1>
                         
                         <div class="btn-group">
-                            <a href="{{ route('transactions.export.excel') }}" class="btn btn-success btn-sm me-2 rounded-2" style="font-size: 14px; transition: all 0.3s ease;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
-                                <i class="fas fa-file-excel"></i> Excel
-                            </a>
                             <a href="{{ route('transactions.export.pdf') }}" class="btn btn-danger btn-sm me-2 rounded-2" style="font-size: 14px; transition: all 0.3s ease;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
                                 <i class="fas fa-file-pdf"></i> PDF
                             </a>
@@ -601,7 +601,8 @@
                         </div>
                     </div>
                 </div>
-         </div>
+            </div>
+        </div>
     </div>
 
     <!-- Scripts -->

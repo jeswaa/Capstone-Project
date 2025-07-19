@@ -93,6 +93,7 @@
 </head>
 
 <body>
+<<<<<<< HEAD
     @if (session('success'))
         <div class="alert alert-success text-center" role="alert">
             {{ session('success') }}
@@ -108,6 +109,10 @@
             </ul>
         </div>
     @endif
+=======
+    @include('Alert.loginSuccessUser')
+    @include('Alert.errornotification')
+>>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
 
     <div class="position-absolute top-0 start-0 mt-5 ms-5">
         <a href="{{ url('login') }}" class="d-flex align-items-center justify-content-center rounded-circle shadow"
@@ -136,6 +141,7 @@
                         <meta name="csrf-token" content="{{ csrf_token() }}">
                         <div class="mb-3">
                             <input type="text" class="form-control p-2 font-paragraph" id="name" name="name"
+<<<<<<< HEAD
                                 placeholder="Full Name..." required maxlength="30"
                                 oninput="this.value = this.value.replace(/[^a-zA-Z ]/g, '').slice(0, 30);">
                         </div>
@@ -151,14 +157,40 @@
                                     placeholder="Mobile Number..." required maxlength="11"
                                     oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11);"
                                     pattern="\d{11}" title="Please enter a valid 11-digit mobile number">
+=======
+                                placeholder="Full Name..." required maxlength="50"
+                                oninput="this.value = this.value.replace(/[^a-zA-Z ]/g, '').slice(0, 30);" required>
+                        </div>
+                        <div class="mb-3">
+                            <input type="email" class="form-control p-2 font-paragraph" id="email" name="email"
+                                placeholder="Email..." required maxlength="50"
+                                pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                                title="Please enter a valid email address"
+                                oninput="this.value = this.value.toLowerCase().slice(0, 30);">
+                            <div id="emailValidationMessage" class="invalid-feedback">
+                                Please enter a valid email address.
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="input-group">
+                                <input type="text" class="form-control p-2 font-paragraph" id="mobileNo" name="mobileNo"
+                                    placeholder="Mobile Number..." required maxlength="11"
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11);"
+                                    pattern="\d{11}" title="Please enter a valid 11-digit mobile number" required> 
+>>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
                             </div>
                         </div>
                         <div class="mb-3">
                             <div class="input-group">
                                 <input type="password" class="form-control p-2 font-paragraph" id="password"
                                     name="password" placeholder="Password..." required oninput="checkPasswordMatch()"
+<<<<<<< HEAD
                                     maxlength="20">
                                 <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+=======
+                                    maxlength="20" required>
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword" style="height:42px;">
+>>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
                                     <i class="fa-solid fa-eye"></i>
                                 </button>
                             </div>
@@ -177,8 +209,13 @@
                                 <input type="password" class="form-control p-2 font-paragraph"
                                     id="password_confirmation" name="password_confirmation"
                                     placeholder="Confirm Password..." required oninput="checkPasswordMatch()"
+<<<<<<< HEAD
                                     maxlength="20">
                                 <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
+=======
+                                    maxlength="20" required>
+                                <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword"  style="height:42px;">
+>>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
                                     <i class="fa-solid fa-eye"></i>
                                 </button>
                             </div>
@@ -455,10 +492,29 @@
                     _token: $('meta[name="csrf-token"]').attr('content')
                 };
 
+<<<<<<< HEAD
+=======
+                // Track last OTP request time
+                let lastOtpRequest = 0;
+                const OTP_COOLDOWN = 60000; // 60 seconds cooldown
+
+>>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
                 $.ajax({
                     url: "{{ url('/signup/send-otp') }}",
                     method: "POST",
                     data: formData,
+<<<<<<< HEAD
+=======
+                    beforeSend: function() {
+                        // Check if enough time has passed since last request
+                        const now = Date.now();
+                        if (now - lastOtpRequest < OTP_COOLDOWN) {
+                            alert("Please wait 60 seconds before requesting another OTP");
+                            return false;
+                        }
+                        lastOtpRequest = now;
+                    },
+>>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
                     success: function (response) {
                         // Reset button state
                         $('#signup-btn').prop('disabled', false);
@@ -486,7 +542,10 @@
                     }
                 });
             });
+<<<<<<< HEAD
 
+=======
+>>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
             // Handle OTP verification
             $('#verify-otp').click(function (event) {
                 event.preventDefault(); // Prevent default action
@@ -591,6 +650,30 @@
                 };
             }
         });
+<<<<<<< HEAD
+=======
+        // Add this script before </html>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const submitBtn = document.querySelector('button[type="submit"]');
+            const requiredInputs = form.querySelectorAll('input[required]');
+            
+            function checkForm() {
+                let allFilled = true;
+                requiredInputs.forEach(input => {
+                    if (!input.value.trim()) allFilled = false;
+                });
+                submitBtn.disabled = !allFilled;
+            }
+            
+            requiredInputs.forEach(input => {
+                input.addEventListener('input', checkForm);
+            });
+            
+            // Initial check on page load
+            checkForm();
+        });
+>>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
     </script>
 
 
@@ -598,4 +681,8 @@
     </script>
 </body>
 
+<<<<<<< HEAD
 </html>
+=======
+</html>
+>>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206

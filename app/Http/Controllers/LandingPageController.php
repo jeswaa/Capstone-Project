@@ -14,8 +14,8 @@ class LandingPageController extends Controller
         $activities = DB::table('activitiestbl')->get();
         $feedbacks = DB::table('feedback')
             ->join('users', 'feedback.user_id', '=', 'users.id')
-            ->select('feedback.*', 'users.name as name')
-            ->orderBy('feedback.created_at', 'desc') // Add this line
+            ->select('feedback.*', 'users.name as name', 'users.image as image')
+            ->orderBy('feedback.created_at', 'desc')
             ->limit(3)
             ->get();
         return view('FrontEnd.landingpage', compact('accommodations', 'activities', 'feedbacks')); // Ensure the filename is lowercase

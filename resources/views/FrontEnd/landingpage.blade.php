@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,8 +10,11 @@
         href="https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+</body>
+   
 </head>
 <style>
     h1, h5 { font-family: 'Anton', sans-serif; }
@@ -233,18 +235,18 @@
                         <div class="col-lg-6 mb-4">
                             <hr class="border-success mx-auto" style="width: 80%;">
                             <p class="fst-italic text-success" style="font-size: 1.2rem;">
-                                Enjoy breathtakingly
+                                Enjoy breathtaking
                             </p>
                             <h1 class="fw-bold text-success text-uppercase"
                                 style="font-size: calc(1.8rem + 1vw); line-height: 1.2;">
-                                Beautiful Views <br>
-                                Great Amenities <br>
+                                Beautiful Views, <br>
+                                Great Amenities, <br>
                                 & Friendly Service
                             </h1>
                             <div class="mt-3 p-3 rounded-pill"
                                 style="background-color: #E6F4E6; display: inline-block;">
                                 <p class="text-success m-0" style="font-size: 1.1rem;">
-                                    <em>Booking your stay is quick and easy with our simple reservation system!</em>
+                                    <em>Book your stay with quick and simple reservation system!</em>
                                 </p>
                             </div>
                             <hr class="border-dark mx-auto" style="width: 80%;">
@@ -321,7 +323,7 @@
 
             <!-- Subtitle with enhanced styling -->
             <p class="fst-italic text-success mb-4" style="font-size: 1.2rem; letter-spacing: 0.5px;">
-                Stay close, enjoy hard—outdoor fun starts near your cottage room.
+                Stay close, enjoy outdoor fun that starts  near your cottage room.
             </p>
 
             <!-- Decorative line -->
@@ -332,6 +334,7 @@
             </div>
 
             <div class="row g-4">
+<<<<<<< HEAD
                 <!-- Room 1 -->
                 <div class="col-md-4">
                     <div class="card h-100 shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
@@ -346,6 +349,136 @@
                         <div class="card-body p-2">
                             <h5 class="card-title mb-0" style="font-style: italic; color: #0b573d;">Room </h5>
                         </div>
+=======
+            @php
+                    $displayedTypes = ['room' => false, 'cottage' => false, 'cabin' => false];
+                @endphp
+                
+                    @foreach($accommodations as $accommodation)
+                        @if(!$displayedTypes[$accommodation->accomodation_type])
+                            <div class="col-md-4">
+                                <div class="card h-100 shadow-sm border-0 room-card"
+                                    style="border-radius: 20px; overflow: hidden;"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#roomDetailsModal"
+                                    data-room="{{ $accommodation->accomodation_name }}"
+                                    data-roomid="{{ $accommodation->accomodation_id }}"
+                                    data-roomimg="{{ asset('storage/' . $accommodation->accomodation_image) }}"
+                                    data-roomprice="{{ number_format($accommodation->accomodation_price, 2) }}"
+                                    data-description="{{ $accommodation->accomodation_description }}"
+                                    data-amenities="{{ $accommodation->amenities }}"
+                                    data-capacity="{{ $accommodation->accomodation_capacity }}">
+                                    <div class="position-relative">
+                                        <img src="{{ asset('storage/' . $accommodation->accomodation_image) }}" 
+                                            class="card-img-top" 
+                                            alt="{{ $accommodation->accomodation_name }}" 
+                                            style="border-radius: 20px 20px 0 0; height: 250px; object-fit: cover;">
+                                        <div class="position-absolute bottom-0 end-0 m-2 px-3 py-1 bg-success text-white fw-bold" 
+                                            style="border-radius: 8px; font-style: italic; font-size: 1.2rem;">
+                                            Price: ₱ {{ number_format($accommodation->accomodation_price, 2) }}
+                                        </div>
+                                    </div>
+                                    <div class="card-body p-3">
+                                        <h5 class="card-title mb-0" style="font-style: italic; color: #0b573d; font-size: 1.5rem;">
+                                            {{ $accommodation->accomodation_name }}
+                                        </h5>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal fade" id="roomDetailsModal" tabindex="-1" aria-labelledby="roomDetailsModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content" style="border-radius: 15px; overflow: hidden;">
+                                        <div class="modal-header" style="background-color: #0b573d; color: white; border-bottom: 3px solid #E6F4E6;">
+                                            <h5 class="modal-title fw-bold" id="roomDetailsModalLabel" style="font-size: 1.5rem;">
+                                                <i class="bi bi-house-heart-fill me-2"></i>Room Details
+                                            </h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body" style="background-color: #f8f9fa;">
+                                            <div class="row g-4">
+                                                <div class="col-md-6">
+                                                    <div class="position-relative">
+                                                        <img id="modalRoomImage" src="" class="img-fluid rounded shadow" alt="Room Image" 
+                                                            style="max-height: 300px; width: 100%; object-fit: cover;">
+                                                        <div class="position-absolute bottom-0 start-0 m-3 px-3 py-2 bg-success bg-opacity-75 rounded-pill">
+                                                            <h4 class="text-white mb-0">₱<span id="modalRoomPrice" class="fw-bold"></span></h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <h3 id="modalRoomName" class="fw-bold mb-4" style="color: #0b573d; font-size: 2rem;"></h3>
+                                                    
+                                                    <div class="info-section mb-4 text-start">
+                                                        <h5 class="d-flex align-items-start" style="color: #0b573d;">
+                                                            <i class="bi bi-card-text me-2"></i>Description
+                                                        </h5>
+                                                        <p id="modalRoomDescription" class="ms-4 text-muted"></p>
+                                                    </div>
+                                                    
+                                                    <div class="info-section mb-4 text-start">
+                                                        <h5 class="d-flex align-items-start" style="color: #0b573d;">
+                                                            <i class="bi bi-stars me-2"></i>Amenities
+                                                        </h5>
+                                                        <p id="modalRoomAmenities" class="ms-4 text-muted"></p>
+                                                    </div>
+                                                    
+                                                    <div class="info-section text-start">
+                                                        <h5 class="d-flex align-items-start" style="color: #0b573d;">
+                                                            <i class="bi bi-people-fill me-2"></i>Capacity
+                                                        </h5>
+                                                        <p id="modalRoomCapacity" class="ms-4 text-muted"></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @php
+                            $displayedTypes[$accommodation->accomodation_type] = true;
+                        @endphp
+                    @endif
+                @endforeach
+                
+
+                <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const roomCards = document.querySelectorAll('.room-card');
+        
+        roomCards.forEach(card => {
+            card.addEventListener('click', function() {
+                // Get data from clicked card
+                const roomName = this.dataset.room;
+                const roomImg = this.dataset.roomimg;
+                const roomPrice = this.dataset.roomprice;
+                const description = this.dataset.description;
+                const amenities = this.dataset.amenities;
+                const capacity = this.dataset.capacity;
+                
+                // Update modal content
+                document.getElementById('modalRoomName').textContent = roomName;
+                document.getElementById('modalRoomImage').src = roomImg;
+                document.getElementById('modalRoomPrice').textContent = roomPrice;
+                document.getElementById('modalRoomDescription').textContent = description;
+                document.getElementById('modalRoomAmenities').textContent = amenities;
+                document.getElementById('modalRoomCapacity').textContent = `Good for ${capacity} persons`;
+            });
+        });
+    });
+</script>
+    </section>
+    <section>
+        <div class="container text-center my-5">
+            <div class="py-5">
+                <!-- ACTIVITIES SECTION (Nested inside Amenities) -->
+                <div class="py-5 mt-5">
+                    <div class="position-relative px-4 py-3"
+                        style="background-color: #E6F4E6; border-radius: 15px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                        <h1 class="fw-bolder text-success display-5"
+                            style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); font-weight: 900;">
+                            ACTIVITIES
+                        </h1>
+>>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
                     </div>
                 </div>
                 <!-- Room 2 -->
@@ -572,6 +705,7 @@
 
                     <!-- Responsive Card Grid -->
                     <div class="row g-3 justify-content-center">
+<<<<<<< HEAD
                         @foreach (['DSCF2814.JPG', 'DSCF2821.JPG', 'DSCF2729.JPG'] as $index => $image)
                                                 <div class="col-12 col-sm-6 col-md-4">
                                                     <div class="card h-100 shadow" style="background-color: #0b573d; border-radius: 15px;">
@@ -590,6 +724,29 @@
                                                         </div>
                                                     </div>
                                                 </div>
+=======
+                        @foreach ($feedbacks as $feedback)
+                            <div class="col-12 col-sm-6 col-md-4">
+                                <div class="card h-100 shadow" style="background-color: #0b573d; border-radius: 15px;">
+                                    <img src="{{ asset('storage/' . $feedback->image) }}" class="card-img-top"
+                                        alt="User Review"
+                                        style="width: 100%; height: 200px; object-fit: cover; border-radius: 15px 15px 0 0;">
+                                    <div class="card-body">
+                                            <h5 class="card-title" style="color: #f5f5dc;">
+                                            {{ $feedback->name ?? 'Anonymous' }}
+                                        </h5>
+                                        <div class="mb-2">
+                                            @for ($i = 1; $i <= 5; $i++)
+                                                <i class="bi bi-star{{ $i <= $feedback->rating ? '-fill' : '' }}" style="color: #f5f5dc;"></i>
+                                            @endfor
+                                        </div>
+                                        <p class="card-text" style="color: #f5f5dc;">
+                                            {{ $feedback->comment }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+>>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
                         @endforeach
                     </div>
 
@@ -624,5 +781,4 @@
         </div>
     </footer>
 </body>
-
 </html>

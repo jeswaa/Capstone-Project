@@ -217,12 +217,18 @@
                         <h5 class="text-center mb-3 text-success">How to Book an Overnight Stay</h5>
 
                         <ol class="mb-0">
+<<<<<<< HEAD
                             <li class="mb-2">Select your Check-in Date</li>
 
+=======
+                            <li>Select your Check-In Date</li>
+                           <ul class="mt-1 mb-2">
+                            <li><span>Check-in Time: 2PM</span></li>
+                           </ul>
+                            
+>>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
                             <li>Then select your Check-out Date
                                 <ul class="mt-1">
-                                    <li>Check-out must be after Check-in</li>
-                                    <li><span>Check-in Time: 2PM</span></li>
                                     <li><span>Check-out Time: 12PM</span></li>
                                 </ul>
                             </li>
@@ -242,8 +248,13 @@
                                     
                                 </ul>
                             </li>
+<<<<<<< HEAD
 
                             <li>Once selected, we'll check availability and show package options</li>
+=======
+                            
+                            <li>Once selected, we'll check availability and show room options</li>
+>>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
                         </ol>
                     </div>
                 </div>
@@ -447,6 +458,7 @@
                 highlightSelectedDates();
             }
 
+<<<<<<< HEAD
             function handleDayTour(date) {
                 checkInDate = date;
                 checkOutDate = date;
@@ -466,6 +478,73 @@
                     document.getElementById('selectedCheckIn').textContent = new Date(date).toLocaleDateString();
                     document.getElementById('selectedCheckOut').textContent = '-';
 
+=======
+    function handleDayTour(date) {
+        checkInDate = date;
+        checkOutDate = date;
+        const urlParams = new URLSearchParams(window.location.search);
+        const selectedRoomId = urlParams.get('roomid');
+        const selectedRoomName = urlParams.get('room');
+        Swal.fire({
+            title: 'Check in Date Selected',
+            text: `Date: ${new Date(date).toLocaleDateString()}`,
+            icon: 'success'
+        }).then(() => {
+            window.location.href = `{{ route('selectPackage') }}?checkIn=${date}&checkOut=${date}&type=daytour&roomid=${selectedRoomId}`;
+        });
+    }
+
+    function handleStayIn(date) {
+        if(!checkInDate) {
+            checkInDate = date;
+            // Update the selected dates display
+            
+            document.getElementById('selectedCheckIn').textContent = new Date(date).toLocaleDateString();
+            document.getElementById('selectedCheckOut').textContent = '-';
+            
+            Swal.fire({
+                title: 'Check-in Date Selected',
+                text: 'Please select a Check-out Date',
+                html: `Check-in Date: ${new Date(date).toLocaleDateString()}<br><br>
+                       <strong>Please select a Check-out Date on the calendar</strong>`,
+                icon: 'info',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#2ecc71'
+            });
+        } else if(!checkOutDate && date > checkInDate) {
+            checkOutDate = date;
+            // Update the selected dates display
+            const urlParams = new URLSearchParams(window.location.search);
+            const selectedRoomId = urlParams.get('roomid');
+            const selectedRoomName = urlParams.get('room');
+            document.getElementById('selectedCheckOut').textContent = new Date(date).toLocaleDateString();
+            
+            // Check availability for each accommodation type
+            fetch(`/check-accommodation-availability?checkIn=${checkInDate}&checkOut=${checkOutDate}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data && data.available_accommodations && data.available_accommodations.length > 0) {
+                        Swal.fire({
+                            title: 'Selected Dates',
+                            html: `<strong>Check-in:</strong> ${new Date(checkInDate).toLocaleDateString()}<br>
+                                  <strong>Check-out:</strong> ${new Date(checkOutDate).toLocaleDateString()}`,
+                            icon: 'success',
+                            confirmButtonColor: '#2ecc71'
+                        }).then(() => {
+                            window.location.href = `{{ route('selectPackageCustom') }}?checkIn=${checkInDate}&checkOut=${checkOutDate}&roomid=${selectedRoomId}`;
+                        });
+                    } else {
+                        throw new Error('No accommodations available');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+>>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
                     Swal.fire({
                         title: 'Check-in Date Selected',
                         text: 'Please select a Check-out Date',
@@ -590,5 +669,9 @@
     </script>
 
 </body>
+<<<<<<< HEAD
 
 </html>
+=======
+</html>
+>>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206

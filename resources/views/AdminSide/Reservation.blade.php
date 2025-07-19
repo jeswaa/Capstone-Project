@@ -64,6 +64,7 @@
         width: 100%;
     }
 
+<<<<<<< HEAD
     .fancy-link.active::after {
         width: 100% !important;
     }
@@ -133,14 +134,30 @@
     .fc-button:hover {
         background-color: #127656 !important;
     }
+=======
+/* Hover effect */
+.fc-button:hover {
+    background-color: #127656 !important;
+}
+.transition-width {
+    transition: all 0.3s ease;
+}
+#mainContent.full-width {
+    width: 100% !important;
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+}
+>>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
 </style>
 
 <body
     style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
 
     <div class="container-fluid min-vh-100 d-flex p-0">
-        @include('Navbar.sidenavbar')
+        <div class="d-flex w-100" id="mainLayout" style="min-height: 100vh;">
+            @include('Navbar.sidenavbar')
 
+<<<<<<< HEAD
         <!-- Main Content -->
         <div class="col-md-9 col-lg-10 py-4 px-4">
             <!-- Header -->
@@ -269,20 +286,124 @@
                                                         rel="prev">&laquo;</a>
                                                 </li>
                                             @endif
+=======
+            <!-- Main Content -->
+            <div id="mainContent" class="flex-grow-1 py-4 px-4 transition-width" style="transition: all 0.3s ease;">
+                <!-- Header -->
+                <div class="d-flex justify-content-end mb-2">
+                    <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill me-3">
+                </div>
 
-                                            {{-- Pagination Elements --}}
-                                            @foreach ($reservations->getUrlRange(1, $reservations->lastPage()) as $page => $url)
-                                                @if ($page == $reservations->currentPage())
-                                                    <li class="page-item active" aria-current="page">
-                                                        <span class="page-link">{{ $page }}</span>
+                <hr class="border-5">
+>>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
+
+                <!-- Links -->
+                <div class="d-flex justify-content-center">
+                    <a href="{{ route('reservations') }}" class="text-color-2 text-decoration-none me-5 fancy-link active" style="font-family: 'Anton', sans-serif; letter-spacing: 0.1em;"><h1 class="fs-1 text-uppercase">Reservation</h1></a>
+                    <a href="{{ route('rooms') }}" class="text-color-2 me-5 text-decoration-none fancy-link" style="font-family: 'Anton', sans-serif; letter-spacing: 0.1em;"><h1 class="fs-1 text-uppercase">Room</h1></a>
+                    <a href="{{ route('addActivities') }}" class="text-color-2 text-decoration-none fancy-link" style="font-family: 'Anton', sans-serif; letter-spacing: 0.1em;"><h1 class="fs-1 text-uppercase">Activities</h1></a>
+                </div>
+
+                <div class="mt-5">
+                    <h1 class="text-color-2" style="font-family: 'Anton', sans-serif;"> Calendar</h1>
+                    <div id="calendar-container" class="shadow-lg rounded-4 p-3 bg-white floating-effect">
+                        <div id="calendar" class="mb-5"></div>
+                    </div>
+
+                    <h1 class="text-color-2 mt-5" style="font-family: 'Anton', sans-serif;">Guest Reservation Records</h1>
+                    <!-- Search Function -->
+                    <form class="d-flex justify-content-center align-items-center w-100 mb-3 mt-1" role="search" id="filterForm">
+                        <div class="input-group">
+                            <input type="text" class="form-control mb-0 rounded-start-5 bg-light border border-secondary" placeholder="Search Guest Name" aria-label="Search" id="guestNameFilter">
+                            <button class="btn btn-outline-success rounded-end-5" type="button" onclick="filterGuests()">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Table -->
+                <div class="bg-white shadow-lg rounded-4 p-4 mt-2">
+                    <table class="table table-hover table-borderless mb-0">
+                        <thead class="table-light text-uppercase text-secondary small">
+                            <tr>
+                                <th scope="col" class="small">Guest Name</th>
+                                <th scope="col" class="small">Dates(In-Out)</th>
+                                <th scope="col" class="small">Time(In-Out)</th>
+                                <th scope="col" class="small">Room Type</th>
+                                <th scope="col" class="small">Room Qty</th>
+                                <th scope="col" class="small">Mobile Number</th>
+                                <th scope="col" class="small">Reference Number</th>
+                                <th scope="col" class="small">Payment Status</th>
+                                <th scope="col" class="small">Res. Status</th>
+                                <th scope="col" class="small">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reservationTable">
+                            @foreach ($reservations as $reservation)
+                                <tr class="align-middle">
+                                    <td class="fw-semibold">{{ $reservation->name }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('M j, Y') }}-{{ \Carbon\Carbon::parse($reservation->reservation_check_out_date)->format('M j, Y') }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($reservation->reservation_check_in)->format('h:i A') }}-{{ \Carbon\Carbon::parse($reservation->reservation_check_out)->format('h:i A') }}</td>
+                                    <td>
+                                        @if(!empty($reservation->accomodation_names))
+                                            {{ implode(', ', $reservation->accomodation_names) }}
+                                        @else
+                                            <span class="text-muted">No Accommodation</span>
+                                        @endif
+                                    </td>
+                                    <td>{{ $reservation->quantity}}</td>
+                                    <td>{{$reservation->mobileNo}}</td>
+                                    <td>{{ $reservation->reference_num}}</td>
+                                    <td>
+                                        <span class="badge 
+                                            @if($reservation->payment_status == 'paid') bg-success
+                                            @elseif($reservation->payment_status == 'pending') bg-warning text-dark
+                                            @elseif($reservation->payment_status == 'booked') bg-primary
+                                            @else bg-danger
+                                            @endif
+                                            px-3 py-2 rounded-pill text-uppercase fw-medium"
+                                        >
+                                            {{ ucfirst($reservation->payment_status) }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge 
+                                            @if($reservation->reservation_status == 'confirmed') bg-success
+                                            @elseif($reservation->reservation_status == 'pending') bg-warning text-dark
+                                            @elseif($reservation->reservation_status == 'cancelled') bg-danger
+                                            @else bg-secondary
+                                            @endif
+                                            px-3 py-2 rounded-pill text-uppercase fw-medium"
+                                        >
+                                            {{ ucfirst($reservation->reservation_status) }}
+                                        </span>
+                                    </td>
+                                    <td>₱{{ number_format($reservation->amount, 2) }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="10" class="pt-4">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="text-muted">
+                                            Showing {{ $reservations->firstItem() }} to {{ $reservations->lastItem() }} of {{ $reservations->total() }} reservations
+                                        </div>
+                                        <nav aria-label="Page navigation">
+                                            <ul class="pagination mb-0">
+                                                {{-- Previous Page Link --}}
+                                                @if ($reservations->onFirstPage())
+                                                    <li class="page-item disabled">
+                                                        <span class="page-link">&laquo;</span>
                                                     </li>
                                                 @else
                                                     <li class="page-item">
-                                                        <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                                                        <a class="page-link" href="{{ $reservations->previousPageUrl() }}" rel="prev">&laquo;</a>
                                                     </li>
                                                 @endif
-                                            @endforeach
 
+<<<<<<< HEAD
                                             {{-- Next Page Link --}}
                                             @if ($reservations->hasMorePages())
                                                 <li class="page-item">
@@ -300,8 +421,39 @@
                             </td>
                         </tr>
                     </tfoot>
+=======
+                                                {{-- Pagination Elements --}}
+                                                @foreach ($reservations->getUrlRange(1, $reservations->lastPage()) as $page => $url)
+                                                    @if ($page == $reservations->currentPage())
+                                                        <li class="page-item active" aria-current="page">
+                                                            <span class="page-link">{{ $page }}</span>
+                                                        </li>
+                                                    @else
+                                                        <li class="page-item">
+                                                            <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                                                        </li>
+                                                    @endif
+                                                @endforeach
+>>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
 
-                </table>
+                                                {{-- Next Page Link --}}
+                                                @if ($reservations->hasMorePages())
+                                                    <li class="page-item">
+                                                        <a class="page-link" href="{{ $reservations->nextPageUrl() }}" rel="next">&raquo;</a>
+                                                    </li>
+                                                @else
+                                                    <li class="page-item disabled">
+                                                        <span class="page-link">&raquo;</span>
+                                                    </li>
+                                                @endif
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -409,6 +561,7 @@
                 }
             });
 
+<<<<<<< HEAD
             // Show message if no reservations match
             const noResultsRow = document.getElementById('noResultsRow');
             if (!hasMatch) {
@@ -421,6 +574,17 @@
             } else {
                 if (noResultsRow) {
                     noResultsRow.remove();
+=======
+        rows.forEach(row => {
+            const guestNameCell = row.cells[0];
+            if (guestNameCell) {
+                const guestName = guestNameCell.textContent.toLowerCase();
+                if (guestName.includes(filterValue)) {
+                    row.style.display = '';
+                    hasMatch = true;
+                } else {
+                    row.style.display = 'none';
+>>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
                 }
             }
         });

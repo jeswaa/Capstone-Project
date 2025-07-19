@@ -96,6 +96,7 @@
                     <i class="fas fa-calendar-check me-2"></i>Booking Details
                 </button>
             </div>
+<<<<<<< HEAD
 
             <!-- Accommodation Cards Container -->
             <div class="col-md-12 d-flex flex-column">
@@ -127,9 +128,30 @@
                                                 style="text-align: right;">Price: <span
                                                     style="background-color: #0b573d; color: white; padding: 2px 5px;">₱{{ $accomodation->accomodation_price }}</span>
                                             </p>
+=======
+    
+        <!-- Accommodation Cards Container -->
+        <div class="col-md-12 d-flex flex-column">
+            <div class="form-group">
+                <div class="container">
+                    <div class="row g-4" id="accommodationContainer">
+                        @foreach($accomodations as $accomodation)
+                            @if(($accomodation->is_available ?? true) && ($accomodation->accomodation_type == 'cabin' || $accomodation->accomodation_type == 'room'))
+                            <div class="col-md-4 accommodation-card">
+                                <div class="card select-accommodation"
+                                     data-id="{{ $accomodation->accomodation_id }}"
+                                     data-price="{{ $accomodation->accomodation_price }}"
+                                     data-capacity="{{ $accomodation->accomodation_capacity }}"
+                                     data-room-quantity="{{ $accomodation->quantity }}">
+                                    <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" class="card-img-top" alt="accommodation image" style="max-width: 100%; height: 250px; object-fit: cover;">
+                                    <div class="card-body p-3 position-relative" style="background-color: white;">
+                                        <div class="position-absolute top-0 end-0 p-2">
+                                            <i class="fas fa-info-circle text-success fs-3 mt-2 me-2" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#roomModal{{ $accomodation->accomodation_id }}"></i>
+>>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
                                         </div>
                                     </div>
                                 </div>
+<<<<<<< HEAD
 
                                 <!-- Modal for Room Details -->
                                 <div class="modal fade" id="roomModal{{ $accomodation->accomodation_id }}" tabindex="-1"
@@ -182,6 +204,29 @@
                                                             <p class="text-muted mb-0">
                                                                 {{ $accomodation->accomodation_capacity }} pax
                                                             </p>
+=======
+                            </div>
+                            <!-- Modal for Room Details -->
+                            <div class="modal fade" id="roomModal{{ $accomodation->accomodation_id }}" tabindex="-1" aria-labelledby="roomModalLabel{{ $accomodation->accomodation_id }}" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content rounded-4 shadow">
+                                        <div class="modal-header border-0" style="background-color: #0b573d;">
+                                            <h5 class="modal-title text-white text-uppercase" style="font-family: 'Anton', sans-serif; letter-spacing: 0.1em;" id="roomModalLabel{{ $accomodation->accomodation_id }}">{{ $accomodation->accomodation_name }}</h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body p-0">
+                                            <div class="row g-0">
+                                                <!-- Left Column - Image -->
+                                                <div class="col-md-6">
+                                                    <div class="position-relative h-100">
+                                                        <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" 
+                                                            class="w-100 h-100 object-fit-cover rounded-start" 
+                                                            style="max-height: 400px;" 
+                                                            alt="{{ $accomodation->accomodation_name }}">
+                                                        <div class="position-absolute bottom-0 start-0 w-100 p-3" 
+                                                            style="background: linear-gradient(0deg, rgba(11, 87, 61, 0.9) 0%, rgba(11, 87, 61, 0.7) 100%);">
+                                                            <h3 class="text-white mb-0 fw-bold">₱{{ number_format($accomodation->accomodation_price, 2) }}</h3>
+>>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
                                                         </div>
                                                     </div>
                                                 </div>
@@ -220,6 +265,7 @@
                                     </div>
                                 </div>
                             </div>
+                            @endif
                         @endforeach
                 </div>
             </div>
@@ -235,6 +281,7 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close"></button>
                 </div>
+<<<<<<< HEAD
 
                 <div class="modal-body px-4">
                     <!-- Tanggalin ang form tag dito -->
@@ -250,6 +297,62 @@
                                     value="1" required oninput="validateInputs()">
                                 <small class="text-muted" style="font-size: 10px;">Number of rooms to reserve</small>
                                 <small id="quantityError" class="text-danger mt-2" style="display: none;"></small>
+=======
+            </div>
+        </div>
+        <!-- Reservation Modal -->
+        <div class="modal fade" id="reservationModal" tabindex="-1" aria-labelledby="reservationModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content shadow-lg rounded-4">
+                    <div class="modal-header bg-success text-white py-3">
+                        <h5 class="modal-title fw-bold" id="reservationModalLabel">Booking Details</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                
+                    <div class="modal-body px-4">
+                        <!-- Tanggalin ang form tag dito -->
+                        @csrf
+                        <input type="hidden" name="package_type" value="custom">
+                        
+                        <!-- VISITOR INFO -->
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                             <div class="card p-2 shadow-sm border-0 mt-2 mb-2">
+                                <h6 class="fw-bold mb-3 text-success">Number of rooms</h6>
+                                    <input type="number" id="quantity" name="quantity" class="form-control" min="1" value="1" required oninput="validateInputs()">
+                                    <small id="quantityError" class="text-danger mt-2" style="display: none;"></small>
+                                </div>
+                                <div class="card p-3 shadow-sm border-0">
+                                    <h6 class="fw-bold mb-3 text-success">Number of Visitors</h6>
+                                    <div class="form-group mb-3">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <label for="number_of_adults">Adults <small style="font-size:10px;">(13 years old and above):</small></label>
+                                        </div>
+                                        <input type="number" name="number_of_adults" id="number_of_adults" class="form-control p-2" min="0" value="0" oninput="calculateTotalGuest(); validateInputs();">
+                                        {{-- Display validation error for adults --}}
+                                        @error('number_of_adults')
+                                            <div class="text-danger mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <div class="form-group mb-3">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <label for="number_of_children">Children <small style="font-size:10px;">(3 to 12 years old):</small></label>
+                                        </div>
+                                        <input type="number" name="number_of_children" id="number_of_children" class="form-control p-2" min="0" value="0" oninput="calculateTotalGuest(); validateInputs();">
+                                        {{-- Display validation error for children --}}
+                                        @error('number_of_children')
+                                            <div class="text-danger mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="total_guests">Total Guests:</label>
+                                        <input type="number" name="total_guest" id="total_guests" class="form-control p-2" readonly>
+                                        <div id="guestError" class="text-danger mt-2" style="display: none;">
+                                            Exceeds maximum room capacity!
+                                        </div>
+                                    </div>
+                                </div>
+>>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
                             </div>
                             <div class="card p-3 shadow-sm border-0">
                                 <h6 class="fw-bold mb-3 text-success">Number of Visitors</h6>
@@ -266,10 +369,27 @@
                                         <div class="text-danger mt-1">{{ $message }}</div>
                                     @enderror
                                 </div>
+<<<<<<< HEAD
                                 <div class="form-group mb-3">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <label for="number_of_children">Children <small style="font-size:10px;">(3 to 12
                                                 years old):</small></label>
+=======
+                                <!-- DATE SELECTION -->
+                                <div class="col-md-12 mt-3">
+                                    <div class="card p-2 shadow-sm border-0">
+                                        <h6 class="fw-bold text-success">Select Date</h6>
+                                        <div class="d-flex flex-column gap-2">
+                                            <div>
+                                                <label for="reservation_date">Check-in Date:</label>
+                                                <input type="date" id="reservation_date" name="reservation_check_in_date" class="form-control" required readonly>
+                                            </div>
+                                            <div>
+                                                <label for="check_out_date" class="form-label">Check-out Date:</label>
+                                                <input type="date" id="check_out_date" name="reservation_check_out_date" class="form-control" required readonly>
+                                            </div>
+                                        </div>
+>>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
                                     </div>
                                     <input type="number" name="number_of_children" id="number_of_children"
                                         class="form-control p-2" min="0" value="0"
@@ -279,6 +399,7 @@
                                         <div class="text-danger mt-1">{{ $message }}</div>
                                     @enderror
                                 </div>
+<<<<<<< HEAD
                                 <div class="form-group">
                                     <label for="total_guests">Total Guests:</label>
                                     <input type="number" name="total_guest" id="total_guests" class="form-control p-2"
@@ -286,6 +407,15 @@
                                     <div id="guestError" class="text-danger mt-2" style="display: none;">
                                         Exceeds maximum room capacity!
                                     </div>
+=======
+                            </div>
+                            </div>
+                            <!-- SPECIAL REQUEST -->
+                            <div class="col-md-12">
+                                <div class="card p-3 shadow-sm border-0 mt-3">
+                                    <h6 class="fw-bold mb-3 text-success">Special Request</h6>
+                                    <textarea id="specialRequest" name="special_request" class="form-control" rows="4" placeholder="Enter any special requests"></textarea>
+>>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
                                 </div>
                             </div>
                         </div>
@@ -384,8 +514,18 @@
                     <button type="button" class="btn btn-success" id="confirmPayment">Confirm to Payment</button>
                 </div>
             </div>
+<<<<<<< HEAD
         </div>
     </div>
+=======
+        </div>     
+<script>
+    function validateInputs() {
+        const quantityInput = document.getElementById('quantity');
+        const adultsInput = document.getElementById('number_of_adults');
+        const childrenInput = document.getElementById('number_of_children');
+        const submitButton = document.querySelector('button[type="submit"]');
+>>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
 
     <script>
         function validateInputs() {
@@ -739,6 +879,7 @@
         });
     </script>
 
+<<<<<<< HEAD
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             // Get check-in and check-out dates from URL
@@ -756,6 +897,75 @@
             const checkInDateInput = document.getElementById("reservation_date");
             const accommodationList = document.getElementById("accommodationList");
             const accommodationMessage = document.getElementById("accommodationMessage");
+=======
+    document.addEventListener("DOMContentLoaded", function () {
+        const checkInDateInput = document.getElementById("reservation_date");
+
+        checkInDateInput.addEventListener("change", function () {
+            resetFrontendAccommodations(); // I-reset ang frontend kapag nagbago ang check-in date
+        });
+    });
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Get check-in and check-out dates from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const checkIn = urlParams.get("checkIn") || "";
+        const checkOut = urlParams.get("checkOut") || "";
+        const roomId = urlParams.get('roomid');
+
+        // Set values in the date inputs
+        document.getElementById("reservation_date").value = checkIn;
+        document.getElementById("check_out_date").value = checkOut;
+
+        if (roomId) {
+            // Find and select the corresponding accommodation card
+            const roomCard = document.querySelector(`.select-accommodation[data-id="${roomId}"]`);
+            if (roomCard) {
+                // Remove selection from all cards first
+                document.querySelectorAll(".select-accommodation").forEach(card => {
+                    card.classList.remove("selected");
+                });
+                
+                // Select the specified room
+                roomCard.classList.add("selected");
+                
+                // Scroll to the selected card
+                roomCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                // Update the proceed button state
+                document.getElementById("proceedToPayment").disabled = false;
+                
+                // Update the hidden input field
+                updateSelectedAccommodation();
+            }
+        }
+    });
+
+    // Function to update the hidden input with selected accommodation
+    function updateSelectedAccommodation() {
+        const mainForm = document.querySelector('form');
+        
+        // Remove existing accommodation input
+        mainForm.querySelectorAll('input[name="accomodation_id[]"]').forEach(input => input.remove());
+        
+        // Add new input for selected accommodation
+        const selectedCard = document.querySelector(".select-accommodation.selected");
+        if (selectedCard) {
+            const input = document.createElement("input");
+            input.type = "hidden";
+            input.name = "accomodation_id[]";
+            input.value = selectedCard.getAttribute("data-id");
+            mainForm.appendChild(input);
+        }
+    }
+</script>
+<script>
+        document.addEventListener("DOMContentLoaded", function () { 
+    const checkInDateInput = document.getElementById("reservation_date");
+    const accommodationList = document.getElementById("accommodationList");
+    const accommodationMessage = document.getElementById("accommodationMessage");
+>>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
 
             checkInDateInput.addEventListener("change", function () {
                 let checkInDate = this.value;
@@ -833,5 +1043,8 @@
         });
     </script>
 </body>
+<<<<<<< HEAD
 
+=======
+>>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
 </html>

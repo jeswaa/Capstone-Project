@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Log;
 use App\Mail\LoginOTPMail;
+use App\Models\Admin; 
+use App\Models\Staff;
 
 
 class LoginController extends Controller
@@ -57,12 +59,12 @@ class LoginController extends Controller
                 return back()->with('invalidLogin', 'Email does not exist.')->withInput($request->only('credential'));
             }
             if ($user->status === 'banned') {
-                return back()->with('errorlogin', 'This account has been banned. Please contact support for assistance.')
+                return back()->with('error', 'This account has been banned.')
                     ->withInput($request->only('credential'));
             }
             // Validate password
             if (empty($password) || !Hash::check($password, $user->password)) {
-                return back()->with('errorlogin', 'Invalid email or password.')->withInput($request->only('credential'));
+                return back()->with('errorl', 'Invalid email or password.')->withInput($request->only('credential'));
             }
             // Generate OTP and send email
             $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
@@ -76,35 +78,44 @@ class LoginController extends Controller
             }
         } else {
             // Check admin credentials first
-            $admin = DB::table('admintbl')->where('username', $credential)->first();
+            $admin = Admin::where('username', $credential)->first(); // Change this line
             if ($admin) {
                 if (empty($password)) {
                     return back()->with('errorlogin', 'Password is required')->withInput($request->only('credential'));
                 }
 
-                if ($password === $admin->password) {
+                // Use Hash::check for secure password comparison
+                if (Hash::check($password, $admin->password)) {
+                    \Log::debug('Admin login successful: ', ['admin' => $admin]);
+                    Auth::guard('admin')->login($admin);
                     Session::put('user', $admin->id);
                     Session::put('user_name', $admin->name ?? $admin->username);
                     Session::put('AdminLogin', $admin->id);
+                    
                     return redirect()->route('dashboard');
                 }
             }
 
             // If not admin, check staff credentials
-            $staff = DB::table('stafftbl')->where('username', $credential)->first();
+            $staff = \App\Models\Staff::where('username', $credential)->first();
             if ($staff) {
                 if (empty($password)) {
                     return back()->with('errorlogin', 'Password is required')->withInput($request->only('credential'));
                 }
 
+                // Add this condition to check staff status
+                if ($staff->status === 'inactive') {
+                    return back()->with('error', 'Your account is inactive. Please contact support.')->withInput($request->only('credential'));
+                }
+
                 if (Hash::check($password, $staff->password)) {
+                    Auth::guard('staff')->login($staff);
                     Session::put('user', $staff->id);
                     Session::put('user_name', $staff->name ?? $staff->username);
                     Session::put('StaffLogin', $staff->id);
                     return redirect()->route('staff.dashboard');
                 }
             }
-
             // If neither admin nor staff credentials match
             return back()->with('error', 'Invalid username or password')->withInput($request->only('credential'));
         }
@@ -240,7 +251,7 @@ class LoginController extends Controller
     if (!$user) {
         return response()->json([
             'success' => false,
-            'message' => 'User not found.'
+            'message' => 'User not found with this email.'
         ]);
     }
 
@@ -363,7 +374,9 @@ public function resendOTP(Request $request)
             session()->flash('success', 'OTP verified successfully.');
             
             // Return with success message and redirect
-            return redirect()->route('homepage')->with('success', 'Login successful!');
+            return redirect()->route('homepage')->with([
+                'success' => 'Welcome ' . $user->name . '!',
+            ]);
         }
         
         // Return with error message

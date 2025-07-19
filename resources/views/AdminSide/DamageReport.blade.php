@@ -22,6 +22,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <style>
+<<<<<<< HEAD
     h1,
     h5 {
         font-family: 'Anton', sans-serif;
@@ -48,6 +49,43 @@
                 @endforeach
             </ul>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+=======
+    .transition-width {
+    transition: all 0.3s ease;
+    }
+    #mainContent.full-width {
+        width: 100% !important;
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+    }
+</style>
+<body style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
+@include('Alert.loginSucess')
+@if ($errors->any())
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>Error!</strong>
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+@endif
+
+<div class="container-fluid min-vh-100 d-flex p-0">
+    <div class="d-flex w-100" id="mainLayout" style="min-height: 100vh;">
+    @include('Navbar.sidenavbar')
+     <!-- Main Content -->
+    <div id="mainContent" class="flex-grow-1 py-4 px-4 transition-width" style="transition: all 0.3s ease;">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <form class="d-flex w-50 ms-5" role="search">
+                <div class="input-group">
+                </div>
+            </form>
+            <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill me-3">
+>>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
         </div>
     @endif
 
@@ -89,6 +127,7 @@
                     </thead>
                     <tbody>
                         @foreach($damageReports as $report)
+<<<<<<< HEAD
                             <tr>
                                 <td>
                                     @if($report->damage_photos)
@@ -123,6 +162,36 @@
                                 </td>
 
                             </tr>
+=======
+                        <tr>
+                            <td>
+                                @if($report->damage_photos)
+                                    <img src="{{ asset('storage/' . $report->damage_photos) }}" alt="Damage Photo" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px;">
+                                @else
+                                    <span class="text-muted">No Image</span>
+                                @endif
+                            </td>
+                            <td>{{ $report->notes }}</td>
+                            <td>{{ $report->damage_description }}</td>
+                            <td>{{ $report->created_at->format('M d, Y h:i A') }}</td>
+                            <td>
+                                <span class="badge text-capitalize {{ $report->status == 'pending' ? 'bg-warning' : ($report->status == 'in progress' ? 'bg-info' : 'bg-success') }}">
+                                    {{ $report->status }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm color-background5 text-white rounded-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#editReportModal{{ $report->id }}" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background-color: #0b573d;">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger rounded-3 shadow-sm delete-report-btn" data-report-id="{{ $report->id }}" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            
+                        </tr>
+>>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
                         @endforeach
                     </tbody>
                 </table>
@@ -173,6 +242,7 @@
             </div>
         @endforeach
     </div>
+<<<<<<< HEAD
     <!-- Delete Confirmation Modal -->
     <div class="modal fade" id="deleteConfirmationModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
@@ -190,6 +260,25 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-danger" id="confirmDelete">Delete</button>
                 </div>
+=======
+</div>
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmationModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4" style="border: 2px solid #dc3545;">
+            <div class="modal-header bg-danger text-white rounded-top-4">
+                <h5 class="modal-title fw-bold" style="font-family: 'Poppins', sans-serif;">Confirm Deletion</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="fas fa-exclamation-triangle text-warning mb-3" style="font-size: 3rem;"></i>
+                <p class="mb-1 fw-semibold">Are you sure you want to delete this damage report?</p>
+                <p class="text-muted small">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Delete</button>
+>>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
             </div>
         </div>
     </div>
@@ -203,6 +292,7 @@
             modal.show();
         }
 
+<<<<<<< HEAD
         document.getElementById('confirmDelete').addEventListener('click', function () {
             if (reportIdToDelete) {
                 fetch(`/damage-report/delete/${reportIdToDelete}`, {
@@ -229,6 +319,43 @@
             modal.hide();
         });
     </script>
+=======
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.delete-report-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const reportId = this.dataset.reportId;
+            deleteReport(reportId);
+        });
+    });
+
+    document.getElementById('confirmDelete').addEventListener('click', function() {
+        if (reportIdToDelete) {
+            fetch(`/damage-report/delete/${reportIdToDelete}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert('Hindi matagumpay ang pagtanggal ng report');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('May naganap na error sa pagtanggal ng report');
+            });
+        }
+        const modal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmationModal'));
+        modal.hide();
+    });
+});
+</script>
+>>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
 </body>
 
 </html>

@@ -37,11 +37,31 @@
     .color-background8 {
         background-color: #0b573d;
     }
+    .transition-width {
+        transition: all 0.3s ease;
+    }
+    #mainContent.full-width {
+        width: 100% !important;
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+    }
 </style>
 
+<<<<<<< HEAD
 <body
     style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
     @include('Alert.loginSucess')
+=======
+    <div class="container-fluid min-vh-100 d-flex p-0">
+        <div class="d-flex w-100" id="mainLayout">
+            @include('Navbar.sidenavbar')
+            <!-- Main Content -->
+            <div id="mainContent" class="flex-grow-1 py-4 px-4 transition-width" style="transition: all 0.3s ease;">
+                <!-- Heading and Search Bar -->
+                <div class="d-flex justify-content-end  mb-2">
+                    <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill me-3">
+                </div>
+>>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
 
     <div class="container-fluid min-vh-100 d-flex p-0">
         @include('Navbar.sidenavbar')
@@ -208,12 +228,41 @@
                             </div>
                         </div>
 
+<<<<<<< HEAD
                         <!-- Chart Container with Floating Effect and Side-by-Side Layout -->
                         <div class="row g-0 mt-4">
                             <div class="col-md-6 p-0 w-25">
                                 <div
                                     class="shadow-lg rounded-4 p-3 bg-white floating-effect h-100 d-flex justify-content-center align-items-center">
                                     <canvas id="statusChart" width="350" style="max-width: 500px;"></canvas>
+=======
+                        <!-- Remove navigation buttons section and keep Chart Section 1 -->
+                        <div id="chartSection1" class="chart-section">
+                            <div class="d-flex justify-content-between align-items-center mt-5">
+                                <h1 class="text-color-1 font-paragraph fw-bold" style="font-size: 50px;">Reservation Overview</h1>
+
+                                <!-- Filter Dropdowns: labels beside select -->
+                                <div class="d-flex align-items-center">
+                                    <!-- Filter By -->
+                                    <div class="me-3 d-flex align-items-center gap-2">
+                                        <label for="timeFilter" class="form-label font-paragraph fw-semibold mb-0" style="white-space: nowrap;">Filter By:</label>
+                                        <select id="timeFilter" class="form-control" style="min-width: 100px; height: 50px;">
+                                            <option value="daily">Daily</option>
+                                            <option value="weekly">Weekly</option>
+                                            <option value="monthly">Monthly</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Year -->
+                                    <div class="d-flex align-items-center">
+                                        <label for="yearFilter" class="form-label mb-0 me-2 font-paragraph fw-semibold">Year:</label>
+                                        <select id="yearFilter" class="form-control" style="min-width: 150px; height: 50px;">
+                                        @foreach($availableYears as $year)
+                                            <option value="{{ $year }}" {{ $year == $selectedYear ? 'selected' : '' }}>{{ $year }}</option>
+                                        @endforeach
+                                        </select>
+                                    </div>
+>>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
                                 </div>
                             </div>
 
@@ -223,6 +272,7 @@
                                         style="height: 100%;"></canvas>
                                 </div>
                             </div>
+<<<<<<< HEAD
                         </div>
 
                         <div class="row mt-5">
@@ -235,6 +285,8 @@
                                     <canvas id="bookingTrendsChart" height="100"></canvas>
                                 </div>
                             </div>
+=======
+>>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
                         </div>
                     </div>
                 </div>
@@ -716,7 +768,11 @@
                     x: {
                         title: {
                             display: true,
+<<<<<<< HEAD
                             text: 'Room Type'
+=======
+                            text: labelKey === 'date' ? 'Date' : labelKey === 'week' ? 'Week' : 'Months'
+>>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
                         }
                     }
                 },

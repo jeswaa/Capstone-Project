@@ -83,7 +83,7 @@ public function profilepage()
         $request->validate([
             'name' => 'string|max:255',
             'email' => 'email|max:255',
-            'mobileNo' => 'string|max:15',
+            'mobileNo' => 'string|max:11',
             'address' => 'string|max:255',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
         ]);

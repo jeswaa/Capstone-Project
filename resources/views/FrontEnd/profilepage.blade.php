@@ -213,11 +213,18 @@
                             <label for="email" class="form-label text-uppercase fw-bold" style="color: #0b573d;">Email</label>
                             <input type="email" class="form-control" id="email" name="email" value="{{ $user->email }}" required>
                         </div>
+<<<<<<< HEAD
                         <div class="mb-4">
                             <div class="mb-4">
                                 <label for="mobileNo" class="form-label text-uppercase fw-bold" style="color: #0b573d;">Mobile Number</label>
                                 <div class="input-group">
                                     <span class="input-group-text h-100 d-flex align-items-center" style="min-height: 50px;">+63</span>
+=======
+                        <div class="mb-2">
+                            <div class="mb-3">
+                                <label for="mobileNo" class="form-label text-uppercase fw-bold" style="color: #0b573d;">Mobile Number</label>
+                                <div class="input-group">
+>>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
                                     <input type="text" 
                                         class="form-control" 
                                         id="mobileNo" 

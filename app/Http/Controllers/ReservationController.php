@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use DatePeriod;
+use DateInterval;
+use Carbon\CarbonPeriod;
 use App\Models\User;
 use App\Models\Package;
 use App\Models\Accomodation;
@@ -30,64 +33,121 @@ class ReservationController extends Controller
     }
     public function checkAccommodationAvailability(Request $request)
 {
-    try {
-        $checkIn = $request->query('checkIn');
-        $checkOut = $request->query('checkOut');
-        
-        // Validate dates
-        if (!$checkIn || !$checkOut) {
-            return response()->json([
-                'error' => 'Missing check-in or check-out date'
-            ], 400);
-        }
+    \Log::info('=== STARTING AVAILABILITY CHECK ===', [
+        'checkIn' => $request->checkIn,
+        'checkOut' => $request->checkOut
+    ]);
 
-        // Get all accommodation types
-        $accommodationTypes = DB::table('accomodations')
-            ->select('accomodation_type')
-            ->distinct()
+    try {
+        $checkIn = Carbon::parse($request->checkIn);
+        $checkOut = Carbon::parse($request->checkOut);
+
+        // 1. Get all active accommodations
+        $accommodations = DB::table('accomodations')
+            ->where('accomodation_status', 'available')
             ->get();
 
-        $availableAccommodations = [];
+        \Log::debug('Total accommodations loaded', ['count' => count($accommodations)]);
 
-        foreach ($accommodationTypes as $type) {
-            $available = Accomodation::where('accomodation_type', $type->accomodation_type)
-                ->whereDoesntHave('reservations', function($query) use ($checkIn, $checkOut) {
-                    $query->where(function($q) use ($checkIn, $checkOut) {
-                        $q->whereBetween('reservation_check_in_date', [$checkIn, $checkOut])
-                          ->orWhereBetween('reservation_check_out_date', [$checkIn, $checkOut]);
-                    });
-                })
-                ->exists();
+        // 2. Find accommodations with ANY reservations during dates
+        $bookedIds = DB::table('reservation_details')
+            ->where('reservation_check_out_date', '>', $checkIn)
+            ->where('reservation_check_in_date', '<', $checkOut)
+            ->whereIn('reservation_status', ['reserved', 'checked-in'])
+            ->pluck('accomodation_id')
+            ->unique();
 
-            if ($available) {
-                $availableAccommodations[] = $type->accomodation_type;
-            }
-        }
+        \Log::debug('Booked accommodation IDs', ['ids' => $bookedIds]);
+
+        // 3. Filter out ANY accommodation with reservations
+        $available = $accommodations->reject(function ($accom) use ($bookedIds) {
+            return $bookedIds->contains($accom->accomodation_id);
+        });
+
+        \Log::info('Available accommodations', [
+            'count' => $available->count(),
+            'ids' => $available->pluck('accomodation_id')
+        ]);
 
         return response()->json([
-            'available_accommodations' => $availableAccommodations,
-            'checkIn' => $checkIn,
-            'checkOut' => $checkOut
+            'available_accommodations' => $available->map(function ($accom) {
+                return [
+                    'id' => $accom->accomodation_id,
+                    'name' => $accom->accomodation_name,
+                    'total_quantity' => $accom->quantity,
+                    'available_quantity' => $accom->quantity // All rooms available
+                ];
+            })
         ]);
 
     } catch (\Exception $e) {
-        return response()->json([
-            'error' => 'Server error: ' . $e->getMessage()
-        ], 500);
+        \Log::error('ERROR: ' . $e->getMessage());
+        return response()->json(['error' => 'Server error'], 500);
     }
 }
-    public function selectPackageCustom()
-    {
-        $accomodations = DB::table('accomodations')->where('accomodation_status', 'available')->get();
-        $activities = DB::table('activitiestbl')->get();
-        $transactions = DB::table('transaction')->first();
-    
-        return view('Reservation.selectPackageCustom', [
-            'accomodations' => $accomodations,
-            'activities' => $activities,
-            'transactions' => $transactions,
-        ]);
+public function selectPackageCustom(Request $request)
+{
+    $checkIn = $request->query('checkIn');
+    $checkOut = $request->query('checkOut');
+
+    // Validate dates
+    if ($checkIn && $checkOut) {
+        try {
+            $start = Carbon::parse($checkIn);
+            $end = Carbon::parse($checkOut);
+            
+            if ($end <= $start) {
+                return back()->with('error', 'Check-out date must be after check-in date');
+            }
+        } catch (\Exception $e) {
+            return back()->with('error', 'Invalid date format');
+        }
     }
+
+    // Get all active accommodations (original quantities preserved)
+    $accommodations = DB::table('accomodations')
+        ->where('accomodation_status', 'available')
+        ->get();
+
+    if ($checkIn && $checkOut) {
+        // Get summed reservations per accommodation in one query
+        $reservedQuantities = DB::table('reservation_details')
+            ->select('accomodation_id', DB::raw('SUM(quantity) as total_reserved'))
+            ->where('reservation_check_out_date', '>', $checkIn)
+            ->where('reservation_check_in_date', '<', $checkOut)
+            ->whereNull('deleted_at')
+            ->whereIn('reservation_status', ['reserved', 'checked-in'])
+            ->groupBy('accomodation_id')
+            ->pluck('total_reserved', 'accomodation_id');
+
+        // Filter accommodations
+        $accommodations = $accommodations->filter(function ($accomodation) use ($reservedQuantities) {
+            $reserved = $reservedQuantities[$accomodation->accomodation_id] ?? 0;
+            $available = $accomodation->quantity - $reserved;
+            
+            // Only keep accommodations with availability
+            if ($available > 0) {
+                $accomodation->available_quantity = $available;
+                return true;
+            }
+            return false;
+        });
+    } else {
+        // When no dates selected, show all with full availability
+        $accommodations->each(function ($accomodation) {
+            $accomodation->available_quantity = $accomodation->quantity;
+        });
+    }
+
+    return view('Reservation.selectPackageCustom', [
+        'accomodations' => $accommodations,
+        'check_in_date' => $checkIn,
+        'check_out_date' => $checkOut,
+        'activities' => DB::table('activitiestbl')->get(),
+        'transactions' => DB::table('transaction')->first(),
+    ]);
+}
+
     public function paymentProcess()
     {
         // Retrieve reservation details from session
