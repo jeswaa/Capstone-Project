@@ -96,30 +96,41 @@
                 </button>
             </div>
 
-        <!-- Accommodation Cards Container -->
-        <div class="col-md-12 d-flex flex-column">
-            <div class="form-group">
-                <div class="container">
-                    <div class="row g-4" id="accommodationContainer">
-                        @foreach($accomodations as $accomodation)
-                            <div class="col-md-4 accommodation-card">
-                                <div class="card select-accommodation"
-                                     data-id="{{ $accomodation->accomodation_id }}"
-                                     data-price="{{ $accomodation->accomodation_price }}"
-                                     data-capacity="{{ $accomodation->accomodation_capacity }}"
-                                     data-max-quantity="{{ $accomodation->quantity }}">
-                                    <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" class="card-img-top" alt="accommodation image" style="max-width: 100%; height: 250px; object-fit: cover;">
-                                    <div class="card-body p-3 position-relative" style="background-color: white;">
-                                        <div class="position-absolute top-0 end-0 p-2">
-                                            <i class="fas fa-info-circle text-success fs-3 mt-2 me-2" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#roomModal{{ $accomodation->accomodation_id }}"></i>
+            <!-- Accommodation Cards Container -->
+            <div class="col-md-12 d-flex flex-column">
+                <div class="form-group">
+                    <div class="container">
+                        <div class="row g-4" id="accommodationContainer">
+                            @foreach($accomodations as $accomodation)
+                                <div class="col-md-4 accommodation-card">
+                                    <div class="card select-accommodation" data-id="{{ $accomodation->accomodation_id }}"
+                                        data-price="{{ $accomodation->accomodation_price }}"
+                                        data-capacity="{{ $accomodation->accomodation_capacity }}"
+                                        data-max-quantity="{{ $accomodation->quantity }}">
+                                        <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}"
+                                            class="card-img-top" alt="accommodation image"
+                                            style="max-width: 100%; height: 250px; object-fit: cover;">
+                                        <div class="card-body p-3 position-relative" style="background-color: white;">
+                                            <div class="position-absolute top-0 end-0 p-2">
+                                                <i class="fas fa-info-circle text-success fs-3 mt-2 me-2"
+                                                    style="cursor: pointer;" data-bs-toggle="modal"
+                                                    data-bs-target="#roomModal{{ $accomodation->accomodation_id }}"></i>
+                                            </div>
+                                            <h5 class="text-success text-capitalize font-heading fs-4 fw-bold">
+                                                {{ $accomodation->accomodation_name }}
+                                            </h5>
+                                            <p class="card-text text-success font-paragraph" style="font-size: smaller;">
+                                                Description: {{ $accomodation->accomodation_description }}</p>
+                                            <p class="card-text text-success font-paragraph">Capacity:
+                                                {{ $accomodation->accomodation_capacity }} pax
+                                            </p>
+                                            <p class="card-text font-paragraph fw-bold text-success"
+                                                style="text-align: right;">Price: <span
+                                                    style="background-color: #0b573d; color: white; padding: 2px 5px;">₱{{ $accomodation->accomodation_price }}</span>
+                                            </p>
                                         </div>
-                                        <h5 class="text-success text-capitalize font-heading fs-4 fw-bold">{{ $accomodation->accomodation_name }}</h5>
-                                        <p class="card-text text-success font-paragraph" style="font-size: smaller;">Description: {{ $accomodation->accomodation_description }}</p>
-                                        <p class="card-text text-success font-paragraph">Capacity: {{ $accomodation->accomodation_capacity }} pax</p>
-                                        <p class="card-text font-paragraph fw-bold text-success" style="text-align: right;">Price: <span style="background-color: #0b573d; color: white; padding: 2px 5px;">₱{{ $accomodation->accomodation_price }}</span></p>
                                     </div>
                                 </div>
-                            </div>
 
                                 <!-- Modal for Room Details -->
                                 <div class="modal fade" id="roomModal{{ $accomodation->accomodation_id }}" tabindex="-1"
@@ -130,7 +141,8 @@
                                                 <h5 class="modal-title text-white text-uppercase"
                                                     style="font-family: 'Anton', sans-serif; letter-spacing: 0.1em;"
                                                     id="roomModalLabel{{ $accomodation->accomodation_id }}">
-                                                    {{ $accomodation->accomodation_name }}</h5>
+                                                    {{ $accomodation->accomodation_name }}
+                                                </h5>
                                                 <button type="button" class="btn-close btn-close-white"
                                                     data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
@@ -157,7 +169,8 @@
                                                             <h6 class="text-uppercase fw-bold" style="color: #0b573d;">
                                                                 Description</h6>
                                                             <p class="text-muted mb-0">
-                                                                {{ $accomodation->accomodation_description }}</p>
+                                                                {{ $accomodation->accomodation_description }}
+                                                            </p>
                                                         </div>
                                                         <div class="mb-4">
                                                             <h6 class="text-uppercase fw-bold" style="color: #0b573d;">
@@ -168,7 +181,8 @@
                                                             <h6 class="text-uppercase fw-bold" style="color: #0b573d;">
                                                                 Capacity</h6>
                                                             <p class="text-muted mb-0">
-                                                                {{ $accomodation->accomodation_capacity }} pax</p>
+                                                                {{ $accomodation->accomodation_capacity }} pax
+                                                            </p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -196,7 +210,8 @@
                                         alt="{{ $activity->activity_name }}">
                                     <div class="d-flex align-items-center ms-3">
                                         <p class="text-success text-capitalize font-heading fs-4 fw-bold">
-                                            {{ $activity->activity_name }}</p>
+                                            {{ $activity->activity_name }}
+                                        </p>
                                     </div>
                                     <div class="d-none form-check">
                                         <input class="form-check-input" type="checkbox" id="activity{{ $activity->id }}"
@@ -227,42 +242,58 @@
                                 @csrf
                                 <input type="hidden" name="package_type" value="custom">
 
-                            <!-- VISITOR INFO -->
-                            <div class="row g-4">
-                                <div class="col-md-6">
-                                <div class="card p-3 shadow-sm border-0 mb-4"> 
-                                        <h6 class="fw-bold mb-3 text-success">Quantity</h6>
-                                        <div class="form-group">
-                                            <label for="quantity">Number of Rooms:</label> {{-- Updated label text --}}
-                                            <input type="number" id="quantity" name="quantity" class="form-control" min="1" value="1" required oninput="calculateTotalGuest()"> {{-- Added oninput event --}}
-                                            <small id="quantityError" class="text-danger mt-2" style="display: none;"></small>
+                                <!-- VISITOR INFO -->
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <div class="card p-3 shadow-sm border-0 mb-4">
+                                            <h6 class="fw-bold mb-3 text-success">Quantity</h6>
+                                            <div class="form-group">
+                                                <label for="quantity">Number of Rooms:</label> {{-- Updated label text
+                                                --}}
+                                                <input type="number" id="quantity" name="quantity" class="form-control"
+                                                    min="1" value="1" required oninput="calculateTotalGuest()"> {{--
+                                                Added oninput event --}}
+                                                <small id="quantityError" class="text-danger mt-2"
+                                                    style="display: none;"></small>
+                                            </div>
+                                        </div>
+                                        <div class="card p-3 shadow-sm border-0">
+                                            <h6 class="fw-bold mb-3 text-success">Number of Visitors</h6>
+                                            <div class="form-group mb-3">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <label for="number_of_adults">Adults <small
+                                                            style="font-size:10px;">(13 years and
+                                                            above):</small></label>
+                                                    <small class="text-muted" id="adult_entrance_fee">Entrance Fee:
+                                                        ₱<span id="adult_fee">
+                                                            {{ number_format($adultTransaction->entrance_fee, 2) }}</span></small>
+                                                </div>
+                                                <input type="number" name="number_of_adults" id="number_of_adults"
+                                                    class="form-control p-2" value="0" oninput="calculateTotalGuest()">
+
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <label for="number_of_children">Children <small
+                                                            style="font-size:10px;">(3 to 12 years old):</small></label>
+                                                    <small class="text-muted" id="child_entrance_fee">Entrance Fee:
+                                                        ₱<span id="child_fee">
+                                                            {{ number_format($kidTransaction->entrance_fee, 2) }}</span></small>
+                                                </div>
+                                                <input type="number" name="number_of_children" id="number_of_children"
+                                                    class="form-control p-2" value="0" oninput="calculateTotalGuest()">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="total_guests">Total Guests:</label>
+                                                <input type="number" name="total_guest" id="total_guests"
+                                                    class="form-control p-2" readonly>
+                                                <small class="text-muted">Total Entrance Fee: ₱<span
+                                                        id="total_entrance_fee">0</span></small>
+                                                <small id="guestError" class="text-danger mt-2"
+                                                    style="display: none;"></small>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="card p-3 shadow-sm border-0">
-                                        <h6 class="fw-bold mb-3 text-success">Number of Visitors</h6>
-                                        <div class="form-group mb-3">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <label for="number_of_adults">Adults <small style="font-size:10px;">(13 years and above):</small></label>
-                                                <small class="text-muted" id="adult_entrance_fee">Entrance Fee: ₱<span id="adult_fee"> {{ number_format($adultTransaction->entrance_fee,2) }}</span></small>
-                                            </div>
-                                            <input type="number" name="number_of_adults" id="number_of_adults" class="form-control p-2" value="0" oninput="calculateTotalGuest()">
-                                            
-                                        </div>
-                                        <div class="form-group mb-3">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <label for="number_of_children">Children <small style="font-size:10px;">(3 to 12 years old):</small></label>
-                                                <small class="text-muted" id="child_entrance_fee">Entrance Fee: ₱<span id="child_fee"> {{ number_format($kidTransaction->entrance_fee,2) }}</span></small>
-                                            </div>
-                                            <input type="number" name="number_of_children" id="number_of_children" class="form-control p-2" value="0" oninput="calculateTotalGuest()">
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="total_guests">Total Guests:</label>
-                                            <input type="number" name="total_guest" id="total_guests" class="form-control p-2" readonly>
-                                            <small class="text-muted">Total Entrance Fee: ₱<span id="total_entrance_fee">0</span></small>
-                                            <small id="guestError" class="text-danger mt-2" style="display: none;"></small>
-                                        </div>
-                                    </div>
-                                </div>
 
                                     <div class="col-md-6">
                                         <div class="card p-3 shadow-sm border-0">
@@ -282,13 +313,15 @@
                                                 <input type="time" id="start_time" name="reservation_check_in"
                                                     class="form-control"
                                                     value="{{ \Carbon\Carbon::createFromFormat('H:i:s', $transactions->start_time)->format('H:i') }}"
-                                                    required readonly>
+                                                    required readonly disabled
+                                                    style="background-color: white; border: none;">
                                             </div>
                                             <div class="form-group mt-3">
                                                 <label for="end_time">End Time:</label>
                                                 <input type="time" id="end_time" name="reservation_check_out"
                                                     value="{{ \Carbon\Carbon::createFromFormat('H:i:s', $transactions->end_time)->format('H:i') }}"
-                                                    class="form-control" required readonly>
+                                                    class="form-control" required readonly disabled
+                                                    style="background-color: white; border: none;">
                                             </div>
                                         </div>
 

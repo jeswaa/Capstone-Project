@@ -136,7 +136,8 @@
                         <meta name="csrf-token" content="{{ csrf_token() }}">
                         <div class="mb-3">
                             <input type="text" class="form-control p-2 font-paragraph" id="name" name="name"
-                                placeholder="Full Name..." required>
+                                placeholder="Full Name..." required maxlength="30"
+                                oninput="this.value = this.value.replace(/[^a-zA-Z ]/g, '').slice(0, 30);">
                         </div>
                         <div class="mb-3">
                             <input type="email" class="form-control p-2 font-paragraph" id="email" name="email"
@@ -155,7 +156,8 @@
                         <div class="mb-3">
                             <div class="input-group">
                                 <input type="password" class="form-control p-2 font-paragraph" id="password"
-                                    name="password" placeholder="Password..." required oninput="checkPasswordMatch()">
+                                    name="password" placeholder="Password..." required oninput="checkPasswordMatch()"
+                                    maxlength="20">
                                 <button class="btn btn-outline-secondary" type="button" id="togglePassword">
                                     <i class="fa-solid fa-eye"></i>
                                 </button>
@@ -174,7 +176,8 @@
                             <div class="input-group">
                                 <input type="password" class="form-control p-2 font-paragraph"
                                     id="password_confirmation" name="password_confirmation"
-                                    placeholder="Confirm Password..." required oninput="checkPasswordMatch()">
+                                    placeholder="Confirm Password..." required oninput="checkPasswordMatch()"
+                                    maxlength="20">
                                 <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
                                     <i class="fa-solid fa-eye"></i>
                                 </button>
