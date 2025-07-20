@@ -133,32 +133,7 @@
 </head>
 <body>
     @include('Alert.errorLogin')
-    <!-- Validations -->
-    <div class="position-fixed top-0 end-0 mt-3 me-5" style="z-index: 9999;">
-        @if (session('success'))
-            <div class="toast show align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="d-flex">
-                    <div class="toast-body">
-                        {{ session('success') }}
-                    </div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
-            </div>
-        @endif
-        
-        @if ($errors->any())
-            <div class="toast show align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="d-flex">
-                    <div class="toast-body">
-                        @foreach ($errors->all() as $error)
-                            {{ $error }}<br>
-                        @endforeach
-                    </div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
-            </div>
-        @endif
-    </div>
+    @include('Alert.loginSuccessUser')
 
     <!-- Header with Back Button and Logo -->
     <div class="w-100 d-flex justify-content-between align-items-center p-3">

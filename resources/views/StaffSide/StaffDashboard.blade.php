@@ -17,20 +17,24 @@
     <title>Dashboard</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-
+<style>
+    .transition-width {
+        transition: all 0.3s ease;
+    }
+    #mainContent.full-width {
+        width: 100% !important;
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+    }
+</style>
 <body style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
     @include('Alert.loginSucess')
     @include('Alert.notification')
     <div class="container-fluid min-vh-100 d-flex p-0">
         <!-- SIDEBAR -->
-        <div class="col-md-3 col-lg-2 color-background8 text-white position-sticky" id="sidebar" style="top: 0; height: 100vh; background-color: #0b573d background-color: #0b573d ">
-            <div class="d-flex flex-column h-100">
-            @include('Navbar.sidenavbarStaff')
-            </div>
-        </div>
-
+        @include('Navbar.sidenavbarStaff')
         <!-- Main Content -->
-         <div class="col-md-10 col-lg-10 py-4 px-4">
+        <div id="mainContent" class="flex-grow-1 py-4 px-4 transition-width" style="transition: all 0.3s ease;">
             <!-- Heading and Logo -->
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <div class="ms-auto">
@@ -43,12 +47,12 @@
             
             <!-- Welcome Message -->
             <div class="d-flex align-items-center">
-                <p class="text-color-1 me-3" style="font-family: 'Anton', sans-serif;  font-size: 5rem;">Hello</p>
-                <h1 class="fw-semibold text-capitalize" style="font-family: 'Anton', sans-serif;  font-size: 5rem; color: #0b573d;">{{ $staffCredentials->username }}!</h1>
+                <p class="text-color-1 me-3" style="font-family: 'Anton', sans-serif;  font-size: 5rem; letter-spacing: 10px;">Hello</p>
+                <h1 class="text-capitalize" style="font-family: 'Anton', sans-serif; font-size: 5rem; color: #0b573d; letter-spacing: 15px;">{{ $staffCredentials->username }}!</h1>
             </div>
 
             <!-- Dashboard Cards -->
-            <div class="row g-4 mt-2">
+            <div class="row g-4">
                 <!-- Column 1: Total Reservations and Checked-in Guests -->
                 <div class="col-md-4">
                     <!-- Total Reservations -->

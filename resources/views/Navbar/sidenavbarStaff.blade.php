@@ -27,18 +27,67 @@
     .nav-link:hover::after {
         width: 100%;
     }
+    #mainContent {
+        transition: margin-left 0.3s ease;
+        width: 100%;
+    }
+    .sidebar-text.active,
+    .d-flex.align-items-center.text-underline-left-to-right.active {
+        background-color: rgba(255, 255, 255, 0.1); /* Light background color */
+        border-radius: 5px; /* Optional: Add rounded corners */
+        padding: 10px;
+    }
+    .dropdown-menu .dropdown-item.active {
+        background-color: #0b573d; /* Darker background color for active dropdown item */
+        color: white !important; /* Ensure text color is white */
+    }
+    #sidebar.sidebar-collapsed {
+        width: 40px !important;
+    }
+
+    #sidebar.sidebar-collapsed .sidebar-content {
+        display: none;
+    }
+    #sidebar {
+        transition: all 0.3s ease;
+        overflow-x: hidden;
+        height: 100vh;
+        background-color: #0b573d;
+    }
+
+    .sidebar-expanded {
+        width: 290px;
+    }
+
+    .sidebar-collapsed {
+        width: 60px;
+    }
+
+    #sidebar .sidebar-content {
+        transition: opacity 0.3s ease;
+        opacity: 1;
+    }
+
+    #sidebar.sidebar-collapsed .sidebar-content {
+        opacity: 0;
+        pointer-events: none;
+    }
 </style>
 
 <body>
     <!-- SIDEBAR -->
-    <div class="position-fixed h-100" id="sidebar" style="width: 260px; background-color: #0b573d !important; transition: all 0.3s ease;">
-        <div class="d-flex flex-column h-100">
+    <div id="sidebar" class="color-background8 text-white py-3 position-sticky sidebar-expanded" style="top: 0; height: 100vh; background-color: #0b573d">
+        <!-- Toggle Button (Always Visible) -->
+        <button id="toggleSidebar" class="btn btn-link text-white d-block " type="button">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div id="sidebarContent" class="sidebar-content px-2">
             <!-- Logo Section -->
             <div class="d-flex flex-column align-items-center mt-5">
-                <img src="{{ asset('images/appicon.png') }}" alt="Profile Picture" class="rounded-circle w-75 mb-">
+                <img src="{{ asset('images/appicon.png') }}" alt="Profile Picture" class="rounded-circle" width="120px">
             </div>
             
-            <div class="d-flex flex-column gap-3 px-2 mt-4">
+            <div class="d-flex flex-column gap-3 px-2 mt-4 mb-5">
                 <a href="{{ route('staff.dashboard') }}" class="text-white text-decoration-none d-flex align-items-center p-2 rounded-2 {{ Request::routeIs('staff.dashboard') ? 'bg-white bg-opacity-10' : '' }} nav-link">
                     <i class="fas fa-tachometer-alt fs-5 icon-center"></i>
                     <span class="nav-text ms-3 font-paragraph">Dashboard</span>
@@ -67,7 +116,7 @@
                 </a>
             </div>
         
-            <div class="mt-auto mb-4 px-2">
+            <div class="mt-5">
                 <a href="{{ route('staff.logout')}}" class="text-white text-decoration-none d-flex align-items-center p-2 rounded-2 nav-link justify-content-end">
                     <span class="nav-text me-3 font-paragraph">Log Out</span>
                     <i class="fas fa-sign-out-alt fs-5 icon-center"></i>
@@ -75,5 +124,20 @@
             </div>
         </div>
     </div>
+
+    <script>
+    document.getElementById('toggleSidebar').addEventListener('click', function () {
+        const sidebar = document.getElementById('sidebar');
+        const content = document.getElementById('sidebarContent');
+
+        sidebar.classList.toggle('sidebar-collapsed');
+
+        if (sidebar.classList.contains('sidebar-collapsed')) {
+            content.style.display = 'none';
+        } else {
+            content.style.display = 'block';
+        }
+    });
+</script>
 </body>
 </html>

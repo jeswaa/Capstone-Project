@@ -16,7 +16,9 @@ class Kernel extends ConsoleKernel
             Artisan::call('route:call', ['uri' => route('admin.update.rooms')]);
         })->dailyAt('00:01'); // Runs every midnight
 
-        $schedule->command('accommodations:update-status')->everyMinute();
+        $schedule->call('App\Http\Controllers\StaffController@AutoCancellation')
+                 ->dailyAt('00:00'); // Runs at midnight every day
+        $schedule->command('autocancel:reservations')->everyMinute();
     }
     
 
@@ -32,6 +34,7 @@ class Kernel extends ConsoleKernel
     }
     protected $commands = [
         \App\Console\Commands\UpdateAccommodationStatus::class,
+        \App\Console\Commands\AutoCancelReservations::class,
     ];
     
 }
