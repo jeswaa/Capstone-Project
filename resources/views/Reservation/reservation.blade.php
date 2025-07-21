@@ -9,19 +9,8 @@
 </head>
 <body>
     <div class="container mt-5">
-        <!-- Display Success Message -->
-        @if(session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-            </div>
-        @endif
-
-        <!-- Display Error Message -->
-        @if(session('error'))
-            <div class="alert alert-danger">
-                {{ session('error') }}
-            </div>
-        @endif
+        <!-- Display Error Messages -->
+         @include('Alert.errorLogin')
             <div class="card">
                 <div class="card-header">
                     <h3>User Details</h3>
