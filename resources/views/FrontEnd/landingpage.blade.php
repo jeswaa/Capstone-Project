@@ -25,6 +25,11 @@
         font-family: 'Montserrat', sans-serif;
     }
 
+    section {
+    padding-top: 50px;
+    margin-top: -50px;
+    }
+
     .animate-button {
         transform: scale(1.05);
         box-shadow: 0 0 20px rgba(0, 87, 61, 0.5);
@@ -33,7 +38,6 @@
     .animate-button.icon-move>span>i {
         animation: move-icon 0.5s ease-in-out infinite alternate;
     }
-
     @keyframes move-icon {
         0% {
             transform: translateX(0);
@@ -44,80 +48,112 @@
         }
     }
 
-    .navbar-nav .nav-link {
-        color: #0b573d;
-        font-family: 'Josefin Sans', sans-serif;
-        transition: color 0.3s;
+    .nav-link.custom-hover {
+        position: relative;
     }
 
-    .navbar-nav .nav-link:hover {
-        color: white;
+    .nav-link.custom-hover::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: 0;
+        left: 0;
+        background-color: #0b573d;
+        transition: width 0.3s ease;
     }
-    
-    /* Hover for small screens */
-    @media (max-width: 991px) {
-        .navbar-nav {
-            flex-direction: column;
-            align-items: stretch;
-            background-color: rgba(11, 87, 61, 0.95);
-            padding: 0;
-            border-radius: 0.8rem;
-            width: 200px;
-            margin-left: auto;
-            backdrop-filter: blur(8px);
-            overflow: hidden;
-        }
 
-        .navbar-nav .nav-item {
-            width: 100%;
-        }
+    .nav-link.custom-hover:hover::after {
+        width: 100%;
+    }
 
-        .navbar-nav .nav-link {
-            color: white !important;
-            padding: 1rem;
-            width: 100%;
-            text-align: center;
-            font-family: 'Poppins', sans-serif;
-            transition: all 0.3s ease;
-            margin: 0;
-            border-radius: 0;
-            border-bottom: 2px solid #e6f4e6; /* separator line */
-        }
-        .navbar-nav .nav-item:last-child .nav-link {
-            border-bottom: none; /* walang separator sa huli */
-        }
+    .nav-link.custom-hover:hover {
+        color: #0b573d !important;
     }
 </style>
 
 <body>
-    <!-- ✅ Navbar (Fixed at the Top with z-index) -->
-    <nav class="navbar navbar-expand-lg position-fixed top-0 w-100" style="z-index: 10;">
+
+    <!-- Navbar (Fixed at the Top with z-index) -->
+    <nav class="navbar navbar-expand-lg position-fixed w-100" style="z-index: 10; top: 20px;">
         <div class="container">
-            <!-- Logo - visible on all screens, aligned left -->
-            <a class="navbar-brand" href="#">
-                <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort" id="logo" height="90" width="80">
-            </a>
+<!-- Hamburger Button -->
+<button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sideNavbar" aria-controls="sideNavbar" aria-expanded="false" aria-label="Toggle navigation">
+    <i class="bi bi-list text-success" style="font-size: 2rem;"></i>
+</button>
 
-            <!-- Navbar toggler - aligned right -->
-            <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse"
-                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
-                aria-label="Toggle navigation" style="background-color: rgba(255, 255, 255, 0.95); border: 3px solid black;">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <!-- Navbar content - aligned right -->
-            <div class="collapse navbar-collapse justify-content-end text-end bg-transparent" id="navbarSupportedContent">
-                <ul class="navbar-nav">
+<div class="offcanvas offcanvas-start d-lg-none" tabindex="-1" id="sideNavbar" aria-labelledby="sideNavbarLabel" style="width: 250px;">
+    <div class="offcanvas-header bg-success">
+        <div class="d-flex align-items-center">
+            <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" class="me-2" style="width: 70px; height: auto;">
+            <h5 class="offcanvas-title text-white mb-0" id="sideNavbarLabel">LELO'S RESORT</h5>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link fw-semibold text-uppercase text-decoration-none text-black position-relative custom-hover mb-3"
+                   style="letter-spacing: 2px; transition: color 0.3s ease;"
+                   href="#rooms">
+                   Rooms
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link fw-semibold text-uppercase text-decoration-none text-black position-relative custom-hover mb-3"
+                   style="letter-spacing: 2px; transition: color 0.3s ease;" 
+                   href="#about">
+                   About Us
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link fw-semibold text-uppercase text-decoration-none text-black position-relative custom-hover mb-3"
+                   style="letter-spacing: 2px; transition: color 0.3s ease;"
+                   href="#reviews">
+                   Reviews
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('login') }}"
+                   class="nav-link fw-semibold text-uppercase text-decoration-none text-black position-relative custom-hover"
+                   style="letter-spacing: 2px; transition: color 0.3s ease;">
+                   Login
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+            
+            <!-- Navbar content - centered -->
+            <div class="collapse navbar-collapse justify-content-center text-center bg-transparent" id="navbarSupportedContent">
+                <ul class="navbar-nav gap-5">
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase text-decoration-none" href="#about">About Us</a>
+                        <a class="nav-link fw-semibold text-uppercase text-decoration-none text-black position-relative custom-hover"
+                           style="letter-spacing: 2px; transition: color 0.3s ease;"
+                           href="#rooms">
+                           Rooms
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase text-decoration-none"
-                            href="#reviews">Reviews</a>
+                        <a class="nav-link fw-semibold text-uppercase text-decoration-none text-black position-relative custom-hover"
+                           style="letter-spacing: 2px; transition: color 0.3s ease;" 
+                           href="#about">
+                           About Us
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link fw-semibold text-uppercase text-decoration-none text-black position-relative custom-hover"
+                           style="letter-spacing: 2px; transition: color 0.3s ease;"
+                           href="#reviews">
+                           Reviews
+                        </a>
                     </li>
                     <li class="nav-item">
                         <a href="{{ route('login') }}"
-                            class="nav-link fw-semibold text-uppercase text-decoration-none">Login</a>
+                           class="nav-link fw-semibold text-uppercase text-decoration-none text-black position-relative custom-hover"
+                           style="letter-spacing: 2px; transition: color 0.3s ease;">
+                           Login
+                        </a>
                     </li>
                 </ul>
             </div>
@@ -130,28 +166,30 @@
         <!-- Hero Section with Background -->
         <div class="hero vh-100 d-flex flex-column justify-content-center align-items-center text-center text-light position-relative"
             style="background: url('{{ asset('images/background.png') }}') no-repeat center; background-size: cover; overflow: hidden">
-
-
             <!-- Hero Content -->
-            <div id="hero" class="container">
-                <div class="row align-items-center justify-content-center">
+            <div id="hero" class="container-fluid">
+                <div class="row justify-content-center">
                     <!-- Responsive Text Content -->
-                    <div class="col-lg-6 col-md-10 col-sm-12 text-lg-end text-center ms-auto">
+                    <div class="col-lg-9 col-md-8 col-sm-12 text-center mt-5" style="background-color: rgba(0, 0, 0, 0.6); padding: 2rem; border-radius: 15px;">
+                        <div class="d-flex justify-content-center align-items-center mt-1">
+                            <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" class="mx-3" style="width: 120px; height: auto;">
+                        </div>
                         <div class="d-flex justify-content-center align-items-center">
-                            <h1 class="fw-bold text-white" style="font-size: 3vw; text-align: center;">WELCOME TO LELO'S
-                            </h1>
+                            <h1 class="text-white" style="font-size: 2vw;  letter-spacing: 5px;">WELCOME TO</h1>
                         </div>
                         <p class="fw-bold"
-                            style="color:#e9ffcc; font-size: 10vw; font-weight: 900; line-height: .8; text-align: center;">
+                            style="color:#e9ffcc; font-size: 7vw; font-weight: 900; line-height: .8;">
+                            LELO'S</p>
+                        <p class="fw-bold"
+                            style="color:#e9ffcc; font-size: 10vw; font-weight: 900; line-height: .8;">
                             RESORT</p>
-                        <h1 class="fw-bold text-white" style="font-size: 2vw; text-align: center;">DIGITAL BOOKING
-                            COMPANION</h1>
+                        <h1 class="text-white" style="font-size: 2vw; letter-spacing: 5px">DIGITAL BOOKING COMPANION</h1>
 
                         <!-- Responsive Button -->
-                        <div class="d-flex justify-content-lg-center justify-content-center mt-4">
+                        <div class="d-flex justify-content-center mt-4">
                             <a href="{{ route('login') }}"
                                 class="btn btn-success d-flex align-items-center gap-2 px-4 py-2 fw-bold text-white"
-                                style="border-radius: 50px; background-color: #0b573d; font-style: italic; transition: all 0.3s ease-in-out;"
+                                style="background-color: #0b573d; font-style: italic; transition: all 0.3s ease-in-out;"
                                 onmouseover="this.classList.add('animate-button'); this.classList.add('icon-move');"
                                 onmouseout="this.classList.remove('animate-button'); this.classList.remove('icon-move');">
                                 BOOK YOUR STAY
@@ -162,10 +200,10 @@
                                 </span>
                             </a>
                         </div>
+                        <div class="border-bottom border-white mx-auto mt-4" style="width: 15%;"></div>
                     </div>
                 </div>
             </div>
-
         </div>
     </section>
 
@@ -311,9 +349,9 @@
     </section>
 
     <!-- content Amenities -->
-    <section>
+    <section id="rooms">
         <div class="container text-center my-5">
-            <div class="py-5">
+            <div class="py-3">
                 <div class="position-relative">
                     <!-- Main heading with enhanced styling -->
                     <div class="position-relative px-4 py-3 w-100"
@@ -580,7 +618,7 @@
 
 
     <!-- Fourth Page -->
-    <section id="reviews" class="d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+    <section id="reviews" class="d-flex justify-content-center align-items-center">
         <div class="container">
             <div class="row">
                 <!-- Title for All Screens -->
@@ -623,35 +661,56 @@
                         @endforeach
                     </div>
 
-                    <hr class="mt-3" style="border-width: 5px; border-color: #0b573d; opacity: 1;">
+                    <hr class="mt-3 mb-5" style="border-width: 5px; border-color: #0b573d; opacity: 1;">
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- footer section -->
-    <footer style="background-color: #0b573d; height: auto; padding: 20px;">
-        <div class="container">
-            <div class="row align-items-center">
-                <!-- Left: App Icon -->
-                <div class="col-md-2 d-flex justify-content-start align-items-center">
-                    <img src="{{ asset('images/appicon.png') }}" class="img-fluid" alt="App Icon" style="height: 90px;">
+<!-- footer section -->
+<footer style="background-color: #0b573d; color: white; padding: 30px 20px; font-size: 14px;">
+    <div class="container">
+        <div class="row align-items-center">
+            <!-- Left: Logo -->
+            <div class="col-md-4 mb-3 text-center">
+                <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" class="img-fluid" style="max-width: 150px;">
+            </div>
+
+            <!-- Center: Facebook Links -->
+            <div class="col-md-4 mb-3 text-center">
+                <div class="d-flex flex-column gap-2 justify-content-center h-100">
+                    <div>
+                        <i class="bi bi-telephone-fill me-2"></i>
+                        <span>+123 456 7890</span>
+                    </div>
+                    <div>
+                        <i class="bi bi-envelope-fill me-2"></i>
+                        <span>lelosresort@gmail.com</span>
+                    </div>
+                    <div>
+                        <a href="https://facebook.com/lelosmountainresort" style="color: white;">
+                            <i class="bi bi-facebook fs-5 me-2" style="color: white;"></i>
+                            facebook.com/lelosmountainresort
+                        </a>
+                    </div>
                 </div>
-
-                <!-- Spacer or optional center -->
-                <div class="col-md-7"></div>
-
-                <!-- Right: Facebook + Contact -->
-                <div class="col-md-3 d-flex flex-column align-items-end text-white">
-                    <a href="https://www.facebook.com/lelosmountainresort" target="_blank"
-                        class="text-white d-flex align-items-center gap-2 mb-1">
-                        <i class="bi bi-facebook fs-4" style="color: #0a66c2;"></i>
-                        <span class="text-white">Lelo's Mountain Resort</span>
-                    </a>
-                    <span>Contact: +63 912 345 6789</span>
+            </div>
+            <!-- Right: Terms of Service and Privacy Policy -->
+            <div class="col-md-4 mb-3">
+                <div class="col text-center">
+                    <a href="#" class="text-white me-3 text-decoration-none">TERMS OF SERVICE</a> |
+                    <a href="#" class="text-white ms-3 text-decoration-none">PRIVACY POLICY</a>
                 </div>
             </div>
         </div>
-    </footer>
+
+        <!-- Bottom Row: Terms -->
+        <div class="row mt-3">
+            <div class="col text-center">
+            <span>© 2025 Lelo's Resort. All rights reserved.</span>
+            </div>
+        </div>
+    </div>
+</footer>
 </body>
 </html>
