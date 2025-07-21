@@ -96,21 +96,27 @@
     @include('Alert.loginSuccessUser')
     @include('Alert.errornotification')
 
-    <div class="position-absolute top-0 start-0 mt-5 ms-5">
-        <a href="{{ url('login') }}" class="d-flex align-items-center justify-content-center rounded-circle shadow"
-            style="width: 45px; height: 45px; background-color: #0B5D3B; text-decoration: none;">
-            <i class="fa-solid fa-arrow-left text-white fs-4"></i>
-        </a>
+    <div class="container-fluid position-relative">
+        <div class="row">
+            <div class="col-12">
+                <div class="position-absolute top-0 start-0 mt-5 ms-5">
+                    <a href="{{ url('login') }}" class="d-flex align-items-center justify-content-center rounded-circle shadow"
+                        style="width: 45px; height: 45px; background-color: #0B5D3B; text-decoration: none;">
+                        <i class="fa-solid fa-arrow-left text-white fs-4"></i>
+                    </a>
+                </div>
+
+                <div class="position-absolute top-0 end-0 mt-3 me-5">
+                    <a href="{{ url('/') }}" class="text-decoration-none">
+                        <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="120" class="rounded-pill">
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="position-absolute top-0 end-0 mt-3 me-5">
-        <a href="{{ url('/') }}" class="text-decoration-none">
-            <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="120" class="rounded-pill">
-        </a>
-    </div>
-
-    <div class="d-flex justify-content-center align-items-center vh-100">
-        <div class="container p-4 shadow-lg rounded-4 bg-white " style="max-width: 1000px;">
+    <div class="d-flex justify-content-center align-items-center" style="min-height: 100vh; margin-top: 80px;">
+        <div class="container p-4 shadow-lg rounded-4 bg-white" style="max-width: 1000px;">
             <div class="row align-items-center">
 
                 <!-- Left Side: Signup Form -->
