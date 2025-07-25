@@ -31,7 +31,7 @@ class LoginOTPMail extends Mailable
     public function build()
     {
         return $this->subject('Login OTP Verification - Lelo\'s Resort')
-                    ->view('emails.login-otp')
+                    ->view('emails.otp')
                     ->with(['otp' => $this->otp]);
     }
 }

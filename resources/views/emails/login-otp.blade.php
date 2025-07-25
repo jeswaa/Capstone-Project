@@ -4,46 +4,65 @@
     <title>Login OTP Verification</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Poppins', sans-serif;
             line-height: 1.6;
             color: #333;
             max-width: 600px;
             margin: 0 auto;
             padding: 20px;
+            background-color: #f4f4f4;
         }
         .container {
-            background-color: #f8f9fa;
-            border-radius: 10px;
-            padding: 30px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            background-color: #ffffff;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
         .header {
             text-align: center;
-            color: #2c3e50;
+            color: #1a5f7a;
             margin-bottom: 30px;
         }
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin: 0;
+        }
         .otp-code {
-            background-color: #e9ecef;
-            padding: 15px;
-            border-radius: 5px;
+            background: linear-gradient(135deg, #86B6F6, #176B87);
+            padding: 20px;
+            border-radius: 10px;
             text-align: center;
-            font-size: 24px;
+            font-size: 32px;
             font-weight: bold;
-            color: #2c3e50;
-            margin: 20px 0;
+            color: #ffffff;
+            margin: 25px 0;
+            letter-spacing: 5px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
         .warning {
-            color: #721c24;
+            color: #dc3545;
             font-size: 14px;
-            margin-top: 20px;
+            margin-top: 25px;
+            padding: 15px;
+            background-color: #fff3f3;
+            border-radius: 8px;
+            border-left: 4px solid #dc3545;
         }
         .footer {
-            margin-top: 30px;
+            margin-top: 40px;
             padding-top: 20px;
-            border-top: 1px solid #dee2e6;
+            border-top: 2px solid #eef2f7;
             text-align: center;
             font-size: 14px;
-            color: #6c757d;
+            color: #64748b;
+        }
+        p {
+            color: #475569;
+            font-size: 16px;
+        }
+        strong {
+            color: #1a5f7a;
         }
     </style>
 </head>
@@ -67,7 +86,7 @@
         
         <div class="footer">
             <p>Thank you for choosing Lelo's Resort</p>
-            <p>- Lelo's Resort Team -</p>
+            <p style="color: #1a5f7a; font-weight: 600;">- Lelo's Resort Team -</p>
         </div>
     </div>
 </body>

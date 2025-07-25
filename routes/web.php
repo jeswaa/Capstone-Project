@@ -90,6 +90,7 @@ Route::post('/forgot/reset', [LoginController::class, 'resetPassword'])->name('f
 // SIGNUP
 Route::get('/signup', [SignUpController::class, 'signup'])->name('signup');
 Route::post('/signup/send-otp', [SignUpController::class, 'sendOTP'])->name('signup.sendOTP');
+Route::post('/check-email', [SignUpController::class, 'checkEmail'])->name('check.email');
 Route::post('/signup/verify-otp', [SignUpController::class, 'verifyOTP'])->name('signup.verifyOTP');
 /*Landing page/index */
 Route::get('/', [LandingPageController::class, 'index'])->name('landingpage');
@@ -169,7 +170,7 @@ Route::middleware(['IsStaff'])->group(function () {
     Route::get('/staff/walk-in-guest', [StaffController::class, 'walkIn'])->name('staff.walkIn');
     Route::get('/staff/walk-in-guest/add', [StaffController::class, 'walkInAdd'])->name('staff.walkin.create');
     Route::post('/staff/walk-in-guest/add', [StaffController::class, 'storeWalkInGuest'])->name('staff.walkin.store');
-    Route::get('/staff/check-date-availability', [StaffController::class, 'checkDateAvailability'])->name('staff.checkDateAvailability');
+    Route::post('/check-availability', [StaffController::class, 'checkDateAvailability']);
     Route::post('/staff/walk-in-guest/update-status/{id}', [StaffController::class, 'updateWalkInStatus'])->name('staff.updateWalkInStatus');
     Route::post('/get-session-fees', [StaffController::class, 'updatedSessionFees'])->name('session.fees');
     Route::put('/staff/edit-room/{id}', [StaffController::class, 'editRoom'])->name('staff.editRoom');

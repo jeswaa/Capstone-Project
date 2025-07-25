@@ -279,7 +279,7 @@
                                                             id="check_in_date" 
                                                             name="check_in_date" 
                                                             required
-                                                            onchange="checkDateAvailability(this.value)">
+                                                            onchange="checkAvailability(this.value)">
                                                         <div class="invalid-feedback" id="date_error" style="display: none;">
                                                             <i class="fas fa-exclamation-circle me-1"></i>
                                                             This date is already fully booked. Please select another date.
@@ -292,8 +292,19 @@
                                                         <input type="date" class="form-control form-control-lg border-success" id="check_out_date" name="check_out_date" required>
                                                     </div>
                                                 </div>
-
                                                 <div class="row g-3 mt-2">
+                                                    <div class="col-md-12">
+                                                        <label for="stay_type" class="form-label fw-bold">
+                                                            <i class="fas fa-moon me-2"></i>Stay Duration
+                                                        </label>
+                                                        <select class="form-select form-select-lg border-success" id="stay_type" name="stay_type" required onchange="handleStayTypeChange()">
+                                                            <option value="">Select Stay Type</option>
+                                                            <option value="day">Day Stay (One Day)</option>
+                                                            <option value="overnight">Overnight Stay</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="row g-3 mt-2" id="sessionDiv">
                                                     <div class="col-md-12">
                                                         <label for="session" class="form-label fw-bold">
                                                             <i class="fas fa-clock me-2"></i>Session
@@ -317,6 +328,55 @@
                                                         </select>
                                                     </div>
                                                 </div>
+
+                                                <script>
+                                                    function handleStayTypeChange() {
+                                                        const stayType = document.getElementById('stay_type').value;
+                                                        const sessionDiv = document.getElementById('sessionDiv');
+                                                        const sessionSelect = document.getElementById('session');
+                                                        const checkInTime = document.getElementById('check_in_time');
+                                                        const checkOutTime = document.getElementById('check_out_time');
+                                                        
+                                                        if (stayType === 'overnight') {
+                                                            sessionDiv.style.display = 'none';
+                                                            sessionSelect.value = ''; // Clear session selection
+                                                            checkInTime.value = '14:00'; // 2:00 PM
+                                                            checkOutTime.value = '12:00'; // 12:00 PM
+                                                            
+                                                            // Calculate total guests even without session for overnight stays
+                                                            calculateTotalGuestsForOvernight();
+                                                        } else {
+                                                            sessionDiv.style.display = 'flex';
+                                                            checkInTime.value = '';
+                                                            checkOutTime.value = '';
+                                                            
+                                                            // Reset fees when switching back to day stay
+                                                            document.getElementById('adult_fee').textContent = '0.00';
+                                                            document.getElementById('child_fee').textContent = '0.00';
+                                                            document.getElementById('total_fee').value = '₱0.00';
+                                                            updateAmount();
+                                                        }
+                                                    }
+
+                                                    function calculateTotalGuestsForOvernight() {
+                                                        const adults = parseInt(document.getElementById('number_of_adult').value) || 0;
+                                                        const children = parseInt(document.getElementById('number_of_children').value) || 0;
+                                                        const totalGuests = adults + children;
+                                                        
+                                                        // Set total guests
+                                                        document.getElementById('num_guests').value = totalGuests;
+                                                        
+                                                        // For overnight stays, you might want to set entrance fees to 0 or a fixed amount
+                                                        // Adjust this based on your business logic
+                                                        document.getElementById('adult_fee').textContent = '0.00';
+                                                        document.getElementById('child_fee').textContent = '0.00';
+                                                        document.getElementById('total_fee').value = '₱0.00';
+                                                        
+                                                        // Update the total amount
+                                                        updateAmount();
+                                                        validateCapacity();
+                                                    }
+                                                </script>
 
                                                 <div class="row g-3 mt-2">
                                                     <div class="col-md-6">
@@ -405,8 +465,8 @@
                                                     <select class="form-select form-select-lg border-success" id="reservation_status" name="reservation_status" required>
                                                         <option value="">Select Reservation Status</option>
                                                         <option value="Reserved">Reserved</option>
-                                                        <option value="Checked_in">Checked In</option>
-                                                        <option value="Checked_out">Checked Out</option>
+                                                        <option value="Checked-in">Checked In</option>
+                                                        <option value="Checked-out">Checked Out</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -449,18 +509,18 @@
                     </thead>
                     <tbody>
                     @foreach($walkinGuest as $guest)
-                            <tr>
-                                <td>{{ $guest->name }}</td>
-                                <td>{{ $guest->address }}</td>
-                                <td>{{ $guest->mobileNo }}</td>
-                                <td>{{ date('M d, Y', strtotime($guest->reservation_check_in_date)) }}</td>
-                                <td>{{ date('h:i A', strtotime($guest->check_in_time)) }} - {{ date('h:i A', strtotime($guest->check_out_time)) }}</td>
-                                <td>{{ $guest->accomodation_name }}</td>
-                                <td>{{ $guest->quantity}}</td>
-                                <td>{{ $guest->total_guests }}</td>
-                                <td>₱{{ number_format($guest->amount, 2) }}</td>
-                                <td>{{ $guest->payment_method }}</td>
-                                <td>
+                            <tr class="align-middle">
+                                <td class="text-center">{{ $guest->name }}</td>
+                                <td class="text-center">{{ $guest->address }}</td>
+                                <td class="text-center">{{ $guest->mobileNo }}</td>
+                                <td class="text-center">{{ date('M d, Y', strtotime($guest->reservation_check_in_date)) }}</td>
+                                <td class="text-center">{{ date('h:i A', strtotime($guest->check_in_time)) }} - {{ date('h:i A', strtotime($guest->check_out_time)) }}</td>
+                                <td class="text-center">{{ $guest->accomodation_name }}</td>
+                                <td class="text-center">{{ $guest->quantity}}</td>
+                                <td class="text-center">{{ $guest->total_guests }}</td>
+                                <td class="text-center">₱{{ number_format($guest->amount, 2) }}</td>
+                                <td class="text-center">{{ $guest->payment_method }}</td>
+                                <td class="text-center">
                                     @if($guest->reservation_status == 'checked-in')
                                         <span class="badge bg-success text-capitalize">{{ $guest->reservation_status }}</span>
                                     @elseif($guest->reservation_status == 'checked-out')
@@ -469,7 +529,7 @@
                                         <span class="badge bg-secondary">{{ $guest->reservation_status }}</span>
                                     @endif
                                 </td>
-                                <td class="text-capitalize">
+                                <td class="text-center text-capitalize">
                                     @if($guest->payment_status == 'Paid')
                                         <span class="badge bg-success ">{{ $guest->payment_status }}</span>
                                     @elseif($guest->payment_status == 'Partially Paid')
@@ -478,7 +538,7 @@
                                         <span class="badge bg-danger">{{ $guest->payment_status }}</span>
                                     @endif
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <button type="button" class="btn btn-sm" style="background-color: #0b573d; color: white;"
                                         data-bs-toggle="modal" data-bs-target="#editModal{{ $guest->id }}">
                                         <i class="fas fa-edit"></i>
@@ -664,16 +724,23 @@ function calculateTotalGuests() {
     const adults = parseInt(document.getElementById('number_of_adult').value) || 0;
     const children = parseInt(document.getElementById('number_of_children').value) || 0;
     const quantity = parseInt(document.getElementById('quantity').value) || 1;
+    const stayType = document.getElementById('stay_type').value;
     
     const sessionSelect = document.getElementById('session');
     const accommodationSelect = document.getElementById('room_type');
+    
+    // If overnight stay, use the overnight calculation
+    if (stayType === 'overnight') {
+        calculateTotalGuestsForOvernight();
+        return;
+    }
     
     if (!sessionSelect || !sessionSelect.value) {
         document.getElementById('adult_fee').textContent = '0.00';
         document.getElementById('child_fee').textContent = '0.00';
         document.getElementById('total_fee').value = '₱0.00';
         document.getElementById('capacity_error').style.display = 'none';
-        updateAmount(); // Update the total amount when session is cleared
+        updateAmount();
         validateCapacity();
         return;
     }
@@ -873,26 +940,118 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 </script>
 <!-- SCRIPT FOR CHECKING THE DATE AVAILABILITY -->
- <script>
-    function checkDateAvailability(date) {
-        fetch(`/check-date-availability/${date}`)
-        .then(response => response.json())
-        .then(data => {
-            const dateError = document.getElementById('date_error');
-            const submitBtn = document.getElementById('submitButton');
-            
-            if (!data.available) {
-                dateError.style.display = 'block';
-                submitBtn.disabled = true;
-            } else {
-                dateError.style.display = 'none';
-                submitBtn.disabled = false;
-            }
-        })
-        .catch(error => {
-            console.error('Error checking date availability:', error);
-        });
+<script>
+function checkAvailability(date, accommodationId = null, quantity = 1) {
+    if (!date) return;
+    
+    const dateInput = document.getElementById('check_in_date');
+    const errorElement = document.getElementById('date_error');
+    const submitBtn = document.getElementById('submitButton');
+    
+    // Get values from form if not provided
+    if (!accommodationId) {
+        const roomSelect = document.getElementById('room_type');
+        accommodationId = roomSelect?.value;
     }
-    </script>
+    if (quantity === 1) {
+        const quantityInput = document.getElementById('quantity');
+        quantity = parseInt(quantityInput?.value) || 1;
+    }
+    
+    // Show loading state
+    showStatus('loading', 'Checking availability...', dateInput, errorElement);
+    
+    // Fixed URL - make sure this matches your route
+    fetch('/check-availability', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Accept': 'application/json' // Important: tell server we expect JSON
+        },
+        body: JSON.stringify({
+            date: date,
+            accommodation_id: accommodationId,
+            quantity: quantity
+        })
+    })
+    .then(response => {
+        // Check if response is actually JSON
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            throw new Error('Server returned HTML instead of JSON. Check your route.');
+        }
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        return response.json();
+    })
+    .then(data => {
+        if (data.available) {
+            showStatus('success', data.message || 'Available', dateInput, errorElement);
+            submitBtn.disabled = false;
+        } else {
+            showStatus('error', data.message || 'Not available', dateInput, errorElement);
+            submitBtn.disabled = true;
+        }
+    })
+    .catch(error => {
+        console.error('Availability check failed:', error);
+        showStatus('error', 'Unable to check availability. Please try again.', dateInput, errorElement);
+        submitBtn.disabled = true;
+    });
+}
+
+function showStatus(type, message, dateInput, errorElement) {
+    const icons = {
+        loading: '<i class="fas fa-spinner fa-spin me-1"></i>',
+        success: '<i class="fas fa-check-circle me-1"></i>',
+        error: '<i class="fas fa-exclamation-triangle me-1"></i>'
+    };
+    
+    const styles = {
+        loading: { border: '#ffc107', class: 'text-warning' },
+        success: { border: '#28a745', class: 'text-success' },
+        error: { border: '#dc3545', class: 'text-danger' }
+    };
+    
+    dateInput.style.borderColor = styles[type].border;
+    errorElement.innerHTML = icons[type] + message;
+    errorElement.className = `invalid-feedback ${styles[type].class}`;
+    errorElement.style.display = 'block';
+    
+    // Hide success message after 3 seconds
+    if (type === 'success') {
+        setTimeout(() => errorElement.style.display = 'none', 3000);
+    }
+}
+
+// Initialize event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date().toISOString().split('T')[0];
+    const dateInput = document.getElementById('check_in_date');
+    dateInput.setAttribute('min', today);
+    
+    // Check availability when inputs change
+    dateInput.addEventListener('change', function() {
+        if (this.value) checkAvailability(this.value);
+    });
+    
+    const roomSelect = document.getElementById('room_type');
+    const quantityInput = document.getElementById('quantity');
+    
+    roomSelect?.addEventListener('change', function() {
+        const date = dateInput.value;
+        if (date) checkAvailability(date);
+    });
+    
+    quantityInput?.addEventListener('input', function() {
+        const date = dateInput.value;
+        if (date) checkAvailability(date);
+    });
+});
+</script>
 </body>
 </html>

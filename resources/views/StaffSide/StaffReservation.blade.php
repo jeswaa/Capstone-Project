@@ -87,8 +87,8 @@
 </style>
 
 <body style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
-    @include('Alert.loginSucess')
     @include('Alert.errorLogin')
+    @include('Alert.loginSuccessUser')
     <div class="container-fluid min-vh-100 d-flex p-0">
         <!-- SIDEBAR -->
          @include('Navbar.sidenavbarStaff')
@@ -390,7 +390,7 @@
                         <th class="text-center align-middle">Email</th>
                         <th class="text-center align-middle">Phone Number</th>
                         <th class="text-center align-middle">Date</th>
-                        <th class="text-center align-middle" >Check In-Out</th>
+                        <th class="text-center align-middle">Check In-Out</th>
                         <th class="text-center align-middle">Room</th>
                         <th class="text-center align-middle">Room Qty</th>
                         <th class="text-center align-middle">Ref Num</th>
@@ -441,19 +441,21 @@
                                 </script>
 
                                 <td class="text-center align-middle">
-                                    <span class="badge rounded-pill py-2 px-3
-                                        {{ $reservation->reservation_status == 'reserved' ? 'bg-primary' : 
+                                    <span class="badge rounded-pill py-2 px-1.5
+                                        {{ $reservation->reservation_status == 'reserved' ? 'bg-warning-emphasis' : 
+                                        ( $reservation->reservation_status == 'reserved' ? 'bg-primary' : 
                                         ($reservation->reservation_status == 'checked-in' ? 'bg-success' : 
-                                        ($reservation->reservation_status == 'checked-out' ? 'bg-secondary' : 
-                                        ($reservation->reservation_status == 'cancelled' ? 'bg-danger' : 'bg-warning'))) }}" style="font-size: .7rem;">
+                                        ($reservation->reservation_status == 'checked-out' ? 'bg-danger' : 
+                                        ($reservation->reservation_status == 'cancelled' ? 'bg-danger' : 'bg-warning')))) }}" style="font-size: .7rem;">
                                         {{ ucfirst($reservation->reservation_status) }}
                                     </span>
                                 </td>
                                 <td class="text-center align-middle">
                                     <span class="badge rounded-pill py-2 px-3
-                                        {{ $reservation->payment_status == 'pending' ? 'bg-warning' : 
+                                        {{ $reservation->payment_status == 'pending' ? 'bg-warning-emphasis' : 
                                         ($reservation->payment_status == 'paid' ? 'bg-success' : 
-                                        ($reservation->payment_status == 'booked' ? 'bg-primary' : 'bg-danger')) }}" style="font-size: .7rem;">
+                                        ($reservation->payment_status == 'partial' ? 'bg-warning' :
+                                        ($reservation->payment_status == 'booked' ? 'bg-primary' : 'bg-danger'))) }}" style="font-size: .7rem;">
                                         {{ ucfirst($reservation->payment_status) }}
                                     </span>
                                 </td>

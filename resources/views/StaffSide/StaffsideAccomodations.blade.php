@@ -126,7 +126,7 @@
                     </div>
                 </div>
             </div>
-            <div class="d-flex justify-content-start mt-4 mb-3">
+            <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
                 <select class="form-select" style="width: auto;" id="roomFilter">
                     <option value="all" selected>All Rooms</option>
                     @php
@@ -136,7 +136,113 @@
                         <option value="{{ $type }}">{{ ucfirst($type) }}s</option>
                     @endforeach
                 </select>
+
+                <button type="button" class="btn text-white" style="background-color: #0b573d;" data-bs-toggle="modal" data-bs-target="#activeReservationsModal">
+                    <i class="fas fa-list me-2"></i>View Active Reservations
+                </button>
             </div>
+
+            <!-- Active Reservations Modal -->
+            <div class="modal fade" id="activeReservationsModal" tabindex="-1" aria-labelledby="activeReservationsModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color: #0b573d;">
+                            <h5 class="modal-title text-white" id="activeReservationsModalLabel">
+                                <i class="fas fa-calendar-check me-2"></i>Active Reservations
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            @if($activeReservations->count() > 0)
+                                @foreach($activeReservations as $reservation)
+                                <div class="card shadow-sm mb-3">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h3 class="h5 mb-1">{{ $reservation->name }}</h3>
+                                                <p class="text-muted mb-0">
+                                                    <span class="fw-medium">{{ $reservation->reserved_quantity }}</span> of 
+                                                    <span class="fw-medium">{{ $reservation->total_quantity }}</span> rooms occupied
+                                                </p>
+                                            </div>
+                                            <span class="badge {{ $reservation->status == 'checked-in' ? 'bg-success' : 'bg-warning' }}">
+                                                {{ ucfirst($reservation->status) }}
+                                            </span>
+                                        </div>
+                                        
+                                        <hr>
+                                        
+                                        <div class="d-flex align-items-center text-muted mb-2">
+                                            <i class="far fa-calendar-alt me-2"></i>
+                                            Check-out: {{ \Carbon\Carbon::parse($reservation->next_available_time)->format('M j, Y H:i') }}
+                                        </div>
+                                        
+                                        <div class="d-flex align-items-center">
+                                            <i class="far fa-clock me-2"></i>
+                                            <div class="countdown-timer" data-checkout="{{ $reservation->next_available_time }}" id="countdown-{{ $loop->index }}">
+                                                <span class="countdown-display text-primary fw-medium">Calculating time remaining...</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endforeach
+                            @else
+                                <div class="text-center py-5">
+                                    <i class="far fa-calendar-times fa-3x text-muted mb-3"></i>
+                                    <h3 class="h5">No active reservations</h3>
+                                    <p class="text-muted mb-0">There are currently no reservations with 'reserved' or 'checked-in' status.</p>
+                                </div>
+                            @endif
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                function updateCountdown(element, checkoutDate) {
+                    const now = new Date();
+                    const checkout = new Date(checkoutDate);
+                    const distance = checkout - now;
+
+                    if (distance < 0) {
+                        element.querySelector('.countdown-display').innerHTML = 
+                            '<span class="text-danger fw-bold">CHECKOUT OVERDUE</span>';
+                        return;
+                    }
+
+                    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                    let countdownText = '';
+                    if (days > 0) countdownText += days + 'd ';
+                    countdownText += hours.toString().padStart(2, '0') + 'h ';
+                    countdownText += minutes.toString().padStart(2, '0') + 'm ';
+                    countdownText += seconds.toString().padStart(2, '0') + 's';
+
+                    element.querySelector('.countdown-display').innerHTML = 
+                        '<span class="fw-medium">' + countdownText + ' remaining</span>';
+                }
+
+                const countdownElements = document.querySelectorAll('.countdown-timer');
+                countdownElements.forEach(element => {
+                    const checkoutDate = element.getAttribute('data-checkout');
+                    updateCountdown(element, checkoutDate);
+                    setInterval(() => updateCountdown(element, checkoutDate), 1000);
+                });
+            });
+            </script>
+
+            <style>
+            .countdown-display {
+                transition: color 0.3s ease;
+            }
+            </style>
 
             <!-- Table  -->
             <div class="container-fluid">
@@ -398,6 +504,52 @@
                         row.style.display = 'none';
                     }
                 });
+            });
+        });
+    </script>
+    <script>
+        // Function to update countdown for a specific element
+        function updateCountdown(element, checkoutDate) {
+            const now = new Date().getTime();
+            const checkout = new Date(checkoutDate).getTime();
+            const distance = checkout - now;
+
+            if (distance < 0) {
+                element.querySelector('.countdown-display').innerHTML = '<span class="text-danger">OVERDUE</span>';
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            let countdownText = '';
+            if (days > 0) {
+                countdownText += days + 'd ';
+            }
+            countdownText += hours.toString().padStart(2, '0') + 'h ';
+            countdownText += minutes.toString().padStart(2, '0') + 'm ';
+            countdownText += seconds.toString().padStart(2, '0') + 's';
+
+            element.querySelector('.countdown-display').innerHTML = 
+                '<span class="badge bg-primary">' + countdownText + '</span>';
+        }
+
+        // Initialize all countdown timers
+        document.addEventListener('DOMContentLoaded', function() {
+            const countdownElements = document.querySelectorAll('.countdown-timer');
+            
+            countdownElements.forEach(function(element) {
+                const checkoutDate = element.getAttribute('data-checkout');
+                
+                // Update immediately
+                updateCountdown(element, checkoutDate);
+                
+                // Update every second
+                setInterval(function() {
+                    updateCountdown(element, checkoutDate);
+                }, 1000);
             });
         });
     </script>
