@@ -175,7 +175,7 @@
                             <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" class="mx-3" style="width: 120px; height: auto;">
                         </div>
                         <div class="d-flex justify-content-center align-items-center">
-                            <h1 class="text-white" style="font-size: 2vw;  letter-spacing: 5px;">WELCOME TO</h1>
+                            <h1 class="text-white" style="font-size: 2vw;  letter-spacing: 5px; font-family: 'Montserrat', sans-serif;">WELCOME TO</h1>
                         </div>
                         <p class="fw-bold"
                             style="color:#e9ffcc; font-size: 7vw; font-weight: 900; line-height: .8;">
@@ -183,7 +183,7 @@
                         <p class="fw-bold"
                             style="color:#e9ffcc; font-size: 10vw; font-weight: 900; line-height: .8;">
                             RESORT</p>
-                        <h1 class="text-white" style="font-size: 2vw; letter-spacing: 5px">DIGITAL BOOKING COMPANION</h1>
+                        <h1 class="text-white" style="font-size: 2vw; letter-spacing: 5px; font-family: 'Montserrat', sans-serif;">DIGITAL BOOKING COMPANION</h1>
 
                         <!-- Responsive Button -->
                         <div class="d-flex justify-content-center mt-4">

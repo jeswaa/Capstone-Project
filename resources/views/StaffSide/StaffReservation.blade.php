@@ -470,22 +470,22 @@
                                 </td>
                                 <td class="d-flex align-items-center gap-2" style="height: 100px;">
                                     <button type="button" 
-                                        class="btn" 
-                                        style="background-color: #0b573d; color: white; transition: all 0.3s ease; height: 38px;"
+                                        class="btn btn-sm"
+                                        style="background-color: #0b573d; color: white; transition: all 0.3s ease; height: 30px; width: 30px; padding: 0;"
                                         onmouseover="this.style.backgroundColor='#083d2a'; this.style.transform='scale(1.05)'" 
                                         onmouseout="this.style.backgroundColor='#0b573d'; this.style.transform='scale(1)'"
                                         data-bs-toggle="modal" 
                                         data-bs-target="#updateReservationStatusModal{{ $reservation->id }}">
-                                        <i class="fa-pencil fa-solid"></i>
+                                        <i class="fa-pencil fa-solid fa-xs"></i>
                                     </button>
                                     <button type="button" 
-                                            class="btn btn-info"
-                                            onmouseover="this.style.backgroundColor='#083d2a'; this.style.transform='scale(1.05)'" 
-                                            onmouseout="this.style.backgroundColor='#0b573d'; this.style.transform='scale(1)'"
-                                            data-bs-toggle="modal" 
-                                            data-bs-target="#viewReservationModal{{ $reservation->id }}"
-                                            style="background-color: #0b573d; color: white; border: none; height: 38px;">
-                                        <i class="fas fa-eye"></i>
+                                        class="btn btn-sm"
+                                        style="background-color: #0b573d; color: white; transition: all 0.3s ease; height: 30px; width: 30px; padding: 0; border: none;"
+                                        onmouseover="this.style.backgroundColor='#083d2a'; this.style.transform='scale(1.05)'" 
+                                        onmouseout="this.style.backgroundColor='#0b573d'; this.style.transform='scale(1)'"
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#viewReservationModal{{ $reservation->id }}">
+                                        <i class="fas fa-eye fa-xs"></i>
                                     </button>
                                 </td>
                             </tr>

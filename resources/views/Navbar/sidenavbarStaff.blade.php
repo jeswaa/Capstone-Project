@@ -97,7 +97,7 @@
                     <a href="#" class="text-white text-decoration-none d-flex align-items-center p-2 rounded-2 nav-link" data-bs-toggle="dropdown">
                         <i class="fas fa-calendar-alt fs-5 icon-center"></i>
                         <span class="nav-text ms-3 font-paragraph">Reservations</span>
-                        <i class="fas fa-chevron-down nav-text ms-auto"></i>
+                        <i class="fas fa-chevron-down nav-text ms-auto" style="font-size:10px;"></i>
                     </a>
                     <ul class="dropdown-menu w-100 border-0 shadow" style="background-color: #0d6e4c !important;">
                         <li><a class="nav-link text-white p-2 font-paragraph" href="{{ route('staff.reservation') }}">Online Reservations</a></li>
