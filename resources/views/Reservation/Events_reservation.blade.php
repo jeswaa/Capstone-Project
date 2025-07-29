@@ -117,7 +117,7 @@
                     <i class="fa-solid fa-arrow-left"></i>
                 </div>
             </a>
-                <img src="{{ asset('images/appicon.png') }}" alt="App Logo" class="app-logo">
+                <img src="{{ asset('images/logo2.png') }}" alt="App Logo" class="app-logo">
         </div>
     </nav>
 

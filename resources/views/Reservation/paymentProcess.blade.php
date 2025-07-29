@@ -209,8 +209,8 @@
             @csrf
             <input type="hidden" name="stay_duration" id="stay_duration" value="1">
             
-            <div class="bg-white p-3 shadow rounded-1 mx-auto d-flex flex-column flex-md-row g-0 mt-4" style="width: 90%;">
-                <div class="w-100 w-md-50 bg-light p-3 text-white">
+            <div class="bg-white p-3 shadow rounded-1 mx-auto d-flex flex-column flex-md-row g-0 mt-4" style="width: 100%; min-height: 100vh;">
+                <div class="w-100 w-md-500 bg-light p-3 text-white">
                     <h5 class="text-center text-md-center text-success">Payment Method</h5>
                     <hr class="bg-light my-2">
                     

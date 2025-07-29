@@ -31,7 +31,7 @@
 
         <!-- Logo -->
         <a class="text-decoration-none">
-            <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" class="rounded-pill" style="width: 100px; height: auto;">
+            <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" class="rounded-pill" style="width: 100px; height: auto;">
         </a>
     </div>
 

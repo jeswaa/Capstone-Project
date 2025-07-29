@@ -132,7 +132,7 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0"></ul>
                 <a class="navbar-brand d-none d-md-block" href="#">
-                    <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort" id="logo" height="150" width="130">
+                    <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort" id="logo" height="150" width="130">
                 </a>
             </div>
         </div>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stay In</title>
+    <title>OVERNIGHT STAY</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -53,13 +53,13 @@
 </style>
 
 <body class="bg-light font-paragraph" style="background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.8)), url('{{ asset('images/packagebg.jpg') }}') no-repeat center center fixed; background-size: cover;">
-    <div class="d-flex align-items-center ms-5 mt-5">
-        <a href="{{ route('calendar') }}"><i class="color-3 fa-2x fa-circle-left fa-solid icon icon-hover ms-4"></i></a><h1 class="text-white text-uppercase font-heading ms-3">Reservation</h1>
+    <div class="d-flex align-items-center ms-md-5 ms-2 mt-5">
+        <a href="{{ route('calendar') }}"><i class="color-3 fa-2x fa-circle-left fa-solid icon icon-hover ms-md-4 ms-2"></i></a><h1 class="text-white text-uppercase font-heading ms-3">Reservation</h1>
     </div>
 
     <div class="position-absolute top-0 end-0 mt-3 me-5 d-none d-md-block">
         <a class="text-decoration-none">
-            <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="120" class="rounded-pill">
+            <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" width="120" class="rounded-pill">
         </a>
     </div>
     

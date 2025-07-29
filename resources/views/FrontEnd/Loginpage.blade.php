@@ -18,17 +18,6 @@
         position: relative;
         }
         
-        body::after {
-            content: "";
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 30vh;
-            background: linear-gradient(to top, rgba(0, 93, 59, 0.8), transparent);
-            pointer-events: none;
-            z-index: -1;
-        }
 
         .login-form {
             width: 100vw;
@@ -139,13 +128,13 @@
     <div class="w-100 d-flex justify-content-between align-items-center p-3">
         <!-- Back Button -->
         <a href="{{ url('/') }}" class="d-flex align-items-center justify-content-center rounded-circle shadow ms-3"
-           style="width: 50px; height: 50px; background-color: #0B5D3B; text-decoration: none;">
+           style="width: 45px; height: 45px; background-color: #0B5D3B; text-decoration: none;">
             <i class="fa-solid fa-arrow-left text-white"></i>
         </a>
 
         <!-- Logo -->
         <a class="text-decoration-none">
-            <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" class="rounded-pill" style="width: 100px; height: auto;">
+            <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" class="rounded-pill" style="width: 100px; height: auto;">
         </a>
     </div>
 

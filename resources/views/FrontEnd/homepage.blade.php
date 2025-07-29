@@ -39,125 +39,153 @@
     .room-card, .room-card * {
         user-select: none;
     }
-
-    .navbar-nav .nav-link {
-        color: #0b573d;
-        font-family: 'Josefin Sans', sans-serif;
-        transition: color 0.3s;
-    }
-
-    .navbar-nav .nav-link:hover {
-        color: white;
-    }
-
     /* Hover for small screens */
-    @media (max-width: 991px) {
-        .navbar-nav {
-            flex-direction: column;
-            align-items: stretch;
-            background-color: rgba(11, 87, 61, 0.95);
-            padding: 0;
-            border-radius: 0.8rem;
-            width: 200px;
-            margin-left: auto;
-            backdrop-filter: blur(8px);
-            overflow: hidden;
-        }
-
-        .navbar-nav .nav-item {
-            width: 100%;
-        }
-
-        .navbar-nav .nav-link {
-            color: white !important;
-            padding: 1rem;
-            width: 100%;
-            text-align: center;
-            font-family: 'Poppins', sans-serif;
-            transition: all 0.3s ease;
-            margin: 0;
-            border-radius: 0;
-            border-bottom: 2px solid #e6f4e6; /* separator line */
-        }
-        .navbar-nav .nav-item:last-child .nav-link {
-            border-bottom: none; /* walang separator sa huli */
-        }
-    }
 </style>
 <body>
     @include('Alert.loginSuccessUser')
-<nav class="navbar navbar-expand-lg position-absolute top-0 w-100 mt-4" style="z-index: 10;">
-        <div class="container">
-            <a href="{{ route('profile') }}" class="text-decoration-none me-auto">
-                <div class="profile-icon d-flex align-items-center justify-content-center" 
-                     style="width: 45px; 
-                            height: 45px; 
-                            background-color: #0b573d;
-                            border-radius: 50%;
-                            transition: all 0.3s ease;
-                            box-shadow: 0 2px 5px rgba(0,0,0,0.2);"
-                     onmouseover="this.style.transform='scale(1.1)'; this.style.backgroundColor='#0d6a4a';" 
-                     onmouseout="this.style.transform='scale(1)'; this.style.backgroundColor='#0b573d';">
-                    <i class="fa-solid fa-user fa-lg" style="color: #ffffff;"></i>
-                </div>
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
+
+<div class="d-none d-md-block" style="position: absolute; top: 0; right: 0; width: 45%; height: 100vh; background-color: rgba(0, 0, 0, 0.5); z-index: 1; border-radius: 550px 0 0 600px;">
+</div>
+
+<style>
+@media (max-width: 1200px) {
+    .d-none {
+        display: none !important;
+    }
+}
+</style>
+<!-- Logo -->
+<div class="position-absolute top-0 start-0 m-4 d-none d-md-block" style="z-index: 3;">
+    <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" style="width: 220px; height: auto;">
+</div>
+    <nav class="navbar position-absolute w-100 mt-4" style="z-index: 10;">
+        <div class="container d-flex justify-content-end gap-3">
+            <div class="d-flex align-items-center ms-auto">
+                <a href="{{ route('profile') }}" class="text-decoration-none d-flex align-items-center">
+                    <span class="me-2 fw-bold" style="color: #0b573d; font-size: 1.3rem; letter-spacing: 0.1rem;">USER PROFILE</span>
+                    <div class="profile-icon d-flex align-items-center justify-content-center" 
+                         style="width: 45px; 
+                                height: 45px; 
+                                background-color: #0b573d;
+                                border-radius: 50%;
+                                transition: all 0.3s ease;
+                                box-shadow: 0 2px 5px rgba(0,0,0,0.2);"
+                         onmouseover="this.style.transform='scale(1.1)';" 
+                         onmouseout="this.style.transform='scale(1)';">
+                        <i class="fa-solid fa-user fa-lg" style="color: #ffffff;"></i>
+                    </div>
+                </a>
+            </div>
+            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#sideNavbar" aria-controls="sideNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                <i class="bi bi-list" style="font-size: 2rem; color: #0b573d;"></i>
             </button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+<div class="offcanvas offcanvas-end" tabindex="-1" id="sideNavbar" aria-labelledby="sideNavbarLabel" style="width: 300px;">
+    <div class="offcanvas-header" style="background-color: #0b573d; padding: 1.5rem;">
+        <div class="d-flex align-items-center w-100 justify-content-between">
+            <div class="d-flex align-items-center">
+                <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" class="me-3" 
+                     style="width: 60px; height: auto;">
+                <h5 class="offcanvas-title text-white mb-0" id="sideNavbarLabel" 
+                    style="font-size: 1.5rem; font-weight: 700;">
+                    LELO'S RESORT
+                </h5>
+            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+    </div>
+    <div class="offcanvas-body" style="background-color: #f8fff4;">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link d-flex align-items-center gap-3 py-3 px-4 border-bottom"
+                   href="#rooms">
+                    <i class="fas fa-bed" style="color: #0b573d; font-size: 1.2rem;"></i>
+                    <span class="fw-semibold text-uppercase" 
+                          style="color: #0b573d; letter-spacing: 2px; font-size: 1.1rem;">
+                        Rooms
+                    </span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link d-flex align-items-center gap-3 py-3 px-4 border-bottom"
+                   href="#activities">
+                    <i class="fas fa-swimming-pool" style="color: #0b573d; font-size: 1.2rem;"></i>
+                    <span class="fw-semibold text-uppercase" 
+                          style="color: #0b573d; letter-spacing: 2px; font-size: 1.1rem;">
+                        Activities
+                    </span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link d-flex align-items-center gap-3 py-3 px-4 border-bottom"
+                   href="{{route ('getAllReservations')}}">
+                    <i class="fas fa-calendar-check" style="color: #0b573d; font-size: 1.2rem;"></i>
+                    <span class="fw-semibold text-uppercase" 
+                          style="color: #0b573d; letter-spacing: 2px; font-size: 1.1rem;">
+                        Reservations
+                    </span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+                <ul class="navbar-nav mb-2 mb-lg-0 d-none d-lg-flex">
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase text-decoration-none" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif; transition: color 0.3s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#0b573d'" href="#rooms">Rooms</a>
+                        <a class="nav-link fw-semibold text-uppercase text-decoration-none text-white" style="font-family: 'Josefin Sans', sans-serif;" href="#rooms">Rooms</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase text-decoration-none" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif; transition: color 0.3s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#0b573d'" href="#activities">Activities</a>
+                        <a class="nav-link fw-semibold text-uppercase text-decoration-none text-white" style="font-family: 'Josefin Sans', sans-serif;" href="#activities">Activities</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase text-decoration-none" style="color: #0b573d; font-family: 'Josefin Sans', sans-serif; transition: color 0.3s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#0b573d'" href="{{route ('getAllReservations')}}">Reservations</a>
+                        <a class="nav-link fw-semibold text-uppercase text-decoration-none text-white" style="font-family: 'Josefin Sans', sans-serif;" href="{{route ('getAllReservations')}}">Reservations</a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
-    <!-- First Page -->
-    <section id="home">
-        <div class="smoke"></div>
-        <!-- Hero Section with Background -->
-        <div class="hero vh-100 d-flex flex-column justify-content-center align-items-center text-center text-light position-relative"
-            style="background: url('{{ asset('images/background.png') }}') no-repeat center; background-size: cover; overflow: hidden">
-            
-    
-            <!-- Hero Content -->
-            <div id="hero" class="container">
-                <div class="row align-items-center justify-content-center">
-                    <!-- Responsive Text Content -->
-                    <div class="col-lg-6 col-md-10 col-sm-12 text-lg-end text-center ms-auto">
-                        <div class="d-flex justify-content-center align-items-center">
-                            <h1 class="fw-bold text-white" style="font-size: 3vw; text-align: center;">WELCOME TO LELO'S</h1>
-                        </div>
-                        <p class="fw-bold" style="color:#e9ffcc; font-size: 10vw; font-weight: 900; line-height: .8; text-align: center;">RESORT</p>
-                        <h1 class="fw-bold text-white" style="font-size: 2vw; text-align: center;">DIGITAL BOOKING COMPANION</h1>
 
-                        <!-- Responsive Button -->
-                        <div class="d-flex justify-content-lg-center justify-content-center mt-4">
-                            <a href="{{ route('calendar') }}"
-                                class="btn btn-success d-flex align-items-center gap-2 px-4 py-2 fw-bold text-white"
-                                style="border-radius: 50px; background-color: #0b573d; font-style: italic; transition: all 0.3s ease-in-out;"
-                                onmouseover="this.classList.add('animate-button'); this.classList.add('icon-move');"
-                                onmouseout="this.classList.remove('animate-button'); this.classList.remove('icon-move');">
-                                BOOK YOUR STAY
-                                <span class="d-flex align-items-center justify-content-center bg-white rounded-circle"
-                                    style="width: 1.8rem; height: 1.8rem; transition: all 0.3s ease-in-out;">
-                                    <i class="fas fa-chevron-right" style="color: #0b573d; transform: translateX(0);"></i>
-                                </span>
-                            </a>
-                        </div>
+<!-- First Page -->
+<section id="home">
+    <div class="smoke"></div>
+    <!-- Hero Section with Background -->
+    <div class="hero vh-100 d-flex flex-column justify-content-center align-items-center text-center text-light position-relative"
+        style="background: url('{{ asset('images/background.png') }}') no-repeat center; background-size: cover; overflow: hidden">
+        
+        <!-- Hero Content -->
+        <div id="hero" class="container" style="z-index: 2;">
+            <div class="row align-items-center">
+                <!-- Right Column -->
+                <div class="col-lg-8 col-md-12">
+                    <!-- Empty column -->
+                </div>
+                <!-- Left Column (moved to right) -->
+                <div class="col-lg-4 col-md-12 text-center">
+                    <div class="d-flex justify-content-center align-items-center">
+                        <h1 class="text-white" style="font-size: clamp(24px, 2vw, 32px); letter-spacing: 5px;">WELCOME TO</h1>
+                    </div>
+                    <p class="fw-bold" style="color:#e9ffcc; font-size: clamp(48px, 7vw, 84px); font-weight: 900; line-height: .8;">LELO'S</p>
+                    <p class="fw-bold" style="color:#e9ffcc; font-size: clamp(64px, 10vw, 120px); font-weight: 900; line-height: .8;">RESORT</p>
+                    <h1 class="text-white" style="font-size: clamp(18px, 1.5vw, 24px); letter-spacing: 5px">DIGITAL BOOKING COMPANION</h1>
+                    <!-- Responsive Button -->
+                    <div class="d-flex justify-content-center mt-4">
+                        <a href="{{ route('calendar') }}"
+                            class="btn btn-success d-flex align-items-center gap-2 px-4 py-2 fw-bold text-white"
+                            style="background-color: #0b573d; font-style: italic; transition: all 0.3s ease-in-out; font-size: clamp(16px, 1.2vw, 20px);"
+                            onmouseover="this.classList.add('animate-button'); this.classList.add('icon-move');"
+                            onmouseout="this.classList.remove('animate-button'); this.classList.remove('icon-move');">
+                            BOOK YOUR STAY
+                            <span class="d-flex align-items-center justify-content-center bg-white rounded-circle"
+                                style="width: clamp(1.5rem, 1.8vw, 1.8rem); height: clamp(1.5rem, 1.8vw, 1.8rem); transition: all 0.3s ease-in-out;">
+                                <i class="fas fa-chevron-right" style="color: #0b573d; transform: translateX(0);"></i>
+                            </span>
+                        </a>
                     </div>
                 </div>
             </div>
-
         </div>
-    </section>
+    </div>
+</section>
+</div>
     <!-- Accommodations Section -->
     <section id="rooms">
         <div class="container text-center my-5">
