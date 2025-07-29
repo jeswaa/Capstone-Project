@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -17,8 +18,14 @@
    
 </head>
 <style>
-    h1, h5 { font-family: 'Anton', sans-serif; }
-    body, p, h6, li, span { font-family: 'Montserrat', sans-serif; }
+        h1, h2, h3, h4, h5, h6 {
+        font-family: 'Anton', sans-serif;
+    }
+
+    body, p, span, a, div {
+        font-family: 'Montserrat', sans-serif;
+    }
+
     .animate-button {
         transform: scale(1.05);
         box-shadow: 0 0 20px rgba(0, 87, 61, 0.5);
@@ -47,7 +54,7 @@
     .navbar-nav .nav-link:hover {
         color: white;
     }
-
+    
     /* Hover for small screens */
     @media (max-width: 991px) {
         .navbar-nav {
@@ -58,7 +65,6 @@
             border-radius: 0.8rem;
             width: 200px;
             margin-left: auto;
-            margin-top: 0.5rem;
             backdrop-filter: blur(8px);
             overflow: hidden;
         }
@@ -76,18 +82,17 @@
             transition: all 0.3s ease;
             margin: 0;
             border-radius: 0;
-            border-bottom: 2px solid #e6f4e6;
+            border-bottom: 2px solid #e6f4e6; /* separator line */
         }
-
         .navbar-nav .nav-item:last-child .nav-link {
-            border-bottom: none;
+            border-bottom: none; /* walang separator sa huli */
         }
     }
 </style>
 
 <body>
-    <!-- Navbar (Fixed at the Top with z-index) -->
-    <nav class="navbar navbar-expand-lg position-absolute top-0 w-100" style="z-index: 10;">
+    <!-- ✅ Navbar (Fixed at the Top with z-index) -->
+    <nav class="navbar navbar-expand-lg position-fixed top-0 w-100" style="z-index: 10;">
         <div class="container">
             <!-- Logo - visible on all screens, aligned left -->
             <a class="navbar-brand" href="#">
@@ -102,13 +107,14 @@
             </button>
 
             <!-- Navbar content - aligned right -->
-            <div class="collapse navbar-collapse justify-content-end text-end mb-5" id="navbarSupportedContent">
-                <ul class="navbar-nav mb-2 mb-lg-0">
+            <div class="collapse navbar-collapse justify-content-end text-end bg-transparent" id="navbarSupportedContent">
+                <ul class="navbar-nav">
                     <li class="nav-item">
                         <a class="nav-link fw-semibold text-uppercase text-decoration-none" href="#about">About Us</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase text-decoration-none" href="#reviews">Review</a>
+                        <a class="nav-link fw-semibold text-uppercase text-decoration-none"
+                            href="#reviews">Reviews</a>
                     </li>
                     <li class="nav-item">
                         <a href="{{ route('login') }}"
@@ -125,6 +131,8 @@
         <!-- Hero Section with Background -->
         <div class="hero vh-100 d-flex flex-column justify-content-center align-items-center text-center text-light position-relative"
             style="background: url('{{ asset('images/background.png') }}') no-repeat center; background-size: cover; overflow: hidden">
+
+
             <!-- Hero Content -->
             <div id="hero" class="container">
                 <div class="row align-items-center justify-content-center">
@@ -158,13 +166,16 @@
                     </div>
                 </div>
             </div>
+
         </div>
     </section>
+
 
     <!-- Second Page -->
     <section class="d-flex flex-column justify-content-center align-items-center py-5" style="background-color: white;">
         <div class="container">
             <div class="row align-items-center text-center">
+
                 <!-- Lower Section with Text & Carousel -->
                 <div class="container mt-5">
                     <div class="row align-items-center text-center">
@@ -254,7 +265,6 @@
                         <!-- Right Carousel Section -->
                         <div class="col-lg-6">
                             <div id="carouselExampleInterval2" class="carousel slide" data-bs-ride="carousel">
-                            <div id="carouselExampleInterval2" class="carousel slide" data-bs-ride="carousel">
                                 <div class="carousel-inner">
                                     <div class="carousel-item active" data-bs-interval="5000">
                                         <img src="{{ asset('images/image1.JPG') }}" class="d-block w-100 rounded"
@@ -287,13 +297,11 @@
                                 </div>
                                 <button class="carousel-control-prev" type="button"
                                     data-bs-target="#carouselExampleInterval2" data-bs-slide="prev">
-    
                                     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                                     <span class="visually-hidden">Previous</span>
                                 </button>
                                 <button class="carousel-control-next" type="button"
                                     data-bs-target="#carouselExampleInterval2" data-bs-slide="next">
-                                   
                                     <span class="carousel-control-next-icon" aria-hidden="true"></span>
                                     <span class="visually-hidden">Next</span>
                                 </button>
@@ -301,8 +309,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
     </section>
 
     <!-- content Amenities -->
@@ -315,7 +321,7 @@
                         style="background-color: #E6F4E6; border-radius: 15px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
                         <h1 class="fw-bolder text-success display-5"
                             style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); font-weight: 900;">
-                            ANO LALAGAY KO DITO ETO YUNG PARANG MARKETING EH
+                            ROOMS
                         </h1>
                     </div>
                 </div>
@@ -334,111 +340,95 @@
             </div>
 
             <div class="row g-4">
-<<<<<<< HEAD
-                <!-- Room 1 -->
-                <div class="col-md-4">
-                    <div class="card h-100 shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
-                        <div class="position-relative">
-                            <img src="{{ asset('images/room1.jpg') }}" class="card-img-top" alt="Room 1"
-                                style="border-radius: 20px 20px 0 0; height: 180px; object-fit: cover;">
-                            <div class="position-absolute bottom-0 end-0 m-2 px-3 py-1 bg-success text-white fw-bold"
-                                style="border-radius: 8px; font-style: italic; font-size: 1.2rem;">
-                                Price: ₱ 3,000
-                            </div>
-                        </div>
-                        <div class="card-body p-2">
-                            <h5 class="card-title mb-0" style="font-style: italic; color: #0b573d;">Room </h5>
-                        </div>
-=======
             @php
-                    $displayedTypes = ['room' => false, 'cottage' => false, 'cabin' => false];
-                @endphp
+                $displayedTypes = ['room' => false, 'cottage' => false, 'cabin' => false];
+            @endphp
                 
                     @foreach($accommodations as $accommodation)
                         @if(!$displayedTypes[$accommodation->accomodation_type])
-                            <div class="col-md-4">
-                                <div class="card h-100 shadow-sm border-0 room-card"
-                                    style="border-radius: 20px; overflow: hidden;"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#roomDetailsModal"
-                                    data-room="{{ $accommodation->accomodation_name }}"
-                                    data-roomid="{{ $accommodation->accomodation_id }}"
-                                    data-roomimg="{{ asset('storage/' . $accommodation->accomodation_image) }}"
-                                    data-roomprice="{{ number_format($accommodation->accomodation_price, 2) }}"
-                                    data-description="{{ $accommodation->accomodation_description }}"
-                                    data-amenities="{{ $accommodation->amenities }}"
-                                    data-capacity="{{ $accommodation->accomodation_capacity }}">
-                                    <div class="position-relative">
-                                        <img src="{{ asset('storage/' . $accommodation->accomodation_image) }}" 
-                                            class="card-img-top" 
-                                            alt="{{ $accommodation->accomodation_name }}" 
-                                            style="border-radius: 20px 20px 0 0; height: 250px; object-fit: cover;">
-                                        <div class="position-absolute bottom-0 end-0 m-2 px-3 py-1 bg-success text-white fw-bold" 
-                                            style="border-radius: 8px; font-style: italic; font-size: 1.2rem;">
-                                            Price: ₱ {{ number_format($accommodation->accomodation_price, 2) }}
+                                <div class="col-md-4">
+                                    <div class="card h-100 shadow-sm border-0 room-card"
+                                        style="border-radius: 20px; overflow: hidden;"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#roomDetailsModal"
+                                        data-room="{{ $accommodation->accomodation_name }}"
+                                        data-roomid="{{ $accommodation->accomodation_id }}"
+                                        data-roomimg="{{ asset('storage/' . $accommodation->accomodation_image) }}"
+                                        data-roomprice="{{ number_format($accommodation->accomodation_price, 2) }}"
+                                        data-description="{{ $accommodation->accomodation_description }}"
+                                        data-amenities="{{ $accommodation->amenities }}"
+                                        data-capacity="{{ $accommodation->accomodation_capacity }}">
+                                        <div class="position-relative">
+                                            <img src="{{ asset('storage/' . $accommodation->accomodation_image) }}" 
+                                                class="card-img-top" 
+                                                alt="{{ $accommodation->accomodation_name }}" 
+                                                style="border-radius: 20px 20px 0 0; height: 250px; object-fit: cover;">
+                                            <div class="position-absolute bottom-0 end-0 m-2 px-3 py-1 bg-success text-white fw-bold" 
+                                                style="border-radius: 8px; font-style: italic; font-size: 1.2rem;">
+                                                Price: ₱ {{ number_format($accommodation->accomodation_price, 2) }}
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="card-body p-3">
-                                        <h5 class="card-title mb-0" style="font-style: italic; color: #0b573d; font-size: 1.5rem;">
-                                            {{ $accommodation->accomodation_name }}
-                                        </h5>
+                                        <div class="card-body p-3">
+                                            <h5 class="card-title mb-0" style="font-style: italic; color: #0b573d; font-size: 1.5rem;">
+                                                {{ $accommodation->accomodation_name }}
+                                            </h5>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="modal fade" id="roomDetailsModal" tabindex="-1" aria-labelledby="roomDetailsModalLabel" aria-hidden="true">
-                                <div class="modal-dialog modal-lg">
-                                    <div class="modal-content" style="border-radius: 15px; overflow: hidden;">
-                                        <div class="modal-header" style="background-color: #0b573d; color: white; border-bottom: 3px solid #E6F4E6;">
-                                            <h5 class="modal-title fw-bold" id="roomDetailsModalLabel" style="font-size: 1.5rem;">
-                                                <i class="bi bi-house-heart-fill me-2"></i>Room Details
-                                            </h5>
-                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body" style="background-color: #f8f9fa;">
-                                            <div class="row g-4">
-                                                <div class="col-md-6">
-                                                    <div class="position-relative">
-                                                        <img id="modalRoomImage" src="" class="img-fluid rounded shadow" alt="Room Image" 
-                                                            style="max-height: 300px; width: 100%; object-fit: cover;">
-                                                        <div class="position-absolute bottom-0 start-0 m-3 px-3 py-2 bg-success bg-opacity-75 rounded-pill">
-                                                            <h4 class="text-white mb-0">₱<span id="modalRoomPrice" class="fw-bold"></span></h4>
+                                <div class="modal fade" id="roomDetailsModal" tabindex="-1" aria-labelledby="roomDetailsModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content" style="border-radius: 15px; overflow: hidden;">
+                                            <div class="modal-header" style="background-color: #0b573d; color: white; border-bottom: 3px solid #E6F4E6;">
+                                                <h5 class="modal-title fw-bold" id="roomDetailsModalLabel" style="font-size: 1.5rem;">
+                                                    <i class="bi bi-house-heart-fill me-2"></i>Room Details
+                                                </h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body" style="background-color: #f8f9fa;">
+                                                <div class="row g-4">
+                                                    <div class="col-md-6">
+                                                        <div class="position-relative">
+                                                            <img id="modalRoomImage" src="" class="img-fluid rounded shadow" alt="Room Image" 
+                                                                style="max-height: 300px; width: 100%; object-fit: cover;">
+                                                            <div class="position-absolute bottom-0 start-0 m-3 px-3 py-2 bg-success bg-opacity-75 rounded-pill">
+                                                                <h4 class="text-white mb-0">₱<span id="modalRoomPrice" class="fw-bold"></span></h4>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <h3 id="modalRoomName" class="fw-bold mb-4" style="color: #0b573d; font-size: 2rem;"></h3>
-                                                    
-                                                    <div class="info-section mb-4 text-start">
-                                                        <h5 class="d-flex align-items-start" style="color: #0b573d;">
-                                                            <i class="bi bi-card-text me-2"></i>Description
-                                                        </h5>
-                                                        <p id="modalRoomDescription" class="ms-4 text-muted"></p>
-                                                    </div>
-                                                    
-                                                    <div class="info-section mb-4 text-start">
-                                                        <h5 class="d-flex align-items-start" style="color: #0b573d;">
-                                                            <i class="bi bi-stars me-2"></i>Amenities
-                                                        </h5>
-                                                        <p id="modalRoomAmenities" class="ms-4 text-muted"></p>
-                                                    </div>
-                                                    
-                                                    <div class="info-section text-start">
-                                                        <h5 class="d-flex align-items-start" style="color: #0b573d;">
-                                                            <i class="bi bi-people-fill me-2"></i>Capacity
-                                                        </h5>
-                                                        <p id="modalRoomCapacity" class="ms-4 text-muted"></p>
+                                                    <div class="col-md-6">
+                                                        <h3 id="modalRoomName" class="fw-bold mb-4" style="color: #0b573d; font-size: 2rem;"></h3>
+
+                                                        <div class="info-section mb-4 text-start">
+                                                            <h5 class="d-flex align-items-start" style="color: #0b573d;">
+                                                                <i class="bi bi-card-text me-2"></i>Description
+                                                            </h5>
+                                                            <p id="modalRoomDescription" class="ms-4 text-muted"></p>
+                                                        </div>
+
+                                                        <div class="info-section mb-4 text-start">
+                                                            <h5 class="d-flex align-items-start" style="color: #0b573d;">
+                                                                <i class="bi bi-stars me-2"></i>Amenities
+                                                            </h5>
+                                                            <p id="modalRoomAmenities" class="ms-4 text-muted"></p>
+                                                        </div>
+
+                                                        <div class="info-section text-start">
+                                                            <h5 class="d-flex align-items-start" style="color: #0b573d;">
+                                                                <i class="bi bi-people-fill me-2"></i>Capacity
+                                                            </h5>
+                                                            <p id="modalRoomCapacity" class="ms-4 text-muted"></p>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        @php
-                            $displayedTypes[$accommodation->accomodation_type] = true;
-                        @endphp
-                    @endif
-                @endforeach
+                            @php
+                                $displayedTypes[$accommodation->accomodation_type] = true;
+                            @endphp
+                        @endif
+                    @endforeach
                 
 
                 <script>
@@ -478,52 +468,56 @@
                             style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); font-weight: 900;">
                             ACTIVITIES
                         </h1>
->>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
                     </div>
                 </div>
-                <!-- Room 2 -->
-                <div class="col-md-4">
-                    <div class="card h-100 shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
-                        <div class="position-relative">
-                            <img src="{{ asset('images/room1.jpg') }}" class="card-img-top" alt="Room 2"
-                                style="border-radius: 20px 20px 0 0; height: 180px; object-fit: cover;">
-                            <div class="position-absolute bottom-0 end-0 m-2 px-3 py-1 bg-success text-white fw-bold"
-                                style="border-radius: 8px; font-style: italic; font-size: 1.2rem;">
-                                Price: ₱ 3,000
-                            </div>
-                        </div>
-                        <div class="card-body p-2">
-                            <h5 class="card-title mb-0" style="font-style: italic; color: #0b573d;">cottage</h5>
-                        </div>
-                    </div>
+
+                <p class="fst-italic text-success mb-4" style="font-size: 1.2rem; letter-spacing: 0.5px;">
+                    Explore fun, engaging activities for all ages—whether you're into adventure or relaxation!
+                </p>
+
+                <div class="d-flex justify-content-center align-items-center gap-3 mb-4">
+                    <div style="height: 2px; width: 50px; background-color: #0b573d;"></div>
+                    <i class="bi bi-star-fill text-success"></i>
+                    <div style="height: 2px; width: 50px; background-color: #0b573d;"></div>
                 </div>
-                <!-- Room 3 -->
-                <div class="col-md-4">
-                    <div class="card h-100 shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
-                        <div class="position-relative">
-                            <img src="{{ asset('images/room3.jpg') }}" class="card-img-top" alt="Room 3"
-                                style="border-radius: 20px 20px 0 0; height: 180px; object-fit: cover;">
-                            <div class="position-absolute bottom-0 end-0 m-2 px-3 py-1 bg-success text-white fw-bold"
-                                style="border-radius: 8px; font-style: italic; font-size: 1.2rem;">
-                                Price: ₱ 3,000
+
+                <div class="row g-4 justify-content-center">
+                @foreach($activities->chunk(3) as $chunk)
+                    <div class="row g-4 mb-4">
+                        @foreach($chunk as $activity)
+                            <div class="col-md-4">
+                                <div class="card h-100 shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
+                                    <div class="position-relative">
+                                        <img src="{{ asset('storage/' . $activity->activity_image) }}" 
+                                             class="card-img-top" 
+                                             alt="{{ $activity->activity_name }}" 
+                                             style="border-radius: 20px 20px 0 0; height: 180px; object-fit: cover;">
+                                    </div>
+                                    <div class="card-body p-2">
+                                        <h5 class="card-title mb-0" style="font-style: italic; color: #0b573d;">
+                                            {{ $activity->activity_name }}
+                                        </h5>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="card-body p-2">
-                            <h5 class="card-title mb-0" style="font-style: italic; color: #0b573d;">cabin</h5>
-                        </div>
+                        @endforeach
                     </div>
+                @endforeach
                 </div>
             </div>
-        </div>
     </section>
-
     <!-- Third Page -->
     <section id="about">
-        <div class="container">
-            <h1 class="fw-bold text-uppercase text-start mt-4"
-                style="font-size: calc(2rem + 1vw); color: #0b573d; font-family: 'Anton', sans-serif; letter-spacing: 0.1em;">
-                ABOUT</h1>
-        </div>
+
+                <div class="py-4 mt-4 d-flex justify-content-center">
+                        <div class="position-relative px-5 py-3 text-center" style="width: 85%; max-width: 85%; margin: 0 auto; background-color: #E6F4E6; border-radius: 15px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                        <h1 class="fw-bolder text-success display-5 mb-0"
+                            style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); font-weight: 900;">
+                            ABOUT US
+                        </h1>
+                    </div>
+                </div>
+
 
         <div class="container py-4">
             <div class="row">
@@ -584,106 +578,7 @@
         </div>
     </section>
 
-    <section>
-        <div class="container text-center my-5">
-            <div class="py-5">
-                <!-- ACTIVITIES SECTION (Nested inside Amenities) -->
-                <div class="py-5 mt-5">
-                    <div class="position-relative px-4 py-3"
-                        style="background-color: #E6F4E6; border-radius: 15px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-                        <h1 class="fw-bolder text-success display-5"
-                            style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); font-weight: 900;">
-                            ACTIVITIES
-                        </h1>
-                    </div>
-                </div>
 
-                <p class="fst-italic text-success mb-4" style="font-size: 1.2rem; letter-spacing: 0.5px;">
-                    Explore fun, engaging activities for all ages—whether you're into adventure or relaxation!
-                </p>
-
-                <div class="d-flex justify-content-center align-items-center gap-3 mb-4">
-                    <div style="height: 2px; width: 50px; background-color: #0b573d;"></div>
-                    <i class="bi bi-star-fill text-success"></i>
-                    <div style="height: 2px; width: 50px; background-color: #0b573d;"></div>
-                </div>
-
-                <div class="row g-4 justify-content-center">
-                    <!-- Activity 1 -->
-                    <div class="col-md-5">
-                        <div class="card h-100 shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
-                            <div class="position-relative">
-                                <img src="{{ asset('images/room1.jpg') }}" class="card-img-top" alt="Activity 1"
-                                    style="border-radius: 20px 20px 0 0; height: 180px; object-fit: cover;">
-                                <div class="position-absolute bottom-0 end-0 m-2 px-3 py-1 bg-success text-white fw-bold"
-                                    style="border-radius: 8px; font-style: italic; font-size: 1.2rem;">
-                                    Nature Walk
-                                </div>
-                            </div>
-                            <div class="card-body p-2">
-                                <h5 class="card-title mb-0" style="font-style: italic; color: #0b573d;">Activity 1
-                                </h5>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Activity 2 -->
-                    <div class="col-md-5">
-                        <div class="card h-100 shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
-                            <div class="position-relative">
-                                <img src="{{ asset('images/campings.jpg') }}" class="card-img-top" alt="Camping"
-                                    style="border-radius: 20px 20px 0 0; height: 180px; object-fit: cover;">
-                                <div class="position-absolute bottom-0 end-0 m-2 px-3 py-1 bg-success text-white fw-bold"
-                                    style="border-radius: 8px; font-style: italic; font-size: 1.2rem;">
-                                    Camping
-                                </div>
-                            </div>
-                            <div class="card-body p-2">
-                                <h5 class="card-title mb-0" style="font-style: italic; color: #0b573d;">Activity 2
-                                </h5>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Activity 3 -->
-                    <div class="col-md-5">
-                        <div class="card h-100 shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
-                            <div class="position-relative">
-                                <img src="{{ asset('images/DSCF2729.jpg') }}" class="card-img-top" alt="ATV"
-                                    style="border-radius: 20px 20px 0 0; height: 180px; object-fit: cover;">
-                                <div class="position-absolute bottom-0 end-0 m-2 px-3 py-1 bg-success text-white fw-bold"
-                                    style="border-radius: 8px; font-style: italic; font-size: 1.2rem;">
-                                    ATV
-                                </div>
-                            </div>
-                            <div class="card-body p-2">
-                                <h5 class="card-title mb-0" style="font-style: italic; color: #0b573d;">Activity 3
-                                </h5>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Activity 4 -->
-                    <div class="col-md-5">
-                        <div class="card h-100 shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
-                            <div class="position-relative">
-                                <img src="{{ asset('images/swimming.jpg') }}" class="card-img-top" alt="Swimming"
-                                    style="border-radius: 20px 20px 0 0; height: 180px; object-fit: cover;">
-                                <div class="position-absolute bottom-0 end-0 m-2 px-3 py-1 bg-success text-white fw-bold"
-                                    style="border-radius: 8px; font-style: italic; font-size: 1.2rem;">
-                                    Swimming
-                                </div>
-                            </div>
-                            <div class="card-body p-2">
-                                <h5 class="card-title mb-0" style="font-style: italic; color: #0b573d;">Activity 4
-                                </h5>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
 
     <!-- Fourth Page -->
     <section id="reviews" class="d-flex justify-content-center align-items-center" style="min-height: 100vh;">
@@ -705,26 +600,6 @@
 
                     <!-- Responsive Card Grid -->
                     <div class="row g-3 justify-content-center">
-<<<<<<< HEAD
-                        @foreach (['DSCF2814.JPG', 'DSCF2821.JPG', 'DSCF2729.JPG'] as $index => $image)
-                                                <div class="col-12 col-sm-6 col-md-4">
-                                                    <div class="card h-100 shadow" style="background-color: #0b573d; border-radius: 15px;">
-                                                        <img src="{{ asset('images/' . $image) }}" class="card-img-top"
-                                                            alt="Review {{ $index + 1 }}"
-                                                            style="width: 100%; height: 200px; object-fit: cover; border-radius: 15px 15px 0 0;">
-                                                        <div class="card-body">
-                                                            <h5 class="card-title" style="color: #f5f5dc;">
-                                                                {{ ['Amazing Resort', 'Best Experience', 'Relaxing Stay'][$index] }}
-                                                            </h5>
-                                                            <p class="card-text" style="color: #f5f5dc;">{{ [
-                                'This resort is amazing! The staff is so friendly and the rooms are so comfortable.',
-                                'I had the best experience at this resort. The food is delicious and the amenities are top-notch.',
-                                'I had a very relaxing stay at this resort. The staff is so friendly and the rooms are so comfortable.'
-                            ][$index] }}</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-=======
                         @foreach ($feedbacks as $feedback)
                             <div class="col-12 col-sm-6 col-md-4">
                                 <div class="card h-100 shadow" style="background-color: #0b573d; border-radius: 15px;">
@@ -746,7 +621,6 @@
                                     </div>
                                 </div>
                             </div>
->>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
                         @endforeach
                     </div>
 

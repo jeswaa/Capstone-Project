@@ -15,23 +15,6 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <style>
-    h1,
-    h5 {
-        font-family: 'Anton', sans-serif;
-    }
-
-    body,
-    p,
-    h6,
-    li,
-    span {
-        font-family: 'Montserrat', sans-serif;
-    }
-
-    span {
-        font-family: 'Montserrat', sans-serif;
-    }
-
     .animate-button {
         transform: scale(1.05);
         box-shadow: 0 0 20px rgba(0, 87, 61, 0.5);
@@ -116,7 +99,7 @@
 
 <body>
     @include('Alert.loginSuccessUser')
-<nav class="navbar navbar-expand-lg position-absolute top-0 w-100 mt-4" style="z-index: 10;">
+    <nav class="navbar navbar-expand-lg position-absolute top-0 w-100 mt-4" style="z-index: 10;">
         <div class="container">
             <a href="{{ route('profile') }}" class="text-decoration-none me-auto">
                 <div class="profile-icon d-flex align-items-center justify-content-center" style="width: 45px; 
@@ -240,19 +223,9 @@
                 @foreach($accommodations as $accommodation)
                     @if(!$displayedTypes[$accommodation->accomodation_type])
                         <div class="col-md-4">
-<<<<<<< HEAD
-                            <div class="card h-100 shadow-sm border-0 room-card" style="border-radius: 20px; overflow: hidden;"
-                                data-bs-toggle="modal" data-bs-target="#reservationModal"
-                                data-room="{{ $accommodation->accomodation_name }}"
-                                data-roomid="{{ $accommodation->accomodation_id }}"
-                                data-roomimg="{{ asset('storage/' . $accommodation->accomodation_image) }}"
-                                data-roomprice="{{ number_format($accommodation->accomodation_price, 2) }}"
-                                data-roomcapacity="{{ $accommodation->accomodation_capacity }}">
-=======
-                            <div class="card h-100 shadow-sm border-0 room-card"
-then                                 style="border-radius: 20px; overflow: hidden;"
-                                 onclick="window.location.href='{{ route('calendar') }}?room='+encodeURIComponent('{{ $accommodation->accomodation_name }}')+'&roomid='+encodeURIComponent('{{ $accommodation->accomodation_id }}')">
->>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
+                            <div class="card h-100 shadow-sm border-0 room-card" then
+                                style="border-radius: 20px; overflow: hidden;"
+                                onclick="window.location.href='{{ route('calendar') }}?room='+encodeURIComponent('{{ $accommodation->accomodation_name }}')+'&roomid='+encodeURIComponent('{{ $accommodation->accomodation_id }}')">
                                 <div class="position-relative">
                                     <img src="{{ asset('storage/' . $accommodation->accomodation_image) }}" class="card-img-top"
                                         alt="{{ $accommodation->accomodation_name }}"
@@ -409,8 +382,7 @@ then                                 style="border-radius: 20px; overflow: hidde
                                               @endphp
                                             @foreach($uniqueStartTimes as $transaction)
                                                 <option value="{{ $transaction->start_time }}">
-                                                    {{ date('h:i A', strtotime($transaction->start_time)) }}
-                                                </option>
+                                                    {{ date('h:i A', strtotime($transaction->start_time)) }}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -424,8 +396,7 @@ then                                 style="border-radius: 20px; overflow: hidde
                                               @endphp
                                             @foreach($uniqueEndTimes as $transaction)
                                                 <option value="{{ $transaction->end_time }}">
-                                                    {{ date('h:i A', strtotime($transaction->end_time)) }}
-                                                </option>
+                                                    {{ date('h:i A', strtotime($transaction->end_time)) }}</option>
                                             @endforeach
                                         </select>
                                     </div>
