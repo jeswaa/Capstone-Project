@@ -181,6 +181,16 @@
     overflow: hidden;
     transition: width 0.3s ease;
 }
+@media (min-width: 768px) and (max-width: 991.98px) {
+    #reservation-list-section .row.align-items-center > div.col-md-2 {
+        flex: 0 0 100% !important;
+        max-width: 50% !important;
+        margin-bottom: 0.5rem;
+    }
+    #reservation-list-section .row.align-items-center > div.col-md-2.d-grid.text-end {
+        text-align: left !important;
+    }
+}
 
 #desktopSidebarToggle.collapsed {
     position: fixed;
@@ -453,19 +463,19 @@
                                                                 <div class="col-12 col-md-5 text-success">
                                                                     @foreach($accommodations as $accommodation){{ $accommodation }}@endforeach
                                                                 </div>
-                                                                <div class="col-6 col-md-2">
+                                                                <div class="col-12 col-md-2 mb-2 mb-md-0">
                                                                     <span class="badge text-capitalize px-3 py-2 @if($latestReservation->reservation_status == 'checked in') bg-success 
                                                                     @elseif($latestReservation->reservation_status == 'pending') bg-warning 
-                                    @elseif($latestReservation->reservation_status == 'reserved') bg-primary
-                                    @else bg-danger @endif">
+                                                                    @elseif($latestReservation->reservation_status == 'reserved') bg-primary
+                                                                    @else bg-danger @endif">
                                                                         {{ $latestReservation->reservation_status }}
                                                                     </span>
                                                                 </div>
-                                                               <div class="col-6 col-md-2 d-grid  text-end">
-    <button type="button" class="btn btn-outline-success w-100 w-md-auto" data-bs-toggle="modal" data-bs-target="#viewReservationModal">
-        View
-    </button>
-</div>
+                                                                <div class="col-12 col-md-2 d-grid text-end">
+                                                                    <button type="button" class="btn btn-outline-success w-100 w-md-auto" data-bs-toggle="modal" data-bs-target="#viewReservationModal">
+                                                                        View
+                                                                    </button>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
