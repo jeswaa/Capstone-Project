@@ -20,10 +20,7 @@ use App\Models\Transaction;
 use App\Models\Notification;
 use App\Models\DamageReport;
 use App\Models\ActivityLog;
-
-
-
-
+use DateTime;
 
 class StaffController extends Controller
 {
@@ -334,7 +331,8 @@ public function reservations(Request $request)
         })
         ->select(
             'reservation_details.*',
-            'accomodations.accomodation_name'
+            'accomodations.accomodation_name',
+            'accomodations.accomodation_price',
         )
         ->orderByDesc('reservation_details.created_at');
 
@@ -441,7 +439,7 @@ public function accomodations()
     $accomodations = DB::table('accomodations')->paginate(5);
     
     // Compute Room Overview
-    $totalRooms = DB::table('accomodations')->count();
+    $totalRooms = DB::table('accomodations')->sum('quantity');
     $vacantRooms = DB::table('accomodations')
         ->sum('quantity');
         
@@ -458,16 +456,59 @@ public function accomodations()
     // Combine both reserved room counts
     $reservedRooms = $reservedRoomsFromWalkin + $reservedRoomsFromReservations;
 
+    // Get reservation details with checkout dates for countdown timer
+    $activeReservations = DB::table('reservation_details')
+        ->leftJoin('accomodations', function($join) {
+            $join->whereRaw("JSON_CONTAINS(reservation_details.accomodation_id, CONCAT('\"', accomodations.accomodation_id, '\"'))");
+        })
+        ->whereIn('reservation_details.reservation_status', ['reserved', 'checked-in'])
+        ->select([
+            'reservation_details.accomodation_id',
+            'accomodations.accomodation_name',
+            'accomodations.quantity as total_quantity', 
+            'reservation_details.quantity as reserved_quantity',
+            'reservation_details.reservation_check_out_date as next_available_date',
+            'reservation_details.reservation_status'
+        ])
+        ->orderBy('accomodations.accomodation_name')
+        ->orderBy('next_available_date')
+        ->get()
+        ->map(function($item) {
+            // Decode the JSON accomodation_id
+            $accomIds = json_decode($item->accomodation_id, true);
+            $item->accomodation_id = $accomIds[0] ?? null; // Get first ID since we're grouping by it
+            return $item;
+        })
+        ->groupBy('accomodation_id')
+        ->map(function ($group) {
+            return (object)[
+                'id' => $group->first()->accomodation_id,
+                'name' => $group->first()->accomodation_name ?? 'No accommodation found',
+                'reserved_quantity' => $group->sum('reserved_quantity'),
+                'next_available_time' => $group->first()->next_available_date,
+                'total_quantity' => $group->first()->total_quantity ?? 0,
+                'status' => $group->first()->reservation_status
+            ];
+        });
+
+    // Optional: Group by accommodation for easier display
+    $reservationsByAccommodation = $activeReservations->groupBy('accomodation_id');
+
     // Record activity with staff username if available, otherwise use 'System'
     $activityUser = $staff ? $staff->username : 'System';
     $this->recordActivity($activityUser . ' viewed accommodations overview - Total: ' . $totalRooms . 
                          ', Vacant: ' . $vacantRooms . 
                          ', Reserved: ' . $reservedRooms);
 
-    return view('StaffSide.StaffsideAccomodations', compact('accomodations', 'totalRooms', 'vacantRooms', 'reservedRooms'));
+    return view('StaffSide.StaffsideAccomodations', compact(
+        'accomodations', 
+        'totalRooms', 
+        'vacantRooms', 
+        'reservedRooms',
+        'activeReservations',
+        'reservationsByAccommodation'
+    ));
 }
-
-    
 public function editRoom(Request $request, $accomodation_id)
 {
     // Get current staff info
@@ -611,7 +652,7 @@ public function cancelReservation($reservationId)
     return response()->json(['success' => false, 'message' => 'Reservation not found or not eligible for cancellation.']);
 }
 
-public function UpdateStatus(Request $request, $id)
+    public function UpdateStatus(Request $request, $id)
 {
     $staffId = session()->get('StaffLogin');
     $staff = Staff::find($staffId);
@@ -640,55 +681,101 @@ public function UpdateStatus(Request $request, $id)
         $accommodationIdsBeforeUpdate = json_decode($packageRoomsBeforeUpdate, true) ?? [];
     }
 
-    DB::table('reservation_details')->where('id', $id)->update([
-        'payment_status' => $request->payment_status,
-        'reservation_status' => $request->reservation_status,
-        'custom_message' => $request->custom_message ?? null,
-        'updated_at' => now(),
-    ]);
+    // Start transaction
+    DB::beginTransaction();
 
-    $updatedReservation = DB::table('reservation_details')->where('id', $id)->first();
+    try {
+        // Update reservation status
+        DB::table('reservation_details')->where('id', $id)->update([
+            'payment_status' => $request->payment_status,
+            'reservation_status' => $request->reservation_status,
+            'custom_message' => $request->custom_message ?? null,
+            'updated_at' => now(),
+        ]);
 
-    $accommodationIdsAfterUpdate = json_decode($updatedReservation->accomodation_id, true) ?? [];
-    if (empty($accommodationIdsAfterUpdate) && !empty($updatedReservation->package_id)) {
-        $packageRoomsAfterUpdate = DB::table('packagestbl')
-            ->where('id', $updatedReservation->package_id)
-            ->value('package_room_type');
-        $accommodationIdsAfterUpdate = json_decode($packageRoomsAfterUpdate, true) ?? [];
+        $updatedReservation = DB::table('reservation_details')->where('id', $id)->first();
+
+        $accommodationIdsAfterUpdate = json_decode($updatedReservation->accomodation_id, true) ?? [];
+        if (empty($accommodationIdsAfterUpdate) && !empty($updatedReservation->package_id)) {
+            $packageRoomsAfterUpdate = DB::table('packagestbl')
+                ->where('id', $updatedReservation->package_id)
+                ->value('package_room_type');
+            $accommodationIdsAfterUpdate = json_decode($packageRoomsAfterUpdate, true) ?? [];
+        }
+
+        // Handle accommodation quantity when status changes to reserved/checked-in
+        if (in_array($request->reservation_status, ['reserved', 'checked-in'])) {
+            if (!empty($accommodationIdsAfterUpdate)) {
+                foreach ($accommodationIdsAfterUpdate as $accommodationId) {
+                    // Deduct quantity
+                    $updated = DB::table('accomodations')
+                        ->where('accomodation_id', $accommodationId)
+                        ->where('quantity', '>', 0)
+                        ->decrement('quantity', 1);
+
+                    // Update status if quantity reaches 0
+                    if ($updated) {
+                        $accommodation = DB::table('accomodations')->where('accomodation_id', $accommodationId)->first();
+                        if ($accommodation && $accommodation->quantity <= 0) {
+                            DB::table('accomodations')
+                                ->where('accomodation_id', $accommodationId)
+                                ->update(['accomodation_status' => 'unavailable']);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Handle quantity return when status changes to cancelled, completed, or checked-out
+        if (in_array($originalReservationStatus, ['reserved', 'checked-in']) && 
+            in_array($request->reservation_status, ['cancelled','checked-out'])) {
+            if (!empty($accommodationIdsBeforeUpdate)) {
+                foreach ($accommodationIdsBeforeUpdate as $accommodationId) {
+                    // Return quantity
+                    DB::table('accomodations')
+                        ->where('accomodation_id', $accommodationId)
+                        ->increment('quantity', 1);
+
+                    // Update status if quantity goes from 0 to 1
+                    DB::table('accomodations')
+                        ->where('accomodation_id', $accommodationId)
+                        ->where('accomodation_status', 'unavailable')
+                        ->update(['accomodation_status' => 'available']);
+                }
+            }
+        }
+
+        $statusChanges = [];
+        if ($originalPaymentStatus != $request->payment_status) {
+            $statusChanges[] = "payment status from '{$originalPaymentStatus}' to '{$request->payment_status}'";
+        }
+        if ($originalReservationStatus != $request->reservation_status) {
+            $statusChanges[] = "reservation status from '{$originalReservationStatus}' to '{$request->reservation_status}'";
+        }
+
+        $changeLog = !empty($statusChanges) ? " Changes: " . implode(', ', $statusChanges) : "";
+
+        if ($staff && $staff->username) {
+            $this->recordActivity($staff->username . " updated reservation #{$id}." . $changeLog);
+        } else {
+            $this->recordActivity("Unknown staff updated reservation #{$id}." . $changeLog);
+        }
+
+        DB::commit();
+
+        Mail::to($updatedReservation->email)->send(new ReservationStatusUpdated(
+            $updatedReservation,
+            $request->custom_message,
+            $updatedReservation
+        ));
+
+        return redirect()->route('staff.reservation')->with('success', 'Reservation status updated successfully!');
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return redirect()->back()->with('error', 'Failed to update reservation: ' . $e->getMessage());
     }
-
-    // ✅ NO adjustment to global quantity! Availability is now computed per date.
-
-    // Optional: You may log this update to another table or update statuses manually.
-    // But do not change the "quantity" column in `accomodations`.
-
-    $statusChanges = [];
-    if ($originalPaymentStatus != $request->payment_status) {
-        $statusChanges[] = "payment status from '{$originalPaymentStatus}' to '{$request->payment_status}'";
-    }
-    if ($originalReservationStatus != $request->reservation_status) {
-        $statusChanges[] = "reservation status from '{$originalReservationStatus}' to '{$request->reservation_status}'";
-    }
-
-    $changeLog = !empty($statusChanges) ? " Changes: " . implode(', ', $statusChanges) : "";
-
-    if ($staff && $staff->username) {
-        $this->recordActivity($staff->username . " updated reservation #{$id}." . $changeLog);
-    } else {
-        $this->recordActivity("Unknown staff updated reservation #{$id}." . $changeLog);
-    }
-
-    Mail::to($updatedReservation->email)->send(new ReservationStatusUpdated(
-        $updatedReservation,
-        $request->custom_message,
-        $updatedReservation
-    ));
-
-    return redirect()->route('staff.reservation')->with('success', 'Reservation status updated successfully!');
 }
-
-
- 
     public function sendEmail(Request $request)
     {
         $request->validate([
@@ -774,6 +861,7 @@ public function UpdateStatus(Request $request, $id)
     public function walkInAdd(Request $request)
     {
         try {
+            // Validate input first (basic validation rules)
             $request->validate([
                 'name' => 'required|string|max:255',
                 'email' => 'required|email',
@@ -788,11 +876,10 @@ public function UpdateStatus(Request $request, $id)
                 'payment_method' => 'required|string',
                 'quantity' => 'required|integer|min:1'
             ]);
-
             // Calculate total guests
             $total_guests = $request->number_of_adults + $request->number_of_children;
 
-            // Create reservation record
+            // Create reservation
             $reservation = DB::table('walkin_guests')->insertGetId([
                 'name' => $request->name,
                 'email' => $request->email,
@@ -800,7 +887,7 @@ public function UpdateStatus(Request $request, $id)
                 'reservation_check_in_date' => $request->check_in_date,
                 'reservation_check_out_date' => $request->check_out_date,
                 'accomodation_id' => json_encode($request->accomodation_id),
-                'number_of_adult' => $request->number_of_adult,
+                'number_of_adult' => $request->number_of_adults,
                 'number_of_children' => $request->number_of_children,
                 'total_guests' => $total_guests,
                 'payment_status' => $request->payment_status,
@@ -812,14 +899,14 @@ public function UpdateStatus(Request $request, $id)
                 'updated_at' => now()
             ]);
 
-            // Update accommodation status
+            // Update each accommodation's status
             foreach ($request->accomodation_id as $accomId) {
                 DB::table('accomodations')
                     ->where('accomodation_id', $accomId)
                     ->update(['accomodation_status' => 'unavailable']);
             }
 
-            // Record activity
+            // Log activity
             $staffId = session()->get('StaffLogin');
             $staff = Staff::find($staffId);
             $this->recordActivity($staff->username . " added walk-in reservation #" . $reservation);
@@ -832,9 +919,10 @@ public function UpdateStatus(Request $request, $id)
 
         } catch (\Exception $e) {
             \Log::error('Walk-in guest registration error: ' . $e->getMessage());
-            return back()->with('error', 'Error adding walk-in reservation: ' . $e->getMessage());
+            return back()->with('error', 'Error adding walk-in reservation: ' . $e->getMessage())->withInput();
         }
     }
+
     public function storeWalkInGuest(Request $request)
     {
         try {
@@ -850,11 +938,12 @@ public function UpdateStatus(Request $request, $id)
                 'accomodation_id' => 'required',
                 'number_of_adult' => 'required|integer|min:0',
                 'number_of_children' => 'required|integer|min:0',
+                'payment_status' => 'required',
+                'reservation_status' => 'required',
                 'payment_method' => 'required|string|in:cash,gcash',
                 'amount' => 'required|numeric|min:0',
                 'quantity' => 'required|integer|min:1'
             ]);
-                
             // Get accommodation details
             $accommodation = DB::table('accomodations')
                 ->where('accomodation_id', $validated['accomodation_id'])
@@ -886,8 +975,8 @@ public function UpdateStatus(Request $request, $id)
                 'number_of_children' => $validated['number_of_children'],
                 'quantity' => $validated['quantity'],
                 'total_guests' => $totalGuests,
-                'payment_status' => 'paid',
-                'reservation_status' => 'checked-in',
+                'payment_status' => $validated['payment_status'],
+                'reservation_status' => $validated['reservation_status'],
                 'accomodation_id' => $validated['accomodation_id'],
                 'payment_method' => $validated['payment_method'],
                 'amount' => $validated['amount']
@@ -911,6 +1000,7 @@ public function UpdateStatus(Request $request, $id)
             return back()->with('error', 'Error adding walk-in reservation: ' . $e->getMessage());
         }
     }
+    
     public function updateWalkInStatus(Request $request, $id)
     {
         try {
@@ -960,14 +1050,16 @@ public function UpdateStatus(Request $request, $id)
             }
     
             DB::table('activity_logs')->insert([
-                'staff_id' => $staff->id,
                 'activity' => 'Updated walk-in guest status for ' . $walkInGuest->name . ' to ' . $request->reservation_status,
-                'performed_by' => $staff->username,
+                'user' => $staff->username,
+                'role' => $staff->role,
+                'date' => now()->toDateString(),
+                'time' => now()->toTimeString(),
                 'created_at' => now(),
                 'updated_at' => now()
             ]);
     
-            return response()->json(['message' => 'Walk-in guest status updated successfully']);
+           return redirect()->back()->with('success', 'Walk-in guest status updated successfully');
     
         } catch (\Exception $e) {
             \Log::error('Error updating walk-in guest status: ' . $e->getMessage());
@@ -1183,5 +1275,151 @@ public function UpdateStatus(Request $request, $id)
     }
 }
     
+    public function AutoCancellation()
+    {
+        $today = now()->format('Y-m-d');
+        $cutoffTime = now()->subHours(24);
+        
+        $reservations = Reservation::where('reservation_status', 'reserved')
+        ->whereDate('reservation_check_in_date', '<=', now()->toDateString())
+        ->where('created_at', '<=', now()->subHours(24))
+        ->get();
 
+        $cancelledCount = 0;
+
+        foreach ($reservations as $reservation) {
+            $reservation->reservation_status = 'cancelled';
+            $reservation->save();
+            $cancelledCount++;
+        }
+
+        return redirect()->back()->with('error', 'Auto cancellation process completed. ' . $cancelledCount . ' reservations were cancelled.');
+    }
+
+    public function ExtendReservation(Request $request, $reservationId)
+    {
+        try {
+            // Validate request
+            $request->validate([
+                'new_checkout_date' => 'required|date',
+                'additional_payment' => 'required|numeric|min:0'
+            ]);
+
+            // Get the reservation
+            $reservation = DB::table('reservation_details')->where('id', $reservationId)->first();
+            
+            if (!$reservation) {
+                return redirect()->back()->with('error', 'Reservation not found');
+            }
+
+            // Check if the accommodation is available for the extended period
+            $accommodationIds = json_decode($reservation->accomodation_id, true);
+            $conflictingReservations = DB::table('reservation_details')
+                ->where('id', '!=', $reservationId)
+                ->where(function($query) use ($request, $reservation) {
+                    $query->whereBetween('reservation_check_in_date', [$reservation->reservation_check_out_date, $request->new_checkout_date])
+                        ->orWhereBetween('reservation_check_out_date', [$reservation->reservation_check_out_date, $request->new_checkout_date]);
+                })
+                ->whereRaw("JSON_CONTAINS(accomodation_id, ?)", [json_encode($accommodationIds)])
+                ->exists();
+
+            if ($conflictingReservations) {
+                return redirect()->back()->with('error', 'Accommodation not available for the extended period');
+            }
+
+            // Update reservation
+            DB::table('reservation_details')
+                ->where('id', $reservationId)
+                ->update([
+                    'reservation_check_out_date' => $request->new_checkout_date,
+                    'amount' => DB::raw('amount + ' . $request->additional_payment),
+                    'updated_at' => now()
+                ]);
+
+            // Record activity
+            $this->recordActivity('Extended reservation #' . $reservationId . ' to ' . $request->new_checkout_date);
+            
+            return redirect()->back()->with('success', 'Reservation extended successfully');
+
+        } catch (\Exception $e) {
+            \Log::error('Error extending reservation: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'An error occurred while extending the reservation');
+        }
+    }
+public function checkDateAvailability(Request $request)
+{
+    try {
+        $date = $request->input('date');
+        $accommodationId = $request->input('accommodation_id');
+        $requestedQuantity = $request->input('quantity', 1);
+
+        if (!$this->isValidDate($date) || Carbon::parse($date)->isPast()) {
+            return response()->json([
+                'available' => false,
+                'message' => 'Invalid or past date.'
+            ]);
+        }
+
+        $isAvailable = $accommodationId 
+            ? $this->checkAccommodationAvailability($date, $accommodationId, $requestedQuantity)
+            : $this->checkAnyAvailability($date);
+
+        return response()->json([
+            'available' => $isAvailable,
+            'message' => $isAvailable ? 'Available' : 'Not available for selected date'
+        ]);
+    } catch (\Exception $e) {
+        \Log::error('Availability check error: ' . $e->getMessage());
+        return response()->json([
+            'available' => false,
+            'message' => 'Error checking availability'
+        ]);
+    }
+}
+private function checkAccommodationAvailability($date, $accommodationId, $requestedQuantity)
+{
+    $accommodation = Accomodation::find($accommodationId);
+    
+    if (!$accommodation || $accommodation->accomodation_status !== 'available') {
+        return false;
+    }
+    
+    // Check walk-in reservations that overlap with selected date
+    $walkInReservations = WalkInGuest::where('accomodation_id', $accommodationId)
+        ->where('reservation_check_in_date', '<=', $date)
+        ->where('reservation_check_out_date', '>', $date)
+        ->whereIn('reservation_status', ['reserved', 'checked-in'])
+        ->sum('quantity');
+    
+    // Check online reservations that overlap with selected date
+    $onlineReservations = Reservation::where('accomodation_id', $accommodationId)
+        ->where('reservation_check_in_date', '<=', $date)
+        ->where('reservation_check_out_date', '>', $date)
+        ->whereIn('reservation_status', ['reserved', 'checked-in'])
+        ->sum('quantity');
+    
+    $totalReserved = $walkInReservations + $onlineReservations;
+    $availableRooms = $accommodation->accomodation_capacity - $totalReserved;
+    
+    return $availableRooms >= $requestedQuantity;
+}
+
+private function checkAnyAvailability($date)
+{
+    $accommodations = Accomodation::where('accomodation_status', 'available')->get();
+    
+    foreach ($accommodations as $accommodation) {
+        if ($this->checkAccommodationAvailability($date, $accommodation->accomodation_id, 1)) {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+private function isValidDate($date)
+{
+    $d = DateTime::createFromFormat('Y-m-d', $date);
+    return $d && $d->format('Y-m-d') === $date;
+}
 }

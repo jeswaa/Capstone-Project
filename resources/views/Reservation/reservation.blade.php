@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<<<<<<< HEAD
     <title>Reservation - Lelo's Resort</title>
     <link
         href="https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:wght@100..900&family=Poppins:wght@100..900&display=swap"
@@ -149,6 +150,19 @@
                     <label>Address</label>
                     <textarea name="address" class="input-box" placeholder="Enter your address"
                         value="{{auth()->user()->address}}" required></textarea>
+=======
+    <title>Booking Page</title>
+    <!-- Bootstrap CSS for styling -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <!-- Display Error Messages -->
+         @include('Alert.errorLogin')
+            <div class="card">
+                <div class="card-header">
+                    <h3>User Details</h3>
+>>>>>>> 0623334300f5f9bf0ce99b8dba8a3c3e6289ff79
                 </div>
             </div>
 

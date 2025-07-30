@@ -64,29 +64,23 @@
 .fancy-link.active::after {
     width: 100% !important;
 }
+.transition-width {
+        transition: all 0.3s ease;
+}
+#mainContent.full-width {
+    width: 100% !important;
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+}
 </style>
 <body style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
-@include('Alert.loginSucess')
-    @if (session('error'))
-    <div class="alert alert-success  fade show position-absolute top-0 end-0 m-3 z-3 w-auto font-paragraph text-uppercase" role="alert">
-        <strong>{{ session('error') }}</strong>
-        <script>
-            setTimeout(function() {
-                document.querySelector('.alert').classList.remove('show');
-            }, 5000);
-        </script>
-    </div>
-    @endif
+    @include('Alert.errorLogin')
+    @include('Alert.loginSuccessUser')
     <div class="container-fluid min-vh-100 d-flex p-0">
         <!-- SIDEBAR -->
-        <div class="col-md-3 col-lg-2 color-background8 text-white position-sticky" id="sidebar" style="top: 0; height: 100vh; background-color: #0b573d background-color: #0b573d ">
-            <div class="d-flex flex-column h-100">
-            @include('Navbar.sidenavbarStaff')
-            </div>
-        </div>
-
+        @include('Navbar.sidenavbarStaff')
         <!-- Main Content  -->
-         <div class="col-md-10 col-lg-10 py-4 px-4">
+         <div id="mainContent" class="flex-grow-1 py-4 px-4 transition-width" style="transition: all 0.3s ease;">
             <!-- Heading and Logo -->
             <div class="d-flex justify-content-end align-items-end mb-2">
                 <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill me-3">
@@ -179,60 +173,86 @@
             </div>
             <!-- Modal for adding walkin guest -->
             <div class="modal fade" id="addWalkInModal" tabindex="-1" aria-labelledby="addWalkInModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-lg">
+                <div class="modal-dialog modal-xl"> <!-- Changed to modal-xl for larger width -->
                     <div class="modal-content">
                         <div class="modal-header" style="background-color: #0b573d; color: white;">
-                            <h5 class="modal-title" id="addWalkInModalLabel">Walk-in Guest</h5>
+                            <h5 class="modal-title" id="addWalkInModalLabel">
+                                <i class="fas fa-user-plus me-2"></i>Walk-in Guest Reservation
+                            </h5>
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div class="modal-body">
+                        <div class="modal-body p-4"> <!-- Added more padding -->
                             <form action="{{ route('staff.walkin.store') }}" method="POST" class="needs-validation" novalidate>
                                 @csrf
-                                <div class="row">
+                                <div class="row g-4"> <!-- Added gap between columns -->
                                     <!-- Left Side - Personal Information -->
                                     <div class="col-md-6 pe-4 border-end">
-                                        <h6 class="mb-3 text-muted">Personal Information</h6>
+                                        <div class="section-header mb-4">
+                                            <h6 class="text-muted fw-bold">
+                                                <i class="fas fa-user me-2"></i>Personal Information
+                                            </h6>
+                                            <hr class="mt-2 border-success">
+                                        </div>
                                         
                                         <!-- Personal Info Card -->
-                                        <div class="card mb-4 border-success">
+                                        <div class="card shadow-sm mb-4 border-success">
                                             <div class="card-body">
                                                 <div class="mb-3">
-                                                    <label for="name" class="form-label fw-bold">Full Name</label>
-                                                    <input type="text" class="form-control border-success" id="name" name="name" required>
+                                                    <label for="name" class="form-label fw-bold">
+                                                        <i class="fas fa-user-circle me-2"></i>Full Name
+                                                    </label>
+                                                    <input type="text" class="form-control form-control-lg border-success" id="name" name="name" required>
                                                 </div>
                                                 <div class="mb-3">
-                                                    <label for="address" class="form-label fw-bold">Address</label>
-                                                    <input type="text" class="form-control border-success" id="address" name="address" required>
+                                                    <label for="address" class="form-label fw-bold">
+                                                        <i class="fas fa-map-marker-alt me-2"></i>Address
+                                                    </label>
+                                                    <input type="text" class="form-control form-control-lg border-success" id="address" name="address" required>
                                                 </div>
                                                 <div class="mb-3">
-                                                    <label for="phone" class="form-label fw-bold">Phone Number</label>
-                                                    <input type="tel" class="form-control border-success" id="phone" name="mobileNo" required>
+                                                    <label for="phone" class="form-label fw-bold">
+                                                        <i class="fas fa-phone me-2"></i>Phone Number
+                                                    </label>
+                                                    <input type="tel" class="form-control form-control-lg border-success" id="phone" name="mobileNo" required>
                                                 </div>
                                             </div>
                                         </div>
+
                                         <!-- Guest Count Card -->
-                                        <div class="card mb-4 border-success">
+                                        <div class="card shadow-sm mb-4 border-success">
+                                            <div class="card-header bg-success bg-opacity-10">
+                                                <h6 class="mb-0 fw-bold">Guest Information</h6>
+                                            </div>
                                             <div class="card-body">
                                                 <div class="mb-3">
-                                                    <label for="number_of_adult" class="form-label fw-bold">Number of Adults</label>
-                                                    <input type="number" class="form-control border-success" id="number_of_adult" name="number_of_adult" min="0" value="0" required onchange="calculateTotalGuests()">
+                                                    <label for="number_of_adult" class="form-label fw-bold">
+                                                        <i class="fas fa-user-friends me-2"></i>Number of Adults
+                                                    </label>
+                                                    <input type="number" class="form-control form-control-lg border-success" id="number_of_adult" name="number_of_adult" min="0" value="0" required onchange="calculateTotalGuests()">
                                                     <small class="text-muted" id="adult_entrance_fee">Entrance Fee: ₱<span id="adult_fee">0.00</span></small>
                                                 </div>
                                                 <div class="mb-3">
-                                                    <label for="number_of_children" class="form-label fw-bold">Number of Children</label>
-                                                    <input type="number" class="form-control border-success" id="number_of_children" name="number_of_children" min="0" value="0" required onchange="calculateTotalGuests()">
-                                                        <small class="text-muted" id="child_entrance_fee">Entrance Fee: ₱<span id="child_fee">0.00</span></small>
+                                                    <label for="number_of_children" class="form-label fw-bold">
+                                                        <i class="fas fa-child me-2"></i>Number of Children
+                                                    </label>
+                                                    <input type="number" class="form-control form-control-lg border-success" id="number_of_children" name="number_of_children" min="0" value="0" required onchange="calculateTotalGuests()">
+                                                    <small class="text-muted" id="child_entrance_fee">Entrance Fee: ₱<span id="child_fee">0.00</span></small>
                                                 </div>
                                                 <div class="mb-3">
-                                                    <label for="num_guests" class="form-label fw-bold">Total Guests</label>
-                                                    <input type="number" class="form-control border-success" id="num_guests" name="total_guest" readonly>
+                                                    <label for="num_guests" class="form-label fw-bold">
+                                                        <i class="fas fa-users me-2"></i>Total Guests
+                                                    </label>
+                                                    <input type="number" class="form-control form-control-lg border-success" id="num_guests" name="total_guest" readonly>
                                                     <small class="text-danger" id="capacity_error" style="display:none;">
+                                                        <i class="fas fa-exclamation-triangle me-1"></i>
                                                         Total guests exceeds accommodation capacity! Maximum allowed: <span id="max_capacity"></span>
                                                     </small>
                                                 </div>
                                                 <div class="mb-3">
-                                                    <label for="total_fee" class="form-label fw-bold">Total Entrance Fee</label>
-                                                    <input type="text" class="form-control border-success" id="total_fee" name="total_fee" value="₱0.00" readonly>
+                                                    <label for="total_fee" class="form-label fw-bold">
+                                                        <i class="fas fa-receipt me-2"></i>Total Entrance Fee
+                                                    </label>
+                                                    <input type="text" class="form-control form-control-lg border-success" id="total_fee" name="total_fee" value="₱0.00" readonly>
                                                 </div>
                                             </div>
                                         </div>
@@ -240,110 +260,227 @@
 
                                     <!-- Right Side - Reservation Details -->
                                     <div class="col-md-6 ps-4">
-                                        <h6 class="mb-3 text-muted">Reservation Details</h6>
-                                        <div class="mb-3">
-                                            <label for="check_in_date" class="form-label fw-bold">Check-in Date</label>
-                                            <input type="date" class="form-control border-success" id="check_in_date" name="check_in_date" 
-                                                value="{{ date('Y-m-d') }}"
-                                                min="{{ date('Y-m-d') }}"
-                                                required>
+                                        <div class="section-header mb-4">
+                                            <h6 class="text-muted fw-bold">
+                                                <i class="fas fa-calendar-alt me-2"></i>Reservation Details
+                                            </h6>
+                                            <hr class="mt-2 border-success">
                                         </div>
-                                        <div class="mb-3">
-                                            <label for="check_out_date" class="form-label fw-bold">Check-out Date</label>
-                                            <input type="date" class="form-control border-success" id="check_out_date" name="check_out_date"
-                                                value="{{ date('Y-m-d') }}"
-                                                min="{{ date('Y-m-d') }}"
-                                                required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="session" class="form-label fw-bold">Session</label>
-                                            <select class="form-select border-success" id="session" name="session" required onchange="updateTimes()">
-                                                <option value="">Select Session</option>
-                                                @if($morningSession = $transactions->firstWhere('session', 'Morning'))
-                                                <option value="{{ $morningSession->session }}" 
-                                                        data-start="{{ date('H:i:s', strtotime($morningSession->start_time)) }}" 
-                                                        data-end="{{ date('H:i:s', strtotime($morningSession->end_time)) }}">
-                                                    Morning
-                                                </option>
-                                                @endif
-                                                @if($eveningSession = $transactions->firstWhere('session', 'Evening'))
-                                                <option value="{{ $eveningSession->session }}" 
-                                                        data-start="{{ date('H:i:s', strtotime($eveningSession->start_time)) }}" 
-                                                        data-end="{{ date('H:i:s', strtotime($eveningSession->end_time)) }}">
-                                                    Evening
-                                                </option>
-                                                @endif
-                                            </select>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="check_in_time" class="form-label fw-bold">Check-in Time</label>
-                                            <input type="time" class="form-control border-success" id="check_in_time" name="check_in_time" readonly>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="check_out_time" class="form-label fw-bold">Check-out Time</label>
-                                            <input type="time" class="form-control border-success" id="check_out_time" name="check_out_time" readonly>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="room_type" class="form-label fw-bold">Room Type</label>
-                                            <select class="form-select border-success" id="room_type" name="accomodation_id" required onchange="updateAmountAndTotal()">
-                                                <option value="">Select Room Type</option>
-                                                @foreach($accomodations as $accomodation)
-                                                    @if($accomodation->accomodation_status === 'available'))
-                                                        <option value="{{ $accomodation->accomodation_id }}" 
-                                                                data-price="{{ $accomodation->accomodation_price }}"
-                                                                data-capacity="{{ $accomodation->accomodation_capacity }}">
-                                                            {{ $accomodation->accomodation_name }} - ₱{{ number_format($accomodation->accomodation_price, 2) }}
-                                                        </option>
-                                                    @endif
-                                                @endforeach
-                                            </select>
-                                            <div class="invalid-feedback">
-                                                Please select a room type.
+
+                                        <div class="card shadow-sm mb-4 border-success">
+                                            <div class="card-body">
+                                                <div class="row g-3">
+                                                    <div class="col-md-6">
+                                                        <label for="check_in_date" class="form-label fw-bold">
+                                                            <i class="fas fa-calendar-check me-2"></i>Check-in Date
+                                                        </label>
+                                                        <input type="date" 
+                                                            class="form-control form-control-lg border-success" 
+                                                            id="check_in_date" 
+                                                            name="check_in_date" 
+                                                            required
+                                                            onchange="checkAvailability(this.value)">
+                                                        <div class="invalid-feedback" id="date_error" style="display: none;">
+                                                            <i class="fas fa-exclamation-circle me-1"></i>
+                                                            This date is already fully booked. Please select another date.
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label for="check_out_date" class="form-label fw-bold">
+                                                            <i class="fas fa-calendar-times me-2"></i>Check-out Date
+                                                        </label>
+                                                        <input type="date" class="form-control form-control-lg border-success" id="check_out_date" name="check_out_date" required>
+                                                    </div>
+                                                </div>
+                                                <div class="row g-3 mt-2">
+                                                    <div class="col-md-12">
+                                                        <label for="stay_type" class="form-label fw-bold">
+                                                            <i class="fas fa-moon me-2"></i>Stay Duration
+                                                        </label>
+                                                        <select class="form-select form-select-lg border-success" id="stay_type" name="stay_type" required onchange="handleStayTypeChange()">
+                                                            <option value="">Select Stay Type</option>
+                                                            <option value="day">Day Stay (One Day)</option>
+                                                            <option value="overnight">Overnight Stay</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="row g-3 mt-2" id="sessionDiv">
+                                                    <div class="col-md-12">
+                                                        <label for="session" class="form-label fw-bold">
+                                                            <i class="fas fa-clock me-2"></i>Session
+                                                        </label>
+                                                        <select class="form-select form-select-lg border-success" id="session" name="session" required onchange="updateTimes()">
+                                                            <option value="">Select Session</option>
+                                                            @if($morningSession = $transactions->firstWhere('session', 'Morning'))
+                                                            <option value="{{ $morningSession->session }}" 
+                                                                    data-start="{{ date('H:i:s', strtotime($morningSession->start_time)) }}" 
+                                                                    data-end="{{ date('H:i:s', strtotime($morningSession->end_time)) }}">
+                                                                Morning
+                                                            </option>
+                                                            @endif
+                                                            @if($eveningSession = $transactions->firstWhere('session', 'Evening'))
+                                                            <option value="{{ $eveningSession->session }}" 
+                                                                    data-start="{{ date('H:i:s', strtotime($eveningSession->start_time)) }}" 
+                                                                    data-end="{{ date('H:i:s', strtotime($eveningSession->end_time)) }}">
+                                                                Evening
+                                                            </option>
+                                                            @endif
+                                                        </select>
+                                                    </div>
+                                                </div>
+
+                                                <script>
+                                                    function handleStayTypeChange() {
+                                                        const stayType = document.getElementById('stay_type').value;
+                                                        const sessionDiv = document.getElementById('sessionDiv');
+                                                        const sessionSelect = document.getElementById('session');
+                                                        const checkInTime = document.getElementById('check_in_time');
+                                                        const checkOutTime = document.getElementById('check_out_time');
+                                                        
+                                                        if (stayType === 'overnight') {
+                                                            sessionDiv.style.display = 'none';
+                                                            sessionSelect.value = ''; // Clear session selection
+                                                            checkInTime.value = '14:00'; // 2:00 PM
+                                                            checkOutTime.value = '12:00'; // 12:00 PM
+                                                            
+                                                            // Calculate total guests even without session for overnight stays
+                                                            calculateTotalGuestsForOvernight();
+                                                        } else {
+                                                            sessionDiv.style.display = 'flex';
+                                                            checkInTime.value = '';
+                                                            checkOutTime.value = '';
+                                                            
+                                                            // Reset fees when switching back to day stay
+                                                            document.getElementById('adult_fee').textContent = '0.00';
+                                                            document.getElementById('child_fee').textContent = '0.00';
+                                                            document.getElementById('total_fee').value = '₱0.00';
+                                                            updateAmount();
+                                                        }
+                                                    }
+
+                                                    function calculateTotalGuestsForOvernight() {
+                                                        const adults = parseInt(document.getElementById('number_of_adult').value) || 0;
+                                                        const children = parseInt(document.getElementById('number_of_children').value) || 0;
+                                                        const totalGuests = adults + children;
+                                                        
+                                                        // Set total guests
+                                                        document.getElementById('num_guests').value = totalGuests;
+                                                        
+                                                        // For overnight stays, you might want to set entrance fees to 0 or a fixed amount
+                                                        // Adjust this based on your business logic
+                                                        document.getElementById('adult_fee').textContent = '0.00';
+                                                        document.getElementById('child_fee').textContent = '0.00';
+                                                        document.getElementById('total_fee').value = '₱0.00';
+                                                        
+                                                        // Update the total amount
+                                                        updateAmount();
+                                                        validateCapacity();
+                                                    }
+                                                </script>
+
+                                                <div class="row g-3 mt-2">
+                                                    <div class="col-md-6">
+                                                        <label for="check_in_time" class="form-label fw-bold">
+                                                            <i class="fas fa-hourglass-start me-2"></i>Check-in Time
+                                                        </label>
+                                                        <input type="time" class="form-control form-control-lg border-success" id="check_in_time" name="check_in_time" readonly>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label for="check_out_time" class="form-label fw-bold">
+                                                            <i class="fas fa-hourglass-end me-2"></i>Check-out Time
+                                                        </label>
+                                                        <input type="time" class="form-control form-control-lg border-success" id="check_out_time" name="check_out_time" readonly>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div class="mb-3">
-                                            <label for="quantity" class="form-label fw-bold">Quantity</label>
-                                            <input type="number" class="form-control border-success" id="quantity" name="quantity" min="1" value="1" required oninput="validateQuantity()">
-                                            <div class="invalid-feedback" id="quantity_error">
-                                                The selected quantity exceeds the available rooms for this accommodation type.
+
+                                        <div class="card shadow-sm mb-4 border-success">
+                                            <div class="card-header bg-success bg-opacity-10">
+                                                <h6 class="mb-0 fw-bold">Room & Payment Details</h6>
                                             </div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="payment_method" class="form-label fw-bold">Payment Method</label>
-                                            <select class="form-select border-success" id="payment_method" name="payment_method" required>
-                                                <option value="">Select Payment Method</option>
-                                                <option value="cash">Cash</option>
-                                                <option value="gcash">GCash</option>
-                                            </select>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="amount_paid" class="form-label fw-bold">Total Amount Paid</label>
-                                            <input type="number" class="form-control border-success" id="amount_paid" name="amount" step="0.01" required readonly>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="payment_status" class="form-label fw-bold">Payment Status</label>
-                                            <select class="form-select border-success" id="payment_status" name="payment_status" required>
-                                                <option value="">Select Payment Status</option>
-                                                <option value="Paid">Paid</option>
-                                                <option value="Partially paid">Partially Paid</option>
-                                                <option value="Unpaid">Unpaid</option>
-                                            </select>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="reservation_status" class="form-label fw-bold">Reservation Status</label>
-                                            <select class="form-select border-success" id="reservation_status" name="reservation_status" required>
-                                                <option value="">Select Reservation Status</option>
-                                                <option value="Pending">Pending</option>
-                                                <option value="Checked in">Checked In</option>
-                                                <option value="Checked_out">Checked Out</option>
-                                            </select>
+                                            <div class="card-body">
+                                                <div class="mb-3">
+                                                    <label for="room_type" class="form-label fw-bold">
+                                                        <i class="fas fa-bed me-2"></i>Room Type
+                                                    </label>
+                                                    <select class="form-select form-select-lg border-success" id="room_type" name="accomodation_id" required onchange="updateAmountAndTotal()">
+                                                        <option value="">Select Room Type</option>
+                                                        @foreach($accomodations as $accomodation)
+                                                            @if($accomodation->accomodation_status === 'available'))
+                                                                <option value="{{ $accomodation->accomodation_id }}" 
+                                                                        data-price="{{ $accomodation->accomodation_price }}"
+                                                                        data-capacity="{{ $accomodation->accomodation_capacity }}">
+                                                                    {{ $accomodation->accomodation_name }} - ₱{{ number_format($accomodation->accomodation_price, 2) }}
+                                                                </option>
+                                                            @endif
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label for="quantity" class="form-label fw-bold">
+                                                        <i class="fas fa-hashtag me-2"></i>Quantity
+                                                    </label>
+                                                    <input type="number" class="form-control form-control-lg border-success" id="quantity" name="quantity" min="1" value="1" required oninput="validateQuantity()">
+                                                    <div class="invalid-feedback" id="quantity_error">
+                                                        The selected quantity exceeds the available rooms for this accommodation type.
+                                                    </div>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label for="payment_method" class="form-label fw-bold">
+                                                        <i class="fas fa-money-bill me-2"></i>Payment Method
+                                                    </label>
+                                                    <select class="form-select form-select-lg border-success" id="payment_method" name="payment_method" required>
+                                                        <option value="">Select Payment Method</option>
+                                                        <option value="cash">Cash</option>
+                                                        <option value="gcash">GCash</option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label for="amount_paid" class="form-label fw-bold">
+                                                        <i class="fas fa-file-invoice-dollar me-2"></i>Total Amount Paid
+                                                    </label>
+                                                    <input type="number" class="form-control form-control-lg border-success" id="amount_paid" name="amount" step="0.01" required readonly>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label for="payment_status" class="form-label fw-bold">
+                                                        <i class="fas fa-money-check-alt me-2"></i>Payment Status
+                                                    </label>
+                                                    <select class="form-select form-select-lg border-success" id="payment_status" name="payment_status" required>
+                                                        <option value="">Select Payment Status</option>
+                                                        <option value="Paid">Paid</option>
+                                                        <option value="Partially paid">Partially Paid</option>
+                                                        <option value="Unpaid">Unpaid</option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label for="reservation_status" class="form-label fw-bold">
+                                                        <i class="fas fa-bookmark me-2"></i>Reservation Status
+                                                    </label>
+                                                    <select class="form-select form-select-lg border-success" id="reservation_status" name="reservation_status" required>
+                                                        <option value="">Select Reservation Status</option>
+                                                        <option value="Reserved">Reserved</option>
+                                                        <option value="Checked-in">Checked In</option>
+                                                        <option value="Checked-out">Checked Out</option>
+                                                    </select>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="modal-footer mt-4">
-                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn text-white" style="background-color: #0b573d;" id="submitButton">Add Reservation</button>
+                                <div class="modal-footer mt-4 border-top pt-3">
+                                    <button type="button" class="btn btn-outline-secondary btn-lg px-4" data-bs-dismiss="modal">
+                                        <i class="fas fa-times me-2"></i>Cancel
+                                    </button>
+                                    <button type="submit" class="btn btn-lg text-white px-4" style="background-color: #0b573d;" id="submitButton" disabled>
+                                        <i class="fas fa-save me-2"></i>Add Reservation
+                                    </button>
                                 </div>
                             </form>
                         </div>
@@ -372,18 +509,18 @@
                     </thead>
                     <tbody>
                     @foreach($walkinGuest as $guest)
-                            <tr>
-                                <td>{{ $guest->name }}</td>
-                                <td>{{ $guest->address }}</td>
-                                <td>{{ $guest->mobileNo }}</td>
-                                <td>{{ date('M d, Y', strtotime($guest->reservation_check_in_date)) }}</td>
-                                <td>{{ date('h:i A', strtotime($guest->check_in_time)) }} - {{ date('h:i A', strtotime($guest->check_out_time)) }}</td>
-                                <td>{{ $guest->accomodation_name }}</td>
-                                <td>{{ $guest->quantity}}</td>
-                                <td>{{ $guest->total_guests }}</td>
-                                <td>₱{{ number_format($guest->amount, 2) }}</td>
-                                <td>{{ $guest->payment_method }}</td>
-                                <td>
+                            <tr class="align-middle">
+                                <td class="text-center">{{ $guest->name }}</td>
+                                <td class="text-center">{{ $guest->address }}</td>
+                                <td class="text-center">{{ $guest->mobileNo }}</td>
+                                <td class="text-center">{{ date('M d, Y', strtotime($guest->reservation_check_in_date)) }}</td>
+                                <td class="text-center">{{ date('h:i A', strtotime($guest->check_in_time)) }} - {{ date('h:i A', strtotime($guest->check_out_time)) }}</td>
+                                <td class="text-center">{{ $guest->accomodation_name }}</td>
+                                <td class="text-center">{{ $guest->quantity}}</td>
+                                <td class="text-center">{{ $guest->total_guests }}</td>
+                                <td class="text-center">₱{{ number_format($guest->amount, 2) }}</td>
+                                <td class="text-center">{{ $guest->payment_method }}</td>
+                                <td class="text-center">
                                     @if($guest->reservation_status == 'checked-in')
                                         <span class="badge bg-success text-capitalize">{{ $guest->reservation_status }}</span>
                                     @elseif($guest->reservation_status == 'checked-out')
@@ -392,7 +529,7 @@
                                         <span class="badge bg-secondary">{{ $guest->reservation_status }}</span>
                                     @endif
                                 </td>
-                                <td class="text-capitalize">
+                                <td class="text-center text-capitalize">
                                     @if($guest->payment_status == 'Paid')
                                         <span class="badge bg-success ">{{ $guest->payment_status }}</span>
                                     @elseif($guest->payment_status == 'Partially Paid')
@@ -401,40 +538,62 @@
                                         <span class="badge bg-danger">{{ $guest->payment_status }}</span>
                                     @endif
                                 </td>
-                                <td>
-                                    <button type="button" class="btn btn-sm" style="background-color: #0b573d; color: white;" onclick="openEditModal({{ $guest->id }})">
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-sm" style="background-color: #0b573d; color: white;"
+                                        data-bs-toggle="modal" data-bs-target="#editModal{{ $guest->id }}">
                                         <i class="fas fa-edit"></i>
                                     </button>
 
                                     <!-- Edit Modal -->
                                     <div class="modal fade" id="editModal{{ $guest->id }}" tabindex="-1" aria-labelledby="editModalLabel{{ $guest->id }}" aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header" style="background-color: #0b573d; color: white;">
-                                                    <h5 class="modal-title" id="editModalLabel{{ $guest->id }}">Update Status</h5>
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content border-0 shadow">
+                                                <div class="modal-header bg-success bg-gradient text-white border-0">
+                                                    <h5 class="modal-title" id="editModalLabel{{ $guest->id }}">
+                                                        <i class="fas fa-edit me-2"></i>Update Reservation Status
+                                                    </h5>
                                                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
                                                 <form action="{{ route('staff.updateWalkInStatus', $guest->id) }}" method="POST">
                                                     @csrf
-                                                    <div class="modal-body">
-                                                        <div class="mb-3">
-                                                            <label for="payment_status{{ $guest->id }}" class="form-label fw-bold">Payment Status</label>
-                                                            <select class="form-select border-success" id="payment_status{{ $guest->id }}" name="payment_status" required>
-                                                                <option value="Paid" {{ old('payment_status', $guest->payment_status) == 'Paid' ? 'selected' : '' }}>Paid</option>
-                                                                <option value="Partially Paid" {{ old('payment_status', $guest->payment_status) == 'Partially Paid' ? 'selected' : '' }}>Partially Paid</option>
+                                                    <div class="modal-body p-4">
+                                                        <div class="mb-4">
+                                                            <label for="payment_status{{ $guest->id }}" class="form-label text-muted fw-bold">
+                                                                <i class="fas fa-money-bill-wave me-2"></i>Payment Status
+                                                            </label>
+                                                            <select class="form-select form-select-lg border-success bg-light" id="payment_status{{ $guest->id }}" name="payment_status" required>
+                                                                <option value="Paid" {{ old('payment_status', $guest->payment_status) == 'Paid' ? 'selected' : '' }}>
+                                                                    <i class="fas fa-check-circle text-success"></i> Paid
+                                                                </option>
+                                                                <option value="Partially Paid" {{ old('payment_status', $guest->payment_status) == 'Partially Paid' ? 'selected' : '' }}>
+                                                                    <i class="fas fa-clock text-warning"></i> Partially Paid
+                                                                </option>
                                                             </select>
                                                         </div>
-                                                        <div class="mb-3">
-                                                            <label for="reservation_status{{ $guest->id }}" class="form-label fw-bold">Reservation Status</label>
-                                                            <select class="form-select border-success" id="reservation_status{{ $guest->id }}" name="reservation_status" required>
-                                                                <option value="checked-in" {{ old('reservation_status', $guest->reservation_status) == 'checked-in' ? 'selected' : '' }}>Checked In</option>
-                                                                <option value="checked-out" {{ old('reservation_status', $guest->reservation_status) == 'checked-out' ? 'selected' : '' }}>Checked Out</option>
-                                                                <option value="cencelled" {{ old('reservation_status', $guest->reservation_status) == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                                                        <div class="mb-4">
+                                                            <label for="reservation_status{{ $guest->id }}" class="form-label text-muted fw-bold">
+                                                                <i class="fas fa-calendar-check me-2"></i>Reservation Status
+                                                            </label>
+                                                            <select class="form-select form-select-lg border-success bg-light" id="reservation_status{{ $guest->id }}" name="reservation_status" required>
+                                                                <option value="checked-in" {{ old('reservation_status', $guest->reservation_status) == 'checked-in' ? 'selected' : '' }}>
+                                                                    <i class="fas fa-door-open text-success"></i> Checked In
+                                                                </option>
+                                                                <option value="checked-out" {{ old('reservation_status', $guest->reservation_status) == 'checked-out' ? 'selected' : '' }}>
+                                                                    <i class="fas fa-door-closed text-danger"></i> Checked Out
+                                                                </option>
+                                                                <option value="cancelled" {{ old('reservation_status', $guest->reservation_status) == 'cancelled' ? 'selected' : '' }}>
+                                                                    <i class="fas fa-ban text-danger"></i> Cancelled
+                                                                </option>
                                                             </select>
                                                         </div>
                                                     </div>
-                                                    <div class="modal-footer">
-                                                        <button type="submit" class="btn text-white" style="background-color: #0b573d;">Save changes</button>
+                                                    <div class="modal-footer border-0 pt-0">
+                                                        <button type="button" class="btn btn-light fw-bold" data-bs-dismiss="modal">
+                                                            <i class="fas fa-times me-2"></i>Cancel
+                                                        </button>
+                                                        <button type="submit" class="btn btn-success fw-bold">
+                                                            <i class="fas fa-save me-2"></i>Save Changes
+                                                        </button>
                                                     </div>
                                                 </form>
                                             </div>
@@ -565,16 +724,23 @@ function calculateTotalGuests() {
     const adults = parseInt(document.getElementById('number_of_adult').value) || 0;
     const children = parseInt(document.getElementById('number_of_children').value) || 0;
     const quantity = parseInt(document.getElementById('quantity').value) || 1;
+    const stayType = document.getElementById('stay_type').value;
     
     const sessionSelect = document.getElementById('session');
     const accommodationSelect = document.getElementById('room_type');
+    
+    // If overnight stay, use the overnight calculation
+    if (stayType === 'overnight') {
+        calculateTotalGuestsForOvernight();
+        return;
+    }
     
     if (!sessionSelect || !sessionSelect.value) {
         document.getElementById('adult_fee').textContent = '0.00';
         document.getElementById('child_fee').textContent = '0.00';
         document.getElementById('total_fee').value = '₱0.00';
         document.getElementById('capacity_error').style.display = 'none';
-        updateAmount(); // Update the total amount when session is cleared
+        updateAmount();
         validateCapacity();
         return;
     }
@@ -744,5 +910,148 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+<!-- SCRIPT FOR ADDING RESERVATION -->
+ <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.querySelector('.needs-validation');
+        const submitBtn = document.getElementById('submitButton');
+
+        const requiredFields = form.querySelectorAll('[required]');
+
+        function checkFormValidity() {
+            let isValid = true;
+
+            requiredFields.forEach(field => {
+                if (!field.value || (field.type === 'select-one' && field.selectedIndex === 0)) {
+                    isValid = false;
+                }
+            });
+
+            submitBtn.disabled = !isValid;
+        }
+
+        requiredFields.forEach(field => {
+            field.addEventListener('input', checkFormValidity);
+            field.addEventListener('change', checkFormValidity);
+        });
+
+        // Initial check (in case browser pre-fills anything)
+        checkFormValidity();
+    });
+</script>
+<!-- SCRIPT FOR CHECKING THE DATE AVAILABILITY -->
+<script>
+function checkAvailability(date, accommodationId = null, quantity = 1) {
+    if (!date) return;
+    
+    const dateInput = document.getElementById('check_in_date');
+    const errorElement = document.getElementById('date_error');
+    const submitBtn = document.getElementById('submitButton');
+    
+    // Get values from form if not provided
+    if (!accommodationId) {
+        const roomSelect = document.getElementById('room_type');
+        accommodationId = roomSelect?.value;
+    }
+    if (quantity === 1) {
+        const quantityInput = document.getElementById('quantity');
+        quantity = parseInt(quantityInput?.value) || 1;
+    }
+    
+    // Show loading state
+    showStatus('loading', 'Checking availability...', dateInput, errorElement);
+    
+    // Fixed URL - make sure this matches your route
+    fetch('/check-availability', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Accept': 'application/json' // Important: tell server we expect JSON
+        },
+        body: JSON.stringify({
+            date: date,
+            accommodation_id: accommodationId,
+            quantity: quantity
+        })
+    })
+    .then(response => {
+        // Check if response is actually JSON
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            throw new Error('Server returned HTML instead of JSON. Check your route.');
+        }
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        return response.json();
+    })
+    .then(data => {
+        if (data.available) {
+            showStatus('success', data.message || 'Available', dateInput, errorElement);
+            submitBtn.disabled = false;
+        } else {
+            showStatus('error', data.message || 'Not available', dateInput, errorElement);
+            submitBtn.disabled = true;
+        }
+    })
+    .catch(error => {
+        console.error('Availability check failed:', error);
+        showStatus('error', 'Unable to check availability. Please try again.', dateInput, errorElement);
+        submitBtn.disabled = true;
+    });
+}
+
+function showStatus(type, message, dateInput, errorElement) {
+    const icons = {
+        loading: '<i class="fas fa-spinner fa-spin me-1"></i>',
+        success: '<i class="fas fa-check-circle me-1"></i>',
+        error: '<i class="fas fa-exclamation-triangle me-1"></i>'
+    };
+    
+    const styles = {
+        loading: { border: '#ffc107', class: 'text-warning' },
+        success: { border: '#28a745', class: 'text-success' },
+        error: { border: '#dc3545', class: 'text-danger' }
+    };
+    
+    dateInput.style.borderColor = styles[type].border;
+    errorElement.innerHTML = icons[type] + message;
+    errorElement.className = `invalid-feedback ${styles[type].class}`;
+    errorElement.style.display = 'block';
+    
+    // Hide success message after 3 seconds
+    if (type === 'success') {
+        setTimeout(() => errorElement.style.display = 'none', 3000);
+    }
+}
+
+// Initialize event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date().toISOString().split('T')[0];
+    const dateInput = document.getElementById('check_in_date');
+    dateInput.setAttribute('min', today);
+    
+    // Check availability when inputs change
+    dateInput.addEventListener('change', function() {
+        if (this.value) checkAvailability(this.value);
+    });
+    
+    const roomSelect = document.getElementById('room_type');
+    const quantityInput = document.getElementById('quantity');
+    
+    roomSelect?.addEventListener('change', function() {
+        const date = dateInput.value;
+        if (date) checkAvailability(date);
+    });
+    
+    quantityInput?.addEventListener('input', function() {
+        const date = dateInput.value;
+        if (date) checkAvailability(date);
+    });
+});
+</script>
 </body>
 </html>

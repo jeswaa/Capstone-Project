@@ -221,40 +221,44 @@ public function selectPackageCustom(Request $request)
         ]);
     }
     
-    public function saveReservationDetails(Request $request) 
-    {
-        
-        // Retrieve reservation details from session instead of database
-        $reservationDetails = session('reservation_details');
-    
-        if (!$reservationDetails) {
-            return redirect()->route('selectPackage')->with('error', 'No reservation details found. Please start the reservation process again.');
-        }
-    
-        // Fetch user details automatically (assuming they are stored in Auth or another source)
-        $user = Auth::user();
-        $reservationDetails['name'] = $user->name ?? 'Guest';
-        $reservationDetails['email'] = $user->email ?? null;
-        $reservationDetails['mobileNo'] = $user->mobileNo ?? null;
-        $reservationDetails['address'] = $user->address ?? null;
-    
-        // Update session with new details
-        session(['reservation_details' => $reservationDetails]);
-    
-        // Retrieve related package and accommodations
-        $selectedPackage = Package::find($reservationDetails['package_id'] ?? null);
-        $accommodationIds = json_decode($reservationDetails['accomodation_id'] ?? '[]', true);
-        $accommodations = DB::table('accomodations')->whereIn('accomodation_id', $accommodationIds)->get();
-        $activityIds = json_decode($reservationDetails['activity_id'] ?? '[]', true);
-        $activities = DB::table('activitiestbl')->whereIn('id', $activityIds)->get();
-    
-        return redirect()->route('paymentProcess')->with([
-            'success' => 'Reservation details stored successfully.',
-            'selectedPackage' => $selectedPackage,
-            'accommodations' => $accommodations,
-            'activities' => $activities
-        ]);
+public function saveReservationDetails(Request $request) 
+{
+    $userId = Auth::id();
+    if (!$userId) {
+        return redirect()->route('login')->with('error', 'Login first.');
     }
+        
+    // Retrieve reservation details from session instead of database
+    $reservationDetails = session('reservation_details');
+
+    if (!$reservationDetails) {
+        return redirect()->route('selectPackage')->with('error', 'No reservation details found. Please start the reservation process again.');
+    }
+
+    // Fetch user details automatically (assuming they are stored in Auth or another source)
+    $user = Auth::user();
+    $reservationDetails['name'] = $user->name ?? 'Guest';
+    $reservationDetails['email'] = $user->email ?? null;
+    $reservationDetails['mobileNo'] = $user->mobileNo ?? null;
+    $reservationDetails['address'] = $user->address ?? null;
+
+    // Update session with new details
+    session(['reservation_details' => $reservationDetails]);
+
+    // Retrieve related package and accommodations
+    $selectedPackage = Package::find($reservationDetails['package_id'] ?? null);
+    $accommodationIds = json_decode($reservationDetails['accomodation_id'] ?? '[]', true);
+    $accommodations = DB::table('accomodations')->whereIn('accomodation_id', $accommodationIds)->get();
+    $activityIds = json_decode($reservationDetails['activity_id'] ?? '[]', true);
+    $activities = DB::table('activitiestbl')->whereIn('id', $activityIds)->get();
+
+    return redirect()->route('paymentProcess')->with([
+        'success' => 'Reservation details stored successfully.',
+        'selectedPackage' => $selectedPackage,
+        'accommodations' => $accommodations,
+        'activities' => $activities
+    ]);
+}
     
     
 
@@ -531,7 +535,10 @@ public function selectPackageCustom(Request $request)
 
 public function savePaymentProcess(Request $request)
 {
-    
+    $userId = Auth::id();
+    if (!$userId) {
+        return redirect()->route('login')->with('error', 'Login first.');
+    }
     // Retrieve reservation details from session instead of database
     $reservationDetails = session('reservation_details');
 

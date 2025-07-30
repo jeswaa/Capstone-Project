@@ -18,7 +18,7 @@ public function profilepage()
 {
     $userId = Auth::id();
     if (!$userId) {
-        return redirect()->route('login')->with('error', 'Please login to view your profile.');
+        return redirect()->route('login')->with('error', 'Login first to view your profile.');
     }
 
     // Fetch user details

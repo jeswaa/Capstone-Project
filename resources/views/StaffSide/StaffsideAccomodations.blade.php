@@ -60,19 +60,22 @@
 .fancy-link.active::after {
     width: 100% !important;
 }
+.transition-width {
+        transition: all 0.3s ease;
+}
+#mainContent.full-width {
+    width: 100% !important;
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+}
 </style>
 <body style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
     @include('Alert.loginSucess')
     <div class="container-fluid min-vh-100 d-flex p-0">
         <!-- SIDEBAR -->
-        <div class="col-md-3 col-lg-2 color-background8 text-white position-sticky" id="sidebar" style="top: 0; height: 100vh; background-color: #0b573d background-color: #0b573d ">
-            <div class="d-flex flex-column h-100">
-            @include('Navbar.sidenavbarStaff')
-            </div>
-        </div>
-        
+        @include('Navbar.sidenavbarStaff')
         <!-- Main Content -->
-        <div class="col-md-10 col-lg-10 py-4 px-4">
+        <div id="mainContent" class="flex-grow-1 py-4 px-4 transition-width" style="transition: all 0.3s ease;">
             <!-- Heading and Logo -->
             <div class="d-flex justify-content-end align-items-end mb-1">
                 <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill me-3">
@@ -123,9 +126,9 @@
                     </div>
                 </div>
             </div>
-            <div class="d-flex justify-content-start mt-4 mb-3">
+            <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
                 <select class="form-select" style="width: auto;" id="roomFilter">
-                    <option value="all" selected>Select Type of Room</option>
+                    <option value="all" selected>All Rooms</option>
                     @php
                         $types = $accomodations->pluck('accomodation_type')->unique();
                     @endphp
@@ -133,7 +136,113 @@
                         <option value="{{ $type }}">{{ ucfirst($type) }}s</option>
                     @endforeach
                 </select>
+
+                <button type="button" class="btn text-white" style="background-color: #0b573d;" data-bs-toggle="modal" data-bs-target="#activeReservationsModal">
+                    <i class="fas fa-list me-2"></i>View Active Reservations
+                </button>
             </div>
+
+            <!-- Active Reservations Modal -->
+            <div class="modal fade" id="activeReservationsModal" tabindex="-1" aria-labelledby="activeReservationsModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color: #0b573d;">
+                            <h5 class="modal-title text-white" id="activeReservationsModalLabel">
+                                <i class="fas fa-calendar-check me-2"></i>Active Reservations
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            @if($activeReservations->count() > 0)
+                                @foreach($activeReservations as $reservation)
+                                <div class="card shadow-sm mb-3">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h3 class="h5 mb-1">{{ $reservation->name }}</h3>
+                                                <p class="text-muted mb-0">
+                                                    <span class="fw-medium">{{ $reservation->reserved_quantity }}</span> of 
+                                                    <span class="fw-medium">{{ $reservation->total_quantity }}</span> rooms occupied
+                                                </p>
+                                            </div>
+                                            <span class="badge {{ $reservation->status == 'checked-in' ? 'bg-success' : 'bg-warning' }}">
+                                                {{ ucfirst($reservation->status) }}
+                                            </span>
+                                        </div>
+                                        
+                                        <hr>
+                                        
+                                        <div class="d-flex align-items-center text-muted mb-2">
+                                            <i class="far fa-calendar-alt me-2"></i>
+                                            Check-out: {{ \Carbon\Carbon::parse($reservation->next_available_time)->format('M j, Y H:i') }}
+                                        </div>
+                                        
+                                        <div class="d-flex align-items-center">
+                                            <i class="far fa-clock me-2"></i>
+                                            <div class="countdown-timer" data-checkout="{{ $reservation->next_available_time }}" id="countdown-{{ $loop->index }}">
+                                                <span class="countdown-display text-primary fw-medium">Calculating time remaining...</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endforeach
+                            @else
+                                <div class="text-center py-5">
+                                    <i class="far fa-calendar-times fa-3x text-muted mb-3"></i>
+                                    <h3 class="h5">No active reservations</h3>
+                                    <p class="text-muted mb-0">There are currently no reservations with 'reserved' or 'checked-in' status.</p>
+                                </div>
+                            @endif
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                function updateCountdown(element, checkoutDate) {
+                    const now = new Date();
+                    const checkout = new Date(checkoutDate);
+                    const distance = checkout - now;
+
+                    if (distance < 0) {
+                        element.querySelector('.countdown-display').innerHTML = 
+                            '<span class="text-danger fw-bold">CHECKOUT OVERDUE</span>';
+                        return;
+                    }
+
+                    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                    let countdownText = '';
+                    if (days > 0) countdownText += days + 'd ';
+                    countdownText += hours.toString().padStart(2, '0') + 'h ';
+                    countdownText += minutes.toString().padStart(2, '0') + 'm ';
+                    countdownText += seconds.toString().padStart(2, '0') + 's';
+
+                    element.querySelector('.countdown-display').innerHTML = 
+                        '<span class="fw-medium">' + countdownText + ' remaining</span>';
+                }
+
+                const countdownElements = document.querySelectorAll('.countdown-timer');
+                countdownElements.forEach(element => {
+                    const checkoutDate = element.getAttribute('data-checkout');
+                    updateCountdown(element, checkoutDate);
+                    setInterval(() => updateCountdown(element, checkoutDate), 1000);
+                });
+            });
+            </script>
+
+            <style>
+            .countdown-display {
+                transition: color 0.3s ease;
+            }
+            </style>
 
             <!-- Table  -->
             <div class="container-fluid">
@@ -189,10 +298,10 @@
                                         <div class="modal-dialog modal-lg">
                                             <div class="modal-content">
                                                 <div class="modal-header text-white" style="background-color: #0b573d;">
-                                                    <h5 class="modal-title">Edit Room Details</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                    <h5 class="modal-title fs-5 fw-bold"><i class="fas fa-edit me-2" style="height: 20px;"></i>Edit Room Details</h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
-                                                <div class="modal-body">
+                                                <div class="modal-body p-4">
                                                     <form method="POST" 
                                                         action="{{ route('staff.editRoom', ['id' => $accomodation->accomodation_id]) }}" 
                                                         enctype="multipart/form-data"
@@ -201,91 +310,120 @@
                                                         @method('PUT')
                                                         <input type="hidden" name="room_id" value="{{ $accomodation->accomodation_id }}">
                                                         
-                                                        <div class="row">
-                                                            <div class="col-md-6 mb-3">
-                                                                <label class="form-label fw-bold">Room Image</label>
-                                                                <div class="d-flex flex-column align-items-center">
-                                                                    <img id="preview{{ $accomodation->accomodation_id }}" 
-                                                                        src="{{ asset('storage/' . $accomodation->accomodation_image) }}" 
-                                                                        class="img-thumbnail mb-2" 
-                                                                        style="width: 200px; height: 200px; object-fit: cover;">
-                                                                    <input type="file" 
-                                                                        class="form-control" 
-                                                                        style="height: 38px;"
-                                                                        name="accomodation_image" 
-                                                                        accept="image/*" 
-                                                                        onchange="previewImage(event, 'preview{{ $accomodation->accomodation_id }}')">
+                                                        <div class="row g-4">
+                                                            <div class="col-md-6">
+                                                                <div class="card h-100 border-0 shadow-sm">
+                                                                    <div class="card-body text-center">
+                                                                        <label class="form-label fw-bold mb-3 fs-6">Room Image</label>
+                                                                        <div class="position-relative d-inline-block">
+                                                                            <img id="preview{{ $accomodation->accomodation_id }}" 
+                                                                                src="{{ asset('storage/' . $accomodation->accomodation_image) }}" 
+                                                                                class="img-thumbnail rounded-3 mb-3" 
+                                                                                style="width: 250px; height: 250px; object-fit: cover;">
+                                                                            <div class="mt-2">
+                                                                                <input type="file" 
+                                                                                    class="form-control border-2" 
+                                                                                    name="accomodation_image" 
+                                                                                    accept="image/*" 
+                                                                                    onchange="previewImage(event, 'preview{{ $accomodation->accomodation_id }}')">
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
                                                             </div>
 
                                                             <div class="col-md-6">
-                                                                <div class="mb-3">
-                                                                    <label class="form-label fw-bold">Room Name</label>
-                                                                    <input type="text" 
-                                                                        class="form-control"
-                                                                        style="height: 38px;" 
-                                                                        name="accomodation_name" 
-                                                                        value="{{ $accomodation->accomodation_name }}" 
-                                                                        required>
-                                                                </div>
+                                                                <div class="card h-100 border-0 shadow-sm">
+                                                                    <div class="card-body">
+                                                                        <div class="mb-4">
+                                                                            <label class="form-label fw-bold text-dark fs-6">Room Name</label>
+                                                                            <input type="text" 
+                                                                                class="form-control form-control-md border-2" 
+                                                                                name="accomodation_name" 
+                                                                                value="{{ $accomodation->accomodation_name }}" 
+                                                                                required>
+                                                                        </div>
 
-                                                                <div class="mb-3">
-                                                                    <label class="form-label fw-bold">Room Type</label>
-                                                                    <select class="form-select" name="accomodation_type" style="height: 38px;" required>
-                                                                        <option value="room" {{ $accomodation->accomodation_type == 'room' ? 'selected' : '' }}>Room</option>
-                                                                        <option value="cabin" {{ $accomodation->accomodation_type == 'cabin' ? 'selected' : '' }}>Cabin</option>
-                                                                        <option value="cottage" {{ $accomodation->accomodation_type == 'cottage' ? 'selected' : '' }}>Cottage</option>
-                                                                    </select>
+                                                                        <div class="mb-4">
+                                                                            <label class="form-label fw-bold text-dark fs-6">Room Type</label>
+                                                                            <select class="form-select form-select-md border-2" name="accomodation_type" required>
+                                                                                <option value="room" {{ $accomodation->accomodation_type == 'room' ? 'selected' : '' }}>Room</option>
+                                                                                <option value="cabin" {{ $accomodation->accomodation_type == 'cabin' ? 'selected' : '' }}>Cabin</option>
+                                                                                <option value="cottage" {{ $accomodation->accomodation_type == 'cottage' ? 'selected' : '' }}>Cottage</option>
+                                                                            </select>
+                                                                        </div>
+
+                                                                        <div class="mb-4">
+                                                                            <label class="form-label fw-bold text-dark fs-6">Description</label>
+                                                                            <textarea class="form-control border-2" 
+                                                                                    name="accomodation_description" 
+                                                                                    style="height: 120px; resize: none;"
+                                                                                    rows="3">{{ $accomodation->accomodation_description }}</textarea>
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
 
-                                                        <div class="mb-3">
-                                                            <label class="form-label fw-bold">Description</label>
-                                                            <textarea class="form-control" 
-                                                                    name="accomodation_description" 
-                                                                    style="height: 100px;"
-                                                                    rows="3">{{ $accomodation->accomodation_description }}</textarea>
-                                                        </div>
-
-                                                        <div class="row">
-                                                            <div class="col-md-4 mb-3">
-                                                                <label class="form-label fw-bold">Capacity</label>
-                                                                <input type="number" 
-                                                                    class="form-control"
-                                                                    style="height: 38px;" 
-                                                                    name="accomodation_capacity" 
-                                                                    min="1" 
-                                                                    value="{{ $accomodation->accomodation_capacity }}" 
-                                                                    required>
-                                                            </div>
-
-                                                            <div class="col-md-4 mb-3">
-                                                                <label class="form-label fw-bold">Price</label>
-                                                                <div class="input-group" style="height: 38px;">
-                                                                    <span class="input-group-text h-100">₱</span>
-                                                                    <input type="number" 
-                                                                        class="form-control h-100"
-                                                                        name="accomodation_price" 
-                                                                        min="0" 
-                                                                        value="{{ $accomodation->accomodation_price }}" 
-                                                                        required>
+                                                        <div class="row g-4 mt-2">
+                                                            <div class="col-md-4">
+                                                                <div class="card border-0 shadow-sm">
+                                                                    <div class="card-body">
+                                                                        <label class="form-label fw-bold text-dark fs-6">Capacity</label>
+                                                                        <div class="input-group">
+                                                                            <span class="input-group-text border-2" style="height: 51px;"><i class="fas fa-users"></i></span>
+                                                                            <input type="number" 
+                                                                                class="form-control form-control-md border-2" 
+                                                                                name="accomodation_capacity" 
+                                                                                min="1" 
+                                                                                value="{{ $accomodation->accomodation_capacity }}" 
+                                                                                required>
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
                                                             </div>
 
-                                                            <div class="col-md-4 mb-3">
-                                                                <label class="form-label fw-bold">Status</label>
-                                                                <select class="form-select" name="accomodation_status" style="height: 38px;" required>
-                                                                    <option value="available" {{ $accomodation->accomodation_status == 'available' ? 'selected' : '' }}>Available</option>
-                                                                    <option value="unavailable" {{ $accomodation->accomodation_status == 'unavailable' ? 'selected' : '' }}>Not Available</option>
-                                                                    <option value="maintenance" {{ $accomodation->accomodation_status == 'maintenance' ? 'selected' : '' }}>Under Maintenance</option>
-                                                                </select>
+                                                            <div class="col-md-4">
+                                                                <div class="card border-0 shadow-sm">
+                                                                    <div class="card-body">
+                                                                        <label class="form-label fw-bold text-dark fs-6">Price</label>
+                                                                        <div class="input-group">
+                                                                            <span class="input-group-text border-2" style="height: 51px;">₱</span>
+                                                                            <input type="number" 
+                                                                                class="form-control form-control-md border-2"
+                                                                                name="accomodation_price" 
+                                                                                min="0" 
+                                                                                value="{{ $accomodation->accomodation_price }}" 
+                                                                                required>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="col-md-4">
+                                                                <div class="card border-0 shadow-sm">
+                                                                    <div class="card-body">
+                                                                        <label class="form-label fw-bold text-dark fs-6">Status</label>
+                                                                        <select class="form-select form-select-md border-2" name="accomodation_status" required>
+                                                                            <option value="available" {{ $accomodation->accomodation_status == 'available' ? 'selected' : '' }}>
+                                                                                <i class="fas fa-check-circle text-success" style="height: 16px;"></i> Available
+                                                                            </option>
+                                                                            <option value="unavailable" {{ $accomodation->accomodation_status == 'unavailable' ? 'selected' : '' }}>
+                                                                                <i class="fas fa-times-circle text-danger" style="height: 16px;"></i> Not Available
+                                                                            </option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </div>
 
-                                                        <div class="modal-footer border-0">
-                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                            <button type="submit" class="btn text-white" style="background-color: #0b573d;">Save Changes</button>
+                                                        <div class="modal-footer border-0 mt-4">
+                                                            <button type="button" class="btn btn-md btn-secondary" data-bs-dismiss="modal">
+                                                                <i class="fas fa-times me-2" style="height: 16px;"></i>Cancel
+                                                            </button>
+                                                            <button type="submit" class="btn btn-md text-white" style="background-color: #0b573d;">
+                                                                <i class="fas fa-save me-2" style="height: 16px;"></i>Save Changes
+                                                            </button>
                                                         </div>
                                                     </form>
                                                 </div>
@@ -366,6 +504,52 @@
                         row.style.display = 'none';
                     }
                 });
+            });
+        });
+    </script>
+    <script>
+        // Function to update countdown for a specific element
+        function updateCountdown(element, checkoutDate) {
+            const now = new Date().getTime();
+            const checkout = new Date(checkoutDate).getTime();
+            const distance = checkout - now;
+
+            if (distance < 0) {
+                element.querySelector('.countdown-display').innerHTML = '<span class="text-danger">OVERDUE</span>';
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            let countdownText = '';
+            if (days > 0) {
+                countdownText += days + 'd ';
+            }
+            countdownText += hours.toString().padStart(2, '0') + 'h ';
+            countdownText += minutes.toString().padStart(2, '0') + 'm ';
+            countdownText += seconds.toString().padStart(2, '0') + 's';
+
+            element.querySelector('.countdown-display').innerHTML = 
+                '<span class="badge bg-primary">' + countdownText + '</span>';
+        }
+
+        // Initialize all countdown timers
+        document.addEventListener('DOMContentLoaded', function() {
+            const countdownElements = document.querySelectorAll('.countdown-timer');
+            
+            countdownElements.forEach(function(element) {
+                const checkoutDate = element.getAttribute('data-checkout');
+                
+                // Update immediately
+                updateCountdown(element, checkoutDate);
+                
+                // Update every second
+                setInterval(function() {
+                    updateCountdown(element, checkoutDate);
+                }, 1000);
             });
         });
     </script>

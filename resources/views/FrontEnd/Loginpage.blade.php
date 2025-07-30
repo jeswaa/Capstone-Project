@@ -136,32 +136,7 @@ body, p, h6, li, span { font-family: 'Montserrat', sans-serif; }
 </head>
 <body>
     @include('Alert.errorLogin')
-    <!-- Validations -->
-    <div class="position-fixed top-0 end-0 mt-3 me-5" style="z-index: 9999;">
-        @if (session('success'))
-            <div class="toast show align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="d-flex">
-                    <div class="toast-body">
-                        {{ session('success') }}
-                    </div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
-            </div>
-        @endif
-        
-        @if ($errors->any())
-            <div class="toast show align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="d-flex">
-                    <div class="toast-body">
-                        @foreach ($errors->all() as $error)
-                            {{ $error }}<br>
-                        @endforeach
-                    </div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
-            </div>
-        @endif
-    </div>
+    @include('Alert.loginSuccessUser')
 
     <!-- Header with Back Button and Logo -->
     <div class="w-100 d-flex justify-content-between align-items-center p-3">
@@ -414,26 +389,50 @@ body, p, h6, li, span { font-family: 'Montserrat', sans-serif; }
 </div>
 
 <!-- OTP Modal (Bootstrap 5) -->
-<div class="modal fade" id="otpModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">OTP Verification</h5>
-      </div>
-      <div class="modal-body">
-        <p>Enter the 6-digit OTP sent to <strong>{{ session('otp_email') }}</strong></p>
-        <form id="otpForm" action="{{ route('verifyOTP') }}" method="POST">
-          @csrf
-          <input type="hidden" name="user_id" value="{{ session('otp_user_id') }}">
-          <div class="mb-3">
-            <input type="text" name="otp" class="form-control" placeholder="123456" required>
-          </div>
-          <button type="submit" class="btn btn-primary">Verify</button>
-        </form>
-      </div>
+    <div class="modal fade" id="otpModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0" style="background-color: #f8f9fa;">
+                <!-- Header -->
+                <div class="modal-header bg-success text-white rounded-top-4 py-3">
+                    <h5 class="modal-title fw-bold">OTP Verification</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <!-- Body -->
+                <div class="modal-body p-4">
+                    <div class="text-center mb-4">
+                        <p>Please enter the 6-digit OTP code sent to</p>
+                        <p class="text-muted"><strong>{{ session('otp_email') }}</strong></p>
+                    </div>
+
+                    <form id="otpForm" action="{{ route('verifyOTP') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="user_id" value="{{ session('otp_user_id') }}">
+                        
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-center">
+                                <input type="text" name="otp" 
+                                    class="form-control text-center" 
+                                    style="width: 200px;"
+                                    maxlength="6"
+                                    placeholder="Enter OTP"
+                                    required>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success fw-bold py-2">
+                                Verify OTP
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" id="resendOTP">
+                                Resend OTP <span id="countdown" class="d-none">(60s)</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
 
     @if(session('show_otp_modal'))
         <script>

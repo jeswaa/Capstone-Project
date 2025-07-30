@@ -17,20 +17,24 @@
     <title>Damage Report</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-
+<style>
+    .transition-width {
+        transition: all 0.3s ease;
+    }
+    #mainContent.full-width {
+        width: 100% !important;
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+    }
+</style>
 <body style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
     @include('Alert.loginSucess')
     @include('Alert.notification')
     <div class="container-fluid min-vh-100 d-flex p-0">
         <!-- SIDEBAR -->
-        <div class="col-md-3 col-lg-2 color-background8 text-white position-sticky" id="sidebar" style="top: 0; height: 100vh; background-color: #0b573d background-color: #0b573d ">
-            <div class="d-flex flex-column h-100">
-            @include('Navbar.sidenavbarStaff')
-            </div>
-        </div>
-
+        @include('Navbar.sidenavbarStaff')
         <!-- Main Content -->
-         <div class="col-md-10 col-lg-10 py-4 px-4">
+        <div id="mainContent" class="flex-grow-1 py-4 px-4 transition-width" style="transition: all 0.3s ease;">
             <!-- Heading and Logo -->
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <div class="ms-auto">
@@ -85,9 +89,29 @@
                                         <button class="btn btn-sm btn-primary rounded-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#editReportModal{{ $report->id }}" style="background-color: #0b573d; border: none; transition: background 0.2s;">
                                             <i class="fas fa-edit"></i>
                                         </button>
-                                        <button class="btn btn-sm btn-danger rounded-3 shadow-sm" onclick="deleteReport({{ $report->id }})" style="background-color: #d9534f; border: none; transition: background 0.2s;">
+                                        <button class="btn btn-sm btn-danger rounded-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $report->id }}" style="background-color: #d9534f; border: none; transition: background 0.2s;">
                                             <i class="fas fa-trash"></i>
                                         </button>
+
+                                        <!-- Delete Confirmation Modal -->
+                                        <div class="modal fade" id="deleteModal{{ $report->id }}" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content rounded-4" style="border: 2px solid #d9534f;">
+                                                    <div class="modal-header bg-danger text-white rounded-top-4">
+                                                        <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>Are you sure you want to delete this damage report?</p>
+                                                        <p class="text-muted small">This action cannot be undone.</p>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="button" class="btn btn-danger" onclick="deleteReport({{ $report->id }})">Delete</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </td>
                                 
