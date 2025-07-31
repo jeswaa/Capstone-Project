@@ -50,99 +50,112 @@
         user-select: none;
     }
 
-    .navbar-nav .nav-link {
-        color: #0b573d;
-        font-family: 'Josefin Sans', sans-serif;
-        transition: color 0.3s;
-    }
-
-    .navbar-nav .nav-link:hover {
-        color: white;
-    }
-
     /* Hover for small screens */
-    @media (max-width: 991px) {
-        .navbar-nav {
-            flex-direction: column;
-            align-items: stretch;
-            background-color: rgba(11, 87, 61, 0.95);
-            padding: 0;
-            border-radius: 0.8rem;
-            width: 200px;
-            margin-left: auto;
-            backdrop-filter: blur(8px);
-            overflow: hidden;
-        }
-
-        .navbar-nav .nav-item {
-            width: 100%;
-        }
-
-        .navbar-nav .nav-link {
-            color: white !important;
-            padding: 1rem;
-            width: 100%;
-            text-align: center;
-            font-family: 'Poppins', sans-serif;
-            transition: all 0.3s ease;
-            margin: 0;
-            border-radius: 0;
-            border-bottom: 2px solid #e6f4e6;
-            /* separator line */
-        }
-
-        .navbar-nav .nav-item:last-child .nav-link {
-            border-bottom: none;
-            /* walang separator sa huli */
-        }
-    }
 </style>
 
 <body>
     @include('Alert.loginSuccessUser')
-    <nav class="navbar navbar-expand-lg position-absolute top-0 w-100 mt-4" style="z-index: 10;">
-        <div class="container">
-            <a href="{{ route('profile') }}" class="text-decoration-none me-auto">
-                <div class="profile-icon d-flex align-items-center justify-content-center" style="width: 45px; 
-                            height: 45px; 
-                            background-color: #0b573d;
-                            border-radius: 50%;
-                            transition: all 0.3s ease;
-                            box-shadow: 0 2px 5px rgba(0,0,0,0.2);"
-                    onmouseover="this.style.transform='scale(1.1)'; this.style.backgroundColor='#0d6a4a';"
-                    onmouseout="this.style.transform='scale(1)'; this.style.backgroundColor='#0b573d';">
-                    <i class="fa-solid fa-user fa-lg" style="color: #ffffff;"></i>
+
+    <div class="d-none d-md-block"
+        style="position: absolute; top: 0; right: 0; width: 45%; height: 100vh; background-color: rgba(0, 0, 0, 0.5); z-index: 1; border-radius: 550px 0 0 600px;">
+    </div>
+
+    <style>
+        @media (max-width: 1200px) {
+            .d-none {
+                display: none !important;
+            }
+        }
+    </style>
+    <!-- Logo -->
+    <div class="position-absolute top-0 end-0 m-4 d-none d-md-block mb-5 mt-0" style="z-index: 3;">
+        <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" style="width: 150px; height: auto;">
+    </div>
+    <nav class="navbar position-absolute w-100 mt-5" style="z-index: 10;">
+        <div class="container d-flex justify-content-between align-items-center">
+
+            <!-- Profile and hamburger moved to left side -->
+            <div class="d-flex align-items-center gap-3 order-lg-1">
+
+                <!-- Hamburger Menu -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#sideNavbar"
+                    aria-controls="sideNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                    <i class="bi bi-list" style="font-size: 2rem; color: #ffffff;"></i>
+                </button>
+
+                <!-- Profile Icon -->
+                <div class="d-flex align-items-center">
+                    <a href="{{ route('profile') }}" class="text-decoration-none d-flex align-items-center">
+                        <div class="profile-icon d-flex align-items-center justify-content-center me-2" style="width: 45px; height: 45px; background-color: #0b573d; border-radius: 50%;
+                                    transition: all 0.3s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.2);"
+                            onmouseover="this.style.transform='scale(1.1)';"
+                            onmouseout="this.style.transform='scale(1)';">
+                            <i class="fa-solid fa-user fa-lg" style="color: #ffffff;"></i>
+                        </div>
+                        <span class="me-3 fw-bold"
+                            style="color: #ffffff; font-size: 1.3rem; letter-spacing: 0.1rem;">PROFILE</span>
+                    </a>
                 </div>
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
-                aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+            </div>
+
+            <!-- Desktop Navigation (centered) -->
+            <div class="collapse navbar-collapse justify-content-center order-lg-3" id="navbarSupportedContent">
+                <ul class="navbar-nav mb-2 mb-lg-0 d-none d-lg-flex">
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase text-decoration-none"
-                            style="color: #0b573d; font-family: 'Josefin Sans', sans-serif; transition: color 0.3s;"
-                            onmouseover="this.style.color='white'" onmouseout="this.style.color='#0b573d'"
-                            href="#rooms">Rooms</a>
+                        <a class="nav-link fw-semibold text-uppercase text-decoration-none text-white"
+                            style="font-family: 'Josefin Sans', sans-serif;" href="#rooms">Rooms</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase text-decoration-none"
-                            style="color: #0b573d; font-family: 'Josefin Sans', sans-serif; transition: color 0.3s;"
-                            onmouseover="this.style.color='white'" onmouseout="this.style.color='#0b573d'"
-                            href="#activities">Activities</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase text-decoration-none"
-                            style="color: #0b573d; font-family: 'Josefin Sans', sans-serif; transition: color 0.3s;"
-                            onmouseover="this.style.color='white'" onmouseout="this.style.color='#0b573d'"
-                            href="{{route('getAllReservations')}}">Reservations</a>
+                        <a class="nav-link fw-semibold text-uppercase text-decoration-none text-white"
+                            style="font-family: 'Josefin Sans', sans-serif;" href="#activities">Activities</a>
                     </li>
                 </ul>
             </div>
+
+            <!-- Offcanvas Menu (same as before) -->
+            <div class="offcanvas offcanvas-end" tabindex="-1" id="sideNavbar" aria-labelledby="sideNavbarLabel"
+                style="width: 300px;">
+                <div class="offcanvas-header" style="background-color: #0b573d; padding: 1.5rem;">
+                    <div class="d-flex align-items-center w-100 justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" class="me-3"
+                                style="width: 60px; height: auto;">
+                            <h5 class="offcanvas-title text-white mb-0" id="sideNavbarLabel"
+                                style="font-size: 1.5rem; font-weight: 700;">
+                                LELO'S RESORT
+                            </h5>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
+                            aria-label="Close"></button>
+                    </div>
+                </div>
+                <div class="offcanvas-body" style="background-color: #f8fff4;">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center gap-3 py-3 px-4 border-bottom" href="#rooms">
+                                <i class="fas fa-bed" style="color: #0b573d; font-size: 1.2rem;"></i>
+                                <span class="fw-semibold text-uppercase"
+                                    style="color: #0b573d; letter-spacing: 2px; font-size: 1.1rem;">
+                                    Rooms
+                                </span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center gap-3 py-3 px-4 border-bottom"
+                                href="#activities">
+                                <i class="fas fa-swimming-pool" style="color: #0b573d; font-size: 1.2rem;"></i>
+                                <span class="fw-semibold text-uppercase"
+                                    style="color: #0b573d; letter-spacing: 2px; font-size: 1.1rem;">
+                                    Activities
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </nav>
+
     <!-- First Page -->
     <section id="home">
         <div class="smoke"></div>
@@ -150,32 +163,37 @@
         <div class="hero vh-100 d-flex flex-column justify-content-center align-items-center text-center text-light position-relative"
             style="background: url('{{ asset('images/background.png') }}') no-repeat center; background-size: cover; overflow: hidden">
 
-
             <!-- Hero Content -->
-            <div id="hero" class="container">
-                <div class="row align-items-center justify-content-center">
-                    <!-- Responsive Text Content -->
-                    <div class="col-lg-6 col-md-10 col-sm-12 text-lg-end text-center ms-auto">
+            <div id="hero" class="container" style="z-index: 2;">
+                <div class="row align-items-center">
+                    <!-- Right Column -->
+                    <div class="col-lg-8 col-md-12">
+                        <!-- Empty column -->
+                    </div>
+                    <!-- Left Column (moved to right) -->
+                    <div class="col-lg-4 col-md-12 text-center">
                         <div class="d-flex justify-content-center align-items-center">
-                            <h1 class="fw-bold text-white" style="font-size: 3vw; text-align: center;">WELCOME TO LELO'S
-                            </h1>
+                            <h1 class="text-white" style="font-size: clamp(24px, 2vw, 32px); letter-spacing: 5px;">
+                                WELCOME TO</h1>
                         </div>
                         <p class="fw-bold"
-                            style="color:#e9ffcc; font-size: 10vw; font-weight: 900; line-height: .8; text-align: center;">
+                            style="color:#e9ffcc; font-size: clamp(48px, 7vw, 84px); font-weight: 900; line-height: .8;">
+                            LELO'S</p>
+                        <p class="fw-bold"
+                            style="color:#e9ffcc; font-size: clamp(64px, 10vw, 120px); font-weight: 900; line-height: .8;">
                             RESORT</p>
-                        <h1 class="fw-bold text-white" style="font-size: 2vw; text-align: center;">DIGITAL BOOKING
-                            COMPANION</h1>
-
+                        <h1 class="text-white" style="font-size: clamp(18px, 1.5vw, 24px); letter-spacing: 5px">DIGITAL
+                            BOOKING COMPANION</h1>
                         <!-- Responsive Button -->
-                        <div class="d-flex justify-content-lg-center justify-content-center mt-4">
+                        <div class="d-flex justify-content-center mt-4">
                             <a href="{{ route('calendar') }}"
                                 class="btn btn-success d-flex align-items-center gap-2 px-4 py-2 fw-bold text-white"
-                                style="border-radius: 50px; background-color: #0b573d; font-style: italic; transition: all 0.3s ease-in-out;"
+                                style="background-color: #0b573d; font-style: italic; transition: all 0.3s ease-in-out; font-size: clamp(16px, 1.2vw, 20px);"
                                 onmouseover="this.classList.add('animate-button'); this.classList.add('icon-move');"
                                 onmouseout="this.classList.remove('animate-button'); this.classList.remove('icon-move');">
                                 BOOK YOUR STAY
                                 <span class="d-flex align-items-center justify-content-center bg-white rounded-circle"
-                                    style="width: 1.8rem; height: 1.8rem; transition: all 0.3s ease-in-out;">
+                                    style="width: clamp(1.5rem, 1.8vw, 1.8rem); height: clamp(1.5rem, 1.8vw, 1.8rem); transition: all 0.3s ease-in-out;">
                                     <i class="fas fa-chevron-right"
                                         style="color: #0b573d; transform: translateX(0);"></i>
                                 </span>
@@ -184,9 +202,9 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </section>
+    </div>
     <!-- Accommodations Section -->
     <section id="rooms">
         <div class="container text-center my-5">
@@ -357,8 +375,8 @@
                                         <label class="form-label" style="color: #0b573d;">Reservation Type</label>
                                         <select class="form-select border-success" id="reservationType"
                                             name="reservation_type" required>
-                                            <option value="one_day">One Day</option>
-                                            <option value="overnight">Overnight</option>
+                                            <option value="one_day">Day Tour</option>
+                                            <option value="overnight">Stay In</option>
                                         </select>
                                     </div>
                                     <div class="mb-3">
@@ -383,7 +401,8 @@
                                               @endphp
                                             @foreach($uniqueStartTimes as $transaction)
                                                 <option value="{{ $transaction->start_time }}">
-                                                    {{ date('h:i A', strtotime($transaction->start_time)) }}</option>
+                                                    {{ date('h:i A', strtotime($transaction->start_time)) }}
+                                                </option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -397,7 +416,8 @@
                                               @endphp
                                             @foreach($uniqueEndTimes as $transaction)
                                                 <option value="{{ $transaction->end_time }}">
-                                                    {{ date('h:i A', strtotime($transaction->end_time)) }}</option>
+                                                    {{ date('h:i A', strtotime($transaction->end_time)) }}
+                                                </option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -437,6 +457,9 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                        <div class="card-body p-2">
+                            <h5 class="card-title mb-0" style="font-style: italic; color: #0b573d;">Cottage 6</h5>
                         </div>
                     </div>
                     <div class="modal-footer d-flex justify-content-end align-items-center gap-3">
@@ -511,29 +534,267 @@
         </div>
     </section>
     <!-- footer section -->
-    <footer style="background-color: #0b573d; height: auto; padding: 20px;">
+    <footer style="background-color: #0b573d; color: white; padding: 30px 20px; font-size: 14px;">
         <div class="container">
             <div class="row align-items-center">
-                <!-- Left: App Icon -->
-                <div class="col-md-2 d-flex justify-content-start align-items-center">
-                    <img src="{{ asset('images/appicon.png') }}" class="img-fluid" alt="App Icon" style="height: 90px;">
+                <!-- Left: Logo -->
+                <div class="col-md-4 mb-3 text-center">
+                    <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" class="img-fluid"
+                        style="max-width: 150px;">
                 </div>
 
-                <!-- Spacer or optional center -->
-                <div class="col-md-7"></div>
+                <!-- Center: Facebook Links -->
+                <div class="col-md-4 mb-3 text-center">
+                    <div class="d-flex flex-column gap-2 justify-content-center h-100">
+                        <div>
+                            <i class="bi bi-telephone-fill me-2"></i>
+                            <span>+123 456 7890</span>
+                        </div>
+                        <div>
+                            <i class="bi bi-envelope-fill me-2"></i>
+                            <span>lelosresort@gmail.com</span>
+                        </div>
+                        <div>
+                            <a href="https://facebook.com/lelosmountainresort" style="color: white;">
+                                <i class="bi bi-facebook fs-5 me-2" style="color: white;"></i>
+                                facebook.com/lelosmountainresort
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Right: Terms of Service and Privacy Policy -->
+                <div class="col-md-4 mb-3">
+                    <div class="col text-center">
+                        <a href="#" class="text-white me-3 text-decoration-none" data-bs-toggle="modal"
+                            data-bs-target="#termsModal">TERMS AND CONDITIONS</a> |
+                        <a href="#" class="text-white ms-3 text-decoration-none" data-bs-toggle="modal"
+                            data-bs-target="#privacyModal">PRIVACY POLICY</a>
 
-                <!-- Right: Facebook + Contact -->
-                <div class="col-md-3 d-flex flex-column align-items-end text-white">
-                    <a href="https://www.facebook.com/lelosmountainresort" target="_blank"
-                        class="text-white d-flex align-items-center gap-2 mb-1">
-                        <i class="bi bi-facebook fs-4" style="color: #0a66c2;"></i>
-                        <span class="text-white">Lelo's Mountain Resort</span>
-                    </a>
-                    <span>Contact: +63 912 345 6789</span>
+                        <!-- Terms and Conditions Modal -->
+                        <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel"
+                            aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-scrollable modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header bg-success text-white">
+                                        <h5 class="modal-title" id="termsModalLabel"
+                                            style="font-family: 'Anton', sans-serif;">TERMS AND CONDITIONS</h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body d-flex flex-column px-4 py-3"
+                                        style="max-height: 70vh; overflow-y: auto;">
+                                        <div class="text-start" style="font-family: 'Montserrat', sans-serif;">
+                                            <div class="mb-4">
+                                                <p class="fw-bold mb-2 text-success">Reservation Agreement</p>
+                                                <p>By confirming a reservation, guests acknowledge and agree to all
+                                                    terms and conditions set by Lelo's Resort management.</p>
+                                            </div>
+
+                                            <div class="mb-4">
+                                                <p class="fw-bold mb-2 text-success">Payment Policy</p>
+                                                <ul class="list-unstyled ps-3">
+                                                    <li class="text-black">• Full payment is required in advance to
+                                                        secure the reservation.</li>
+                                                    <li class="text-black">• All payments are strictly non-refundable,
+                                                        regardless of:</li>
+                                                    <ul class="ps-4">
+                                                        <li class="text-black">- Cancellations</li>
+                                                        <li class="text-black">- Date changes</li>
+                                                        <li class="text-black">- Late arrivals</li>
+                                                        <li class="text-black">- Early departures</li>
+                                                        <li class="text-black">- No-shows</li>
+                                                        <li class="text-black">- Weather disturbances</li>
+                                                    </ul>
+                                                </ul>
+                                            </div>
+
+                                            <div class="mb-4">
+                                                <p class="fw-bold mb-2 text-success">Security Deposit</p>
+                                                <ul class="list-unstyled ps-3">
+                                                    <li class="text-black">• A security deposit of 50% of the total
+                                                        booking amount is required at check-in</li>
+                                                    <li class="text-black">• The deposit covers potential damages,
+                                                        losses, and rule violations</li>
+                                                    <li class="text-black">• Fully refundable upon inspection at
+                                                        check-out if no issues found</li>
+                                                </ul>
+                                            </div>
+
+                                            <div class="mb-4">
+                                                <p class="fw-bold mb-2 text-success">Check-in/Check-out Policy</p>
+                                                <ul class="list-unstyled ps-3">
+                                                    <li class="text-black">• Check-in: 2:00 PM</li>
+                                                    <li class="text-black">• Check-out: 12:00 PM</li>
+                                                    <li class="text-black">• Early check-in/late check-out subject to
+                                                        availability and fees</li>
+                                                </ul>
+                                            </div>
+
+                                            <div class="mb-4">
+                                                <p class="fw-bold mb-2 text-success">Resort Rules</p>
+                                                <ul class="list-unstyled ps-3">
+                                                    <li class="text-black">• Quiet hours: 10:00 PM - 6:00 AM</li>
+                                                    <li class="text-black">• No smoking in rooms</li>
+                                                    <li class="text-black">• No pets allowed</li>
+                                                    <li class="text-black">• Guests liable for damages</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-success"
+                                            data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Privacy Policy Modal -->
+                        <div class="modal fade" id="privacyModal" tabindex="-1" aria-labelledby="privacyModalLabel"
+                            aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-scrollable modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header bg-success text-white">
+                                        <h5 class="modal-title" id="privacyModalLabel"
+                                            style="font-family: 'Anton', sans-serif;">DATA PRIVACY NOTICE</h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body d-flex flex-column px-4 py-3"
+                                        style="max-height: 70vh; overflow-y: auto;">
+                                        <div class="text-start" style="font-family: 'Montserrat', sans-serif;">
+                                            <div class="mb-4">
+                                                <p class="fw-bold mb-2 text-success">Data Privacy Act Compliance</p>
+                                                <p>In accordance with Republic Act 10173 (Data Privacy Act of 2012),
+                                                    Lelo's Resort is committed to protecting your personal information.
+                                                    By using our services:</p>
+                                                <ul class="list-unstyled ps-3">
+                                                    <li class="text-black">• You consent to the collection and
+                                                        processing of your personal data</li>
+                                                    <li class="text-black">• Your information will be:</li>
+                                                    <ul class="ps-4">
+                                                        <li class="text-black">- Securely stored and protected</li>
+                                                        <li class="text-black">- Used only for legitimate business
+                                                            purposes</li>
+                                                        <li class="text-black">- Retained only for the duration required
+                                                            by law</li>
+                                                        <li class="text-black">- Never shared with third parties without
+                                                            consent</li>
+                                                    </ul>
+                                                </ul>
+                                            </div>
+
+                                            <div class="mb-4">
+                                                <p class="fw-bold mb-2 text-success">Your Rights</p>
+                                                <ul class="list-unstyled ps-3">
+                                                    <li class="text-black">• Access your personal data</li>
+                                                    <li class="text-black">• Request corrections or deletions</li>
+                                                    <li class="text-black">• Object to processing</li>
+                                                    <li class="text-black">• File a complaint</li>
+                                                </ul>
+                                            </div>
+
+                                            <div class="text-center mt-4">
+                                                <p class="text-black">For privacy concerns, contact us at:</p>
+                                                <p><a href="mailto:lelosresort@gmail.com"
+                                                        class="text-decoration-none fw-bold text-success">lelosresort@gmail.com</a>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-success"
+                                            data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Bottom Row: Terms -->
+            <div class="row mt-3">
+                <div class="col text-center">
+                    <span>© 2025 Lelo's Resort. All rights reserved.</span>
                 </div>
             </div>
         </div>
     </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const offcanvasElement = document.getElementById('sideNavbar');
+            const closeButton = offcanvasElement.querySelector('.btn-close');
+            let scrollPosition = 0;
+            let isProgrammaticClose = false;
+
+            // Store scroll position continuously while scrolling
+            window.addEventListener('scroll', function () {
+                scrollPosition = window.scrollY || document.documentElement.scrollTop;
+            });
+
+            // Store scroll position when offcanvas opens
+            offcanvasElement.addEventListener('show.bs.offcanvas', function () {
+                scrollPosition = window.scrollY || document.documentElement.scrollTop;
+            });
+
+            // Custom close function
+            function closeOffcanvas() {
+                isProgrammaticClose = true;
+                const bsOffcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement);
+                bsOffcanvas.hide();
+
+                // Restore scroll position with slight delay
+                setTimeout(() => {
+                    window.scrollTo({
+                        top: scrollPosition,
+                        behavior: 'instant'
+                    });
+                    isProgrammaticClose = false;
+                }, 30); // Slightly longer delay to ensure transition completes
+            }
+
+            // Handle close button click
+            closeButton.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                closeOffcanvas();
+            });
+
+            // Handle escape key press
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && offcanvasElement.classList.contains('show')) {
+                    e.preventDefault();
+                    closeOffcanvas();
+                }
+            });
+
+            // Patch Bootstrap's hide method
+            const originalHide = bootstrap.Offcanvas.prototype.hide;
+            bootstrap.Offcanvas.prototype.hide = function () {
+                if (!isProgrammaticClose) {
+                    scrollPosition = window.scrollY || document.documentElement.scrollTop;
+                }
+                originalHide.call(this);
+                if (!isProgrammaticClose) {
+                    setTimeout(() => {
+                        window.scrollTo({
+                            top: scrollPosition,
+                            behavior: 'instant'
+                        });
+                    }, 30);
+                }
+                return this;
+            };
+
+            // Additional safety measure for backdrop clicks
+            offcanvasElement.addEventListener('hidden.bs.offcanvas', function () {
+                window.scrollTo({
+                    top: scrollPosition,
+                    behavior: 'instant'
+                });
+            });
+        });
+    </script>
 
     <script>
         let roomCapacity = 0;
