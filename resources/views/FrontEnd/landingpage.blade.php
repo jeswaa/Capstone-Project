@@ -740,11 +740,11 @@
     <div class="container">
         <div class="row align-items-center">
             <!-- Left: Logo -->
-            <div class="col-md-2 mb-2 text-md-start text-center">
+            <div class="col-md-4 mb-2 text-md-start text-center">
                 <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" class="img-fluid" style="max-width: 110px;">
             </div>
             <!-- Center: Contact Info -->
-            <div class="col-md-6 mb-2 text-center">
+            <div class="col-md-4 mb-2 text-center">
                 <div class="d-flex flex-column gap-2 justify-content-center h-100">
                     <div>
                         <i class="bi bi-telephone-fill me-2"></i>
@@ -766,11 +766,13 @@
             <!-- Right: Terms and Privacy -->
             <!-- Right: Terms of Service and Privacy Policy -->
             <div class="col-md-4 mb-3">
-                <div class="col text-center">
-                    <a href="#" class="text-white me-3 text-decoration-none" data-bs-toggle="modal" data-bs-target="#termsModal">TERMS AND CONDITIONS</a> |
-                    <a href="#" class="text-white ms-3 text-decoration-none" data-bs-toggle="modal" data-bs-target="#privacyModal">PRIVACY POLICY</a>
-                    <div class="mt-3">
-                        <span class="text-white" style="font-size: 14px;">© 2025 Lelo's Resort. All rights reserved.</span>
+                <div class="col text-center d-flex justify-content-end">
+                    <div>
+                        <a href="#" class="text-white me-3 text-decoration-none" data-bs-toggle="modal" data-bs-target="#termsModal">TERMS AND CONDITIONS</a> |
+                        <a href="#" class="text-white ms-3 text-decoration-none" data-bs-toggle="modal" data-bs-target="#privacyModal">PRIVACY POLICY</a>
+                        <div class="mt-3">
+                            <span class="text-white" style="font-size: 14px;">© 2025 Lelo's Resort. All rights reserved.</span>
+                        </div>
                     </div>
                 </div>
 
