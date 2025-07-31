@@ -736,38 +736,43 @@
     </section>
 
 <!-- footer section -->
-<footer style="background-color: #0b573d; color: white; padding: 30px 20px; font-size: 14px;">
+<footer style="background-color: #0b573d; color: white;font-size: 10px;">
     <div class="container">
         <div class="row align-items-center">
             <!-- Left: Logo -->
-            <div class="col-md-4 mb-3 text-center">
-                <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" class="img-fluid" style="max-width: 150px;">
+            <div class="col-md-2 mb-2 text-md-start text-center">
+                <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" class="img-fluid" style="max-width: 110px;">
             </div>
-
-            <!-- Center: Facebook Links -->
-            <div class="col-md-4 mb-3 text-center">
+            <!-- Center: Contact Info -->
+            <div class="col-md-6 mb-2 text-center">
                 <div class="d-flex flex-column gap-2 justify-content-center h-100">
                     <div>
                         <i class="bi bi-telephone-fill me-2"></i>
-                        <span>+123 456 7890</span>
+                        <span style="font-size: 14px; letter-spacing: 1px;">+123 456 7890</span>
                     </div>
                     <div>
                         <i class="bi bi-envelope-fill me-2"></i>
-                        <span>lelosresort@gmail.com</span>
+                        <span style="font-size: 14px; letter-spacing: 1px;">lelosresort@gmail.com</span>
                     </div>
                     <div>
-                        <a href="https://facebook.com/lelosmountainresort" style="color: white;">
-                            <i class="bi bi-facebook fs-5 me-2" style="color: white;"></i>
+                        <a href="https://facebook.com/lelosmountainresort" style="color: white; font-size: 14px; letter-spacing: 1px; text-decoration: none;">
+                            <i class="bi bi-facebook me-2"></i>
                             facebook.com/lelosmountainresort
                         </a>
                     </div>
                 </div>
             </div>
+
+            <!-- Right: Terms and Privacy -->
             <!-- Right: Terms of Service and Privacy Policy -->
             <div class="col-md-4 mb-3">
                 <div class="col text-center">
                     <a href="#" class="text-white me-3 text-decoration-none" data-bs-toggle="modal" data-bs-target="#termsModal">TERMS AND CONDITIONS</a> |
                     <a href="#" class="text-white ms-3 text-decoration-none" data-bs-toggle="modal" data-bs-target="#privacyModal">PRIVACY POLICY</a>
+                    <div class="mt-3">
+                        <span class="text-white" style="font-size: 14px;">© 2025 Lelo's Resort. All rights reserved.</span>
+                    </div>
+                </div>
 
                     <!-- Terms and Conditions Modal -->
                     <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
@@ -880,16 +885,9 @@
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-success" data-bs-dismiss="modal">Close</button>
                                 </div>
-                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        <!-- Bottom Row: Terms -->
-        <div class="row mt-3">
-            <div class="col text-center">
-            <span>© 2025 Lelo's Resort. All rights reserved.</span>
             </div>
         </div>
     </div>
