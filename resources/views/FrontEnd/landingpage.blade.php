@@ -75,121 +75,188 @@
 <body>
 
     <!-- Navbar (Fixed at the Top with z-index) -->
-    <nav class="navbar navbar-expand-lg position-absolute w-100" style="z-index: 10; top: 20px;">
-        <div class="container">
-<!-- Hamburger Button -->
-<button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sideNavbar" aria-controls="sideNavbar" aria-expanded="false" aria-label="Toggle navigation">
-    <i class="bi bi-list text-success" style="font-size: 2rem;"></i>
-</button>
+<nav class="navbar navbar-expand-lg position-absolute w-100" style="z-index: 10; top: 20px;">
+    <div class="container">
+        <!-- Hamburger button for mobile -->
+        <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="offcanvas" data-bs-target="#sideNavbar" aria-controls="sideNavbar" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="fas fa-bars" style="color: #0b573d; font-size: 1.5rem;"></i>
+        </button>
 
-<div class="offcanvas offcanvas-start d-lg-none" tabindex="-1" id="sideNavbar" aria-labelledby="sideNavbarLabel" style="width: 250px;">
-    <div class="offcanvas-header bg-success">
-        <div class="d-flex align-items-center">
-            <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" class="me-2" style="width: 70px; height: auto;">
-            <h5 class="offcanvas-title text-white mb-0" id="sideNavbarLabel">LELO'S RESORT</h5>
+        <!-- Desktop Navbar -->
+        <div class="collapse navbar-collapse justify-content-center text-center" id="navbarSupportedContent">
+            <div class="d-flex align-items-center me-4">
+            </div>
+            <ul class="navbar-nav gap-4">
+                <li class="nav-item">
+                    <a class="nav-link d-flex align-items-center gap-3 py-2 px-3 position-relative overflow-hidden"
+                       href="#rooms"
+                       style="transition: all 0.3s ease;">
+                        <i class="fas fa-bed" style="color: #0b573d; font-size: 1.1rem;"></i>
+                        <span class="fw-semibold text-uppercase" 
+                              style="color: #0b573d; letter-spacing: 2px; font-size: 1rem;">
+                            Rooms
+                        </span>
+                        <div class="hover-bg position-absolute top-0 start-0 w-100 h-100" 
+                             style="background-color: #e0f0e9; transform: translateX(-100%); transition: transform 0.3s ease;"></div>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link d-flex align-items-center gap-3 py-2 px-3 position-relative overflow-hidden"
+                       href="#about"
+                       style="transition: all 0.3s ease;">
+                        <i class="fas fa-info-circle" style="color: #0b573d; font-size: 1.1rem;"></i>
+                        <span class="fw-semibold text-uppercase" 
+                              style="color: #0b573d; letter-spacing: 2px; font-size: 1rem;">
+                            About Us
+                        </span>
+                        <div class="hover-bg position-absolute top-0 start-0 w-100 h-100" 
+                             style="background-color: #e0f0e9; transform: translateX(-100%); transition: transform 0.3s ease;"></div>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link d-flex align-items-center gap-3 py-2 px-3 position-relative overflow-hidden"
+                       href="#reviews"
+                       style="transition: all 0.3s ease;">
+                        <i class="fas fa-star" style="color: #0b573d; font-size: 1.1rem;"></i>
+                        <span class="fw-semibold text-uppercase" 
+                              style="color: #0b573d; letter-spacing: 2px; font-size: 1rem;">
+                            Reviews
+                        </span>
+                        <div class="hover-bg position-absolute top-0 start-0 w-100 h-100" 
+                             style="background-color: #e0f0e9; transform: translateX(-100%); transition: transform 0.3s ease;"></div>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link d-flex align-items-center gap-3 py-2 px-3 position-relative overflow-hidden"
+                       href="{{ route('login') }}"
+                       style="transition: all 0.3s ease;">
+                        <i class="fas fa-sign-in-alt" style="color: #0b573d; font-size: 1.1rem;"></i>
+                        <span class="fw-semibold text-uppercase" 
+                              style="color: #0b573d; letter-spacing: 2px; font-size: 1rem;">
+                            Login
+                        </span>
+                        <div class="hover-bg position-absolute top-0 start-0 w-100 h-100" 
+                             style="background-color: #e0f0e9; transform: translateX(-100%); transition: transform 0.3s ease;"></div>
+                    </a>
+                </li>
+            </ul>
         </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-    <div class="offcanvas-body">
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link fw-semibold text-uppercase text-decoration-none text-black position-relative custom-hover mb-3"
-                   style="letter-spacing: 2px; transition: color 0.3s ease;"
-                   href="#rooms">
-                   Rooms
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link fw-semibold text-uppercase text-decoration-none text-black position-relative custom-hover mb-3"
-                   style="letter-spacing: 2px; transition: color 0.3s ease;" 
-                   href="#about">
-                   About Us
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link fw-semibold text-uppercase text-decoration-none text-black position-relative custom-hover mb-3"
-                   style="letter-spacing: 2px; transition: color 0.3s ease;"
-                   href="#reviews">
-                   Reviews
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('login') }}"
-                   class="nav-link fw-semibold text-uppercase text-decoration-none text-black position-relative custom-hover"
-                   style="letter-spacing: 2px; transition: color 0.3s ease;">
-                   Login
-                </a>
-            </li>
-        </ul>
-    </div>
-</div>
-            
-            <!-- Navbar content - centered -->
-            <div class="collapse navbar-collapse justify-content-center text-center bg-transparent" id="navbarSupportedContent">
-                <ul class="navbar-nav gap-5">
+
+        <!-- Mobile Sidebar -->
+        <div class="offcanvas offcanvas-end d-lg-none" tabindex="-1" id="sideNavbar" aria-labelledby="sideNavbarLabel" style="width: 300px;">
+            <div class="offcanvas-header" style="background-color: #0b573d; padding: 1.5rem;">
+                <div class="d-flex align-items-center w-100 justify-content-between">
+                    <div class="d-flex align-items-center">
+                        <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" class="me-3" 
+                             style="width: 60px; height: auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">
+                        <h5 class="offcanvas-title text-white mb-0" id="sideNavbarLabel" 
+                            style="font-size: 1.5rem; font-weight: 700; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">
+                            LELO'S RESORT
+                        </h5>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"
+                            style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));"></button>
+                </div>
+            </div>
+            <div class="offcanvas-body" style="background-color: #f8fff4;">
+                <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase text-decoration-none text-black position-relative custom-hover"
-                           style="letter-spacing: 2px; transition: color 0.3s ease;"
-                           href="#rooms">
-                           Rooms
+                        <a class="nav-link d-flex align-items-center gap-3 py-3 px-4 border-bottom position-relative overflow-hidden"
+                           href="#rooms"
+                           style="transition: all 0.3s ease;">
+                            <i class="fas fa-bed" style="color: #0b573d; font-size: 1.2rem;"></i>
+                            <span class="fw-semibold text-uppercase" 
+                                  style="color: #0b573d; letter-spacing: 2px; font-size: 1.1rem;">
+                                Rooms
+                            </span>
+                            <div class="hover-bg position-absolute top-0 start-0 w-100 h-100" 
+                                 style="background-color: #e0f0e9; transform: translateX(-100%); transition: transform 0.3s ease;"></div>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase text-decoration-none text-black position-relative custom-hover"
-                           style="letter-spacing: 2px; transition: color 0.3s ease;" 
-                           href="#about">
-                           About Us
+                        <a class="nav-link d-flex align-items-center gap-3 py-3 px-4 border-bottom position-relative overflow-hidden"
+                           href="#about"
+                           style="transition: all 0.3s ease;">
+                            <i class="fas fa-info-circle" style="color: #0b573d; font-size: 1.2rem;"></i>
+                            <span class="fw-semibold text-uppercase" 
+                                  style="color: #0b573d; letter-spacing: 2px; font-size: 1.1rem;">
+                                About Us
+                            </span>
+                            <div class="hover-bg position-absolute top-0 start-0 w-100 h-100" 
+                                 style="background-color: #e0f0e9; transform: translateX(-100%); transition: transform 0.3s ease;"></div>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase text-decoration-none text-black position-relative custom-hover"
-                           style="letter-spacing: 2px; transition: color 0.3s ease;"
-                           href="#reviews">
-                           Reviews
+                        <a class="nav-link d-flex align-items-center gap-3 py-3 px-4 border-bottom position-relative overflow-hidden"
+                           href="#reviews"
+                           style="transition: all 0.3s ease;">
+                            <i class="fas fa-star" style="color: #0b573d; font-size: 1.2rem;"></i>
+                            <span class="fw-semibold text-uppercase" 
+                                  style="color: #0b573d; letter-spacing: 2px; font-size: 1.1rem;">
+                                Reviews
+                            </span>
+                            <div class="hover-bg position-absolute top-0 start-0 w-100 h-100" 
+                                 style="background-color: #e0f0e9; transform: translateX(-100%); transition: transform 0.3s ease;"></div>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="{{ route('login') }}"
-                           class="nav-link fw-semibold text-uppercase text-decoration-none text-black position-relative custom-hover"
-                           style="letter-spacing: 2px; transition: color 0.3s ease;">
-                           Login
+                        <a class="nav-link d-flex align-items-center gap-3 py-3 px-4 border-bottom position-relative overflow-hidden"
+                           href="{{ route('login') }}"
+                           style="transition: all 0.3s ease;">
+                            <i class="fas fa-sign-in-alt" style="color: #0b573d; font-size: 1.2rem;"></i>
+                            <span class="fw-semibold text-uppercase" 
+                                  style="color: #0b573d; letter-spacing: 2px; font-size: 1.1rem;">
+                                Login
+                            </span>
+                            <div class="hover-bg position-absolute top-0 start-0 w-100 h-100" 
+                                 style="background-color: #e0f0e9; transform: translateX(-100%); transition: transform 0.3s ease;"></div>
                         </a>
                     </li>
                 </ul>
             </div>
         </div>
-    </nav>
+    </div>
+</nav>
 
     <!-- First Page -->
-    <section>
-        <div class="smoke"></div>
-        <!-- Hero Section with Background -->
-        <div class="hero vh-100 d-flex flex-column justify-content-center align-items-center text-center text-light position-relative"
-            style="background: url('{{ asset('images/background.png') }}') no-repeat center; background-size: cover; overflow: hidden">
-            <!-- Hero Content -->
-            <div id="hero" class="container-fluid">
-                <div class="row justify-content-center">
-                    <!-- Responsive Text Content -->
-                    <div class="col-lg-9 col-md-8 col-sm-12 text-center mt-5" style="background-color: rgba(0, 0, 0, 0.6); padding: 2rem; border-radius: 15px;">
+<section>
+    <div class="smoke"></div>
+    <!-- Hero Section with Background -->
+    <div class="hero vh-100 d-flex flex-column justify-content-center align-items-center text-center text-light position-relative"
+        style="background: url('{{ asset('images/background.png') }}') no-repeat center; background-size: cover; overflow: hidden">
+        <!-- Hero Content -->
+        <div id="hero" class="container-fluid">
+            <div class="row justify-content-center">
+                <!-- Responsive Text Content -->
+                <div class="col-lg-9 col-md-8 col-sm-12 text-center mt-5">
+                    <div class="content-wrapper p-4 rounded-3" style="background-color: rgba(0, 0, 0, 0.6); font-family: 'Montserrat', sans-serif;">
+                        <style>
+                            @media (max-width: 991px) {
+                                .content-wrapper {
+                                    background-color: transparent !important;
+                                }
+                            }
+                        </style>
                         <div class="d-flex justify-content-center align-items-center mt-1">
-                            <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" class="mx-3" style="width: 120px; height: auto;">
+                            <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" class="mx-3" 
+                                style="width: 120px; height: auto; @media (max-width: 768px) { width: 100px; }">
                         </div>
                         <div class="d-flex justify-content-center align-items-center">
-                            <h1 class="text-white" style="font-size: 2vw;  letter-spacing: 5px; font-family: 'Montserrat', sans-serif;">WELCOME TO</h1>
+                            <h1 class="text-white" style="font-family: 'Montserrat', sans-serif; font-size: min(2vw, 24px); letter-spacing: 5px;">WELCOME TO</h1>
                         </div>
                         <p class="fw-bold"
-                            style="color:#e9ffcc; font-size: 7vw; font-weight: 900; line-height: .8;">
+                            style="font-family: 'Montserrat', sans-serif; color:#e9ffcc; font-size: min(7vw, 84px); font-weight: 900; line-height: .8;">
                             LELO'S</p>
                         <p class="fw-bold"
-                            style="color:#e9ffcc; font-size: 10vw; font-weight: 900; line-height: .8;">
+                            style="font-family: 'Montserrat', sans-serif; color:#e9ffcc; font-size: min(10vw, 120px); font-weight: 900; line-height: .8;">
                             RESORT</p>
-                        <h1 class="text-white" style="font-size: 2vw; letter-spacing: 5px; font-family: 'Montserrat', sans-serif;">DIGITAL BOOKING COMPANION</h1>
+                        <h1 class="text-white" style="font-family: 'Montserrat', sans-serif; font-size: min(2vw, 24px); letter-spacing: 5px">DIGITAL BOOKING COMPANION</h1>
 
                         <!-- Responsive Button -->
                         <div class="d-flex justify-content-center mt-4">
                             <a href="{{ route('login') }}"
                                 class="btn btn-success d-flex align-items-center gap-2 px-4 py-2 fw-bold text-white"
-                                style="background-color: #0b573d; font-style: italic; transition: all 0.3s ease-in-out;"
+                                style="font-family: 'Montserrat', sans-serif; background-color: #0b573d; font-style: italic; transition: all 0.3s ease-in-out; font-size: min(16px, 4vw);"
                                 onmouseover="this.classList.add('animate-button'); this.classList.add('icon-move');"
                                 onmouseout="this.classList.remove('animate-button'); this.classList.remove('icon-move');">
                                 BOOK YOUR STAY
@@ -205,7 +272,8 @@
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
 
     <!-- Second Page -->
@@ -589,7 +657,7 @@
                     <!-- Second section content -->
                     <div class="p-4 h-100">
                         <div class="d-flex flex-column h-100">
-                            <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" class="img-fluid mb-4"
+                            <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" class="img-fluid mb-4"
                                 style="height: 150px; width: auto; margin: -20px auto; display: block;">
 
                             <div class="text-start">
@@ -640,9 +708,17 @@
                         @foreach ($feedbacks as $feedback)
                             <div class="col-12 col-sm-6 col-md-4">
                                 <div class="card h-100 shadow" style="background-color: #0b573d; border-radius: 15px;">
-                                    <img src="{{ asset('storage/' . $feedback->image) }}" class="card-img-top"
-                                        alt="User Review"
-                                        style="width: 100%; height: 200px; object-fit: cover; border-radius: 15px 15px 0 0;">
+                                    @if (!empty($feedback->image) && file_exists(storage_path('app/public/' . $feedback->image)))
+                                        <img src="{{ asset('storage/' . $feedback->image) }}" 
+                                             class="card-img-top"
+                                             alt="User Review"
+                                             style="width: 100%; height: 200px; object-fit: cover; border-radius: 15px 15px 0 0;">
+                                    @else
+                                        <img src="{{ asset('images/default-profile.jpg') }}" 
+                                             class="card-img-top"
+                                             alt="Default Profile"
+                                             style="width: 100%; height: 200px; object-fit: cover; border-radius: 15px 15px 0 0;">
+                                    @endif
                                     <div class="card-body">
                                             <h5 class="card-title" style="color: #f5f5dc;">
                                             {{ $feedback->name ?? 'Anonymous' }}
@@ -668,38 +744,45 @@
     </section>
 
 <!-- footer section -->
-<footer style="background-color: #0b573d; color: white; padding: 30px 20px; font-size: 14px;">
+<footer style="background-color: #0b573d; color: white;font-size: 10px;">
     <div class="container">
         <div class="row align-items-center">
             <!-- Left: Logo -->
-            <div class="col-md-4 mb-3 text-center">
-                <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" class="img-fluid" style="max-width: 150px;">
+            <div class="col-md-4 mb-2 text-md-start text-center">
+                <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" class="img-fluid" style="max-width: 110px;">
             </div>
-
-            <!-- Center: Facebook Links -->
-            <div class="col-md-4 mb-3 text-center">
+            <!-- Center: Contact Info -->
+            <div class="col-md-4 mb-2 text-center">
                 <div class="d-flex flex-column gap-2 justify-content-center h-100">
                     <div>
                         <i class="bi bi-telephone-fill me-2"></i>
-                        <span>+123 456 7890</span>
+                        <span style="font-size: 14px; letter-spacing: 1px;">+123 456 7890</span>
                     </div>
                     <div>
                         <i class="bi bi-envelope-fill me-2"></i>
-                        <span>lelosresort@gmail.com</span>
+                        <span style="font-size: 14px; letter-spacing: 1px;">lelosresort@gmail.com</span>
                     </div>
                     <div>
-                        <a href="https://facebook.com/lelosmountainresort" style="color: white;">
-                            <i class="bi bi-facebook fs-5 me-2" style="color: white;"></i>
+                        <a href="https://facebook.com/lelosmountainresort" style="color: white; font-size: 14px; letter-spacing: 1px; text-decoration: none;">
+                            <i class="bi bi-facebook me-2"></i>
                             facebook.com/lelosmountainresort
                         </a>
                     </div>
                 </div>
             </div>
+
+            <!-- Right: Terms and Privacy -->
             <!-- Right: Terms of Service and Privacy Policy -->
             <div class="col-md-4 mb-3">
-                <div class="col text-center">
-                    <a href="#" class="text-white me-3 text-decoration-none" data-bs-toggle="modal" data-bs-target="#termsModal">TERMS AND CONDITIONS</a> |
-                    <a href="#" class="text-white ms-3 text-decoration-none" data-bs-toggle="modal" data-bs-target="#privacyModal">PRIVACY POLICY</a>
+                <div class="col text-center d-flex justify-content-end">
+                    <div>
+                        <a href="#" class="text-white me-3 text-decoration-none" data-bs-toggle="modal" data-bs-target="#termsModal">TERMS AND CONDITIONS</a> |
+                        <a href="#" class="text-white ms-3 text-decoration-none" data-bs-toggle="modal" data-bs-target="#privacyModal">PRIVACY POLICY</a>
+                        <div class="mt-3">
+                            <span class="text-white" style="font-size: 14px;">© 2025 Lelo's Resort. All rights reserved.</span>
+                        </div>
+                    </div>
+                </div>
 
                     <!-- Terms and Conditions Modal -->
                     <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
@@ -812,16 +895,9 @@
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-success" data-bs-dismiss="modal">Close</button>
                                 </div>
-                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        <!-- Bottom Row: Terms -->
-        <div class="row mt-3">
-            <div class="col text-center">
-            <span>© 2025 Lelo's Resort. All rights reserved.</span>
             </div>
         </div>
     </div>

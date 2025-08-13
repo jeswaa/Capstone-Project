@@ -94,12 +94,30 @@ public function guests(Request $request)
 
     return view('StaffSide.StaffGuest', compact('guests'));
 }
-    public function logout()
-    {
-        $this->recordActivity('Staff logged out');
-        auth()->logout();
-        return redirect()->route('login')->with('success', 'Logged out successfully!');
-    }
+    public function logout(Request $request)
+{
+    // Record activity before logout
+    $this->recordActivity('Staff logged out');
+    
+    // Logout the user
+    auth()->logout();
+    
+    // Invalidate the session
+    $request->session()->invalidate();
+    
+    // Regenerate CSRF token
+    $request->session()->regenerateToken();
+    
+    // Create response with redirect
+    $response = redirect()->route('login')->with('success', 'Logged out successfully!');
+    
+    // Set cache headers to prevent back button access
+    $response->header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate');
+    $response->header('Pragma', 'no-cache');
+    $response->header('Expires', 'Fri, 01 Jan 1990 00:00:00 GMT');
+    
+    return $response;
+}
 public function authenticate(Request $request)
 {
     $credentials = $request->validate([
@@ -191,7 +209,7 @@ public function dashboard()
                 'reservation_details.reservation_check_in_date',
                 'reservation_details.reservation_check_in'
             )
-            ->orderBy('reservation_check_in_date')
+            ->orderBy('reservation_details.created_at', 'desc') // Order by creation date descending to get latest
             ->limit(3)
             ->get();
         
@@ -337,7 +355,7 @@ public function reservations(Request $request)
         ->orderByDesc('reservation_details.created_at');
 
     // Add status filter
-    if ($request->has('status') && $request->status !== 'all') {
+    if ($request->has('status') && $request->status !== 'pending') {
         $query->where('reservation_details.reservation_status', $request->status);
     }
 
@@ -346,7 +364,8 @@ public function reservations(Request $request)
         $searchTerm = $request->search;
         $query->where(function($q) use ($searchTerm) {
             $q->where('reservation_details.name', 'LIKE', '%' . $searchTerm . '%')
-              ->orWhere('reservation_details.email', 'LIKE', '%' . $searchTerm . '%');
+              ->orWhere('reservation_details.email', 'LIKE', '%' . $searchTerm . '%')
+              ->orWhere('reservation_details.reservation_id', 'LIKE', '%' . $searchTerm . '%');
         });
     }
 

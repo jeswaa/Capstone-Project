@@ -26,6 +26,10 @@
         flex: 0 0 100% !important;
         max-width: 100% !important;
     }
+    #reservationChart {
+        max-height: 300px !important;
+        height: 300px !important;
+    }
 </style>
 <body style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
             @include('Alert.loginSucess')
@@ -187,7 +191,7 @@
 
                                 <div class="col-md-6 p-0 d-flex flex-column justify-content-start ms-3" style="width: 73%;">
                                     <div class="shadow-lg rounded-4 p-3 bg-white floating-effect" style="height: 100%;">
-                                        <canvas id="reservationChart" class="w-100" height="100" style="height: 100%;"></canvas>
+                                        <canvas id="reservationChart" class="w-100"></canvas>
                                     </div>
                                 </div>
                             </div>

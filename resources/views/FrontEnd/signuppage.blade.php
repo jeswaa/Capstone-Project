@@ -31,16 +31,7 @@
             position: relative;
         }
 
-        body::after {
-            content: "";
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 20vh;
-            background: linear-gradient(to top, rgba(0, 93, 59, 0.8), transparent);
-            pointer-events: none;
-        }
+
 
         .signup-button {
             background-color: #0B5D3B;
@@ -89,45 +80,6 @@
         .text-color-1 {
             color: #4a4a4a !important;
         }
-        .email-validation-message {
-            font-size: 0.8rem;
-            margin-top: 0.25rem;
-        }
-        .signup-button {
-            background-color: #0B5D3B;
-            color: white;
-            font-weight: bold;
-            font-size: 0.8rem;
-            padding: 5px 10px;
-            border: none;
-            border-radius: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 150px;
-            cursor: pointer;
-            margin: 0 auto;
-            transition: opacity 0.3s ease; /* Smooth transition */
-        }
-
-        /* Bootstrap's disabled opacity */
-        .signup-button:disabled {
-            opacity: 0.65;
-            pointer-events: none;
-        }
-
-        .signup-button .arrow {
-            background-color: white;
-            color: #0B5D3B;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-left: 5px;
-            font-size: .7rem;
-        }
     </style>
 </head>
 
@@ -135,26 +87,20 @@
     @include('Alert.loginSuccessUser')
     @include('Alert.errornotification')
 
-    <div class="container-fluid position-relative">
-        <div class="row">
-            <div class="col-12">
-                <div class="position-absolute top-0 start-0 mt-5 ms-5">
-                    <a href="{{ url('login') }}" class="d-flex align-items-center justify-content-center rounded-circle shadow"
-                        style="width: 45px; height: 45px; background-color: #0B5D3B; text-decoration: none;">
-                        <i class="fa-solid fa-arrow-left text-white fs-4"></i>
-                    </a>
-                </div>
+<div class="w-100 d-flex justify-content-between align-items-center p-3">
+    <!-- Back Button -->
+    <a href="{{ url('login') }}" class="d-flex align-items-center justify-content-center rounded-circle shadow ms-3"
+        style="width: 45px; height: 45px; background-color: #0B5D3B; text-decoration: none;">
+        <i class="fa-solid fa-arrow-left text-white"></i>
+    </a>
 
-                <div class="position-absolute top-0 end-0 mt-3 me-5">
-                    <a href="{{ url('/') }}" class="text-decoration-none">
-                        <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="120" class="rounded-pill">
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Logo -->
+    <a href="{{ url('/') }}" class="text-decoration-none">
+        <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" class="rounded-pill" style="width: 100px; height: auto;">
+    </a>
+</div>
 
-    <div class="d-flex justify-content-center align-items-center" style="min-height: 100vh; margin-top: 80px;">
+    <div class="d-flex justify-content-center align-items-center mb-5">
         <div class="container p-4 shadow-lg rounded-4 bg-white" style="max-width: 1000px;">
             <div class="row align-items-center">
 
@@ -177,7 +123,8 @@
                                 pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
                                 title="Please enter a valid email address"
                                 oninput="this.value = this.value.toLowerCase().slice(0, 30);">
-                            <div id="emailValidationMessage" class="email-validation-message">
+                            <div id="emailValidationMessage" class="invalid-feedback">
+                                Please enter a valid email address.
                             </div>
                         </div>
                         <div class="mb-3">
@@ -403,7 +350,7 @@
                         </script>
 
                         <div class="mt-3 text-center">
-                            <button type="submit" id="signup-btn" class="signup-button" disabled>
+                            <button type="submit" id="signup-btn" class="signup-button">
                                 SIGN-UP
                                 <span class="arrow d-flex align-items-center justify-content-center rounded-circle">
                                     &rsaquo;
@@ -419,7 +366,6 @@
                         </div>
                     </form>
                 </div>
-
                 <!-- Right Side: Image -->
                 <div class="col-md-6 d-none d-md-block">
                     <img src="{{ asset('images/labasneto.JPG') }}" alt="Login Image" class="img-fluid rounded-4"
@@ -467,439 +413,203 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-$(document).ready(function () {
-    // Track last OTP request time (moved outside to persist)
-    let lastOtpRequest = 0;
-    const OTP_COOLDOWN = 60000; // 60 seconds cooldown
+        $(document).ready(function () {
+            // Handle signup button click
+            $('#signup-btn').click(function (event) {
+                event.preventDefault(); // Prevent form submission
 
-    // Handle form submission instead of button click
-    $('#signup-form').submit(function (event) {
-        event.preventDefault(); // This is crucial to prevent default form submission
-        
-        // Check if elements exist before proceeding
-        const signupBtn = $('#signup-btn');
-        const nameField = $('#name');
-        const emailField = $('#email');
-        const mobileField = $('#mobileNo');
-        const passwordField = $('#password');
-        const confirmPasswordField = $('#password_confirmation');
-        const csrfToken = $('meta[name="csrf-token"]').attr('content');
-        
-        if (!signupBtn.length || !nameField.length || !emailField.length || !passwordField.length) {
-            console.error('Required form elements not found');
-            alert('Form elements are missing. Please refresh the page.');
-            return;
-        }
-        
-        // Disable button and show loading state
-        signupBtn.prop('disabled', true);
-        signupBtn.html(`
+                // Disable the signup button and show loading message
+                $('#signup-btn').prop('disabled', true);
+                $('#signup-btn').html(`
             <div class="d-flex align-items-center">
                 <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                 Sending OTP. Please wait...
             </div>
         `);
 
-        let formData = {
-            name: nameField.val() || '',
-            email: emailField.val() || '',
-            mobileNo: mobileField.val() || '',
-            password: passwordField.val() || '',
-            password_confirmation: confirmPasswordField.val() || '',
-            _token: csrfToken || ''
-        };
+                let formData = {
+                    name: $('#name').val(),
+                    email: $('#email').val(),
+                    mobileNo: $('#mobileNo').val(),
+                    password: $('#password').val(),
+                    password_confirmation: $('#password_confirmation').val(),
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                };
 
-        // Validate required fields
-        if (!formData.name || !formData.email || !formData.password) {
-            resetSignupButton();
-            alert('Please fill in all required fields');
-            return;
-        }
+                // Track last OTP request time
+                let lastOtpRequest = 0;
+                const OTP_COOLDOWN = 60000; // 60 seconds cooldown
 
-        // Check cooldown period
-        const now = Date.now();
-        if (now - lastOtpRequest < OTP_COOLDOWN) {
-            resetSignupButton();
-            alert("Please wait 60 seconds before requesting another OTP");
-            return;
-        }
-        lastOtpRequest = now;
+                $.ajax({
+                    url: "{{ url('/signup/send-otp') }}",
+                    method: "POST",
+                    data: formData,
+                    beforeSend: function() {
+                        // Check if enough time has passed since last request
+                        const now = Date.now();
+                        if (now - lastOtpRequest < OTP_COOLDOWN) {
+                            alert("Please wait 60 seconds before requesting another OTP");
+                            return false;
+                        }
+                        lastOtpRequest = now;
+                    },
+                    success: function (response) {
+                        // Reset button state
+                        $('#signup-btn').prop('disabled', false);
+                        $('#signup-btn').html(`
+                    SIGN-UP
+                    <span class="arrow d-flex align-items-center justify-content-center rounded-circle">
+                        &rsaquo;
+                    </span>
+                `);
 
-        $.ajax({
-            url: "{{ url('/signup/send-otp') }}",
-            method: "POST",
-            data: formData,
-            success: function (response, textStatus, xhr) {
-                resetSignupButton();
-                
-                // Check if it's a redirect response (Laravel redirect)
-                if (xhr.getResponseHeader('Content-Type') && xhr.getResponseHeader('Content-Type').includes('text/html')) {
-                    // This means it's a redirect response, let's handle it
-                    // Parse the response to check for success or error messages
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(response, 'text/html');
-                    
-                    // Check for success message
-                    const successAlert = doc.querySelector('.alert-success');
-                    if (successAlert) {
-                        alert(successAlert.textContent.trim());
-                        $('#otpModal').modal('show');
-                        return;
-                    }
-                    
-                    // Check for error messages
-                    const errorAlert = doc.querySelector('.alert-danger');
-                    if (errorAlert) {
-                        alert(errorAlert.textContent.trim());
-                        return;
-                    }
-                    
-                    // If no alerts found, assume success (fallback)
-                    alert('OTP sent successfully! Please check your email.');
-                    $('#otpModal').modal('show');
-                } else {
-                    // Handle JSON response (if any)
-                    if (response && response.message) {
                         alert(response.message);
-                        $('#otpModal').modal('show');
-                    } else {
-                        alert('OTP sent successfully');
-                        $('#otpModal').modal('show');
+                        $('#otpModal').modal('show'); // Show OTP modal
+                    },
+                    error: function (xhr) {
+                        // Reset button state
+                        $('#signup-btn').prop('disabled', false);
+                        $('#signup-btn').html(`
+                    SIGN-UP
+                    <span class="arrow d-flex align-items-center justify-content-center rounded-circle">
+                        &rsaquo;
+                    </span>
+                `);
+
+                        handleAjaxError(xhr);
                     }
-                }
-            },
-            error: function (xhr) {
-                resetSignupButton();
-                
-                // Handle validation errors from Laravel
-                if (xhr.status === 422) {
-                    try {
-                        const response = JSON.parse(xhr.responseText);
-                        if (response.errors) {
-                            let errorMessages = [];
-                            for (const field in response.errors) {
-                                if (response.errors[field] && Array.isArray(response.errors[field])) {
-                                    errorMessages.push(response.errors[field][0]);
-                                }
-                            }
-                            alert(errorMessages.join('\n'));
-                        } else {
-                            alert('Please check your input and try again.');
-                        }
-                    } catch (e) {
-                        // If response is HTML (Laravel error page)
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(xhr.responseText, 'text/html');
-                        const errorAlert = doc.querySelector('.alert-danger');
-                        if (errorAlert) {
-                            alert(errorAlert.textContent.trim());
-                        } else {
-                            alert('Please check your input and try again.');
-                        }
-                    }
-                } else {
-                    // Handle other errors
-                    try {
-                        const response = JSON.parse(xhr.responseText);
-                        alert(response.error || response.message || 'Something went wrong. Please try again.');
-                    } catch (e) {
-                        alert('Something went wrong. Please try again.');
-                    }
-                }
-            }
-        });
-    });
+                });
+            });
+            // Handle OTP verification
+            $('#verify-otp').click(function (event) {
+                event.preventDefault(); // Prevent default action
 
-    // Function to reset signup button state
-    function resetSignupButton() {
-        const signupBtn = $('#signup-btn');
-        if (signupBtn.length) {
-            signupBtn.prop('disabled', false);
-            signupBtn.html(`
-                SIGN-UP
-                <span class="arrow d-flex align-items-center justify-content-center rounded-circle">
-                    &rsaquo;
-                </span>
-            `);
-        }
-    }
+                let formData = {
+                    email: $('#email').val(),
+                    otp: $('#otp').val(),
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                };
 
-    // Handle OTP verification
-    $('#verify-otp').click(function (event) {
-        event.preventDefault(); // Prevent default action
-
-        const emailField = $('#email');
-        const otpField = $('#otp');
-        const csrfToken = $('meta[name="csrf-token"]').attr('content');
-
-        if (!emailField.length || !otpField.length) {
-            alert('Required fields are missing');
-            return;
-        }
-
-        let formData = {
-            email: emailField.val() || '',
-            otp: otpField.val() || '',
-            _token: csrfToken || ''
-        };
-
-        if (!formData.email || !formData.otp) {
-            alert('Please enter both email and OTP');
-            return;
-        }
-
-        // Disable button during processing
-        const verifyBtn = $('#verify-otp');
-        verifyBtn.prop('disabled', true);
-        verifyBtn.text('Verifying...');
-
-        $.ajax({
-            url: "{{ url('/signup/verify-otp') }}",
-            method: "POST",
-            data: formData,
-            success: function (response, textStatus, xhr) {
-                // Check if it's a redirect response
-                if (xhr.getResponseHeader('Content-Type') && xhr.getResponseHeader('Content-Type').includes('text/html')) {
-                    // This is a redirect, which means success
-                    alert('Account created successfully! You can now log in.');
-                    window.location.href = "{{ url('/login') }}";
-                } else {
-                    // Handle JSON response
-                    if (response && response.message) {
+                $.ajax({
+                    url: "{{ url('/signup/verify-otp') }}",
+                    method: "POST",
+                    data: formData,
+                    success: function (response) {
                         alert(response.message);
-                    } else {
-                        alert('OTP verified successfully');
+                        window.location.href = "{{ url('/login') }}"; // Redirect to login page
+                    },
+                    error: function (xhr) {
+                        alert(xhr.responseJSON?.error || "Invalid OTP");
                     }
-                    window.location.href = "{{ url('/login') }}";
-                }
-            },
-            error: function (xhr) {
-                // Re-enable button
-                verifyBtn.prop('disabled', false);
-                verifyBtn.text('Verify OTP');
-                
+                });
+            });
+
+            // Handle AJAX errors
+            function handleAjaxError(xhr) {
                 if (xhr.status === 422) {
-                    try {
-                        const response = JSON.parse(xhr.responseText);
-                        if (response.errors) {
-                            let errorMessages = [];
-                            for (const field in response.errors) {
-                                if (response.errors[field] && Array.isArray(response.errors[field])) {
-                                    errorMessages.push(response.errors[field][0]);
-                                }
-                            }
-                            alert(errorMessages.join('\n'));
-                        } else {
-                            alert('Invalid OTP. Please try again.');
-                        }
-                    } catch (e) {
-                        alert('Invalid OTP. Please try again.');
-                    }
+                    let errors = xhr.responseJSON.errors;
+                    let errorMessage = Object.values(errors).map(e => e[0]).join("\n");
+                    alert(errorMessage);
                 } else {
-                    try {
-                        const response = JSON.parse(xhr.responseText);
-                        alert(response.error || response.message || 'Invalid OTP. Please try again.');
-                    } catch (e) {
-                        alert('Invalid OTP. Please try again.');
-                    }
+                    alert("Something went wrong. Please try again.");
                 }
             }
         });
-    });
-});
 
-document.addEventListener('DOMContentLoaded', function () {
-    const newPassword = document.getElementById('newPassword') || document.getElementById('password');
-    const confirmPassword = document.getElementById('confirmPassword') || document.getElementById('password_confirmation');
-    const passwordMatch = document.getElementById('passwordMatch');
-    const submitBtn = document.getElementById('submitBtn') || document.getElementById('signup-btn');
-    const passwordStrength = document.getElementById('passwordStrength');
-    const passwordHelp = document.getElementById('passwordHelp');
+        document.addEventListener('DOMContentLoaded', function () {
+            const newPassword = document.getElementById('newPassword') || document.getElementById('password'); // fallback if using a single input
+            const confirmPassword = document.getElementById('confirmPassword');
+            const passwordMatch = document.getElementById('passwordMatch');
+            const submitBtn = document.getElementById('submitBtn');
+            const passwordStrength = document.getElementById('passwordStrength');
+            const passwordHelp = document.getElementById('passwordHelp');
 
-    // Event listeners
-    if (newPassword) {
-        newPassword.addEventListener('input', () => {
-            if (passwordStrength && passwordHelp) {
-                checkPasswordStrength(newPassword.value);
+            // Event listeners
+            if (newPassword) {
+                newPassword.addEventListener('input', () => {
+                    checkPasswordStrength(newPassword.value);
+                    checkPasswordMatch();
+                });
             }
-            if (confirmPassword && passwordMatch) {
-                checkPasswordMatch();
+
+            if (confirmPassword) {
+                confirmPassword.addEventListener('input', checkPasswordMatch);
             }
-        });
-    }
 
-    if (confirmPassword) {
-        confirmPassword.addEventListener('input', function() {
-            if (passwordMatch) {
-                checkPasswordMatch();
-            }
-        });
-    }
+            function checkPasswordMatch() {
+                if (!newPassword || !confirmPassword || !passwordMatch || !submitBtn) return;
 
-    function checkPasswordMatch() {
-        if (!newPassword || !confirmPassword || !passwordMatch) return;
-
-        if (newPassword.value && confirmPassword.value) {
-            if (newPassword.value === confirmPassword.value) {
-                passwordMatch.innerHTML = '<small class="text-success">Passwords match!</small>';
-                if (submitBtn) submitBtn.disabled = false;
-            } else {
-                passwordMatch.innerHTML = '<small class="text-danger">Passwords do not match!</small>';
-                if (submitBtn) submitBtn.disabled = true;
-            }
-        } else {
-            passwordMatch.innerHTML = '';
-            if (submitBtn) submitBtn.disabled = true;
-        }
-    }
-
-    function checkPasswordStrength(password) {
-        if (!passwordStrength || !passwordHelp) return;
-
-        const strength = calculatePasswordStrength(password);
-        passwordStrength.style.width = strength.percentage + '%';
-
-        if (strength.percentage < 40) {
-            passwordStrength.className = 'progress-bar bg-danger';
-            passwordHelp.textContent = 'Weak password';
-        } else if (strength.percentage < 70) {
-            passwordStrength.className = 'progress-bar bg-warning';
-            passwordHelp.textContent = 'Moderate password';
-        } else {
-            passwordStrength.className = 'progress-bar bg-success';
-            passwordHelp.textContent = 'Strong password';
-        }
-    }
-
-    function calculatePasswordStrength(password) {
-        let strength = 0;
-        if (password.length >= 8) strength += 30;
-        if (/[A-Z]/.test(password)) strength += 20;
-        if (/[a-z]/.test(password)) strength += 20;
-        if (/[0-9]/.test(password)) strength += 20;
-        if (/[^A-Za-z0-9]/.test(password)) strength += 10;
-
-        return {
-            percentage: Math.min(strength, 100)
-        };
-    }
-});
-
-// Form validation for required fields
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.querySelector('#signup-form') || document.querySelector('form');
-    
-    if (!form) return; // Exit if no form found
-    
-    const submitBtn = form.querySelector('button[type="submit"]') || document.getElementById('signup-btn');
-    const requiredInputs = form.querySelectorAll('input[required]');
-    
-    if (!submitBtn || !requiredInputs.length) return; // Exit if elements not found
-    
-    function checkForm() {
-        let allFilled = true;
-        requiredInputs.forEach(input => {
-            if (!input.value.trim()) allFilled = false;
-        });
-        submitBtn.disabled = !allFilled;
-    }
-    
-    requiredInputs.forEach(input => {
-        input.addEventListener('input', checkForm);
-    });
-    
-    // Initial check on page load
-    checkForm();
-});
-</script>
-<script>
-$(document).ready(function() {
-    // Track email validity
-    let isEmailValid = false;
-    const $submitBtn = $('#signup-btn');
-    
-    // Email validation on blur (when leaving the field)
-    $('#email').on('blur', function() {
-        const email = $(this).val().trim();
-        const emailRegex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
-        const $validationMessage = $('#emailValidationMessage');
-        
-        // Clear previous messages and reset state
-        $validationMessage.removeClass('text-success text-danger').text('');
-        isEmailValid = false;
-        updateSubmitButton();
-        
-        // Skip if empty
-        if (!email) {
-            return;
-        }
-        
-        // Validate format first
-        if (!emailRegex.test(email)) {
-            $validationMessage.addClass('text-danger').text('Please enter a valid email address');
-            return;
-        }
-        
-        // Show checking message
-        $validationMessage.addClass('text-muted').text('Checking email availability...');
-        
-        // Check if email exists
-        $.ajax({
-            url: "{{ route('check.email') }}",
-            method: "POST",
-            data: {
-                email: email,
-                _token: "{{ csrf_token() }}"
-            },
-            success: function(response) {
-                if (response.exists) {
-                    $validationMessage.removeClass('text-muted').addClass('text-danger')
-                        .text('This email is already registered');
-                    isEmailValid = false;
+                if (newPassword.value && confirmPassword.value) {
+                    if (newPassword.value === confirmPassword.value) {
+                        passwordMatch.innerHTML = '<small class="text-success">Passwords match!</small>';
+                        submitBtn.disabled = false;
+                    } else {
+                        passwordMatch.innerHTML = '<small class="text-danger">Passwords do not match!</small>';
+                        submitBtn.disabled = true;
+                    }
                 } else {
-                    $validationMessage.removeClass('text-muted').addClass('text-success')
-                        .text('Email is available');
-                    isEmailValid = true;
+                    passwordMatch.innerHTML = '';
+                    submitBtn.disabled = true;
                 }
-                updateSubmitButton();
-            },
-            error: function() {
-                $validationMessage.removeClass('text-muted').addClass('text-danger')
-                    .text('Error checking email availability');
-                isEmailValid = false;
-                updateSubmitButton();
+            }
+
+            function checkPasswordStrength(password) {
+                if (!passwordStrength || !passwordHelp) return;
+
+                const strength = calculatePasswordStrength(password);
+                passwordStrength.style.width = strength.percentage + '%';
+
+                if (strength.percentage < 40) {
+                    passwordStrength.className = 'progress-bar bg-danger';
+                    passwordHelp.textContent = 'Weak password';
+                } else if (strength.percentage < 70) {
+                    passwordStrength.className = 'progress-bar bg-warning';
+                    passwordHelp.textContent = 'Moderate password';
+                } else {
+                    passwordStrength.className = 'progress-bar bg-success';
+                    passwordHelp.textContent = 'Strong password';
+                }
+            }
+
+            function calculatePasswordStrength(password) {
+                let strength = 0;
+                if (password.length >= 8) strength += 30;
+                if (/[A-Z]/.test(password)) strength += 20;
+                if (/[a-z]/.test(password)) strength += 20;
+                if (/[0-9]/.test(password)) strength += 20;
+                if (/[^A-Za-z0-9]/.test(password)) strength += 10;
+
+                return {
+                    percentage: Math.min(strength, 100)
+                };
             }
         });
-    });
-
-    // Function to update submit button state
-    function updateSubmitButton() {
-        // Also check if all other required fields are filled
-        let allFieldsValid = true;
-        $('input[required]').each(function() {
-            if (!$(this).val().trim()) {
-                allFieldsValid = false;
-                return false; // break loop
+        // Add this script before </html>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const submitBtn = document.querySelector('button[type="submit"]');
+            const requiredInputs = form.querySelectorAll('input[required]');
+            
+            function checkForm() {
+                let allFilled = true;
+                requiredInputs.forEach(input => {
+                    if (!input.value.trim()) allFilled = false;
+                });
+                submitBtn.disabled = !allFilled;
             }
+            
+            requiredInputs.forEach(input => {
+                input.addEventListener('input', checkForm);
+            });
+            
+            // Initial check on page load
+            checkForm();
         });
-        
-        // Check password match if both fields have values
-        const password = $('#password').val();
-        const confirmPassword = $('#password_confirmation').val();
-        const passwordsMatch = (password && confirmPassword && password === confirmPassword);
-        
-        // Check terms checkbox
-        const termsChecked = $('#agreeTerms').is(':checked');
-        
-        // Update button state
-        $submitBtn.prop('disabled', !(isEmailValid && allFieldsValid && passwordsMatch && termsChecked));
-    }
+    </script>
 
-    // Update button state when other fields change
-    $('input[required]').on('input', updateSubmitButton);
-    $('#password, #password_confirmation').on('input', updateSubmitButton);
-    $('#agreeTerms').change(updateSubmitButton);
-});
-</script>
+
+
+    </script>
 </body>
+
 </html>

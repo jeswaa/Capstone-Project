@@ -50,6 +50,49 @@
         transform: translateY(-5px);
         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     }
+    .select-accommodation.unavailable {
+        cursor: not-allowed;
+        opacity: 0.8;
+    }
+    
+    .select-accommodation.unavailable .card-body {
+        background-color: #ffebee !important;
+        border-top: 3px solid #dc3545;
+    }
+    
+    .select-accommodation.unavailable::before {
+        content: 'Unavailable';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        padding: 10px;
+        background-color: #dc3545;
+        color: white;
+        text-align: center;
+        font-weight: bold;
+        z-index: 1;
+    }
+    
+    .select-accommodation.unavailable img {
+        filter: grayscale(70%) brightness(0.7);
+    }
+    
+    .select-accommodation.unavailable .text-success {
+        color: #dc3545 !important;
+    }
+    .modal {
+    z-index: 1050;
+    }
+    .modal-backdrop {
+        z-index: 1040;
+    }
+    #paymentBreakdownModal {
+    z-index: 1060;
+    }
+    #paymentBreakdownModal .modal-backdrop {
+        z-index: 1050;
+    }
 </style>
 
 <body class="bg-light font-paragraph" style="background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('{{ asset('images/packagebg.jpg') }}') no-repeat center center fixed; background-size: cover;">
@@ -58,17 +101,17 @@
     </div>
     <div class="position-absolute top-0 end-0 mt-3 me-5 d-none d-md-block">
         <a class="text-decoration-none">
-            <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="120" class="rounded-pill">
+            <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" width="120" class="rounded-pill">
         </a>
     </div>
     
     <div class="container">
-    <h1 class="text-white font-heading fs-2 mt-3 mb-3 ms-2">Select your Room</h1>
+    <h1 class="text-white font-heading fs-3 mt-3 mb-3 ms-2">Select your Room</h1>
     
     <form method="POST" action="{{ route('fixPackagesSelection') }}">
         @csrf
         <input type="hidden" name="package_type" value="One day Stay">
-        <div class="d-flex justify-content-end mt-4 mb-3">
+        <div class="d-flex justify-content-start mt-4 mb-3 ms-2">
             <button type="button" 
                 class="btn text-dark px-4" 
                 style="background-color: rgba(255, 255, 255, 0.9);" 
@@ -87,11 +130,13 @@
                     <div class="row g-4" id="accommodationContainer">
                         @foreach($accomodations as $accomodation)
                             <div class="col-md-4 accommodation-card">
-                                <div class="card select-accommodation"
+                                <div class="card select-accommodation
+                                    @if($accomodation->accomodation_status == 'unavailable') unavailable @endif"
                                      data-id="{{ $accomodation->accomodation_id }}"
                                      data-price="{{ $accomodation->accomodation_price }}"
                                      data-capacity="{{ $accomodation->accomodation_capacity }}"
-                                     data-max-quantity="{{ $accomodation->quantity }}">
+                                     data-room-quantity="{{ $accomodation->quantity }}"
+                                     data-status="{{ $accomodation->accomodation_status }}">
                                     <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" class="card-img-top" alt="accommodation image" style="max-width: 100%; height: 250px; object-fit: cover;">
                                     <div class="card-body p-3 position-relative" style="background-color: white;">
                                         <div class="position-absolute top-0 end-0 p-2">
@@ -104,7 +149,6 @@
                                     </div>
                                 </div>
                             </div>
-
                             <!-- Modal for Room Details -->
                             <div class="modal fade" id="roomModal{{ $accomodation->accomodation_id }}" tabindex="-1" aria-labelledby="roomModalLabel{{ $accomodation->accomodation_id }}" aria-hidden="true">
                                 <div class="modal-dialog modal-lg">
@@ -141,6 +185,16 @@
                                                     <div class="mb-4">
                                                         <h6 class="text-uppercase fw-bold" style="color: #0b573d;">Capacity</h6>
                                                         <p class="text-muted mb-0">{{ $accomodation->accomodation_capacity }} pax</p>
+                                                    </div>
+                                                    <div class="mb-4">
+                                                        <h6 class="text-uppercase fw-bold" style="color: #0b573d;">Availability</h6>
+                                                        <p class="text-muted mb-0">
+                                                            @if($accomodation->accomodation_status == 'available')
+                                                                <span class="badge bg-success">Available</span>
+                                                            @else
+                                                                <span class="badge bg-danger">Unavailable</span>
+                                                            @endif
+                                                        </p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -276,7 +330,7 @@
                             <!-- SUBMIT BUTTON -->
                             <div class="text-center mt-4">
                                 <button type="submit" class="btn btn-success fw-bold px-5 py-2 shadow-sm">
-                                    Save and Continue
+                                    Continue
                                 </button>
                             </div>
                         </form>
@@ -316,290 +370,323 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-success" id="confirmPayment">Continue to Payment</button>
+                    <button type="button" class="btn btn-success" id="confirmPayment">Confirm Payment</button>
                 </div>
             </div>
         </div>
     </div>
     <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const submitButton = document.querySelector('button[type="submit"]');
-        const confirmPaymentBtn = document.getElementById('confirmPayment');
-        
-        submitButton.addEventListener("click", function(e) {
-            e.preventDefault();
-            
-            // Validate accommodation selection
-            const selectedAccommodation = document.querySelector('.select-accommodation.selected');
-            if (!selectedAccommodation) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'No Room Selected',
-                    text: 'Please select a room before proceeding',
-                    confirmButtonColor: '#198754'
-                });
-                return;
-            }
-            
-            // Validate quantity
-            const quantity = parseInt(document.getElementById('quantity').value) || 0;
-            if (quantity <= 0) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Invalid Quantity',
-                    text: 'Please enter a quantity greater than 0',
-                    confirmButtonColor: '#198754'
-                });
-                return;
-            }
+document.addEventListener("DOMContentLoaded", function() {
+    const submitButton = document.querySelector('button[type="submit"]');
+    const confirmPaymentBtn = document.getElementById('confirmPayment');
+    const reservationModal = new bootstrap.Modal(document.getElementById('reservationModal'));
+    const paymentBreakdownModal = new bootstrap.Modal(document.getElementById('paymentBreakdownModal'));
+    
+    // Add event listener for when payment breakdown modal is closed
+    document.getElementById('paymentBreakdownModal').addEventListener('hidden.bs.modal', function () {
+        // Show reservation modal again when payment modal is closed
+        reservationModal.show();
+    });
 
-            // Validate number of guests
-            const adults = parseInt(document.getElementById('number_of_adults').value) || 0;
-            const children = parseInt(document.getElementById('number_of_children').value) || 0;
-            
-            if (adults <= 0) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Invalid Number of Adults',
-                    text: 'Please enter the number of adults (must be greater than 0)',
-                    confirmButtonColor: '#198754'
-                });
-                return;
-            }
-            
-            if (adults + children <= 0) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Invalid Number of Guests',
-                    text: 'The total number of guests must be greater than 0',
-                    confirmButtonColor: '#198754'
-                });
-                return;
-            }
-            
-            // Compute payment details
-            const roomRate = parseFloat(selectedAccommodation.getAttribute('data-price')) || 0;
-            const totalEntranceFee = parseFloat(document.getElementById('total_entrance_fee').textContent.replace(/[^\d.]/g, '')) || 0;
-            
-            // Calculate total
-            const totalAmount = (roomRate * quantity) + totalEntranceFee;
-            
-            try {
-                // Update modal content with null checks
-                const roomRateElement = document.getElementById('roomRate');
-                const numberOfRoomsElement = document.getElementById('numberOfRooms');
-                const totalEntranceFeeElement = document.getElementById('totalEntranceFeeDisplay');
-                const totalAmountElement = document.getElementById('totalAmountDisplay');
-                
-                if (roomRateElement) roomRateElement.textContent = `₱${roomRate.toFixed(2)}`;
-                if (numberOfRoomsElement) numberOfRoomsElement.textContent = quantity;
-                if (totalEntranceFeeElement) totalEntranceFeeElement.textContent = `₱${totalEntranceFee.toFixed(2)}`;
-                if (totalAmountElement) totalAmountElement.textContent = `₱${totalAmount.toFixed(2)}`;
-                
-                // Show payment breakdown modal
-                const paymentBreakdownModal = new bootstrap.Modal(document.getElementById('paymentBreakdownModal'));
-                paymentBreakdownModal.show();
-            } catch (error) {
-                console.error('Error updating modal content:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'There was an error processing your request. Please try again.',
-                    confirmButtonColor: '#198754'
-                });
-            }
-        });
+    submitButton.addEventListener("click", function(e) {
+        e.preventDefault();
         
-        if (confirmPaymentBtn) {
-            confirmPaymentBtn.addEventListener("click", function() {
-                try {
-                    // Close the breakdown modal
-                    const paymentBreakdownModal = bootstrap.Modal.getInstance(document.getElementById('paymentBreakdownModal'));
-                    if (paymentBreakdownModal) {
-                        paymentBreakdownModal.hide();
-                    }
-                    
-                    // Submit the form
-                    document.querySelector('form').submit();
-                } catch (error) {
-                    console.error('Error during form submission:', error);
-                }
+        // Validate accommodation selection
+        const selectedAccommodation = document.querySelector('.select-accommodation.selected');
+        if (!selectedAccommodation) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'No Room Selected',
+                text: 'Please select a room before proceeding',
+                confirmButtonColor: '#198754'
+            });
+            return;
+        }
+        
+        // Validate quantity
+        const quantity = parseInt(document.getElementById('quantity').value) || 0;
+        if (quantity <= 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Invalid Quantity',
+                text: 'Please enter a quantity greater than 0',
+                confirmButtonColor: '#198754'
+            });
+            return;
+        }
+
+        // Validate number of guests
+        const adults = parseInt(document.getElementById('number_of_adults').value) || 0;
+        const children = parseInt(document.getElementById('number_of_children').value) || 0;
+        
+        if (adults <= 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Invalid Number of Adults',
+                text: 'Please enter the number of adults (must be greater than 0)',
+                confirmButtonColor: '#198754'
+            });
+            return;
+        }
+        
+        if (adults + children <= 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Invalid Number of Guests',
+                text: 'The total number of guests must be greater than 0',
+                confirmButtonColor: '#198754'
+            });
+            return;
+        }
+        
+        // Compute payment details
+        const roomRate = parseFloat(selectedAccommodation.getAttribute('data-price')) || 0;
+        const totalEntranceFee = parseFloat(document.getElementById('total_entrance_fee').textContent.replace(/[^\d.]/g, '')) || 0;
+        
+        // Calculate total
+        const totalAmount = (roomRate * quantity) + totalEntranceFee;
+        
+        try {
+            // Update modal content
+            document.getElementById('roomRate').textContent = `₱${roomRate.toFixed(2)}`;
+            document.getElementById('numberOfRooms').textContent = quantity;
+            document.getElementById('totalEntranceFeeDisplay').textContent = `₱${totalEntranceFee.toFixed(2)}`;
+            document.getElementById('totalAmountDisplay').textContent = `₱${totalAmount.toFixed(2)}`;
+            
+            // Hide reservation modal and show payment breakdown modal
+            reservationModal.hide();
+            setTimeout(() => {
+                paymentBreakdownModal.show();
+            }, 300);
+        } catch (error) {
+            console.error('Error updating modal content:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'There was an error processing your request. Please try again.',
+                confirmButtonColor: '#198754'
             });
         }
     });
+    
+    if (confirmPaymentBtn) {
+        confirmPaymentBtn.addEventListener("click", function() {
+            // Submit the form
+            document.querySelector('form').submit();
+        });
+    }
+});
 </script>
 
 <script>
-        function calculateTotalGuest() {
-            let adults = parseInt(document.getElementById("number_of_adults").value) || 0;
-            let children = parseInt(document.getElementById("number_of_children").value) || 0;
-            let totalGuests = adults + children;
+    function calculateTotalGuest() {
+        let adults = parseInt(document.getElementById("number_of_adults").value) || 0;
+        let children = parseInt(document.getElementById("number_of_children").value) || 0;
+        let totalGuests = adults + children;
+        let quantity = parseInt(document.getElementById("quantity").value) || 1;
+        
+        let selectedAccommodation = document.querySelector('.select-accommodation.selected');
+        let totalCapacity = 0;
+        let availableRoomQuantity = 0;
 
-            // Get total capacity from the selected room and multiply by quantity
-            let totalCapacity = 0;
-            const selectedCard = document.querySelector('.select-accommodation.selected');
-            const quantityInput = document.getElementById('quantity');
+        if (selectedAccommodation) {
+            let roomCapacity = parseInt(selectedAccommodation.getAttribute('data-capacity')) || 0;
+            totalCapacity = roomCapacity * quantity;
+            availableRoomQuantity = parseInt(selectedAccommodation.getAttribute('data-room-quantity')) || 0;
+        }
 
-            // Get quantity value
-            let quantity = parseInt(quantityInput.value) || 0;
+        let saveButton = document.querySelector('button[type="submit"]');
+        let guestError = document.getElementById('guestError');
+        let quantityError = document.getElementById('quantityError');
+        let totalGuestsInput = document.getElementById("total_guests");
 
-            // Get error elements and save button
-            let saveButton = document.querySelector('button[type="submit"]');
-            let guestError = document.getElementById('guestError');
-            let quantityError = document.getElementById('quantityError'); // Ensure this element exists in your HTML
-            let totalGuestsInput = document.getElementById("total_guests");
-
-            // Update total guests display
-            totalGuestsInput.value = totalGuests;
-
-            // Reset error states initially
-            guestError.style.display = 'none';
+        // Quantity validation against available rooms
+        if (quantity > availableRoomQuantity && availableRoomQuantity > 0) {
+            quantityError.style.display = 'block';
+            quantityError.textContent = `Exceeds available room quantity! (Available: ${availableRoomQuantity} rooms)`;
+            saveButton.disabled = true;
+            saveButton.classList.add('opacity-50');
+        } else {
             quantityError.style.display = 'none';
-            saveButton.disabled = false;
-            saveButton.classList.remove('opacity-50');
+            // Ensure button is enabled if quantity is valid and other inputs are also valid
+            validateInputs();
+        }
+
+        // Guest capacity validation
+        if (totalGuests > totalCapacity && totalCapacity > 0) {
+            guestError.style.display = 'block';
+            guestError.textContent = `Exceeds maximum capacity! (Maximum: ${totalCapacity} guests)`;
+            saveButton.disabled = true;
+            saveButton.classList.add('opacity-50');
+            totalGuestsInput.style.color = 'red';
+        } else {
+            guestError.style.display = 'none';
             totalGuestsInput.style.color = 'black';
-
-            // Check quantity limit first
-            if (selectedCard) {
-                const maxQuantity = parseInt(selectedCard.getAttribute('data-max-quantity')) || 1;
-                if (quantity > maxQuantity) {
-                    quantityError.style.display = 'block';
-                    quantityError.textContent = `Maximum ${maxQuantity} rooms available`;
-                    saveButton.disabled = true;
-                    saveButton.classList.add('opacity-50');
-                    return; // Stop further checks if quantity is invalid
-                }
-
-                let roomCapacity = parseInt(selectedCard.getAttribute('data-capacity')) || 0;
-                totalCapacity = roomCapacity * quantity;
-
-                // Check guest capacity if quantity is valid and a card is selected
-                if (totalGuests > totalCapacity && totalCapacity > 0) {
-                    guestError.style.display = 'block';
-                    guestError.textContent = `Exceeds maximum capacity of ${totalCapacity} guests`;
-                    saveButton.disabled = true;
-                    saveButton.classList.add('opacity-50');
-                    totalGuestsInput.style.color = 'red';
-                }
-            }
-
-            // Handle case where total guests is 0 (only disable button, no error message)
-            if (totalGuests === 0) {
-                saveButton.disabled = true;
-                saveButton.classList.add('opacity-50');
-            }
-
-            // Get entrance fees
-            let adultFee = parseFloat(document.getElementById("adult_fee").textContent.trim().replace(/[₱,]/g, ''));
-            let childFee = parseFloat(document.getElementById("child_fee").textContent.trim().replace(/[₱,]/g, ''));
-
-            // Calculate total entrance fee
-            let totalEntranceFee = (adults * adultFee) + (children * childFee);
-
-            // Update total guests and entrance fee display
-            document.getElementById("total_guests").value = totalGuests;
-            document.getElementById("total_entrance_fee").textContent = totalEntranceFee.toFixed(2);
-
-            // Save total entrance fee in hidden input for form submission
-            let hiddenInput = document.createElement('input');
-            hiddenInput.type = 'hidden';
-            hiddenInput.name = 'entrance_fee';
-            hiddenInput.value = totalEntranceFee.toFixed(2);
-
-            // Remove existing hidden input if any
-            let existingInput = document.querySelector('input[name="entrance_fee"]');
-            if (existingInput) {
-                existingInput.remove();
-            }
-
-            // Add new hidden input to form
-            document.querySelector('form').appendChild(hiddenInput);
-        }
-    function calculateTotalAmount() {
-        // Kunin ang total entrance fee
-        let totalEntranceFee = parseFloat(document.getElementById("total_entrance_fee").textContent) || 0;
-
-        // Kunin ang total ng napiling accommodation (ngayon isa lang)
-        let accommodationTotal = 0;
-        const selectedCard = document.querySelector('.select-accommodation.selected');
-        if (selectedCard) {
-            let price = parseFloat(selectedCard.getAttribute("data-price")) || 0;
-            accommodationTotal = price;
+             // Ensure button is enabled if guest capacity is valid and other inputs are also valid
+            validateInputs();
         }
 
-        // I-add ang total entrance fee at accommodation total
-        let totalAmount = totalEntranceFee + accommodationTotal;
+        // Re-evaluate button state after all checks
+        // validateInputs(); // This call is redundant here now that validateInputs is called in the else blocks
 
-        // I-update ang hidden input para sa total amount
-            document.getElementById("total_amount").value = totalAmount.toFixed(2);
-        // value = totalAmount; // This line seems incorrect, removed it.
+        document.getElementById("total_guests").value = totalGuests;
     }
 
     document.addEventListener("DOMContentLoaded", function () {
-        const accommodationCards = document.querySelectorAll(".select-accommodation");
-        const totalAmountInput = document.getElementById("total_amount");
-        const form = document.querySelector("form");
+        const mainForm = document.querySelector('form');
+        const accommodationCards = document.querySelectorAll(".select-accommodation:not(.unavailable)");
         const proceedButton = document.getElementById("proceedToPayment");
+        const quantityInput = document.getElementById("quantity"); // Get the quantity input
 
-        // Function to update proceed button state
+        // Add event listener to quantity input
+        quantityInput.addEventListener('input', calculateTotalGuest); // Call calculateTotalGuest directly
+
+        // Function para i-update ang estado ng button
         function updateProceedButton() {
-            const selectedAccommodations = document.querySelectorAll(".select-accommodation.selected");
-            proceedButton.disabled = selectedAccommodations.length === 0;
+            const selectedAccommodation = document.querySelector(".select-accommodation.selected");
+            proceedButton.disabled = !selectedAccommodation;
         }
 
-        // Add click event listener to each accommodation card
+        // Function para i-update ang hidden input ng selected accommodation
+        function updateSelectedAccommodation() {
+            // Tanggalin muna ang existing accommodation input
+            mainForm.querySelectorAll('input[name="accomodation_id[]"]').forEach(input => input.remove());
+            
+            // Magdagdag ng bagong input para sa selected accommodation
+            const selectedCard = document.querySelector(".select-accommodation.selected");
+            if (selectedCard) {
+                const input = document.createElement("input");
+                input.type = "hidden";
+                input.name = "accomodation_id[]";
+                input.value = selectedCard.getAttribute("data-id");
+                mainForm.appendChild(input);
+            }
+        }
+
+        // Magdagdag ng click event listener sa bawat available accommodation card
         accommodationCards.forEach(card => {
             card.addEventListener("click", function () {
-                // Remove 'selected' class from all cards first
-                accommodationCards.forEach(c => {
-                    if (c !== this) {
-                        c.classList.remove("selected");
-                        // Remove any existing hidden inputs for other cards
-                        let otherId = c.getAttribute("data-id");
-                        let otherInput = document.querySelector(`input[name="accomodation_id"][value="${otherId}"]`);
-                        if (otherInput) otherInput.remove();
-                    }
-                });
-
-                // Toggle selected state for clicked card
-                this.classList.toggle("selected");
-                updateProceedButton();
-
-                let accommodationId = this.getAttribute("data-id");
-                let existingInput = document.querySelector(`input[name="accomodation_id"][value="${accommodationId}"]`);
-
-                if (this.classList.contains("selected")) {
-                    if (!existingInput) {
-                        let input = document.createElement("input");
-                        input.type = "hidden";
-                        input.name = "accomodation_id"; // Changed from accomodation_id[]
-                        input.value = accommodationId;
-                        form.appendChild(input);
-                    }
-                } else {
-                    if (existingInput) existingInput.remove();
+                // Check if this accommodation is unavailable
+                if (this.classList.contains('unavailable')) {
+                    // Show warning message for unavailable accommodations
+                    Swal.fire({
+                        title: "Accommodation Unavailable",
+                        text: "This accommodation is currently unavailable. Please select another room.",
+                        icon: "warning",
+                        confirmButtonColor: '#198754'
+                    });
+                    return; // Exit early, don't allow selection
                 }
 
-                calculateTotalAmount();
-                calculateTotalGuest(); // Recalculate guest capacity when room selection changes
+                // Alisin muna ang selected class sa lahat ng cards
+                document.querySelectorAll('.select-accommodation').forEach(c => c.classList.remove("selected"));
+                
+                // I-toggle ang selected class sa clinick na card
+                this.classList.add("selected");
+                
+                updateProceedButton();
+                calculateTotalGuest(); // Call calculateTotalGuest when a card is selected
+                updateSelectedAccommodation();
             });
         });
 
-        form.addEventListener("submit", function (e) {
-            const selectedRoom = document.querySelector(".select-accommodation.selected");
-            if (!selectedRoom) {
+        // I-handle ang form submission
+        mainForm.addEventListener("submit", function (e) {
+            const selectedAccommodation = document.querySelector(".select-accommodation.selected");
+            
+            if (!selectedAccommodation) {
                 e.preventDefault();
                 Swal.fire({
-                    icon: 'warning',
-                    title: 'No Room Selected',
-                    text: 'Please select a room before proceeding.',
+                    title: "No room selected",
+                    text: "Choose atleast 1.",
+                    icon: "warning"
+                });
+                return;
+            }
+            
+            // Check if selected accommodation is unavailable (extra safety check)
+            if (selectedAccommodation.classList.contains('unavailable')) {
+                e.preventDefault();
+                Swal.fire({
+                    title: "Selected room is unavailable",
+                    text: "Please select an available room.",
+                    icon: "error",
                     confirmButtonColor: '#198754'
                 });
+                return;
             }
+            
+            // I-update muna ang hidden input bago mag-submit
+            updateSelectedAccommodation();
         });
 
-        document.getElementById("number_of_adults").addEventListener("input", calculateTotalGuest);
-        document.getElementById("number_of_children").addEventListener("input", calculateTotalGuest);
+        // Initial call to set button state and validate on page load if needed
+        updateProceedButton();
+        calculateTotalGuest();
+    });
+
+    // Keep the validateInputs function for other validations if needed
+    function validateInputs() {
+        let isValid = true;
+        const quantityInput = document.getElementById("quantity");
+        const adultsInput = document.getElementById("number_of_adults");
+        const childrenInput = document.getElementById("number_of_children");
+        const saveButton = document.querySelector('button[type="submit"]');
+
+        // Check if quantity, adults, and children inputs are valid numbers and not empty
+        if (!quantityInput.value || parseInt(quantityInput.value) <= 0 || isNaN(parseInt(quantityInput.value))) {
+            isValid = false;
+        }
+        if (!adultsInput.value || parseInt(adultsInput.value) < 0 || isNaN(parseInt(adultsInput.value))) {
+             isValid = false;
+        }
+         if (!childrenInput.value || parseInt(childrenInput.value) < 0 || isNaN(parseInt(childrenInput.value))) {
+             isValid = false;
+        }
+
+        // Check if there are any visible error messages
+        const guestError = document.getElementById('guestError');
+        const quantityError = document.getElementById('quantityError');
+
+        if (guestError.style.display === 'block' || quantityError.style.display === 'block') {
+            isValid = false;
+        }
+
+        // Enable or disable the save button based on overall validity
+        if (isValid) {
+            saveButton.disabled = false;
+            saveButton.classList.remove('opacity-50');
+        } else {
+            saveButton.disabled = true;
+            saveButton.classList.add('opacity-50');
+        }
+
+        return isValid;
+    }
+</script>
+    <script>
+    function resetFrontendAccommodations() {
+        console.log("Resetting accommodations to available...");
+
+        document.querySelectorAll(".select-accommodation").forEach(item => {
+            item.classList.remove("disabled");
+            item.classList.add("available");
+
+            // I-update ang status text at background color
+            let statusSpan = item.querySelector(".card-text");
+            if (statusSpan) {
+                statusSpan.textContent = "Available";
+                statusSpan.style.backgroundColor = "#C6F7D0"; // Green background for available
+            }
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const checkInDateInput = document.getElementById("reservation_date");
+
+        checkInDateInput.addEventListener("change", function () {
+            resetFrontendAccommodations(); // I-reset ang frontend kapag nagbago ang check-in date
+        });
     });
 </script>
 <script>

@@ -105,40 +105,19 @@ public function selectPackageCustom(Request $request)
         }
     }
 
-    // Get all active accommodations (original quantities preserved)
+    // Get all accommodations (including quantity information)
     $accommodations = DB::table('accomodations')
-        ->where('accomodation_status', 'available')
         ->get();
 
-    if ($checkIn && $checkOut) {
-        // Get summed reservations per accommodation in one query
-        $reservedQuantities = DB::table('reservation_details')
-            ->select('accomodation_id', DB::raw('SUM(quantity) as total_reserved'))
-            ->where('reservation_check_out_date', '>', $checkIn)
-            ->where('reservation_check_in_date', '<', $checkOut)
-            ->whereNull('deleted_at')
-            ->whereIn('reservation_status', ['reserved', 'checked-in'])
-            ->groupBy('accomodation_id')
-            ->pluck('total_reserved', 'accomodation_id');
-
-        // Filter accommodations
-        $accommodations = $accommodations->filter(function ($accomodation) use ($reservedQuantities) {
-            $reserved = $reservedQuantities[$accomodation->accomodation_id] ?? 0;
-            $available = $accomodation->quantity - $reserved;
-            
-            // Only keep accommodations with availability
-            if ($available > 0) {
-                $accomodation->available_quantity = $available;
-                return true;
-            }
-            return false;
-        });
-    } else {
-        // When no dates selected, show all with full availability
-        $accommodations->each(function ($accomodation) {
-            $accomodation->available_quantity = $accomodation->quantity;
-        });
-    }
+    // For each accommodation, set is_available based on quantity
+    $accommodations->each(function ($accomodation) {
+        // Mark as unavailable if quantity is 0
+        $accomodation->is_available = ($accomodation->quantity > 0);
+        
+        // If you have a specific column for status (like accomodation_status)
+        // you could also use that:
+        // $accomodation->is_available = ($accomodation->accomodation_status == 'available');
+    });
 
     return view('Reservation.selectPackageCustom', [
         'accomodations' => $accommodations,
@@ -206,7 +185,6 @@ public function selectPackageCustom(Request $request)
     public function fetchAccomodationData()
     {
         $accomodations = DB::table('accomodations')
-            ->where('accomodation_status', 'available')
             ->get();
         $activities = DB::table('activitiestbl')->get();
         $transactions = DB::table('transaction')->first();
@@ -567,15 +545,19 @@ public function savePaymentProcess(Request $request)
     $reservationDetails['balance'] = str_replace(['₱', ' ', ','], '', $request->input('balance'));
     $reservationDetails['payment_method'] = $request->input('payment_method', 'gcash');
     $reservationDetails['mobileNo'] = $request->input('mobileNo');
-    $reservationDetails['upload_payment'] = $request->file('upload_payment')->store('public/payments');
+    $reservationDetails['upload_payment'] = $request->file('upload_payment')->store('payments' , 'public');
     $reservationDetails['reference_num'] = $request->input('reference_num');
     $reservationDetails['payment_status'] = 'pending';
     $reservationDetails['reservation_status'] = 'pending';
     $request->session()->put('entrance_fee', $request->entrance_fee);   
     
+    // Generate unique reservation ID
+    $reservationId = $this->generateReservationId();
+    
     // Save reservation details to database
     $reservation = new Reservation();
     $reservation->user_id = Auth::id();
+    $reservation->reservation_id = $reservationId; // Add this line
     $reservation->name = Auth::user()->name;
     $reservation->email = Auth::user()->email;
     $reservation->address = Auth::user()->address;
@@ -617,10 +599,31 @@ public function savePaymentProcess(Request $request)
     return redirect()->route('summary')->with([
         'success' => 'Reservation saved.Wait for the staff to process your reservation.Thank you!',
         'amount' => $total_amount,
-        'accommodations' => $accommodations
+        'accommodations' => $accommodations,
+        'reservation_id' => $reservationId // Add this line para makuha mo sa view
     ]);
 }
-
+private function generateReservationId()
+{
+    // Get the latest reservation ID from database
+    $latestReservation = DB::table('reservation_details')
+        ->whereNotNull('reservation_id')
+        ->where('reservation_id', 'like', 'RES%')
+        ->orderBy('reservation_id', 'desc')
+        ->first();
+    
+    if ($latestReservation) {
+        // Extract number from latest reservation ID (e.g., RES0001 -> 1)
+        $lastNumber = (int) substr($latestReservation->reservation_id, 3);
+        $nextNumber = $lastNumber + 1;
+    } else {
+        // First reservation
+        $nextNumber = 1;
+    }
+    
+    // Format with leading zeros (RES0001, RES0002, etc.)
+    return 'RES' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+}
     public function displayReservationSummary()
     {
         // Check if user is authenticated
