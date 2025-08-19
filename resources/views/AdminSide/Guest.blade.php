@@ -55,7 +55,7 @@
             <div id="mainContent" class="flex-grow-1 py-4 px-4 transition-width" style="transition: all 0.3s ease;">
                 <!-- Header -->
                 <div class="d-flex justify-content-end align-items-center mb-2">
-                    <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill me-3">
+                    <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill me-3">
                 </div>
 
                 <hr class="border-5">

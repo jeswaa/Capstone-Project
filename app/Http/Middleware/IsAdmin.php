@@ -14,6 +14,6 @@ class IsAdmin
             return $next($request);
         }
 
-        return redirect()->route('login')->withErrors(['access' => 'Admins only.']);
+        return redirect('/login')->with('error', 'Admin only.');
     }
 }

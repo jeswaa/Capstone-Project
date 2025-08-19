@@ -49,6 +49,10 @@
                     <div class="mb-3">
                         <!-- Each row for label-value pair -->
                         <div class="row mb-2">
+                            <div class="col-4 fw-bold text-success text-break">Reservation ID:</div>
+                            <div class="col-8 text-break">{{ $reservationDetails->reservation_id}}</div>
+                        </div>
+                        <div class="row mb-2">
                             <div class="col-4 fw-bold text-success text-break">Name:</div>
                             <div class="col-8 text-break">{{ $reservationDetails->name }}</div>
                         </div>
@@ -278,12 +282,12 @@ $(document).ready(function() {
 <script>
     // Generate QR code on page load
     window.onload = function() {
-        let email = '{{ $reservationDetails->email ?? '' }}';
-        if (email) {
+        let reservationId = '{{ $reservationDetails->reservation_id ?? '' }}';
+        if (reservationId) {
             let qr = new QRious({
                 element: document.getElementById('qr-code'),
-                value: `Email: ${email}`,
-                size: 200  // Reduced size from 300 to 200
+                value: reservationId,
+                size: 200
             });
 
             // Center the QR code
@@ -299,17 +303,17 @@ $(document).ready(function() {
     };
 
     function generateQRCode() {
-        let email = '{{ $reservationDetails->email ?? '' }}';
+        let reservationId = '{{ $reservationDetails->reservation_id ?? '' }}';
 
-        if (!email) {
-            alert('No email available!');
+        if (!reservationId) {
+            alert('No reservation ID available!');
             return;
         }
 
         let qr = new QRious({
             element: document.getElementById('qr-code'),
-            value: `Email: ${email}`,
-            size: 300  // Reduced size from 300 to 200
+            value: reservationId,
+            size: 300
         });
 
         // Center the QR code
@@ -326,9 +330,9 @@ $(document).ready(function() {
     function downloadQRCode() {
         let canvas = document.getElementById('qr-code');
         let link = document.createElement('a');
-        link.href = canvas.toDataURL("image/png"); // Convert QR code to image
-        link.download = "reservation_qr.png"; // File name
-        link.click(); // Trigger download
+        link.href = canvas.toDataURL("image/png");
+        link.download = "reservation_qr.png";
+        link.click();
     }
 </script>
 

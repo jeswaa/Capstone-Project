@@ -75,7 +75,7 @@
 <body>
 
     <!-- Navbar (Fixed at the Top with z-index) -->
-<nav class="navbar navbar-expand-lg position-fixed w-100" style="z-index: 10; top: 20px;">
+<nav class="navbar navbar-expand-lg position-absolute w-100" style="z-index: 10; top: 20px;">
     <div class="container">
         <!-- Hamburger button for mobile -->
         <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="offcanvas" data-bs-target="#sideNavbar" aria-controls="sideNavbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -708,9 +708,17 @@
                         @foreach ($feedbacks as $feedback)
                             <div class="col-12 col-sm-6 col-md-4">
                                 <div class="card h-100 shadow" style="background-color: #0b573d; border-radius: 15px;">
-                                    <img src="{{ asset('storage/' . $feedback->image) }}" class="card-img-top"
-                                        alt="User Review"
-                                        style="width: 100%; height: 200px; object-fit: cover; border-radius: 15px 15px 0 0;">
+                                    @if (!empty($feedback->image) && file_exists(storage_path('app/public/' . $feedback->image)))
+                                        <img src="{{ asset('storage/' . $feedback->image) }}" 
+                                             class="card-img-top"
+                                             alt="User Review"
+                                             style="width: 100%; height: 200px; object-fit: cover; border-radius: 15px 15px 0 0;">
+                                    @else
+                                        <img src="{{ asset('images/default-profile.jpg') }}" 
+                                             class="card-img-top"
+                                             alt="Default Profile"
+                                             style="width: 100%; height: 200px; object-fit: cover; border-radius: 15px 15px 0 0;">
+                                    @endif
                                     <div class="card-body">
                                             <h5 class="card-title" style="color: #f5f5dc;">
                                             {{ $feedback->name ?? 'Anonymous' }}
@@ -766,10 +774,13 @@
             <!-- Right: Terms and Privacy -->
             <!-- Right: Terms of Service and Privacy Policy -->
             <div class="col-md-4 mb-3">
-                <div class="col text-center d-flex justify-content-end">
-                    <div>
-                        <a href="#" class="text-white me-3 text-decoration-none" data-bs-toggle="modal" data-bs-target="#termsModal">TERMS AND CONDITIONS</a> |
-                        <a href="#" class="text-white ms-3 text-decoration-none" data-bs-toggle="modal" data-bs-target="#privacyModal">PRIVACY POLICY</a>
+                <div class="col text-center">
+                    <div class="d-flex flex-column align-items-center">
+                        <div class="d-flex flex-wrap justify-content-center">
+                            <a href="#" class="text-white text-decoration-none" style="font-size: 14px;" data-bs-toggle="modal" data-bs-target="#termsModal">TERMS AND CONDITIONS</a>
+                            <span class="text-white mx-2" style="font-size: 14px;">|</span>
+                            <a href="#" class="text-white text-decoration-none" style="font-size: 14px;" data-bs-toggle="modal" data-bs-target="#privacyModal">PRIVACY POLICY</a>
+                        </div>
                         <div class="mt-3">
                             <span class="text-white" style="font-size: 14px;">© 2025 Lelo's Resort. All rights reserved.</span>
                         </div>

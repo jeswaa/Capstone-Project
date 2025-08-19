@@ -128,11 +128,11 @@
                 <div class="reservation-controls" style="background-color: white;">
                     <div class="btn-group w-100 mb-4" role="group">
                         <button type="button" class="btn btn-success active flex-grow-1 reservation-btn" id="stayinBtn">
-                            OVERNIGHT STAY
+                            Stay-In
                         </button>
                         
                         <button type="button" class="btn btn-success flex-grow-1 reservation-btn" id="daytourBtn">
-                            ONE DAY STAY
+                            One Day Stay
                         </button>
                     </div>
 
@@ -242,6 +242,16 @@ document.addEventListener('DOMContentLoaded', function() {
     let checkInDate = null;
     let checkOutDate = null;
     let fullyBookedDates = new Set();
+
+    function formatDateLong(dateString) {
+        const date = new Date(dateString);
+        const options = { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        };
+        return date.toLocaleDateString('en-US', options);
+    }
 
     // Toggle reservation type
     [stayinBtn, daytourBtn].forEach(btn => {

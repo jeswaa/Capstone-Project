@@ -50,6 +50,39 @@
         transform: translateY(-5px);
         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     }
+    
+    /* New styles for unavailable accommodations */
+    .select-accommodation.unavailable {
+        cursor: not-allowed;
+        opacity: 0.8;
+    }
+    
+    .select-accommodation.unavailable .card-body {
+        background-color: #ffebee !important;
+        border-top: 3px solid #dc3545;
+    }
+    
+    .select-accommodation.unavailable::before {
+        content: 'Unavailable';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        padding: 10px;
+        background-color: #dc3545;
+        color: white;
+        text-align: center;
+        font-weight: bold;
+        z-index: 1;
+    }
+    
+    .select-accommodation.unavailable img {
+        filter: grayscale(70%) brightness(0.7);
+    }
+    
+    .select-accommodation.unavailable .text-success {
+        color: #dc3545 !important;
+    }
 </style>
 
 <body class="bg-light font-paragraph" style="background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.8)), url('{{ asset('images/packagebg.jpg') }}') no-repeat center center fixed; background-size: cover;">
@@ -69,7 +102,7 @@
     <form method="POST" action="{{ route('savePackageSelection') }}">
         @csrf
         <input type="hidden" name="package_type" value="One day Stay">
-        <div class="d-flex justify-content-end mt-4 mb-3">
+        <div class="d-flex justify-content-start mt-4 mb-3 ms-2">
             <button type="button" 
                 class="btn text-dark px-4" 
                 style="background-color: rgba(255, 255, 255, 0.9);" 
@@ -87,13 +120,15 @@
                 <div class="container">
                     <div class="row g-4" id="accommodationContainer">
                         @foreach($accomodations as $accomodation)
-                            @if(($accomodation->is_available ?? true) && ($accomodation->accomodation_type == 'cabin' || $accomodation->accomodation_type == 'room'))
+                            @if($accomodation->accomodation_type == 'cabin' || $accomodation->accomodation_type == 'room')
                             <div class="col-md-4 accommodation-card">
-                                <div class="card select-accommodation"
+                                <div class="card select-accommodation
+                                    @if($accomodation->accomodation_status == 'unavailable') unavailable @endif"
                                      data-id="{{ $accomodation->accomodation_id }}"
                                      data-price="{{ $accomodation->accomodation_price }}"
                                      data-capacity="{{ $accomodation->accomodation_capacity }}"
-                                     data-room-quantity="{{ $accomodation->quantity }}">
+                                     data-room-quantity="{{ $accomodation->quantity }}"
+                                     data-status="{{ $accomodation->accomodation_status }}">
                                     <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" class="card-img-top" alt="accommodation image" style="max-width: 100%; height: 250px; object-fit: cover;">
                                     <div class="card-body p-3 position-relative" style="background-color: white;">
                                         <div class="position-absolute top-0 end-0 p-2">
@@ -142,6 +177,16 @@
                                                     <div class="mb-4">
                                                         <h6 class="text-uppercase fw-bold" style="color: #0b573d;">Capacity</h6>
                                                         <p class="text-muted mb-0">{{ $accomodation->accomodation_capacity }} pax</p>
+                                                    </div>
+                                                    <div class="mb-4">
+                                                        <h6 class="text-uppercase fw-bold" style="color: #0b573d;">Availability</h6>
+                                                        <p class="text-muted mb-0">
+                                                            @if($accomodation->accomodation_status == 'available')
+                                                                <span class="badge bg-success">Available</span>
+                                                            @else
+                                                                <span class="badge bg-danger">Unavailable</span>
+                                                            @endif
+                                                        </p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -483,64 +528,63 @@
         });
     });
 </script>
-
 <script>
-        function calculateTotalGuest() {
-            let adults = parseInt(document.getElementById("number_of_adults").value) || 0;
-            let children = parseInt(document.getElementById("number_of_children").value) || 0;
-            let totalGuests = adults + children;
-            let quantity = parseInt(document.getElementById("quantity").value) || 1;
-            
-            let selectedAccommodation = document.querySelector('.select-accommodation.selected');
-            let totalCapacity = 0;
-            let availableRoomQuantity = 0;
+    function calculateTotalGuest() {
+        let adults = parseInt(document.getElementById("number_of_adults").value) || 0;
+        let children = parseInt(document.getElementById("number_of_children").value) || 0;
+        let totalGuests = adults + children;
+        let quantity = parseInt(document.getElementById("quantity").value) || 1;
+        
+        let selectedAccommodation = document.querySelector('.select-accommodation.selected');
+        let totalCapacity = 0;
+        let availableRoomQuantity = 0;
 
-            if (selectedAccommodation) {
-                let roomCapacity = parseInt(selectedAccommodation.getAttribute('data-capacity')) || 0;
-                totalCapacity = roomCapacity * quantity;
-                availableRoomQuantity = parseInt(selectedAccommodation.getAttribute('data-room-quantity')) || 0;
-            }
-
-            let saveButton = document.querySelector('button[type="submit"]');
-            let guestError = document.getElementById('guestError');
-            let quantityError = document.getElementById('quantityError');
-            let totalGuestsInput = document.getElementById("total_guests");
-
-            // Quantity validation against available rooms
-            if (quantity > availableRoomQuantity && availableRoomQuantity > 0) {
-                quantityError.style.display = 'block';
-                quantityError.textContent = `Exceeds available room quantity! (Available: ${availableRoomQuantity} rooms)`;
-                saveButton.disabled = true;
-                saveButton.classList.add('opacity-50');
-            } else {
-                quantityError.style.display = 'none';
-                // Ensure button is enabled if quantity is valid and other inputs are also valid
-                validateInputs();
-            }
-
-            // Guest capacity validation
-            if (totalGuests > totalCapacity && totalCapacity > 0) {
-                guestError.style.display = 'block';
-                guestError.textContent = `Exceeds maximum capacity! (Maximum: ${totalCapacity} guests)`;
-                saveButton.disabled = true;
-                saveButton.classList.add('opacity-50');
-                totalGuestsInput.style.color = 'red';
-            } else {
-                guestError.style.display = 'none';
-                totalGuestsInput.style.color = 'black';
-                 // Ensure button is enabled if guest capacity is valid and other inputs are also valid
-                validateInputs();
-            }
-
-            // Re-evaluate button state after all checks
-            // validateInputs(); // This call is redundant here now that validateInputs is called in the else blocks
-
-            document.getElementById("total_guests").value = totalGuests;
+        if (selectedAccommodation) {
+            let roomCapacity = parseInt(selectedAccommodation.getAttribute('data-capacity')) || 0;
+            totalCapacity = roomCapacity * quantity;
+            availableRoomQuantity = parseInt(selectedAccommodation.getAttribute('data-room-quantity')) || 0;
         }
+
+        let saveButton = document.querySelector('button[type="submit"]');
+        let guestError = document.getElementById('guestError');
+        let quantityError = document.getElementById('quantityError');
+        let totalGuestsInput = document.getElementById("total_guests");
+
+        // Quantity validation against available rooms
+        if (quantity > availableRoomQuantity && availableRoomQuantity > 0) {
+            quantityError.style.display = 'block';
+            quantityError.textContent = `Exceeds available room quantity! (Available: ${availableRoomQuantity} rooms)`;
+            saveButton.disabled = true;
+            saveButton.classList.add('opacity-50');
+        } else {
+            quantityError.style.display = 'none';
+            // Ensure button is enabled if quantity is valid and other inputs are also valid
+            validateInputs();
+        }
+
+        // Guest capacity validation
+        if (totalGuests > totalCapacity && totalCapacity > 0) {
+            guestError.style.display = 'block';
+            guestError.textContent = `Exceeds maximum capacity! (Maximum: ${totalCapacity} guests)`;
+            saveButton.disabled = true;
+            saveButton.classList.add('opacity-50');
+            totalGuestsInput.style.color = 'red';
+        } else {
+            guestError.style.display = 'none';
+            totalGuestsInput.style.color = 'black';
+             // Ensure button is enabled if guest capacity is valid and other inputs are also valid
+            validateInputs();
+        }
+
+        // Re-evaluate button state after all checks
+        // validateInputs(); // This call is redundant here now that validateInputs is called in the else blocks
+
+        document.getElementById("total_guests").value = totalGuests;
+    }
 
     document.addEventListener("DOMContentLoaded", function () {
         const mainForm = document.querySelector('form');
-        const accommodationCards = document.querySelectorAll(".select-accommodation");
+        const accommodationCards = document.querySelectorAll(".select-accommodation:not(.unavailable)");
         const proceedButton = document.getElementById("proceedToPayment");
         const quantityInput = document.getElementById("quantity"); // Get the quantity input
 
@@ -569,11 +613,23 @@
             }
         }
 
-        // Magdagdag ng click event listener sa bawat accommodation card
+        // Magdagdag ng click event listener sa bawat available accommodation card
         accommodationCards.forEach(card => {
             card.addEventListener("click", function () {
+                // Check if this accommodation is unavailable
+                if (this.classList.contains('unavailable')) {
+                    // Show warning message for unavailable accommodations
+                    Swal.fire({
+                        title: "Accommodation Unavailable",
+                        text: "This accommodation is currently unavailable. Please select another room.",
+                        icon: "warning",
+                        confirmButtonColor: '#198754'
+                    });
+                    return; // Exit early, don't allow selection
+                }
+
                 // Alisin muna ang selected class sa lahat ng cards
-                accommodationCards.forEach(c => c.classList.remove("selected"));
+                document.querySelectorAll('.select-accommodation').forEach(c => c.classList.remove("selected"));
                 
                 // I-toggle ang selected class sa clinick na card
                 this.classList.add("selected");
@@ -594,6 +650,18 @@
                     title: "No room selected",
                     text: "Choose atleast 1.",
                     icon: "warning"
+                });
+                return;
+            }
+            
+            // Check if selected accommodation is unavailable (extra safety check)
+            if (selectedAccommodation.classList.contains('unavailable')) {
+                e.preventDefault();
+                Swal.fire({
+                    title: "Selected room is unavailable",
+                    text: "Please select an available room.",
+                    icon: "error",
+                    confirmButtonColor: '#198754'
                 });
                 return;
             }
@@ -686,7 +754,7 @@
         if (roomId) {
             // Find and select the corresponding accommodation card
             const roomCard = document.querySelector(`.select-accommodation[data-id="${roomId}"]`);
-            if (roomCard) {
+            if (roomCard && !roomCard.classList.contains('unavailable')) {
                 // Remove selection from all cards first
                 document.querySelectorAll(".select-accommodation").forEach(card => {
                     card.classList.remove("selected");

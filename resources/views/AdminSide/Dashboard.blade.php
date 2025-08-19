@@ -11,7 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css">
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
-    <title>Dashboard</title>
+    <title>Admin Dashboard</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <style>
@@ -26,6 +26,10 @@
         flex: 0 0 100% !important;
         max-width: 100% !important;
     }
+    #reservationChart {
+        max-height: 300px !important;
+        height: 300px !important;
+    }
 </style>
 <body style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
             @include('Alert.loginSucess')
@@ -35,17 +39,20 @@
             @include('Navbar.sidenavbar')
             <!-- Main Content -->
             <div id="mainContent" class="flex-grow-1 py-4 px-4 transition-width" style="transition: all 0.3s ease;">
-                <!-- Heading and Search Bar -->
-                <div class="d-flex justify-content-end  mb-2">
-                    <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill me-3">
+            <!-- Heading and Logo -->
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="ms-auto">
+                    <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill">
                 </div>
+            </div>
 
                 <hr class="border-5">
                 <!-- Add your additional main content here -->
                 <div class="d-flex align-items-center">
-                    <p class="text-color-1 fs-1 ms-4 mb-0" style="font-family: 'Anton', sans-serif; letter-spacing: 0.2em;">Hello</p>
-                    <h1 class="fw-semibold text-capitalize ms-3 mb-0 fs-1" style="letter-spacing: 1px; color: #0b573d; font-family: 'Anton', sans-serif; letter-spacing: 0.2em;">{{ $adminCredentials->username }}!</h1>
-                </div>
+                <p class="text-color-1 me-3" style="font-family: 'Anton', sans-serif;  font-size: 5rem; letter-spacing: 10px;">Hello</p>
+                <h1 class="text-capitalize" style="font-family: 'Anton', sans-serif; font-size: 5rem; color: #0b573d; letter-spacing: 15px;">{{ $adminCredentials->username}}!</h1>
+            </div>
+
                 <!-- Container -->
                 <div class="container my-4">
                     <div class="row">
@@ -187,7 +194,7 @@
 
                                 <div class="col-md-6 p-0 d-flex flex-column justify-content-start ms-3" style="width: 73%;">
                                     <div class="shadow-lg rounded-4 p-3 bg-white floating-effect" style="height: 100%;">
-                                        <canvas id="reservationChart" class="w-100" height="100" style="height: 100%;"></canvas>
+                                        <canvas id="reservationChart" class="w-100"></canvas>
                                     </div>
                                 </div>
                             </div>

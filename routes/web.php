@@ -32,7 +32,7 @@ Route::get('/login/admin', [AdminSideController::class, 'AdminLogin'])->name('Ad
 Route::post('/login/admin/authenticate', [AdminSideController::class, 'login'])->name('authenticate');
 
 // Apply middleware to admin-specific routes only
-Route::middleware(['isAdmin'])->group(function () {
+Route::middleware(['isAdmin', 'prevent.back'])->group(function () {
     // ADMIN ROUTES
     Route::get('/admin/dashboard', [AdminSideController::class, 'DashboardView'])->name('dashboard');
     Route::get('/reservations', [AdminSideController::class, 'reservations'])->name('reservations');
@@ -76,8 +76,6 @@ Route::middleware(['isAdmin'])->group(function () {
     Route::post('/admin/settings/update', [AdminSideController::class, 'updateEmail'])->name('admin.settings.update');
     Route::get('/logout', [AdminSideController::class, 'logout'])->name('logout');
 });
-Route::get('/admin/update-rooms', [RoomController::class, 'updateRoomAvailability'])->name('admin.update.rooms');
-
 /* LOGIN */
 Route::get('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/login/verify-recaptcha', [LoginController::class, 'verifyRecaptcha'])->name('login.verifyRecaptcha');
@@ -91,75 +89,77 @@ Route::post('/forgot/reset', [LoginController::class, 'resetPassword'])->name('f
 // SIGNUP
 Route::get('/signup', [SignUpController::class, 'signup'])->name('signup');
 Route::post('/signup/send-otp', [SignUpController::class, 'sendOTP'])->name('signup.sendOTP');
+Route::post('/check-email', [SignUpController::class, 'checkEmail'])->name('check.email');
 Route::post('/signup/verify-otp', [SignUpController::class, 'verifyOTP'])->name('signup.verifyOTP');
 /*Landing page/index */
 Route::get('/', [LandingPageController::class, 'index'])->name('landingpage');
 //When the user is login
-Route::get('/homepage', [LandingPageController::class, 'homepage'])->name('homepage');
-Route::get('/profile', [HomePageController::class, 'profilepage'])->name('profile');
-Route::get('/profile/edit', [HomePageController::class, 'editProfile'])->name('editProfile');
-Route::post('/profile/edit', [HomePageController::class, 'editProfile'])->name('editProfile.post');
-Route::post('/reservation/cancel/{id}', [ReservationController::class, 'guestcancelReservation'])->name('guestcancelReservation');
-Route::get('/reservation-summary/{id}', [ReservationController::class, 'displayReservationSummary'])->name('displaySummary');
-Route::get('/get-all-reservations', [HomePageController::class, 'getAllReservations'])->name('getAllReservations');
-Route::get('/reservation-summary/{id}', [ReservationController::class,'reservationSummary'])->name('reservation.summary');
-Route::get('/user-logout', [HomePageController::class, 'userlogout'])->name('logout.user');
-// Reservation
-Route::get('/reservation/calendar', [ReservationController::class, 'showReservationsInCalendar'])->name('calendar');
-Route::get('/get-available-accommodations', [ReservationController::class, 'getAvailableAccommodations'])->name('getAvailableAccommodations');
-Route::get('/reservation/fetch-accomodation-data', [ReservationController::class, 'fetchAccomodationData'])->name('selectPackage');
-Route::get('/reservation/select-package-custom', [ReservationController::class, 'selectPackageCustom'])->name('selectPackageCustom');
-Route::get('/check-accommodation-availability', [ReservationController::class, 'checkAccommodationAvailability']);
-Route::get('/reservation/fetch-addons', [ReservationController::class, 'fetchAddons'])->name('fetchAddons');
-Route::get('/reservation/payment-process', [ReservationController::class, 'paymentProcess'])->name('paymentProcess');
-Route::get('/reservation/display-summary', [ReservationController::class, 'displayReservationSummary'])->name('summary');
-Route::post('/reservation/feedback', [ReservationController::class, 'feedback'])->name('feedback.store');
+Route::middleware(['auth', 'prevent.back'])->group(function () {
+    Route::get('/homepage', [LandingPageController::class, 'homepage'])->name('homepage');
+    Route::get('/profile', [HomePageController::class, 'profilepage'])->name('profile');
+    Route::get('/profile/edit', [HomePageController::class, 'editProfile'])->name('editProfile');
+    Route::post('/profile/edit', [HomePageController::class, 'editProfile'])->name('editProfile.post');
+    Route::post('/reservation/cancel/{id}', [ReservationController::class, 'guestcancelReservation'])->name('guestcancelReservation');
+    Route::get('/reservation-summary/{id}', [ReservationController::class, 'displayReservationSummary'])->name('displaySummary');
+    Route::get('/get-all-reservations', [HomePageController::class, 'getAllReservations'])->name('getAllReservations');
+    Route::get('/reservation-summary/{id}', [ReservationController::class,'reservationSummary'])->name('reservation.summary');
+    Route::get('/user-logout', [HomePageController::class, 'userlogout'])->name('logout.user');
+    // Reservation
+    Route::get('/reservation/calendar', [ReservationController::class, 'showReservationsInCalendar'])->name('calendar');
+    Route::get('/get-available-accommodations', [ReservationController::class, 'getAvailableAccommodations'])->name('getAvailableAccommodations');
+    Route::get('/reservation/fetch-accomodation-data', [ReservationController::class, 'fetchAccomodationData'])->name('selectPackage');
+    Route::get('/reservation/select-package-custom', [ReservationController::class, 'selectPackageCustom'])->name('selectPackageCustom');
+    Route::get('/check-accommodation-availability', [ReservationController::class, 'checkAccommodationAvailability']);
+    Route::get('/reservation/fetch-addons', [ReservationController::class, 'fetchAddons'])->name('fetchAddons');
+    Route::get('/reservation/payment-process', [ReservationController::class, 'paymentProcess'])->name('paymentProcess');
+    Route::get('/reservation/display-summary', [ReservationController::class, 'displayReservationSummary'])->name('summary');
+    Route::post('/reservation/feedback', [ReservationController::class, 'feedback'])->name('feedback.store');
 
-// Display the credentials of the login user
-Route::post('/reservation-personal', [ReservationController::class, 'fetchUserData'])->name('fetchUserData');
-Route::post('/reservation/personal-details', [ReservationController::class, 'saveReservationDetails'])->name('saveReservationDetails');
-Route::get('/get-session-times', [ReservationController::class, 'getSessionTimes']);
-Route::get('/get-session-times-only', [ReservationController::class, 'SessionTimeOnly']);
-Route::post('/reservation/select-package-details', [ReservationController::class, 'StayInPackages'])->name('savePackageSelection');
-Route::post('/reservation/select-fix-package-details', [ReservationController::class, 'OnedayStay'])->name('fixPackagesSelection');
-Route::post('/homepage/reservation', [ReservationController::class, 'homepageReservation'])->name('homepageReservation');
-Route::post('/reservation/save-payment-process', [ReservationController::class, 'savePaymentProcess'])->name('savePaymentProcess');
-Route::get('/reservation/display-packages', [ReservationController::class, 'displayPackageSelection'])->name('authenticatedPackages');
-// Route for testing file access
-Route::get('/payment-proof/{filename}', function ($filename) {
-    $path = storage_path('app/public/payments/' . $filename);
+    // Display the credentials of the login user
+    Route::post('/reservation-personal', [ReservationController::class, 'fetchUserData'])->name('fetchUserData');
+    Route::post('/reservation/personal-details', [ReservationController::class, 'saveReservationDetails'])->name('saveReservationDetails');
+    Route::get('/get-session-times', [ReservationController::class, 'getSessionTimes']);
+    Route::get('/get-session-times-only', [ReservationController::class, 'SessionTimeOnly']);
+    Route::post('/reservation/select-package-details', [ReservationController::class, 'StayInPackages'])->name('savePackageSelection');
+    Route::post('/reservation/select-fix-package-details', [ReservationController::class, 'OnedayStay'])->name('fixPackagesSelection');
+    Route::post('/homepage/reservation', [ReservationController::class, 'homepageReservation'])->name('homepageReservation');
+    Route::post('/reservation/save-payment-process', [ReservationController::class, 'savePaymentProcess'])->name('savePaymentProcess');
+    Route::get('/reservation/display-packages', [ReservationController::class, 'displayPackageSelection'])->name('authenticatedPackages');
+    // API
+    Route::get('/get-reservations', function () {
+        $reservations = Reservation::select('name', 'reservation_date', 'reservation_time')->get();
 
-    if (!file_exists($path)) {
-        abort(404);
-    }
+        $events = $reservations->map(function ($reservation) {
+            return [
+                'title' => $reservation->name,
+                'start' => $reservation->reservation_date . 'T' . $reservation->reservation_time,
+                'extendedProps' => [
+                    'reservation_time' => $reservation->reservation_time
+                ]
+            ];
+        });
 
-    return response()->file($path);
-})->name('payment.proof');
-// API
-Route::get('/get-reservations', function () {
-    $reservations = Reservation::select('name', 'reservation_date', 'reservation_time')->get();
-
-    $events = $reservations->map(function ($reservation) {
-        return [
-            'title' => $reservation->name,
-            'start' => $reservation->reservation_date . 'T' . $reservation->reservation_time,
-            'extendedProps' => [
-                'reservation_time' => $reservation->reservation_time
-            ]
-        ];
+        return response()->json($events);
     });
 
-    return response()->json($events);
 });
+// Route for testing file access
+    Route::get('/payment-proof/{filename}', function ($filename) {
+        $path = storage_path('app/public/payments/' . $filename);
 
+        if (!file_exists($path)) {
+            abort(404);
+        }
 
+        return response()->file($path);
+    })->name('payment.proof');
 //Google Auth
 Route::get('/auth/google/redirect',[GoogleAuthController::class, 'redirect'])->name('google.redirect');
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback']);
 Route::post('/verify-otp', [GoogleAuthController::class, 'verifyOTP'])->name('verifyOTP');
 
 //Staff Route
-Route::middleware(['IsStaff'])->group(function () {
+Route::middleware(['IsStaff' , 'prevent.back'])->group(function () {
     Route::get('/staff/dashboard', [StaffController::class, 'dashboard'])->name('staff.dashboard');
     Route::get('/staff/notifications', [StaffController::class, 'getNotifications']);
     Route::post('/staff/notifications/{id}/mark-as-read', [StaffController::class, 'markNotificationAsRead']);
@@ -170,7 +170,7 @@ Route::middleware(['IsStaff'])->group(function () {
     Route::get('/staff/walk-in-guest', [StaffController::class, 'walkIn'])->name('staff.walkIn');
     Route::get('/staff/walk-in-guest/add', [StaffController::class, 'walkInAdd'])->name('staff.walkin.create');
     Route::post('/staff/walk-in-guest/add', [StaffController::class, 'storeWalkInGuest'])->name('staff.walkin.store');
-    Route::get('/staff/check-date-availability', [StaffController::class, 'checkDateAvailability'])->name('staff.checkDateAvailability');
+    Route::post('/check-availability', [StaffController::class, 'checkDateAvailability']);
     Route::post('/staff/walk-in-guest/update-status/{id}', [StaffController::class, 'updateWalkInStatus'])->name('staff.updateWalkInStatus');
     Route::post('/get-session-fees', [StaffController::class, 'updatedSessionFees'])->name('session.fees');
     Route::put('/staff/edit-room/{id}', [StaffController::class, 'editRoom'])->name('staff.editRoom');

@@ -14,7 +14,7 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
-    <title>Dashboard</title>
+    <title>Staff Dashboard</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <style>
@@ -38,7 +38,7 @@
             <!-- Heading and Logo -->
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <div class="ms-auto">
-                    <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill">
+                    <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill">
                 </div>
             </div>
             

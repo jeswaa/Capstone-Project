@@ -62,7 +62,7 @@
                     <!-- Heading and Search Bar -->
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <h1 class="text-uppercase" style="font-family: 'Anton', sans-serif; color: #0b573d;"></h1>
-                        <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill me-3">
+                        <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill me-3">
                     </div>
 
                     <hr class="border-5">

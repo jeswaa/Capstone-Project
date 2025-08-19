@@ -50,7 +50,7 @@
                 <div class="input-group">
                 </div>
             </form>
-            <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill me-3">
+            <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill me-3">
         </div>
 
         <hr class="border-5">

@@ -59,7 +59,7 @@
                 <!-- Header -->
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <h1 class="fw-semibold fs-1" style="font-family: 'Anton', sans-serif; color: #0b573d; letter-spacing: 0.2em;"></h1>
-                    <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill me-3">
+                    <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill me-3">
                 </div>
 
                 <hr class="border-5">

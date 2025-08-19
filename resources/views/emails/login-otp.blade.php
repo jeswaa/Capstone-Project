@@ -4,63 +4,74 @@
     <title>Login OTP Verification</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Poppins', sans-serif;
             line-height: 1.6;
-            color: #1a472a;
+            color: #333;
             max-width: 600px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #e8f5e9;
+            background-color: #f4f4f4;
         }
         .container {
             background-color: #ffffff;
-            border-radius: 10px;
-            padding: 30px;
-            box-shadow: 0 2px 5px rgba(76, 175, 80, 0.2);
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
         .header {
             text-align: center;
-            color: #2e7d32;
+            color: #1a5f7a;
             margin-bottom: 30px;
         }
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin: 0;
+        }
         .otp-code {
-            background-color: #c8e6c9;
-            padding: 15px;
-            border-radius: 5px;
+            background: linear-gradient(135deg, #86B6F6, #176B87);
+            padding: 20px;
+            border-radius: 10px;
             text-align: center;
-            font-size: 24px;
+            font-size: 32px;
             font-weight: bold;
-            color: #1b5e20;
-            margin: 20px 0;
+            color: #ffffff;
+            margin: 25px 0;
+            letter-spacing: 5px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
         .warning {
-            color: #33691e;
+            color: #dc3545;
             font-size: 14px;
-            margin-top: 20px;
+            margin-top: 25px;
+            padding: 15px;
+            background-color: #fff3f3;
+            border-radius: 8px;
+            border-left: 4px solid #dc3545;
         }
         .footer {
-            margin-top: 30px;
+            margin-top: 40px;
             padding-top: 20px;
-            border-top: 1px solid #81c784;
+            border-top: 2px solid #eef2f7;
             text-align: center;
             font-size: 14px;
-            color: #388e3c;
+            color: #64748b;
         }
-        .message-container {
-            background-color: #f1f8e9;
-            border-radius: 5px;
-            padding: 15px;
-            margin: 20px 0;
-            text-align: center;
-            border: 1px solid #c5e1a5;
+        p {
+            color: #475569;
+            font-size: 16px;
+        }
+        strong {
+            color: #1a5f7a;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header" style="background: linear-gradient(135deg, #059669, #047857); padding: 20px; border-radius: 8px; margin-bottom: 25px;">
-            <h1 style="color: #ffffff; margin: 0; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">Login OTP Verification</h1>
+        <div class="header">
+            <h1>Login OTP Verification</h1>
         </div>
+        
         <p>Hello!</p>
         
         <p>You have requested to verify your login. Please use the following OTP code:</p>
@@ -69,15 +80,13 @@
             {{ $otp }}
         </div>
         
-        <div class="message-container">
-            <p>This OTP will expire in <strong>10 minutes</strong>.</p>
-        </div>
+        <p>This OTP will expire in <strong>10 minutes</strong>.</p>
         
         <p class="warning">If you did not request this OTP, please ignore this email and ensure your account security.</p>
         
         <div class="footer">
             <p>Thank you for choosing Lelo's Resort</p>
-            <p>- Lelo's Resort Team -</p>
+            <p style="color: #1a5f7a; font-weight: 600;">- Lelo's Resort Team -</p>
         </div>
     </div>
 </body>
