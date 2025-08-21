@@ -128,18 +128,44 @@ public function profilepage()
         Auth::logout();
 
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
 
-        return redirect()->route('login')->with('success', 'Logged out successfully!');
+        // Clear all cookies
+        $response = redirect()->route('login')->with('success', 'Logged out successfully!');
+        
+        // Set cache headers to prevent back button access
+        $response->header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate');
+        $response->header('Pragma', 'no-cache');
+        $response->header('Expires', 'Fri, 01 Jan 1990 00:00:00 GMT');
+        
+        return $response;
     }
 
     public function getAllReservations()
-    {
-        $userId = Auth::id();
-        if (!$userId) {
-            return redirect()->route('login')->with('error', 'Please login to view your reservations.');
+{
+    // Check if user is authenticated
+    if (!Auth::check()) {
+        return redirect()->route('login')->with('error', 'You must be logged in to view your reservations. Please login to continue.');
+    }
+
+    $userId = Auth::id();
+    
+    // Double check for user ID (extra safety)
+    if (!$userId) {
+        Auth::logout(); // Clear any corrupted session
+        return redirect()->route('login')->with('error', 'Session expired. Please login again to view your reservations.');
+    }
+
+    try {
+        // Get the user's information including username
+        $user = DB::table('users')->where('id', $userId)->first();
+        
+        if (!$user) {
+            Auth::logout(); // User doesn't exist in database
+            return redirect()->route('login')->with('error', 'User account not found. Please login with valid credentials.');
         }
+        
+        $username = $user->name ?: 'Guest'; // Fallback to 'Guest' if name not found
 
         // Get the latest reservation ID to exclude
         $latestReservation = DB::table('reservation_details')
@@ -184,9 +210,17 @@ public function profilepage()
         }
 
         return view('FrontEnd.allReservations', [
-            'reservations' => $allReservations
+            'reservations' => $allReservations,
+            'username' => $username
         ]);
+
+    } catch (\Exception $e) {
+        // Log the error for debugging
+        \Log::error('Error in getAllReservations: ' . $e->getMessage());
+        
+        return redirect()->route('login')->with('error', 'An error occurred while retrieving your reservations. Please try logging in again.');
     }
+}
 
     
 

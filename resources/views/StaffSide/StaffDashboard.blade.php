@@ -38,7 +38,7 @@
             <!-- Heading and Logo -->
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <div class="ms-auto">
-                    <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill">
+                    <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill">
                 </div>
             </div>
             

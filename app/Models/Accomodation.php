@@ -18,6 +18,7 @@ class Accomodation extends Model
         'accomodation_image',
         'accomodation_name',
         'accomodation_type',
+        'accomodation_status',
         'accomodation_capacity',
         'accomodation_price',
         'quantity',

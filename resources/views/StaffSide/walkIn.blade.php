@@ -72,6 +72,10 @@
     flex: 0 0 100% !important;
     max-width: 100% !important;
 }
+.table td,
+.table th {
+  font-size: 0.8rem;
+}
 </style>
 <body style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
     @include('Alert.errorLogin')
@@ -489,7 +493,7 @@
             </div>
             <!-- Table -->
             <div class="card shadow-sm border-0 rounded-4 mb-4 mt-4 p-2">
-                <table class="table table-hover table-striped ">
+                <table class="table table-hover table-striped table-responsive table-sm">
                     <thead>
                     <tr>
                         <th class="text-center align-middle" style="font-size: 0.85rem;">Name</th>
@@ -604,7 +608,7 @@
                         @endforeach
                     </tbody>
                 </table>
-                <div class="d-flex justify-content-center mt-1">
+                <div class="d-flex justify-content-end mt-1">
                     <nav aria-label="Page navigation">
                         <ul class="pagination">
                             {{-- Previous Page Link --}}

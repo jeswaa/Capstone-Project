@@ -415,9 +415,25 @@ public function reports(Request $request)
 
 
     
-    public function logout(){
+    public function logout(Request $request)
+    {
         auth()->logout();
-        return redirect()->route('login')->with('success', 'Logged out successfully!');
+        
+        // Invalidate the session
+        $request->session()->invalidate();
+        
+        // Regenerate CSRF token
+        $request->session()->regenerateToken();
+        
+        // Create response with redirect
+        $response = redirect()->route('login')->with('success', 'Logged out successfully!');
+        
+        // Set cache headers to prevent back button access
+        $response->header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate');
+        $response->header('Pragma', 'no-cache');
+        $response->header('Expires', 'Fri, 01 Jan 1990 00:00:00 GMT');
+        
+        return $response;
     }
 
 public function login(Request $request) {
@@ -1581,14 +1597,14 @@ public function updateRoom(Request $request, $accomodation_id)
     $request->validate([
         'accomodation_image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
         'accomodation_name' => 'required|string|max:255',
-        'accomodation_type' => 'required',
+        'accomodation_type' => 'required|string',
         'accomodation_capacity' => 'required|numeric|min:1',
         'accomodation_price' => 'required|numeric|min:0',
-        'accomodation_status' => 'required|in:available,unavailable',
+        'accomodation_status' => 'required|string', // Make sure this is string
         'room_id' => 'required|numeric',
         'accomodation_description' => 'nullable|string',
-        'amenities' => 'nullable|string', // Added amenities validation
-        'quantity' => 'required|numeric|min:0', // Add this line for quantity validation
+        'amenities' => 'nullable|string',
+        'quantity' => 'required|numeric|min:0',
     ]);
 
     // Find accommodation using Eloquent
@@ -1601,7 +1617,7 @@ public function updateRoom(Request $request, $accomodation_id)
     // Handle image upload
     if ($request->hasFile('accomodation_image')) {
         // Delete the old image if it exists
-        if ($accomodation->accomodation_image) {
+        if ($accomodation->accomodation_image && Storage::exists('public/' . $accomodation->accomodation_image)) {
             Storage::delete('public/' . $accomodation->accomodation_image);
         }
 
@@ -1610,27 +1626,34 @@ public function updateRoom(Request $request, $accomodation_id)
         $accomodation->accomodation_image = str_replace('public/', '', $imagePath);
     }
 
-    // Update other fields
-    $accomodation->accomodation_name = $request->accomodation_name;
-    $accomodation->accomodation_type = $request->accomodation_type;
-    $accomodation->accomodation_capacity = $request->accomodation_capacity;
-    $accomodation->accomodation_price = $request->accomodation_price;
-    $accomodation->accomodation_status = $request->accomodation_status;
-    $accomodation->room_id = $request->room_id;
-    $accomodation->accomodation_description = $request->accomodation_description;
-    $accomodation->amenities = $request->amenities;
-    // Check if the quantity is valid before updating
-    if ($request->quantity < 0) {
-        return redirect()->back()->with('error', 'Quantity cannot be negative.');
-    }
-    $accomodation->quantity = $request->quantity; // Add this line to update quantity
+    // Debug: Check what status is being received
+    \Log::info('Updating accommodation status to: ' . $request->accomodation_status);
+
+    // Update fields using fill() method for cleaner code
+    $accomodation->update([
+        'accomodation_name' => $request->accomodation_name,
+        'accomodation_type' => $request->accomodation_type,
+        'accomodation_capacity' => $request->accomodation_capacity,
+        'accomodation_price' => $request->accomodation_price,
+        'accomodation_status' => $request->accomodation_status,
+        'room_id' => $request->room_id,
+        'accomodation_description' => $request->accomodation_description,
+        'amenities' => $request->amenities,
+        'quantity' => $request->quantity,
+    ]);
 
     try {
-        $accomodation->save();
+        $saved = $accomodation->save();
+        
+        // Debug: Check if save was successful and verify the status
+        if ($saved) {
+            \Log::info('Accommodation saved. Status in DB: ' . $accomodation->fresh()->accomodation_status);
+        }
+        
     } catch (\Exception $e) {
+        \Log::error('Failed to update accommodation: ' . $e->getMessage());
         return redirect()->back()->with('error', 'Failed to update accommodation: ' . $e->getMessage());
     }
-
     return redirect()->route('rooms')->with('success', 'Accommodation updated successfully!');
 }
 
@@ -1694,7 +1717,7 @@ public function updateRoom(Request $request, $accomodation_id)
             
             // I-update ang accommodation object
             $accomodation->available_rooms = $availableRooms;
-            $accomodation->accomodation_status = $availableRooms > 0 ? 'available' : 'unavailable';
+            // $accomodation->accomodation_status = $availableRooms > 0 ? 'available' : 'unavailable';
         }
 
         // Kunin ang total available at reserved rooms

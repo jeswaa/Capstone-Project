@@ -9,28 +9,12 @@
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link
-        href="https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:wght@100..900&family=Poppins:wght@100..900&display=swap"
-        rel="stylesheet">
-    <link
         href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap"
         rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
     <style>
-        h1,
-        h5 {
-            font-family: 'Anton', sans-serif;
-        }
-
-        body,
-        p,
-        h6,
-        li,
-        span {
-            font-family: 'Montserrat', sans-serif;
-        }
-
         body {
             background: url('{{ asset('images/logosheesh.png') }}') no-repeat center center fixed;
             background-size: cover;
@@ -51,7 +35,6 @@
             padding: 1.5rem;
         }
 
-        /* Responsive button styles */
         .btn-group {
             display: flex;
             flex-direction: column;
@@ -80,8 +63,8 @@
         }
 
         .profile-icon {
-            width: 35px;
-            height: 35px;
+            width: 40px;
+            height: 40px;
             background: #2ecc71;
             border-radius: 50%;
             display: flex;
@@ -140,7 +123,7 @@
                     <i class="fa-solid fa-arrow-left"></i>
                 </div>
             </a>
-            <img src="{{ asset('images/appicon.png') }}" alt="App Logo" class="app-logo">
+            <img src="{{ asset('images/logo2.png') }}" alt="App Logo" class="app-logo">
         </div>
     </nav>
 
@@ -151,11 +134,11 @@
                 <div class="reservation-controls" style="background-color: white;">
                     <div class="btn-group w-100 mb-4" role="group">
                         <button type="button" class="btn btn-success active flex-grow-1 reservation-btn" id="stayinBtn">
-                            OVERNIGHT STAY
+                            Stay-In
                         </button>
-                        
+
                         <button type="button" class="btn btn-success flex-grow-1 reservation-btn" id="daytourBtn">
-                            ONE DAY STAY
+                            One Day Stay
                         </button>
                     </div>
 
@@ -168,7 +151,7 @@
 
                         .reservation-btn:hover {
                             transform: translateY(-2px);
-                            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+                            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
                         }
 
                         .reservation-btn.active {
@@ -183,9 +166,11 @@
                             0% {
                                 box-shadow: 0 0 5px #2ecc71;
                             }
+
                             50% {
                                 box-shadow: 0 0 20px #2ecc71, 0 0 30px #2ecc71;
                             }
+
                             100% {
                                 box-shadow: 0 0 5px #2ecc71;
                             }
@@ -197,7 +182,8 @@
                         }
                     </style>
 
-                    <div class="selected-dates mb-4 p-4 rounded-3" id="selectedDatesBox" style="background-color: white;">
+                    <div class="selected-dates mb-4 p-4 rounded-3" id="selectedDatesBox"
+                        style="background-color: white;">
                         <h5 class="text-center mb-3 text-success">Chosen Dates:</h5>
 
                         <div class="row text-center">
@@ -213,20 +199,16 @@
                         </div>
                     </div>
 
-                    <div id="overnightInstructions" class="instructions-box p-4 rounded-3" style="background-color: white;">
+                    <div id="overnightInstructions" class="instructions-box p-4 rounded-3"
+                        style="background-color: white;">
                         <h5 class="text-center mb-3 text-success">How to Book an Overnight Stay</h5>
 
                         <ol class="mb-0">
-<<<<<<< HEAD
-                            <li class="mb-2">Select your Check-in Date</li>
-
-=======
                             <li>Select your Check-In Date</li>
-                           <ul class="mt-1 mb-2">
-                            <li><span>Check-in Time: 2PM</span></li>
-                           </ul>
-                            
->>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
+                            <ul class="mt-1 mb-2">
+                                <li><span>Check-in Time: 2PM</span></li>
+                            </ul>
+
                             <li>Then select your Check-out Date
                                 <ul class="mt-1">
                                     <li><span>Check-out Time: 12PM</span></li>
@@ -234,9 +216,10 @@
                             </li>
                         </ol>
                     </div>
-                        
-                    
-                    <div id="daytourInstructions" class="instructions-box p-4 rounded-3" style="display: none; background-color: white;">
+
+
+                    <div id="daytourInstructions" class="instructions-box p-4 rounded-3"
+                        style="display: none; background-color: white;">
                         <h5 class="text-center mb-3 text-success">How to Book a Day Tour</h5>
 
                         <ol class="mb-0">
@@ -245,22 +228,18 @@
                             <li class="mb-2">Note:
                                 <ul class="mt-1">
                                     <li>Past dates cannot be selected</li>
-                                    
+
                                 </ul>
                             </li>
-<<<<<<< HEAD
 
-                            <li>Once selected, we'll check availability and show package options</li>
-=======
-                            
                             <li>Once selected, we'll check availability and show room options</li>
->>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
                         </ol>
                     </div>
                 </div>
             </div>
             <div class="col-md-8 mb-4 mb-md-0">
-                <div id="calendar" class="p-3 mt-4 mt-md-0" style="border: 2px solid #198754; border-radius: 10px; background-color: white;"></div>
+                <div id="calendar" class="p-3 mt-4 mt-md-0"
+                    style="border: 2px solid #198754; border-radius: 10px; background-color: white;"></div>
             </div>
         </div>
     </div>
@@ -275,6 +254,16 @@
             let checkInDate = null;
             let checkOutDate = null;
             let fullyBookedDates = new Set();
+
+            function formatDateLong(dateString) {
+                const date = new Date(dateString);
+                const options = {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                };
+                return date.toLocaleDateString('en-US', options);
+            }
 
             // Toggle reservation type
             [stayinBtn, daytourBtn].forEach(btn => {
@@ -458,16 +447,18 @@
                 highlightSelectedDates();
             }
 
-<<<<<<< HEAD
             function handleDayTour(date) {
                 checkInDate = date;
                 checkOutDate = date;
+                const urlParams = new URLSearchParams(window.location.search);
+                const selectedRoomId = urlParams.get('roomid');
+                const selectedRoomName = urlParams.get('room');
                 Swal.fire({
                     title: 'Check in Date Selected',
                     text: `Date: ${new Date(date).toLocaleDateString()}`,
                     icon: 'success'
                 }).then(() => {
-                    window.location.href = `{{ route('selectPackage') }}?checkIn=${date}&checkOut=${date}&type=daytour`;
+                    window.location.href = `{{ route('selectPackage') }}?checkIn=${date}&checkOut=${date}&type=daytour&roomid=${selectedRoomId}`;
                 });
             }
 
@@ -475,76 +466,10 @@
                 if (!checkInDate) {
                     checkInDate = date;
                     // Update the selected dates display
+
                     document.getElementById('selectedCheckIn').textContent = new Date(date).toLocaleDateString();
                     document.getElementById('selectedCheckOut').textContent = '-';
 
-=======
-    function handleDayTour(date) {
-        checkInDate = date;
-        checkOutDate = date;
-        const urlParams = new URLSearchParams(window.location.search);
-        const selectedRoomId = urlParams.get('roomid');
-        const selectedRoomName = urlParams.get('room');
-        Swal.fire({
-            title: 'Check in Date Selected',
-            text: `Date: ${new Date(date).toLocaleDateString()}`,
-            icon: 'success'
-        }).then(() => {
-            window.location.href = `{{ route('selectPackage') }}?checkIn=${date}&checkOut=${date}&type=daytour&roomid=${selectedRoomId}`;
-        });
-    }
-
-    function handleStayIn(date) {
-        if(!checkInDate) {
-            checkInDate = date;
-            // Update the selected dates display
-            
-            document.getElementById('selectedCheckIn').textContent = new Date(date).toLocaleDateString();
-            document.getElementById('selectedCheckOut').textContent = '-';
-            
-            Swal.fire({
-                title: 'Check-in Date Selected',
-                text: 'Please select a Check-out Date',
-                html: `Check-in Date: ${new Date(date).toLocaleDateString()}<br><br>
-                       <strong>Please select a Check-out Date on the calendar</strong>`,
-                icon: 'info',
-                confirmButtonText: 'OK',
-                confirmButtonColor: '#2ecc71'
-            });
-        } else if(!checkOutDate && date > checkInDate) {
-            checkOutDate = date;
-            // Update the selected dates display
-            const urlParams = new URLSearchParams(window.location.search);
-            const selectedRoomId = urlParams.get('roomid');
-            const selectedRoomName = urlParams.get('room');
-            document.getElementById('selectedCheckOut').textContent = new Date(date).toLocaleDateString();
-            
-            // Check availability for each accommodation type
-            fetch(`/check-accommodation-availability?checkIn=${checkInDate}&checkOut=${checkOutDate}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data && data.available_accommodations && data.available_accommodations.length > 0) {
-                        Swal.fire({
-                            title: 'Selected Dates',
-                            html: `<strong>Check-in:</strong> ${new Date(checkInDate).toLocaleDateString()}<br>
-                                  <strong>Check-out:</strong> ${new Date(checkOutDate).toLocaleDateString()}`,
-                            icon: 'success',
-                            confirmButtonColor: '#2ecc71'
-                        }).then(() => {
-                            window.location.href = `{{ route('selectPackageCustom') }}?checkIn=${checkInDate}&checkOut=${checkOutDate}&roomid=${selectedRoomId}`;
-                        });
-                    } else {
-                        throw new Error('No accommodations available');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
->>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206
                     Swal.fire({
                         title: 'Check-in Date Selected',
                         text: 'Please select a Check-out Date',
@@ -557,6 +482,9 @@
                 } else if (!checkOutDate && date > checkInDate) {
                     checkOutDate = date;
                     // Update the selected dates display
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const selectedRoomId = urlParams.get('roomid');
+                    const selectedRoomName = urlParams.get('room');
                     document.getElementById('selectedCheckOut').textContent = new Date(date).toLocaleDateString();
 
                     // Check availability for each accommodation type
@@ -576,7 +504,7 @@
                                     icon: 'success',
                                     confirmButtonColor: '#2ecc71'
                                 }).then(() => {
-                                    window.location.href = `{{ route('selectPackageCustom') }}?checkIn=${checkInDate}&checkOut=${checkOutDate}`;
+                                    window.location.href = `{{ route('selectPackageCustom') }}?checkIn=${checkInDate}&checkOut=${checkOutDate}&roomid=${selectedRoomId}`;
                                 });
                             } else {
                                 throw new Error('No accommodations available');
@@ -667,11 +595,3 @@
             });
         });
     </script>
-
-</body>
-<<<<<<< HEAD
-
-</html>
-=======
-</html>
->>>>>>> e7feac40c7fb2d9dcc6a9eec3e7fbbf774d09206

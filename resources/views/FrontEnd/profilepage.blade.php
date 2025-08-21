@@ -177,32 +177,35 @@
         }
 
         #profileSidebar.collapsed {
-    width: 0;
-    overflow: hidden;
-    transition: width 0.3s ease;
-}
-@media (min-width: 768px) and (max-width: 991.98px) {
-    #reservation-list-section .row.align-items-center > div.col-md-2 {
-        flex: 0 0 100% !important;
-        max-width: 50% !important;
-        margin-bottom: 0.5rem;
-    }
-    #reservation-list-section .row.align-items-center > div.col-md-2.d-grid.text-end {
-        text-align: left !important;
-    }
-}
+            width: 0;
+            overflow: hidden;
+            transition: width 0.3s ease;
+        }
 
-#desktopSidebarToggle.collapsed {
-    position: fixed;
-    top: 1.5rem;
-    left: 0rem;
-    z-index: 1050;
-    background-color: transparent !important;
-    color: white !important;
-    border: none !important;
-    padding: 10px 15px !important;
-    border-radius: 4px;
-}
+        @media (min-width: 768px) and (max-width: 991.98px) {
+            #reservation-list-section .row.align-items-center>div.col-md-2 {
+                flex: 0 0 100% !important;
+                max-width: 50% !important;
+                margin-bottom: 0.5rem;
+            }
+
+            #reservation-list-section .row.align-items-center>div.col-md-2.d-grid.text-end {
+                text-align: left !important;
+            }
+        }
+
+        #desktopSidebarToggle.collapsed {
+            position: fixed;
+            top: 1.5rem;
+            left: 0rem;
+            z-index: 1050;
+            background-color: transparent !important;
+            color: white !important;
+            border: none !important;
+            padding: 10px 15px !important;
+            border-radius: 4px;
+        }
+        
     </style>
 </head>
 
@@ -338,9 +341,18 @@
                     <!-- Back Arrow -->
                     <!-- Modify the toggle button container to use flex with justify-content-between -->
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <a href="{{ route('homepage') }}" class="text-decoration-none">
-                            <i class="text-white fa-2x fa-house fa-solid"></i>
-                        </a>
+                        @if(!empty($user->mobileNo) && strlen($user->mobileNo) >= 11)
+                            <!-- Allow navigation if mobile number exists and is valid -->
+                            <a href="{{ route('homepage') }}" class="text-decoration-none">
+                                <i class="text-white fa-2x fa-house fa-solid"></i>
+                            </a>
+                        @else
+                            <!-- Disable navigation if no mobile number -->
+                            <span class="text-muted" style="cursor: not-allowed;" onclick="showMobileRequiredAlert()"
+                                title="Please add your mobile number first">
+                                <i class="fa-2x fa-house fa-solid" style="opacity: 0.5;"></i>
+                            </span>
+                        @endif
 
                         <button id="desktopSidebarToggle" class="btn btn-xl btn-light d-none d-md-block"
                             style="background-color: #0b573d; color: white; border: none; padding: 15px 20px;">
@@ -455,84 +467,106 @@
                                 <h5 class="mb-4 text-color-2 border-bottom pb-2"
                                     style="color: #0b573d; letter-spacing: 0.2em;">RESERVATION</h5>
                                 @if ($latestReservation && $latestReservation->reservation_status !== 'cancelled')
-                                                    <div class="card shadow-sm border-0 w-100"
-                                                        style="background-color: rgba(255, 255, 255, 0.9);">
-                                                        <div class="card-body p-3 p-md-4">
-                                                            <div class="row align-items-center">
-                                                                <div class="col-12 col-md-3 fw-semibold text-success">Room Type</div>
-                                                                <div class="col-12 col-md-5 text-success">
-                                                                    @foreach($accommodations as $accommodation){{ $accommodation }}@endforeach
-                                                                </div>
-                                                                <div class="col-12 col-md-2 mb-2 mb-md-0">
-                                                                    <span class="badge text-capitalize px-3 py-2 @if($latestReservation->reservation_status == 'checked in') bg-success 
-                                                                    @elseif($latestReservation->reservation_status == 'pending') bg-warning 
-                                                                    @elseif($latestReservation->reservation_status == 'reserved') bg-primary
-                                                                    @else bg-danger @endif">
-                                                                        {{ $latestReservation->reservation_status }}
-                                                                    </span>
-                                                                </div>
-                                                                <div class="col-12 col-md-2 d-grid text-end">
-                                                                    <button type="button" class="btn btn-outline-success w-100 w-md-auto" data-bs-toggle="modal" data-bs-target="#viewReservationModal">
-                                                                        View
-                                                                    </button>
-                                                                </div>
-                                                            </div>
+                                    <div class="card shadow-sm border-0 w-100"
+                                        style="background-color: rgba(255, 255, 255, 0.9);">
+                                        <div class="card-body p-3 p-md-4">
+                                            <div class="row align-items-center">
+                                                <div class="col-12 col-md-3 fw-semibold text-success">Room Type</div>
+                                                <div class="col-12 col-md-5 text-success">
+                                                    @foreach($accommodations as $accommodation){{ $accommodation }}@endforeach
+                                                </div>
+                                                <div class="col-12 col-md-2 mb-2 mb-md-0">
+                                                    <span class="badge text-capitalize px-3 py-2 @if($latestReservation->reservation_status == 'checked in') bg-success 
+                                                    @elseif($latestReservation->reservation_status == 'pending') bg-warning 
+                                                        @elseif($latestReservation->reservation_status == 'reserved') bg-primary
+                                                            @else bg-danger @endif">
+                                                        {{ $latestReservation->reservation_status }}
+                                                    </span>
+                                                </div>
+                                                <div class="col-12 col-md-2 d-grid text-end">
+                                                    <button type="button" class="btn btn-outline-success w-100 w-md-auto"
+                                                        data-bs-toggle="modal" data-bs-target="#viewReservationModal">
+                                                        View
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="viewReservationModal" tabindex="-1"
+                                        aria-labelledby="viewReservationModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-header" style="background-color: #0b573d;">
+                                                    <h5 class="modal-title text-white" id="viewReservationModalLabel">
+                                                        Reservation Details</h5>
+                                                    <button type="button" class="btn-close btn-close-white"
+                                                        data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body" style="color: #0b573d;">
+                                                    <div class="row g-4">
+                                                        <div class="col-12 col-md-6">
+                                                            <p><strong>Reservation Type:</strong>
+                                                                @php
+                                                                    $checkInDate = \Carbon\Carbon::parse($latestReservation->reservation_check_in_date);
+                                                                    $checkOutDate = \Carbon\Carbon::parse($latestReservation->reservation_check_out_date);
+                                                                    $daysDiff = $checkInDate->diffInDays($checkOutDate);
+                                                                   @endphp
+                                                                @if($daysDiff == 0)
+                                                                    Day Tour
+                                                                @else
+                                                                    Stay In ({{ $daysDiff }}
+                                                                    {{ Str::plural('night', $daysDiff) }})
+                                                                @endif
+                                                            </p>
+                                                            <p><strong>Time Check-In:</strong>
+                                                                {{ date('h:i A', strtotime($latestReservation->reservation_check_in)) }}
+                                                                -
+                                                                {{ date('h:i A', strtotime($latestReservation->reservation_check_out)) }}
+                                                            </p>
+                                                            <p><strong>Date Check In - Out:</strong>
+                                                                {{ \Carbon\Carbon::parse($latestReservation->reservation_check_in_date)->format('F j, Y') }}
+                                                                -
+                                                                {{ \Carbon\Carbon::parse($latestReservation->reservation_check_out_date)->format('F j, Y') }}
+                                                            </p>
+                                                        </div>
+                                                        <div class="col-12 col-md-6">
+                                                            <p><strong>Special Request:</strong>
+                                                                {{ $latestReservation->special_request ?? 'None' }}</p>
+                                                            <p><strong>Total Amount:</strong>
+                                                                ₱{{ number_format($latestReservation->amount, 2) }}</p>
                                                         </div>
                                                     </div>
 
-                                                    <!-- Modal -->
-                                                    <div class="modal fade" id="viewReservationModal" tabindex="-1"
-                                                        aria-labelledby="viewReservationModalLabel" aria-hidden="true">
-                                                        <div class="modal-dialog modal-lg modal-dialog-centered">
-                                                            <div class="modal-content">
-                                                                <div class="modal-header" style="background-color: #0b573d;">
-                                                                    <h5 class="modal-title text-white" id="viewReservationModalLabel">
-                                                                        Reservation Details</h5>
-                                                                    <button type="button" class="btn-close btn-close-white"
-                                                                        data-bs-dismiss="modal" aria-label="Close"></button>
-                                                                </div>
-                                                                <div class="modal-body" style="color: #0b573d;">
-                                                                    <div class="row g-4">
-                                                                        <div class="col-12 col-md-6">
-                                                                            <p><strong>Reservation Type:</strong>
-                                                                                @php
-                                                                                    $checkInDate = \Carbon\Carbon::parse($latestReservation->reservation_check_in_date);
-                                                                                    $checkOutDate = \Carbon\Carbon::parse($latestReservation->reservation_check_out_date);
-                                                                                    $daysDiff = $checkInDate->diffInDays($checkOutDate);
-                                                                                @endphp
-                                                                                @if($daysDiff == 0)
-                                                                                    Day Tour
-                                                                                @else
-                                                                                    Stay In ({{ $daysDiff }}
-                                                                                    {{ Str::plural('night', $daysDiff) }})
-                                                                                @endif
-                                                                            </p>
-                                                                            <p><strong>Time Check-In:</strong>
-                                                                                {{ date('h:i A', strtotime($latestReservation->reservation_check_in)) }}
-                                                                                -
-                                                                                {{ date('h:i A', strtotime($latestReservation->reservation_check_out)) }}
-                                                                            </p>
-                                                                            <p><strong>Date Check In - Out:</strong>
-                                                                                {{ \Carbon\Carbon::parse($latestReservation->reservation_check_in_date)->format('F j, Y') }}
-                                                                                -
-                                                                                {{ \Carbon\Carbon::parse($latestReservation->reservation_check_out_date)->format('F j, Y') }}
-                                                                            </p>
-                                                                        </div>
-                                                                        <div class="col-12 col-md-6">
-                                                                            <p><strong>Special Request:</strong>
-                                                                                {{ $latestReservation->special_request ?? 'None' }}</p>
-                                                                            <p><strong>Total Amount:</strong>
-                                                                                ₱{{ number_format($latestReservation->amount, 2) }}</p>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="modal-footer">
-                                                                    <button type="button" class="btn btn-secondary"
-                                                                        data-bs-dismiss="modal">Close</button>
-                                                                </div>
-                                                            </div>
+                                                    <!-- QR Code Section inside modal -->
+                                                    <div class="mt-4">
+                                                        <h6 class="text-success mb-2">Instructions:</h6>
+                                                        <div class="alert alert-info" style="font-size: 0.9rem;">
+                                                            <ol class="mb-0 ps-2 pe-2">
+                                                                <li class="mb-1">Download your QR code by clicking the
+                                                                    button below</li>
+                                                                <li class="">Present this QR code upon check-in at our
+                                                                    resort</li>
+                                                            </ol>
+                                                        </div>
+
+                                                        <div class="text-center">
+                                                            <canvas id="qr-code" class="mb-3"></canvas>
+                                                            <button id="download-qr" class="btn btn-success w-100"
+                                                                onclick="downloadQRCode()">
+                                                                <i class="fa-solid fa-download me-2"></i>DOWNLOAD QR
+                                                            </button>
                                                         </div>
                                                     </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary"
+                                                        data-bs-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 @else
                                     <div class="text-center p-4 p-md-5 w-100">
                                         <i class="fas fa-calendar-times fa-3x mb-3" style="color: #0b573d;"></i>
@@ -625,18 +659,77 @@
         </div>
     </div>
     <script>
-        const sidebar = document.getElementById('profileSidebar');
-const toggleBtn = document.getElementById('desktopSidebarToggle');
-
-toggleBtn.addEventListener('click', () => {
-    sidebar.classList.toggle('collapsed');
-    toggleBtn.classList.toggle('collapsed');
-});
-    </script>
-    <script>  // TIMER OF THE EARTG
+        document.addEventListener('DOMContentLoaded', function () {
+            const sidebar = document.getElementById('profileSidebar');
+            const mainContent = document.getElementById('mainContent');
+            const desktopToggleBtn = document.getElementById('desktopSidebarToggle');
+            const mobileToggleBtn = document.getElementById('sidebarToggle');
+            let isSidebarOpen = true;
+    
+            // Add smooth transition for sidebar collapse/expand
+            sidebar.style.transition = 'all 0.3s ease';
+            if (mainContent) {
+                mainContent.style.transition = 'all 0.3s ease';
+            }
+    
+            // Function to handle sidebar toggle for desktop
+            if (desktopToggleBtn) {
+                desktopToggleBtn.addEventListener('click', () => {
+                    sidebar.classList.toggle('collapsed');
+                    desktopToggleBtn.classList.toggle('collapsed');
+                    
+                    // Force the main content to adjust immediately
+                    if (sidebar.classList.contains('collapsed')) {
+                        mainContent.style.width = '100%';
+                        mainContent.style.maxWidth = '100%';
+                    } else {
+                        // Reset to Bootstrap's default classes
+                        mainContent.style.width = '';
+                        mainContent.style.maxWidth = '';
+                    }
+                });
+            }
+    
+            // Mobile sidebar toggle
+            function openSidebar() {
+                sidebar.classList.add('show');
+                document.body.classList.add('sidebar-open');
+                isSidebarOpen = true;
+            }
+    
+            function closeSidebar() {
+                sidebar.classList.remove('show');
+                document.body.classList.remove('sidebar-open');
+                isSidebarOpen = false;
+            }
+    
+            if (mobileToggleBtn) {
+                mobileToggleBtn.addEventListener('click', function () {
+                    if (isSidebarOpen) {
+                        closeSidebar();
+                    } else {
+                        openSidebar();
+                    }
+                });
+            }
+    
+            // Close sidebar when window is resized to desktop view
+            window.addEventListener('resize', function () {
+                if (window.innerWidth >= 768) {
+                    closeSidebar();
+                }
+            });
+    
+            // Initialize state
+            if (window.innerWidth < 768) {
+                closeSidebar(); // Ensure sidebar is closed initially on mobile
+            }
+        });
+    
+        // TIMER OF THE EARTH
         function updateDateTime() {
             const now = new Date();
-
+    
             // Format time as h:mm AM/PM
             let hours = now.getHours();
             const minutes = now.getMinutes().toString().padStart(2, '0');
@@ -644,99 +737,109 @@ toggleBtn.addEventListener('click', () => {
             hours = hours % 12;
             hours = hours ? hours : 12; // the hour '0' should be '12'
             const timeString = hours + ':' + minutes + ' ' + ampm;
-
+    
             // Format date as Weekday, Month Day
             const options = { weekday: 'long', month: 'long', day: 'numeric' };
             const dateString = now.toLocaleDateString(undefined, options);
-
+    
             document.getElementById('time').textContent = timeString;
             document.getElementById('date').textContent = dateString;
         }
-
+    
         updateDateTime();
         setInterval(updateDateTime, 60000); // Update every minute
-    </script>
-    <script>
+    
+        // Cancel modal function
         function openCancelModal(reservationId) {
             // Check if reservationId is valid
             if (!reservationId) {
                 console.error("No valid reservation ID provided.");
                 return;
             }
-
+    
             // Optionally set the reservation ID in a hidden field if you want to use it later
             // document.getElementById('reservationIdInput').value = reservationId;
-
+    
             // Show the modal using Bootstrap 5
             var modal = new bootstrap.Modal(document.getElementById('cancelReservationModal'));
             modal.show();
         }
+    
+        // Existing tab toggle function
+        function toggleTab(event, showSectionId, activeTabId, inactiveTabId) {
+            // ... existing code ...
+        }
     </script>
-
-    <script>
-        // Add smooth transition for sidebar collapse/expand
-        const sidebar = document.getElementById('profileSidebar');
-        const mainContent = document.querySelector('.col-12.col-md-8.col-lg-9');
-
-        sidebar.style.transition = 'all 0.3s ease';
-        mainContent.style.transition = 'all 0.3s ease';
-    </script>
-
-    <script>
-        <script>
-            document.getElementById('sidebarToggle').addEventListener('click', function() {
-                document.body.classList.toggle('sidebar-open');
-            document.getElementById('profileSidebar').classList.toggle('show');
-    });
-    </script>
-    </script>
-</body>
-
 <script>
-            document.addEventListener('DOMContentLoaded', function () {
-        var sidebar = document.getElementById('profileSidebar');
-            var mainContent = document.getElementById('mainContent');
-            var toggleBtn = document.getElementById('sidebarToggle');
-            var isSidebarOpen = false;
+            function showMobileRequiredAlert() {
+                alert('Please add your mobile number first before navigating back to homepage.');
+            // Optionally, automatically open the edit modal
+            var editModal = new bootstrap.Modal(document.getElementById('editModal'));
+            editModal.show();
+    // Focus on mobile number input
+    setTimeout(() => {
+                document.getElementById('mobileNo').focus();
+    }, 500);
+}
 
-            function openSidebar() {
-                sidebar.classList.add('show');
-            document.body.classList.add('sidebar-open');
-            isSidebarOpen = true;
-        }
+            function preventNavigation() {
+                showMobileRequiredAlert();
+            return false; // Prevent the link from navigating
+}
 
-            function closeSidebar() {
-                sidebar.classList.remove('show');
-            document.body.classList.remove('sidebar-open');
-            isSidebarOpen = false;
-        }
+            // Also disable browser back button if mobile number is empty
+            @if(empty($user->mobileNo) || strlen($user->mobileNo) < 11)
+                window.addEventListener('beforeunload', function(e) {
+                    // This won't prevent back button but will show a warning
+                    e.returnValue = 'Please complete your profile by adding your mobile number.';
+                                    });
 
-            toggleBtn.addEventListener('click', function () {
-            if (isSidebarOpen) {
-                closeSidebar();
-            } else {
-                openSidebar();
-            }
-        });
+                // Prevent back button navigation
+                history.pushState(null, null, location.href);
+                window.addEventListener('popstate', function(event) {
+                    alert('Please add your mobile number first before leaving this page.');
+                history.pushState(null, null, location.href);
+                                    });
+            @endif
+</script>
+<script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+<script>
+            // Generate QR code when modal is shown
+            document.getElementById('viewReservationModal').addEventListener('shown.bs.modal', function() {
+                let reservationId = '{{ $latestReservation->reservation_id ?? '' }}';
+            if (reservationId) {
+                let qr = new QRious({
+                element: document.getElementById('qr-code'),
+            value: reservationId,
+            size: 200
+            });
 
-            // Close sidebar when window is resized to desktop view
-            window.addEventListener('resize', function () {
-            if (window.innerWidth >= 768) {
-                closeSidebar();
-            }
-        });
+            // Center the QR code
+            let qrCodeContainer = document.getElementById('qr-code').parentElement;
+            qrCodeContainer.style.display = 'flex';
+            qrCodeContainer.style.flexDirection = 'column';
+            qrCodeContainer.style.justifyContent = 'center';
+            qrCodeContainer.style.alignItems = 'center';
 
-            // Initialize state
-            if (window.innerWidth < 768) {
-                closeSidebar(); // Ensure sidebar is closed initially on mobile
+            // Show download button
+            document.getElementById('download-qr').style.display = 'inline-block';
+        } else {
+                console.error('No reservation ID available');
         }
     });
 
-            // Existing tab toggle function
-            function toggleTab(event, showSectionId, activeTabId, inactiveTabId) {
-                // ... existing code ...
-            }
-</script>
+            function downloadQRCode() {
+                let canvas = document.getElementById('qr-code');
+            if (!canvas) {
+                alert('QR code not generated yet!');
+            return;
+        }
 
+            let link = document.createElement('a');
+            link.href = canvas.toDataURL("image/png");
+            link.download = "reservation_qr.png";
+            link.click();
+    }
+</script>
 
 </html>

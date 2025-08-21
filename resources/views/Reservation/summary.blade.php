@@ -39,8 +39,8 @@
                 </div>
             </a>
             <h1 class="me-auto ms-3 font-paragraph fw-bold" style="color: #e9ffcc; font-size: 2.5rem;">RESERVATION SUMMARY</h1>
-            <a href="#">
-                <img src="{{ asset('images/appicon.png') }}" alt="Logo" style="width: 80px; height: 80px;" class="rounded-circle">
+            <a href="#" class="d-none d-md-block">
+                <img src="{{ asset('images/logo2.png') }}" alt="Logo" style="width: 90px; height: 90px;" class="rounded-circle">
             </a>
         </div>
     </div>
@@ -66,24 +66,28 @@
                     <div class="mb-3">
                         <!-- Each row for label-value pair -->
                         <div class="row mb-2">
-                            <div class="col-4 fw-bold text-success">Name:</div>
-                            <div class="col-8">{{ $reservationDetails->name }}</div>
+                            <div class="col-4 fw-bold text-success text-break">Reservation ID:</div>
+                            <div class="col-8 text-break">{{ $reservationDetails->reservation_id}}</div>
                         </div>
                         <div class="row mb-2">
-                            <div class="col-4 fw-bold text-success">Email:</div>
-                            <div class="col-8">{{ $reservationDetails->email }}</div>
+                            <div class="col-4 fw-bold text-success text-break">Name:</div>
+                            <div class="col-8 text-break">{{ $reservationDetails->name }}</div>
                         </div>
                         <div class="row mb-2">
-                            <div class="col-4 fw-bold text-success">Mobile No:</div>
-                            <div class="col-8">{{ $reservationDetails->mobileNo }}</div>
+                            <div class="col-4 fw-bold text-success text-break">Email:</div>
+                            <div class="col-8 text-break">{{ $reservationDetails->email }}</div>
                         </div>
                         <div class="row mb-2">
-                            <div class="col-4 fw-bold text-success">Guests:</div>
-                            <div class="col-8">{{ $reservationDetails->total_guest ?? $reservationDetails->package_max_guests }}</div>
+                            <div class="col-4 fw-bold text-success text-break">Mobile No:</div>
+                            <div class="col-8 text-break">{{ $reservationDetails->mobileNo }}</div>
                         </div>
                         <div class="row mb-2">
-                            <div class="col-4 fw-bold text-success">Room:</div>
-                            <div class="col-8">
+                            <div class="col-4 fw-bold text-success text-break">Guests:</div>
+                            <div class="col-8 text-break">{{ $reservationDetails->total_guest ?? $reservationDetails->package_max_guests }}</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-4 fw-bold text-success text-break">Room:</div>
+                            <div class="col-8 text-break">
                                 @if(!empty($reservationDetails->package_room_type))
                                     {{ implode(', ', $roomNames) }}
                                 @else
@@ -92,45 +96,45 @@
                             </div>
                         </div>
                         <div class="row mb-2">
-                            <div class="col-4 fw-bold text-success">Activities:</div>
-                            <div class="col-8">{{ $reservationDetails->package_activities ?? implode(', ', $activities) }}</div>
+                            <div class="col-4 fw-bold text-success text-break">Activities:</div>
+                            <div class="col-8 text-break">{{ $reservationDetails->package_activities ?? implode(', ', $activities) }}</div>
                         </div>
                         <div class="row mb-2">
-                            <div class="col-4 fw-bold text-success">Date:</div>
-                            <div class="col-8">{{ \Carbon\Carbon::parse($reservationDetails->reservation_check_in_date)->format('l, F jS, Y') }}</div>
+                            <div class="col-4 fw-bold text-success text-break">Date:</div>
+                            <div class="col-8 text-break">{{ \Carbon\Carbon::parse($reservationDetails->reservation_check_in_date)->format('l, F jS, Y') }}</div>
                         </div>
                         <div class="row mb-2">
-                            <div class="col-4 fw-bold text-success">Check-in:</div>
-                            <div class="col-8">{{ date('h:i A', strtotime($reservationDetails->reservation_check_in)) }}</div>
+                            <div class="col-4 fw-bold text-success text-break">Check-in:</div>
+                            <div class="col-8 text-break">{{ date('h:i A', strtotime($reservationDetails->reservation_check_in)) }}</div>
                         </div>
                         <div class="row mb-2">
-                            <div class="col-4 fw-bold text-success">Check-out:</div>
-                            <div class="col-8">{{ date('h:i A', strtotime($reservationDetails->reservation_check_out)) }}</div>
+                            <div class="col-4 fw-bold text-success text-break">Check-out:</div>
+                            <div class="col-8 text-break">{{ date('h:i A', strtotime($reservationDetails->reservation_check_out)) }}</div>
                         </div>
                         <div class="row mb-2">
-                            <div class="col-4 fw-bold text-success">Special Request:</div>
-                            <div class="col-8">{{ $reservationDetails->special_request ?? 'None' }}</div>
+                            <div class="col-4 fw-bold text-success text-break">Special Request:</div>
+                            <div class="col-8 text-break">{{ $reservationDetails->special_request ?? 'None' }}</div>
                         </div>
                         <div class="row mb-2">
-                            <div class="col-4 fw-bold text-success">Payment Method:</div>
-                            <div class="col-8">{{ $reservationDetails->payment_method }}</div>
+                            <div class="col-4 fw-bold text-success text-break">Payment Method:</div>
+                            <div class="col-8 text-break">{{ $reservationDetails->payment_method }}</div>
                         </div>
                         <div class="row mb-2">
-                            <div class="col-4 fw-bold text-success">Amount:</div>
-                            <div class="col-8">₱{{ number_format($reservationDetails->amount, 2) }}</div>
+                            <div class="col-4 fw-bold text-success text-break">Amount:</div>
+                            <div class="col-8 text-break">₱{{ number_format($reservationDetails->amount, 2) }}</div>
                         </div>
                         <div class="row mb-2">
-                            <div class="col-4 fw-bold text-success">Balance:</div>
-                            <div class="col-8">₱{{ number_format($reservationDetails->balance, 2) }}</div>
+                            <div class="col-4 fw-bold text-success text-break">Balance:</div>
+                            <div class="col-8 text-break">₱{{ number_format($reservationDetails->balance, 2) }}</div>
                         </div>
                         <div class="row mb-2">
-                            <div class="col-4 fw-bold text-success">Reference No:</div>
-                            <div class="col-8">{{ $reservationDetails->reference_num }}</div>
+                            <div class="col-4 fw-bold text-success text-break">Reference No:</div>
+                            <div class="col-8 text-break">{{ $reservationDetails->reference_num }}</div>
                         </div>
                         @if (!empty($reservationDetails->upload_payment))
                         <div class="row mb-2">
-                            <div class="col-4 fw-bold text-success">Payment Proof:</div>
-                            <div class="col-8">
+                            <div class="col-4 fw-bold text-success text-break">Payment Proof:</div>
+                            <div class="col-8 text-break">
                                 <a href="{{ route('payment.proof', ['filename' => basename($reservationDetails->upload_payment)]) }}" 
                                    target="_blank" 
                                    class="text-decoration-none text-success">
@@ -295,12 +299,12 @@ $(document).ready(function() {
 <script>
     // Generate QR code on page load
     window.onload = function() {
-        let email = '{{ $reservationDetails->email ?? '' }}';
-        if (email) {
+        let reservationId = '{{ $reservationDetails->reservation_id ?? '' }}';
+        if (reservationId) {
             let qr = new QRious({
                 element: document.getElementById('qr-code'),
-                value: `Email: ${email}`,
-                size: 200  // Reduced size from 300 to 200
+                value: reservationId,
+                size: 200
             });
 
             // Center the QR code
@@ -316,17 +320,17 @@ $(document).ready(function() {
     };
 
     function generateQRCode() {
-        let email = '{{ $reservationDetails->email ?? '' }}';
+        let reservationId = '{{ $reservationDetails->reservation_id ?? '' }}';
 
-        if (!email) {
-            alert('No email available!');
+        if (!reservationId) {
+            alert('No reservation ID available!');
             return;
         }
 
         let qr = new QRious({
             element: document.getElementById('qr-code'),
-            value: `Email: ${email}`,
-            size: 300  // Reduced size from 300 to 200
+            value: reservationId,
+            size: 300
         });
 
         // Center the QR code
@@ -343,9 +347,9 @@ $(document).ready(function() {
     function downloadQRCode() {
         let canvas = document.getElementById('qr-code');
         let link = document.createElement('a');
-        link.href = canvas.toDataURL("image/png"); // Convert QR code to image
-        link.download = "reservation_qr.png"; // File name
-        link.click(); // Trigger download
+        link.href = canvas.toDataURL("image/png");
+        link.download = "reservation_qr.png";
+        link.click();
     }
 </script>
 
